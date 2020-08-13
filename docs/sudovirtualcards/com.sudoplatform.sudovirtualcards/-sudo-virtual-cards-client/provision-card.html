@@ -1,0 +1,23 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>SudoVirtualCardsClient.provisionCard - sudovirtualcards</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="../index.html">com.sudoplatform.sudovirtualcards</a>&nbsp;/&nbsp;<a href="index.html">SudoVirtualCardsClient</a>&nbsp;/&nbsp;<a href="./provision-card.html">provisionCard</a><br/>
+<br/>
+<h1>provisionCard</h1>
+<a name="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$provisionCard(com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput)"></a>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">provisionCard</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$provisionCard(com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput)/input">input</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types.inputs/-provision-card-input/index.html"><span class="identifier">ProvisionCardInput</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/index.html"><span class="identifier">ProvisionalCard</span></a></code>
+<p>Provision a virtual payment card. Initially a <a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/index.html">ProvisionalCard</a> is returned with the details of
+the card being created. You should query the state of this card periodically by calling
+<a href="get-provisional-card.html">getProvisionalCard</a> to monitor the card's progress from a state of <a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/-state/-p-r-o-v-i-s-i-o-n-i-n-g.html">ProvisionalCard.State.PROVISIONING</a>
+to <a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/-state/-c-o-m-p-l-e-t-e-d.html">ProvisionalCard.State.COMPLETED</a> or <a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/-state/-f-a-i-l-e-d.html">ProvisionalCard.State.FAILED</a>.</p>
+<h3>Parameters</h3>
+<p><a name="input"></a>
+<code>input</code> - Information needed to create a new card.</p>
+<p><strong>Return</strong><br/>
+A <a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/index.html">ProvisionalCard</a> in the <a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/-state/-p-r-o-v-i-s-i-o-n-i-n-g.html">ProvisionalCard.State.PROVISIONING</a> state.</p>
+</BODY>
+</HTML>

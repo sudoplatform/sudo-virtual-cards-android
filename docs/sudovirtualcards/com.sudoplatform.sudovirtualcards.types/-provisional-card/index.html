@@ -1,0 +1,119 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>ProvisionalCard - sudovirtualcards</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="../index.html">com.sudoplatform.sudovirtualcards.types</a>&nbsp;/&nbsp;<a href="./index.html">ProvisionalCard</a><br/>
+<br/>
+<h1>ProvisionalCard</h1>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">ProvisionalCard</span></code>
+<p>A card that is in the process of being provisioned.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-state/index.html">State</a></p>
+</td>
+<td>
+<code><span class="keyword">enum</span> <span class="keyword">class </span><span class="identifier">State</span></code>
+<p>State of the provisional card.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">ProvisionalCard</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.ProvisionalCard$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, com.sudoplatform.sudovirtualcards.types.ProvisionalCard.State, com.sudoplatform.sudovirtualcards.types.Card, java.util.Date, java.util.Date)/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.ProvisionalCard$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, com.sudoplatform.sudovirtualcards.types.ProvisionalCard.State, com.sudoplatform.sudovirtualcards.types.Card, java.util.Date, java.util.Date)/clientRefId">clientRefId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.ProvisionalCard$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, com.sudoplatform.sudovirtualcards.types.ProvisionalCard.State, com.sudoplatform.sudovirtualcards.types.Card, java.util.Date, java.util.Date)/owner">owner</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.ProvisionalCard$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, com.sudoplatform.sudovirtualcards.types.ProvisionalCard.State, com.sudoplatform.sudovirtualcards.types.Card, java.util.Date, java.util.Date)/version">version</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.ProvisionalCard$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, com.sudoplatform.sudovirtualcards.types.ProvisionalCard.State, com.sudoplatform.sudovirtualcards.types.Card, java.util.Date, java.util.Date)/state">state</span><span class="symbol">:</span>&nbsp;<a href="-state/index.html"><span class="identifier">ProvisionalCard.State</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.ProvisionalCard$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, com.sudoplatform.sudovirtualcards.types.ProvisionalCard.State, com.sudoplatform.sudovirtualcards.types.Card, java.util.Date, java.util.Date)/card">card</span><span class="symbol">:</span>&nbsp;<a href="../-card/index.html"><span class="identifier">Card</span></a><span class="symbol">?</span><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.ProvisionalCard$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, com.sudoplatform.sudovirtualcards.types.ProvisionalCard.State, com.sudoplatform.sudovirtualcards.types.Card, java.util.Date, java.util.Date)/createdAt">createdAt</span><span class="symbol">:</span>&nbsp;<a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html"><span class="identifier">Date</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.ProvisionalCard$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.Int, com.sudoplatform.sudovirtualcards.types.ProvisionalCard.State, com.sudoplatform.sudovirtualcards.types.Card, java.util.Date, java.util.Date)/updatedAt">updatedAt</span><span class="symbol">:</span>&nbsp;<a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html"><span class="identifier">Date</span></a><span class="symbol">)</span></code>
+<p>A card that is in the process of being provisioned.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="card.html">card</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">card</span><span class="symbol">: </span><a href="../-card/index.html"><span class="identifier">Card</span></a><span class="symbol">?</span></code>
+<p>Fully provisioned card, will be null until provisioning completes.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="client-ref-id.html">clientRefId</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">clientRefId</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>A reference identifier generated by the caller</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="created-at.html">createdAt</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">createdAt</span><span class="symbol">: </span><a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html"><span class="identifier">Date</span></a></code>
+<p><a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html">Date</a> when the provisional card was created</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="id.html">id</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">id</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>Identifier generated by the Virtual Cards Service.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="owner.html">owner</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">owner</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>Identifier of the user that owns the card.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="state.html">state</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">state</span><span class="symbol">: </span><a href="-state/index.html"><span class="identifier">ProvisionalCard.State</span></a></code>
+<p>Current state of the provisional card.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="updated-at.html">updatedAt</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">updatedAt</span><span class="symbol">: </span><a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html"><span class="identifier">Date</span></a></code>
+<p><a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html">Date</a> when the provisional card was last updated</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="version.html">version</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">version</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a></code>
+<p>Card version supplied by the Virtual cards service.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

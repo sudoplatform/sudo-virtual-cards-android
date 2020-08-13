@@ -1,0 +1,77 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>StripeCommonData - sudovirtualcards</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="../index.html">com.sudoplatform.sudovirtualcards.types</a>&nbsp;/&nbsp;<a href="./index.html">StripeCommonData</a><br/>
+<br/>
+<h1>StripeCommonData</h1>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">StripeCommonData</span></code>
+<p>Representation of <a href="./index.html">StripeCommonData</a> which provides common data
+for all Stripe based data.</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">StripeCommonData</span><span class="symbol">(</span><span class="symbol">)</span></code>
+<p>Representation of <a href="./index.html">StripeCommonData</a> which provides common data
+for all Stripe based data.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="provider.html">provider</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">provider</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>Funding source provider.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="version.html">version</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">version</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a></code>
+<p>Associated supported version.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../-stripe-completion-data/index.html">StripeCompletionData</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">StripeCompletionData</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">StripeCommonData</span></a></code>
+<p>Representation of <a href="../-stripe-completion-data/index.html">StripeCompletionData</a> received from Stripe
+used to complete the funding source creation.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="../-stripe-data/index.html">StripeData</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">StripeData</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">StripeCommonData</span></a></code>
+<p>Representation of <a href="../-stripe-data/index.html">StripeData</a> used for the <a href="../-stripe-setup/index.html">StripeSetup</a> intent.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

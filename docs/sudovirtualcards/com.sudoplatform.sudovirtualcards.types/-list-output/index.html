@@ -1,0 +1,55 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>ListOutput - sudovirtualcards</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="../index.html">com.sudoplatform.sudovirtualcards.types</a>&nbsp;/&nbsp;<a href="./index.html">ListOutput</a><br/>
+<br/>
+<h1>ListOutput</h1>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">ListOutput</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code>
+<p>Representation of a generic type to wrap around a GraphQL list type. This is useful for
+exposing a list of <a href="items.html">items</a> and <a href="next-token.html">nextToken</a> to allow for pagination by calling for the next
+set of paginated results.</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">ListOutput</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.ListOutput$<init>(kotlin.collections.List((com.sudoplatform.sudovirtualcards.types.ListOutput.T)), kotlin.String)/items">items</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="index.html#T"><span class="identifier">T</span></a><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.ListOutput$<init>(kotlin.collections.List((com.sudoplatform.sudovirtualcards.types.ListOutput.T)), kotlin.String)/nextToken">nextToken</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span><span class="symbol">)</span></code>
+<p>Representation of a generic type to wrap around a GraphQL list type. This is useful for
+exposing a list of <a href="items.html">items</a> and <a href="next-token.html">nextToken</a> to allow for pagination by calling for the next
+set of paginated results.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="items.html">items</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">items</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="index.html#T"><span class="identifier">T</span></a><span class="symbol">&gt;</span></code>
+<p>Items returned from a list query output.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="next-token.html">nextToken</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">nextToken</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span></code>
+<p>Generated next token to call for the next page of paginated results.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

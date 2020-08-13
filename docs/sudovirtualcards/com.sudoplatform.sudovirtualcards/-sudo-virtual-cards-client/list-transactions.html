@@ -1,0 +1,35 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>SudoVirtualCardsClient.listTransactions - sudovirtualcards</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="../index.html">com.sudoplatform.sudovirtualcards</a>&nbsp;/&nbsp;<a href="index.html">SudoVirtualCardsClient</a>&nbsp;/&nbsp;<a href="./list-transactions.html">listTransactions</a><br/>
+<br/>
+<h1>listTransactions</h1>
+<a name="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listTransactions(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy, kotlin.Function0((com.sudoplatform.sudovirtualcards.types.inputs.filters.TransactionFilter)))"></a>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">listTransactions</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listTransactions(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy, kotlin.Function0((com.sudoplatform.sudovirtualcards.types.inputs.filters.TransactionFilter)))/limit">limit</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;DEFAULT_TRANSACTION_LIMIT<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listTransactions(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy, kotlin.Function0((com.sudoplatform.sudovirtualcards.types.inputs.filters.TransactionFilter)))/nextToken">nextToken</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listTransactions(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy, kotlin.Function0((com.sudoplatform.sudovirtualcards.types.inputs.filters.TransactionFilter)))/cachePolicy">cachePolicy</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html"><span class="identifier">CachePolicy</span></a>&nbsp;<span class="symbol">=</span>&nbsp;CachePolicy.REMOTE_ONLY<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listTransactions(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy, kotlin.Function0((com.sudoplatform.sudovirtualcards.types.inputs.filters.TransactionFilter)))/filter">filter</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types.inputs.filters/-transaction-filter/index.html"><span class="identifier">TransactionFilter</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;{ null }<span class="symbol">)</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html"><span class="identifier">ListOutput</span></a><span class="symbol">&lt;</span><a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html"><span class="identifier">Transaction</span></a><span class="symbol">&gt;</span></code>
+<p>Get a <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a> of virtual payment <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s. If no <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s can be found, the <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a>
+will contain null for the <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/next-token.html">ListOutput.nextToken</a> field and contain an empty list.</p>
+<p>The results of this operation are filtered locally as well as on the server. To ensure you obtain all the
+transactions that match, you should continue to call this method whenever the <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/next-token.html">ListOutput.nextToken</a>
+field is not null, even if the <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/items.html">ListOutput.items</a> is empty.</p>
+<h3>Parameters</h3>
+<p><a name="limit"></a>
+<code>limit</code> - Number of <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s to return. If omitted the limit defaults to 100.</p>
+<p><a name="nextToken"></a>
+<code>nextToken</code> - A token generated from previous calls to <a href="./list-transactions.html">listTransactions</a>.
+This is to allow for pagination. This value should be generated from a
+previous pagination call, otherwise it will throw an exception. You should call
+this method with the same argument if you using a previously generated <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/next-token.html">ListOutput.nextToken</a>.</p>
+<p><a name="cachePolicy"></a>
+<code>cachePolicy</code> - Determines how the data will be fetched. When using <a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/-c-a-c-h-e_-o-n-l-y.html">CachePolicy.CACHE_ONLY</a>,
+be aware that this will only return cached results of similar exact API calls.</p>
+<p><a name="filter"></a>
+<code>filter</code> - Filter the transactions so that only those that match all of the values of the
+fields in the filter are returned.</p>
+<p><strong>Return</strong><br/>
+A <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a> of <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s filtered by the <a href="list-transactions.html#com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listTransactions(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy, kotlin.Function0((com.sudoplatform.sudovirtualcards.types.inputs.filters.TransactionFilter)))/filter">filter</a>.</p>
+</BODY>
+</HTML>

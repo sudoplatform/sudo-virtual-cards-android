@@ -1,0 +1,67 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>com.sudoplatform.sudovirtualcards - sudovirtualcards</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="./index.html">com.sudoplatform.sudovirtualcards</a><br/>
+<br/>
+<h2>Package com.sudoplatform.sudovirtualcards</h2>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-build-config/index.html">BuildConfig</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">BuildConfig</span></code><br/>
+<code><span class="keyword">class </span><span class="identifier">BuildConfig</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-payment-process-interactions/index.html">PaymentProcessInteractions</a></p>
+</td>
+<td>
+<code><span class="keyword">interface </span><span class="identifier">PaymentProcessInteractions</span></code>
+<p>Interface encapsulating the functionality to perform processing of payment setup confirmation.
+This allows abstraction of the payment provider methods to aid in mocking for tests.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-stripe-payment-process-interactions/index.html">StripePaymentProcessInteractions</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">StripePaymentProcessInteractions</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-payment-process-interactions/index.html"><span class="identifier">PaymentProcessInteractions</span></a></code>
+<p>Stripe implementation of the <a href="-payment-process-interactions/index.html">PaymentProcessInteractions</a> interface.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-sudo-virtual-cards-client/index.html">SudoVirtualCardsClient</a></p>
+</td>
+<td>
+<code><span class="keyword">interface </span><span class="identifier">SudoVirtualCardsClient</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://docs.oracle.com/javase/6/docs/api/java/lang/AutoCloseable.html"><span class="identifier">AutoCloseable</span></a></code>
+<p>Interface encapsulating a library for interacting with the Sudo Platform Virtual Cards service.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="subscribe-to-transactions.html">subscribeToTransactions</a></p>
+</td>
+<td>
+<code><span class="keyword">suspend</span> <span class="keyword">fun </span><a href="-sudo-virtual-cards-client/index.html"><span class="identifier">SudoVirtualCardsClient</span></a><span class="symbol">.</span><span class="identifier">subscribeToTransactions</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards$subscribeToTransactions(com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient, kotlin.String, kotlin.Function1((com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber.ConnectionState, kotlin.Unit)), kotlin.Function1((com.sudoplatform.sudovirtualcards.types.Transaction, kotlin.Unit)))/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards$subscribeToTransactions(com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient, kotlin.String, kotlin.Function1((com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber.ConnectionState, kotlin.Unit)), kotlin.Function1((com.sudoplatform.sudovirtualcards.types.Transaction, kotlin.Unit)))/onConnectionChange">onConnectionChange</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">status</span><span class="symbol">:</span>&nbsp;<a href="../com.sudoplatform.sudovirtualcards.subscription/-transaction-subscriber/-connection-state/index.html"><span class="identifier">TransactionSubscriber.ConnectionState</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a>&nbsp;<span class="symbol">=</span>&nbsp;{}<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards$subscribeToTransactions(com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient, kotlin.String, kotlin.Function1((com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber.ConnectionState, kotlin.Unit)), kotlin.Function1((com.sudoplatform.sudovirtualcards.types.Transaction, kotlin.Unit)))/onTransactionChange">onTransactionChange</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">transaction</span><span class="symbol">:</span>&nbsp;<a href="../com.sudoplatform.sudovirtualcards.types/-transaction/index.html"><span class="identifier">Transaction</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Subscribes to be notified of new, updated and deleted <a href="../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

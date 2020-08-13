@@ -1,0 +1,194 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>com.sudoplatform.sudovirtualcards.types - sudovirtualcards</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="./index.html">com.sudoplatform.sudovirtualcards.types</a><br/>
+<br/>
+<h2>Package com.sudoplatform.sudovirtualcards.types</h2>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-billing-address/index.html">BillingAddress</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">BillingAddress</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Parcelable</span></code>
+<p>The legal residence of a cardholder for purposes of billing.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-cache-policy/index.html">CachePolicy</a></p>
+</td>
+<td>
+<code><span class="keyword">enum</span> <span class="keyword">class </span><span class="identifier">CachePolicy</span></code>
+<p>Enumeration outlining options for how data will be fetched.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-card/index.html">Card</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">Card</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Parcelable</span></code>
+<p>Representation of a Virtual Card used in the Sudo Platform SDK.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-currency-amount/index.html">CurrencyAmount</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">CurrencyAmount</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Parcelable</span></code>
+<p>A currency used in the virtual cards system.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-decline-reason/index.html">DeclineReason</a></p>
+</td>
+<td>
+<code><span class="keyword">enum</span> <span class="keyword">class </span><span class="identifier">DeclineReason</span></code>
+<p>The reason why a <a href="-transaction/index.html">Transaction</a> was declined.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-funding-source/index.html">FundingSource</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">FundingSource</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Parcelable</span></code>
+<p>Representation of a <a href="-funding-source/index.html">FundingSource</a> used in the Sudo Platform Virtual Cards SDK.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-funding-source-type/index.html">FundingSourceType</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">FundingSourceType</span></code>
+<p>Representation of a Stripe <a href="-funding-source-type/index.html">FundingSourceType</a> configuration.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-list-output/index.html">ListOutput</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">ListOutput</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code>
+<p>Representation of a generic type to wrap around a GraphQL list type. This is useful for
+exposing a list of <a href="-list-output/items.html">items</a> and <a href="-list-output/next-token.html">nextToken</a> to allow for pagination by calling for the next
+set of paginated results.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-markup/index.html">Markup</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">Markup</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Parcelable</span></code>
+<p>The rates of markup applied to a <a href="-transaction/index.html">Transaction</a> when calculating the fees.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-owner/index.html">Owner</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">Owner</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Parcelable</span></code>
+<p>This represents the relationship of a unique identifier <a href="-owner/id.html">id</a> with the <a href="-owner/issuer.html">issuer</a> to a <a href="-card/index.html">Card</a></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-provisional-card/index.html">ProvisionalCard</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">ProvisionalCard</span></code>
+<p>A card that is in the process of being provisioned.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-stripe-client-configuration/index.html">StripeClientConfiguration</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">StripeClientConfiguration</span></code>
+<p>Representation of a <a href="-stripe-client-configuration/index.html">StripeClientConfiguration</a> used to perform API calls to
+Stripe.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-stripe-common-data/index.html">StripeCommonData</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">StripeCommonData</span></code>
+<p>Representation of <a href="-stripe-common-data/index.html">StripeCommonData</a> which provides common data
+for all Stripe based data.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-stripe-completion-data/index.html">StripeCompletionData</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">StripeCompletionData</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-stripe-common-data/index.html"><span class="identifier">StripeCommonData</span></a></code>
+<p>Representation of <a href="-stripe-completion-data/index.html">StripeCompletionData</a> received from Stripe
+used to complete the funding source creation.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-stripe-data/index.html">StripeData</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">StripeData</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-stripe-common-data/index.html"><span class="identifier">StripeCommonData</span></a></code>
+<p>Representation of <a href="-stripe-data/index.html">StripeData</a> used for the <a href="-stripe-setup/index.html">StripeSetup</a> intent.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-stripe-defaults/index.html">StripeDefaults</a></p>
+</td>
+<td>
+<code><span class="keyword">object </span><span class="identifier">StripeDefaults</span></code>
+<p>Initializes <a href="-stripe-defaults/index.html">StripeDefaults</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-stripe-setup/index.html">StripeSetup</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">StripeSetup</span></code>
+<p>Representation of <a href="-stripe-setup/index.html">StripeSetup</a> data from the setup intent.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-transaction/index.html">Transaction</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">Transaction</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Parcelable</span></code>
+<p>Representation of a Virtual Card Transaction used in the Sudo Platform SDK.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-transaction-charge-detail/index.html">TransactionChargeDetail</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">TransactionChargeDetail</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Parcelable</span></code>
+<p>The details of how a <a href="-transaction/index.html">Transaction</a> is charged against a <a href="-card/index.html">Card</a> and <a href="-funding-source/index.html">FundingSource</a> as well
+as the amount of markup that was applied to the <a href="-transaction/index.html">Transaction</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

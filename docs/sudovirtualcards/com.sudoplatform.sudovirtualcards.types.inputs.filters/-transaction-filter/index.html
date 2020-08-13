@@ -1,0 +1,86 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>TransactionFilter - sudovirtualcards</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="../index.html">com.sudoplatform.sudovirtualcards.types.inputs.filters</a>&nbsp;/&nbsp;<a href="./index.html">TransactionFilter</a><br/>
+<br/>
+<h1>TransactionFilter</h1>
+<code><span class="keyword">class </span><span class="identifier">TransactionFilter</span></code>
+<p>A filter that can be applied when listing transactions so that only the subset
+of transactions that match the items in the filter are returned.</p>
+<p>Here is an example of how this is used.</p>
+<p><strong>Since</strong><br/>
+2020-07-17</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-builder/index.html">Builder</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">Builder</span></code>
+<p>A Builder that is used to create a <a href="./index.html">TransactionFilter</a></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-comparison-operator/index.html">ComparisonOperator</a></p>
+</td>
+<td>
+<code><span class="keyword">enum</span> <span class="keyword">class </span><span class="identifier">ComparisonOperator</span></code>
+<p>Properties used in filters can be compared to the values in a <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a> with these operators.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-property/index.html">Property</a></p>
+</td>
+<td>
+<code><span class="keyword">enum</span> <span class="keyword">class </span><span class="identifier">Property</span></code>
+<p>These are the properties of a <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a> that can be used in a <a href="./index.html">TransactionFilter</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-property-filter/index.html">PropertyFilter</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">PropertyFilter</span></code>
+<p>The filter <a href="-property-filter/property.html">property</a> and its <a href="-property-filter/value.html">value</a> that must match when compared according to the <a href="-property-filter/comparison.html">comparison</a>
+for a <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a> to be included in the list of results.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="property-filters.html">propertyFilters</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">propertyFilters</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html"><span class="identifier">Set</span></a><span class="symbol">&lt;</span><a href="-property-filter/index.html"><span class="identifier">TransactionFilter.PropertyFilter</span></a><span class="symbol">&gt;</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Companion Object Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="builder.html">builder</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">builder</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="-builder/index.html"><span class="identifier">TransactionFilter.Builder</span></a></code>
+<p>Return a <a href="-builder/index.html">TransactionFilter.Builder</a> that is used to create a <a href="./index.html">TransactionFilter</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

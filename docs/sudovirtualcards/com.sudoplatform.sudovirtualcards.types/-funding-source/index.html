@@ -1,0 +1,115 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>FundingSource - sudovirtualcards</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="../index.html">com.sudoplatform.sudovirtualcards.types</a>&nbsp;/&nbsp;<a href="./index.html">FundingSource</a><br/>
+<br/>
+<h1>FundingSource</h1>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">FundingSource</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Parcelable</span></code>
+<p>Representation of a <a href="./index.html">FundingSource</a> used in the Sudo Platform Virtual Cards SDK.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-credit-card-network/index.html">CreditCardNetwork</a></p>
+</td>
+<td>
+<code><span class="keyword">enum</span> <span class="keyword">class </span><span class="identifier">CreditCardNetwork</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-state/index.html">State</a></p>
+</td>
+<td>
+<code><span class="keyword">enum</span> <span class="keyword">class </span><span class="identifier">State</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">FundingSource</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.FundingSource$<init>(kotlin.String, kotlin.String, kotlin.Int, com.sudoplatform.sudovirtualcards.types.FundingSource.State, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.FundingSource.CreditCardNetwork)/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.FundingSource$<init>(kotlin.String, kotlin.String, kotlin.Int, com.sudoplatform.sudovirtualcards.types.FundingSource.State, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.FundingSource.CreditCardNetwork)/owner">owner</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.FundingSource$<init>(kotlin.String, kotlin.String, kotlin.Int, com.sudoplatform.sudovirtualcards.types.FundingSource.State, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.FundingSource.CreditCardNetwork)/version">version</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.FundingSource$<init>(kotlin.String, kotlin.String, kotlin.Int, com.sudoplatform.sudovirtualcards.types.FundingSource.State, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.FundingSource.CreditCardNetwork)/state">state</span><span class="symbol">:</span>&nbsp;<a href="-state/index.html"><span class="identifier">FundingSource.State</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.FundingSource$<init>(kotlin.String, kotlin.String, kotlin.Int, com.sudoplatform.sudovirtualcards.types.FundingSource.State, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.FundingSource.CreditCardNetwork)/currency">currency</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.FundingSource$<init>(kotlin.String, kotlin.String, kotlin.Int, com.sudoplatform.sudovirtualcards.types.FundingSource.State, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.FundingSource.CreditCardNetwork)/last4">last4</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.FundingSource$<init>(kotlin.String, kotlin.String, kotlin.Int, com.sudoplatform.sudovirtualcards.types.FundingSource.State, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.FundingSource.CreditCardNetwork)/network">network</span><span class="symbol">:</span>&nbsp;<a href="-credit-card-network/index.html"><span class="identifier">FundingSource.CreditCardNetwork</span></a><span class="symbol">)</span></code>
+<p>Representation of a <a href="./index.html">FundingSource</a> used in the Sudo Platform Virtual Cards SDK.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="currency.html">currency</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">currency</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>Billing currency of the funding source as a 3 character ISO 4217 currency code.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="id.html">id</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">id</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>Identifier generated from the Sudo Platform Virtual Cards service.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="last4.html">last4</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">last4</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>Last 4 digits of the credit card used as the funding source.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="network.html">network</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">network</span><span class="symbol">: </span><a href="-credit-card-network/index.html"><span class="identifier">FundingSource.CreditCardNetwork</span></a></code>
+<p>Payments network of the funding source.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="owner.html">owner</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">owner</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>Owner identifier of the funding source. This is typically the user id.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="state.html">state</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">state</span><span class="symbol">: </span><a href="-state/index.html"><span class="identifier">FundingSource.State</span></a></code>
+<p>Current state of the funding source.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="version.html">version</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">version</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a></code>
+<p>Version assigned by the service.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

@@ -1,0 +1,53 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>TransactionSubscriber - sudovirtualcards</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="../index.html">com.sudoplatform.sudovirtualcards.subscription</a>&nbsp;/&nbsp;<a href="./index.html">TransactionSubscriber</a><br/>
+<br/>
+<h1>TransactionSubscriber</h1>
+<code><span class="keyword">interface </span><span class="identifier">TransactionSubscriber</span></code>
+<p>Subscriber for receiving notifications about new, updated or deleted <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-connection-state/index.html">ConnectionState</a></p>
+</td>
+<td>
+<code><span class="keyword">enum</span> <span class="keyword">class </span><span class="identifier">ConnectionState</span></code>
+<p>Connection state of the subscription.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="connection-status-changed.html">connectionStatusChanged</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">connectionStatusChanged</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber$connectionStatusChanged(com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber.ConnectionState)/state">state</span><span class="symbol">:</span>&nbsp;<a href="-connection-state/index.html"><span class="identifier">TransactionSubscriber.ConnectionState</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Notifies the subscriber that the subscription connection state has changed. The subscriber won't be
+notified of <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a> changes until the connection status changes to <a href="-connection-state/-c-o-n-n-e-c-t-e-d.html">ConnectionState.CONNECTED</a>. The subscriber will
+stop receiving <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a> change notifications when the connection state changes to <a href="-connection-state/-d-i-s-c-o-n-n-e-c-t-e-d.html">ConnectionState.DISCONNECTED</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="transaction-changed.html">transactionChanged</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">transactionChanged</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber$transactionChanged(com.sudoplatform.sudovirtualcards.types.Transaction)/transaction">transaction</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html"><span class="identifier">Transaction</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Notifies the subscriber of a new, updated or deleted <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

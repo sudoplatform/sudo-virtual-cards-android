@@ -1,0 +1,115 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>SudoVirtualCardsClient.Builder - sudovirtualcards</title>
+<link rel="stylesheet" href="../../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="../../index.html">com.sudoplatform.sudovirtualcards</a>&nbsp;/&nbsp;<a href="../index.html">SudoVirtualCardsClient</a>&nbsp;/&nbsp;<a href="./index.html">Builder</a><br/>
+<br/>
+<h1>Builder</h1>
+<code><span class="keyword">class </span><span class="identifier">Builder</span></code>
+<p>Builder used to construct the <a href="../index.html">SudoVirtualCardsClient</a>.</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">Builder</span><span class="symbol">(</span><span class="symbol">)</span></code>
+<p>Builder used to construct the <a href="../index.html">SudoVirtualCardsClient</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="build.html">build</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">build</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../index.html"><span class="identifier">SudoVirtualCardsClient</span></a></code>
+<p>Construct the <a href="../index.html">SudoVirtualCardsClient</a>. Will throw a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-null-pointer-exception/index.html">NullPointerException</a> if
+the <a href="#">context</a>, <a href="#">sudoUserClient</a> and <a href="#">sudoProfilesClient</a> has not been provided.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-app-sync-client.html">setAppSyncClient</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setAppSyncClient</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient.Builder$setAppSyncClient(com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient)/appSyncClient">appSyncClient</span><span class="symbol">:</span>&nbsp;<span class="identifier">AWSAppSyncClient</span><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">SudoVirtualCardsClient.Builder</span></a></code>
+<p>Provide an <a href="#">AWSAppSyncClient</a> for the <a href="../index.html">SudoVirtualCardsClient</a> to use
+(optional input). If this is not supplied, an <a href="#">AWSAppSyncClient</a> will
+be constructed and used.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-context.html">setContext</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setContext</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient.Builder$setContext(android.content.Context)/context">context</span><span class="symbol">:</span>&nbsp;<span class="identifier">Context</span><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">SudoVirtualCardsClient.Builder</span></a></code>
+<p>Provide the application context (required input).</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-key-manager.html">setKeyManager</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setKeyManager</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient.Builder$setKeyManager(com.sudoplatform.sudokeymanager.KeyManagerInterface)/keyManager">keyManager</span><span class="symbol">:</span>&nbsp;<span class="identifier">KeyManagerInterface</span><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">SudoVirtualCardsClient.Builder</span></a></code>
+<p>Provide the implementation of the <a href="#">KeyManagerInterface</a> used for key management and
+cryptographic operations (optional input). If a value is not supplied a default
+implementation will be used.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-logger.html">setLogger</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setLogger</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient.Builder$setLogger(com.sudoplatform.sudologging.Logger)/logger">logger</span><span class="symbol">:</span>&nbsp;<span class="identifier">Logger</span><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">SudoVirtualCardsClient.Builder</span></a></code>
+<p>Provide the implementation of the <a href="#">Logger</a> used for logging errors (optional input).
+If a value is not supplied a default implementation will be used.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-payment-process-interactions.html">setPaymentProcessInteractions</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setPaymentProcessInteractions</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient.Builder$setPaymentProcessInteractions(com.sudoplatform.sudovirtualcards.PaymentProcessInteractions)/paymentProcessInteractions">paymentProcessInteractions</span><span class="symbol">:</span>&nbsp;<a href="../../-payment-process-interactions/index.html"><span class="identifier">PaymentProcessInteractions</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">SudoVirtualCardsClient.Builder</span></a></code>
+<p>Provide the implementation of the <a href="../../-payment-process-interactions/index.html">PaymentProcessInteractions</a> used to perform
+Payment setup confirmation. This is primarily only supplied in order to mock this
+functionality when testing (optional input).</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-sudo-profiles-client.html">setSudoProfilesClient</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setSudoProfilesClient</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient.Builder$setSudoProfilesClient(com.sudoplatform.sudoprofiles.SudoProfilesClient)/sudoProfilesClient">sudoProfilesClient</span><span class="symbol">:</span>&nbsp;<span class="identifier">SudoProfilesClient</span><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">SudoVirtualCardsClient.Builder</span></a></code>
+<p>Provide the implementation of the <a href="#">SudoProfilesClient</a> used to perform
+ownership proof lifecycle operations (required input).</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="set-sudo-user-client.html">setSudoUserClient</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">setSudoUserClient</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient.Builder$setSudoUserClient(com.sudoplatform.sudouser.SudoUserClient)/sudoUserClient">sudoUserClient</span><span class="symbol">:</span>&nbsp;<a href="https://sudoplatform.github.io/sudo-user-android/sudouser/com.sudoplatform.sudouser/-sudo-user-client/index.html"><span class="identifier">SudoUserClient</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">SudoVirtualCardsClient.Builder</span></a></code>
+<p>Provide the implementation of the <a href="https://sudoplatform.github.io/sudo-user-android/sudouser/com.sudoplatform.sudouser/-sudo-user-client/index.html">SudoUserClient</a> used to perform
+sign in and ownership operations (required input).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

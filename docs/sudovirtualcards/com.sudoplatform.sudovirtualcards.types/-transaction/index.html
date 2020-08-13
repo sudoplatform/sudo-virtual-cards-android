@@ -1,0 +1,173 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>Transaction - sudovirtualcards</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="../index.html">com.sudoplatform.sudovirtualcards.types</a>&nbsp;/&nbsp;<a href="./index.html">Transaction</a><br/>
+<br/>
+<h1>Transaction</h1>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">Transaction</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Parcelable</span></code>
+<p>Representation of a Virtual Card Transaction used in the Sudo Platform SDK.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-type/index.html">Type</a></p>
+</td>
+<td>
+<code><span class="keyword">enum</span> <span class="keyword">class </span><span class="identifier">Type</span></code>
+<p>Transaction type</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">Transaction</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.Transaction$<init>(kotlin.String, kotlin.String, kotlin.Int, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.Transaction.Type, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, kotlin.String, com.sudoplatform.sudovirtualcards.types.DeclineReason, kotlin.collections.List((com.sudoplatform.sudovirtualcards.types.TransactionChargeDetail)), java.util.Date, java.util.Date, java.util.Date)/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.Transaction$<init>(kotlin.String, kotlin.String, kotlin.Int, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.Transaction.Type, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, kotlin.String, com.sudoplatform.sudovirtualcards.types.DeclineReason, kotlin.collections.List((com.sudoplatform.sudovirtualcards.types.TransactionChargeDetail)), java.util.Date, java.util.Date, java.util.Date)/owner">owner</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.Transaction$<init>(kotlin.String, kotlin.String, kotlin.Int, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.Transaction.Type, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, kotlin.String, com.sudoplatform.sudovirtualcards.types.DeclineReason, kotlin.collections.List((com.sudoplatform.sudovirtualcards.types.TransactionChargeDetail)), java.util.Date, java.util.Date, java.util.Date)/version">version</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.Transaction$<init>(kotlin.String, kotlin.String, kotlin.Int, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.Transaction.Type, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, kotlin.String, com.sudoplatform.sudovirtualcards.types.DeclineReason, kotlin.collections.List((com.sudoplatform.sudovirtualcards.types.TransactionChargeDetail)), java.util.Date, java.util.Date, java.util.Date)/cardId">cardId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.Transaction$<init>(kotlin.String, kotlin.String, kotlin.Int, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.Transaction.Type, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, kotlin.String, com.sudoplatform.sudovirtualcards.types.DeclineReason, kotlin.collections.List((com.sudoplatform.sudovirtualcards.types.TransactionChargeDetail)), java.util.Date, java.util.Date, java.util.Date)/sequenceId">sequenceId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.Transaction$<init>(kotlin.String, kotlin.String, kotlin.Int, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.Transaction.Type, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, kotlin.String, com.sudoplatform.sudovirtualcards.types.DeclineReason, kotlin.collections.List((com.sudoplatform.sudovirtualcards.types.TransactionChargeDetail)), java.util.Date, java.util.Date, java.util.Date)/type">type</span><span class="symbol">:</span>&nbsp;<a href="-type/index.html"><span class="identifier">Transaction.Type</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.Transaction$<init>(kotlin.String, kotlin.String, kotlin.Int, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.Transaction.Type, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, kotlin.String, com.sudoplatform.sudovirtualcards.types.DeclineReason, kotlin.collections.List((com.sudoplatform.sudovirtualcards.types.TransactionChargeDetail)), java.util.Date, java.util.Date, java.util.Date)/billedAmount">billedAmount</span><span class="symbol">:</span>&nbsp;<a href="../-currency-amount/index.html"><span class="identifier">CurrencyAmount</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.Transaction$<init>(kotlin.String, kotlin.String, kotlin.Int, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.Transaction.Type, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, kotlin.String, com.sudoplatform.sudovirtualcards.types.DeclineReason, kotlin.collections.List((com.sudoplatform.sudovirtualcards.types.TransactionChargeDetail)), java.util.Date, java.util.Date, java.util.Date)/transactedAmount">transactedAmount</span><span class="symbol">:</span>&nbsp;<a href="../-currency-amount/index.html"><span class="identifier">CurrencyAmount</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.Transaction$<init>(kotlin.String, kotlin.String, kotlin.Int, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.Transaction.Type, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, kotlin.String, com.sudoplatform.sudovirtualcards.types.DeclineReason, kotlin.collections.List((com.sudoplatform.sudovirtualcards.types.TransactionChargeDetail)), java.util.Date, java.util.Date, java.util.Date)/description">description</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.Transaction$<init>(kotlin.String, kotlin.String, kotlin.Int, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.Transaction.Type, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, kotlin.String, com.sudoplatform.sudovirtualcards.types.DeclineReason, kotlin.collections.List((com.sudoplatform.sudovirtualcards.types.TransactionChargeDetail)), java.util.Date, java.util.Date, java.util.Date)/declineReason">declineReason</span><span class="symbol">:</span>&nbsp;<a href="../-decline-reason/index.html"><span class="identifier">DeclineReason</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.Transaction$<init>(kotlin.String, kotlin.String, kotlin.Int, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.Transaction.Type, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, kotlin.String, com.sudoplatform.sudovirtualcards.types.DeclineReason, kotlin.collections.List((com.sudoplatform.sudovirtualcards.types.TransactionChargeDetail)), java.util.Date, java.util.Date, java.util.Date)/details">details</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="../-transaction-charge-detail/index.html"><span class="identifier">TransactionChargeDetail</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;emptyList()<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.Transaction$<init>(kotlin.String, kotlin.String, kotlin.Int, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.Transaction.Type, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, kotlin.String, com.sudoplatform.sudovirtualcards.types.DeclineReason, kotlin.collections.List((com.sudoplatform.sudovirtualcards.types.TransactionChargeDetail)), java.util.Date, java.util.Date, java.util.Date)/transactedAt">transactedAt</span><span class="symbol">:</span>&nbsp;<a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html"><span class="identifier">Date</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.Transaction$<init>(kotlin.String, kotlin.String, kotlin.Int, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.Transaction.Type, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, kotlin.String, com.sudoplatform.sudovirtualcards.types.DeclineReason, kotlin.collections.List((com.sudoplatform.sudovirtualcards.types.TransactionChargeDetail)), java.util.Date, java.util.Date, java.util.Date)/createdAt">createdAt</span><span class="symbol">:</span>&nbsp;<a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html"><span class="identifier">Date</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.Transaction$<init>(kotlin.String, kotlin.String, kotlin.Int, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.Transaction.Type, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, com.sudoplatform.sudovirtualcards.types.CurrencyAmount, kotlin.String, com.sudoplatform.sudovirtualcards.types.DeclineReason, kotlin.collections.List((com.sudoplatform.sudovirtualcards.types.TransactionChargeDetail)), java.util.Date, java.util.Date, java.util.Date)/updatedAt">updatedAt</span><span class="symbol">:</span>&nbsp;<a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html"><span class="identifier">Date</span></a><span class="symbol">)</span></code>
+<p>Representation of a Virtual Card Transaction used in the Sudo Platform SDK.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="billed-amount.html">billedAmount</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">billedAmount</span><span class="symbol">: </span><a href="../-currency-amount/index.html"><span class="identifier">CurrencyAmount</span></a></code>
+<p>The amount billed for the transaction</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="card-id.html">cardId</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">cardId</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>Unique identifier of the <a href="../-card/index.html">Card</a></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="created-at.html">createdAt</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">createdAt</span><span class="symbol">: </span><a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html"><span class="identifier">Date</span></a></code>
+<p><a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html">Date</a> when the transaction was created</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="decline-reason.html">declineReason</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">declineReason</span><span class="symbol">: </span><a href="../-decline-reason/index.html"><span class="identifier">DeclineReason</span></a><span class="symbol">?</span></code>
+<p>If the transaction was declined the reason why, null if the transaction was not declined.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="description.html">description</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">description</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>The description of the transaction</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="details.html">details</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">details</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="../-transaction-charge-detail/index.html"><span class="identifier">TransactionChargeDetail</span></a><span class="symbol">&gt;</span></code>
+<p>The details of how the transaction was charged</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="id.html">id</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">id</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>Identifier generated by the Virtual Cards Service for this transaction.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="owner.html">owner</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">owner</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>Identifier of the user that owns the card.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="sequence-id.html">sequenceId</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">sequenceId</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>The sequence identifier of the transaction</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="transacted-amount.html">transactedAmount</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">transactedAmount</span><span class="symbol">: </span><a href="../-currency-amount/index.html"><span class="identifier">CurrencyAmount</span></a></code>
+<p>The amount of the transaction</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="transacted-at.html">transactedAt</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">transactedAt</span><span class="symbol">: </span><a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html"><span class="identifier">Date</span></a></code>
+<p><a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html">Date</a> when the transaction was performed</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="type.html">type</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">type</span><span class="symbol">: </span><a href="-type/index.html"><span class="identifier">Transaction.Type</span></a></code>
+<p>The type of the transaction</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="updated-at.html">updatedAt</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">updatedAt</span><span class="symbol">: </span><a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html"><span class="identifier">Date</span></a></code>
+<p><a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html">Date</a> when the transaction was last updated</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="version.html">version</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">version</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a></code>
+<p>Card version supplied by the Virtual cards service.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

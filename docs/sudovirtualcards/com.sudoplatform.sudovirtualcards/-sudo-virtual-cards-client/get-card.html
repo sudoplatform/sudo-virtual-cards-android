@@ -1,0 +1,23 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>SudoVirtualCardsClient.getCard - sudovirtualcards</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="../index.html">com.sudoplatform.sudovirtualcards</a>&nbsp;/&nbsp;<a href="index.html">SudoVirtualCardsClient</a>&nbsp;/&nbsp;<a href="./get-card.html">getCard</a><br/>
+<br/>
+<h1>getCard</h1>
+<a name="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getCard(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)"></a>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">getCard</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getCard(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getCard(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/cachePolicy">cachePolicy</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html"><span class="identifier">CachePolicy</span></a>&nbsp;<span class="symbol">=</span>&nbsp;CachePolicy.REMOTE_ONLY<span class="symbol">)</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html"><span class="identifier">Card</span></a><span class="symbol">?</span></code>
+<p>Get a virtual payment <a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html">Card</a> using the <a href="get-card.html#com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getCard(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/id">id</a> parameter.</p>
+<h3>Parameters</h3>
+<p><a name="id"></a>
+<code>id</code> - Identifier of the <a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html">Card</a> to be retrieved.</p>
+<p><a name="cachePolicy"></a>
+<code>cachePolicy</code> - Determines how the data will be fetched. When using <a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/-c-a-c-h-e_-o-n-l-y.html">CachePolicy.CACHE_ONLY</a>,
+be aware that this will only return cached results of similar exact API calls.</p>
+<p><strong>Returns</strong><br/>
+The <a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html">Card</a> associated with the <a href="get-card.html#com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getCard(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/id">id</a> or null if the virtual payment card cannot be found.</p>
+</BODY>
+</HTML>

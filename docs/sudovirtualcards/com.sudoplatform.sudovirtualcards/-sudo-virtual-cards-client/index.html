@@ -1,0 +1,273 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>SudoVirtualCardsClient - sudovirtualcards</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="../index.html">com.sudoplatform.sudovirtualcards</a>&nbsp;/&nbsp;<a href="./index.html">SudoVirtualCardsClient</a><br/>
+<br/>
+<h1>SudoVirtualCardsClient</h1>
+<code><span class="keyword">interface </span><span class="identifier">SudoVirtualCardsClient</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://docs.oracle.com/javase/6/docs/api/java/lang/AutoCloseable.html"><span class="identifier">AutoCloseable</span></a></code>
+<p>Interface encapsulating a library for interacting with the Sudo Platform Virtual Cards service.</p>
+<p><strong>Since</strong><br/>
+2020-05-21</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-builder/index.html">Builder</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">Builder</span></code>
+<p>Builder used to construct the <a href="./index.html">SudoVirtualCardsClient</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Exceptions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-card-exception/index.html">CardException</a></p>
+</td>
+<td>
+<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">CardException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-runtime-exception/index.html"><span class="identifier">RuntimeException</span></a></code>
+<p>Defines the exceptions for the virtual payment card based methods.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-funding-source-exception/index.html">FundingSourceException</a></p>
+</td>
+<td>
+<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">FundingSourceException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-runtime-exception/index.html"><span class="identifier">RuntimeException</span></a></code>
+<p>Defines the exceptions for the funding source based methods.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-transaction-exception/index.html">TransactionException</a></p>
+</td>
+<td>
+<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">TransactionException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-runtime-exception/index.html"><span class="identifier">RuntimeException</span></a></code>
+<p>Defines the exceptions for the virtual payment transaction based methods.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="cancel-card.html">cancelCard</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">cancelCard</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$cancelCard(kotlin.String)/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html"><span class="identifier">Card</span></a></code>
+<p>Cancel a <a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html">Card</a> using the <a href="cancel-card.html#com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$cancelCard(kotlin.String)/id">id</a> parameter.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="cancel-funding-source.html">cancelFundingSource</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">cancelFundingSource</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$cancelFundingSource(kotlin.String)/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html"><span class="identifier">FundingSource</span></a></code>
+<p>Cancel a <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a> using the <a href="cancel-funding-source.html#com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$cancelFundingSource(kotlin.String)/id">id</a> parameter.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="create-funding-source.html">createFundingSource</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">createFundingSource</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$createFundingSource(com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInput)/input">input</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types.inputs/-credit-card-funding-source-input/index.html"><span class="identifier">CreditCardFundingSourceInput</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html"><span class="identifier">FundingSource</span></a></code>
+<p>Creates a <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a> using a credit card input.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-card.html">getCard</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">getCard</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getCard(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getCard(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/cachePolicy">cachePolicy</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html"><span class="identifier">CachePolicy</span></a>&nbsp;<span class="symbol">=</span>&nbsp;CachePolicy.REMOTE_ONLY<span class="symbol">)</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html"><span class="identifier">Card</span></a><span class="symbol">?</span></code>
+<p>Get a virtual payment <a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html">Card</a> using the <a href="get-card.html#com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getCard(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/id">id</a> parameter.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-funding-source.html">getFundingSource</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">getFundingSource</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getFundingSource(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getFundingSource(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/cachePolicy">cachePolicy</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html"><span class="identifier">CachePolicy</span></a>&nbsp;<span class="symbol">=</span>&nbsp;CachePolicy.REMOTE_ONLY<span class="symbol">)</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html"><span class="identifier">FundingSource</span></a><span class="symbol">?</span></code>
+<p>Get a <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a> using the <a href="get-funding-source.html#com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getFundingSource(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/id">id</a> parameter.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-provisional-card.html">getProvisionalCard</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">getProvisionalCard</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getProvisionalCard(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getProvisionalCard(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/cachePolicy">cachePolicy</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html"><span class="identifier">CachePolicy</span></a>&nbsp;<span class="symbol">=</span>&nbsp;CachePolicy.REMOTE_ONLY<span class="symbol">)</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/index.html"><span class="identifier">ProvisionalCard</span></a><span class="symbol">?</span></code>
+<p>Get a provisional virtual payment card. A provisional card is one that is in the process
+of being provisioned.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-transaction.html">getTransaction</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">getTransaction</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getTransaction(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getTransaction(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/cachePolicy">cachePolicy</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html"><span class="identifier">CachePolicy</span></a>&nbsp;<span class="symbol">=</span>&nbsp;CachePolicy.REMOTE_ONLY<span class="symbol">)</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html"><span class="identifier">Transaction</span></a><span class="symbol">?</span></code>
+<p>Get a virtual payment <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a> using the <a href="get-transaction.html#com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getTransaction(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/id">id</a> parameter.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="list-cards.html">listCards</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">listCards</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listCards(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy, kotlin.Function0((com.sudoplatform.sudovirtualcards.types.inputs.filters.CardFilter)))/limit">limit</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;DEFAULT_CARD_LIMIT<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listCards(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy, kotlin.Function0((com.sudoplatform.sudovirtualcards.types.inputs.filters.CardFilter)))/nextToken">nextToken</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listCards(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy, kotlin.Function0((com.sudoplatform.sudovirtualcards.types.inputs.filters.CardFilter)))/cachePolicy">cachePolicy</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html"><span class="identifier">CachePolicy</span></a>&nbsp;<span class="symbol">=</span>&nbsp;CachePolicy.REMOTE_ONLY<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listCards(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy, kotlin.Function0((com.sudoplatform.sudovirtualcards.types.inputs.filters.CardFilter)))/filter">filter</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types.inputs.filters/-card-filter/index.html"><span class="identifier">CardFilter</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;{ null }<span class="symbol">)</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html"><span class="identifier">ListOutput</span></a><span class="symbol">&lt;</span><a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html"><span class="identifier">Card</span></a><span class="symbol">&gt;</span></code>
+<p>Get a <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a> of virtual payment <a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html">Card</a>s. If no <a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html">Card</a>s can be found, the <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a>
+will contain null for the <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/next-token.html">ListOutput.nextToken</a> field and contain an empty list.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="list-funding-sources.html">listFundingSources</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">listFundingSources</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listFundingSources(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/limit">limit</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;DEFAULT_FUNDING_SOURCE_LIMIT<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listFundingSources(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/nextToken">nextToken</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listFundingSources(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/cachePolicy">cachePolicy</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html"><span class="identifier">CachePolicy</span></a>&nbsp;<span class="symbol">=</span>&nbsp;CachePolicy.REMOTE_ONLY<span class="symbol">)</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html"><span class="identifier">ListOutput</span></a><span class="symbol">&lt;</span><a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html"><span class="identifier">FundingSource</span></a><span class="symbol">&gt;</span></code>
+<p>Get a <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a> of <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a>s. If no <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a>s can be found, the <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a>
+will contain null for the <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/next-token.html">ListOutput.nextToken</a> field and contain an empty list.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="list-transactions.html">listTransactions</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">listTransactions</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listTransactions(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy, kotlin.Function0((com.sudoplatform.sudovirtualcards.types.inputs.filters.TransactionFilter)))/limit">limit</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;DEFAULT_TRANSACTION_LIMIT<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listTransactions(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy, kotlin.Function0((com.sudoplatform.sudovirtualcards.types.inputs.filters.TransactionFilter)))/nextToken">nextToken</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listTransactions(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy, kotlin.Function0((com.sudoplatform.sudovirtualcards.types.inputs.filters.TransactionFilter)))/cachePolicy">cachePolicy</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html"><span class="identifier">CachePolicy</span></a>&nbsp;<span class="symbol">=</span>&nbsp;CachePolicy.REMOTE_ONLY<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$listTransactions(kotlin.Int, kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy, kotlin.Function0((com.sudoplatform.sudovirtualcards.types.inputs.filters.TransactionFilter)))/filter">filter</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types.inputs.filters/-transaction-filter/index.html"><span class="identifier">TransactionFilter</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;{ null }<span class="symbol">)</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html"><span class="identifier">ListOutput</span></a><span class="symbol">&lt;</span><a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html"><span class="identifier">Transaction</span></a><span class="symbol">&gt;</span></code>
+<p>Get a <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a> of virtual payment <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s. If no <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s can be found, the <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a>
+will contain null for the <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/next-token.html">ListOutput.nextToken</a> field and contain an empty list.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="provision-card.html">provisionCard</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">provisionCard</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$provisionCard(com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput)/input">input</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types.inputs/-provision-card-input/index.html"><span class="identifier">ProvisionCardInput</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/index.html"><span class="identifier">ProvisionalCard</span></a></code>
+<p>Provision a virtual payment card. Initially a <a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/index.html">ProvisionalCard</a> is returned with the details of
+the card being created. You should query the state of this card periodically by calling
+<a href="get-provisional-card.html">getProvisionalCard</a> to monitor the card's progress from a state of <a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/-state/-p-r-o-v-i-s-i-o-n-i-n-g.html">ProvisionalCard.State.PROVISIONING</a>
+to <a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/-state/-c-o-m-p-l-e-t-e-d.html">ProvisionalCard.State.COMPLETED</a> or <a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/-state/-f-a-i-l-e-d.html">ProvisionalCard.State.FAILED</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="reset.html">reset</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">reset</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Reset any internal state and cached content.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="subscribe-to-transactions.html">subscribeToTransactions</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">subscribeToTransactions</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$subscribeToTransactions(kotlin.String, com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber)/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$subscribeToTransactions(kotlin.String, com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber)/subscriber">subscriber</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.subscription/-transaction-subscriber/index.html"><span class="identifier">TransactionSubscriber</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Subscribes to be notified of new, updated and deleted <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="unsubscribe-all.html">unsubscribeAll</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">unsubscribeAll</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Unsubscribe all subscribers from receiving notifications about new, updated or deleted <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="unsubscribe-from-transactions.html">unsubscribeFromTransactions</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">unsubscribeFromTransactions</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$unsubscribeFromTransactions(kotlin.String)/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Unsubscribe the specified subscriber so that it no longer receives notifications about
+new, updated or deleted <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="update-card.html">updateCard</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">updateCard</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$updateCard(com.sudoplatform.sudovirtualcards.types.inputs.UpdateCardInput)/input">input</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types.inputs/-update-card-input/index.html"><span class="identifier">UpdateCardInput</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html"><span class="identifier">Card</span></a></code>
+<p>Update the details of a <a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html">Card</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Companion Object Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-d-e-f-a-u-l-t_-c-a-r-d_-l-i-m-i-t.html">DEFAULT_CARD_LIMIT</a></p>
+</td>
+<td>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">DEFAULT_CARD_LIMIT</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-d-e-f-a-u-l-t_-f-u-n-d-i-n-g_-s-o-u-r-c-e_-l-i-m-i-t.html">DEFAULT_FUNDING_SOURCE_LIMIT</a></p>
+</td>
+<td>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">DEFAULT_FUNDING_SOURCE_LIMIT</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-d-e-f-a-u-l-t_-t-r-a-n-s-a-c-t-i-o-n_-l-i-m-i-t.html">DEFAULT_TRANSACTION_LIMIT</a></p>
+</td>
+<td>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">DEFAULT_TRANSACTION_LIMIT</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Companion Object Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="builder.html">builder</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">builder</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="-builder/index.html"><span class="identifier">SudoVirtualCardsClient.Builder</span></a></code>
+<p>Create a <a href="-builder/index.html">Builder</a> for <a href="./index.html">SudoVirtualCardsClient</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Extension Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../subscribe-to-transactions.html">subscribeToTransactions</a></p>
+</td>
+<td>
+<code><span class="keyword">suspend</span> <span class="keyword">fun </span><a href="./index.html"><span class="identifier">SudoVirtualCardsClient</span></a><span class="symbol">.</span><span class="identifier">subscribeToTransactions</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards$subscribeToTransactions(com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient, kotlin.String, kotlin.Function1((com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber.ConnectionState, kotlin.Unit)), kotlin.Function1((com.sudoplatform.sudovirtualcards.types.Transaction, kotlin.Unit)))/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards$subscribeToTransactions(com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient, kotlin.String, kotlin.Function1((com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber.ConnectionState, kotlin.Unit)), kotlin.Function1((com.sudoplatform.sudovirtualcards.types.Transaction, kotlin.Unit)))/onConnectionChange">onConnectionChange</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">status</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.subscription/-transaction-subscriber/-connection-state/index.html"><span class="identifier">TransactionSubscriber.ConnectionState</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a>&nbsp;<span class="symbol">=</span>&nbsp;{}<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards$subscribeToTransactions(com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient, kotlin.String, kotlin.Function1((com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber.ConnectionState, kotlin.Unit)), kotlin.Function1((com.sudoplatform.sudovirtualcards.types.Transaction, kotlin.Unit)))/onTransactionChange">onTransactionChange</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">transaction</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html"><span class="identifier">Transaction</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Subscribes to be notified of new, updated and deleted <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

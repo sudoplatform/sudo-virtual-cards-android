@@ -1,0 +1,24 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>SudoVirtualCardsClient.getProvisionalCard - sudovirtualcards</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="../index.html">com.sudoplatform.sudovirtualcards</a>&nbsp;/&nbsp;<a href="index.html">SudoVirtualCardsClient</a>&nbsp;/&nbsp;<a href="./get-provisional-card.html">getProvisionalCard</a><br/>
+<br/>
+<h1>getProvisionalCard</h1>
+<a name="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getProvisionalCard(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)"></a>
+<code><span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">getProvisionalCard</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getProvisionalCard(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getProvisionalCard(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/cachePolicy">cachePolicy</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html"><span class="identifier">CachePolicy</span></a>&nbsp;<span class="symbol">=</span>&nbsp;CachePolicy.REMOTE_ONLY<span class="symbol">)</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/index.html"><span class="identifier">ProvisionalCard</span></a><span class="symbol">?</span></code>
+<p>Get a provisional virtual payment card. A provisional card is one that is in the process
+of being provisioned.</p>
+<h3>Parameters</h3>
+<p><a name="id"></a>
+<code>id</code> - Identifier of the <a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/index.html">ProvisionalCard</a> to be retrieved.</p>
+<p><a name="cachePolicy"></a>
+<code>cachePolicy</code> - Determines how the data will be fetched. When using <a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/-c-a-c-h-e_-o-n-l-y.html">CachePolicy.CACHE_ONLY</a>,
+be aware that this will only return cached results of similar exact API calls.</p>
+<p><strong>Return</strong><br/>
+The provisional card or null if a provisional card with that <a href="get-provisional-card.html#com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient$getProvisionalCard(kotlin.String, com.sudoplatform.sudovirtualcards.types.CachePolicy)/id">id</a> could not be found</p>
+</BODY>
+</HTML>

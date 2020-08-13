@@ -1,0 +1,887 @@
+# this is an auto generated file. This will be overwritten
+query GetProvisionalCard($id: ID!) {
+  getProvisionalCard(id: $id) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    clientRefId
+    provisioningState
+    card {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      algorithm
+      keyId
+      keyRingId
+      owners {
+        id
+        issuer
+      }
+      fundingSourceId
+      currency
+      state
+      activeToEpochMs
+      cancelledAtEpochMs
+      last4
+      cardHolder
+      alias
+      pan
+      csc
+      billingAddress {
+        addressLine1
+        addressLine2
+        city
+        state
+        postalCode
+        country
+      }
+      expiry {
+        mm
+        yyyy
+      }
+    }
+    aws_ds
+  }
+}
+query ListProvisionalCards(
+  $filter: ProvisionalCardFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listProvisionalCards(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      clientRefId
+      provisioningState
+      card {
+        id
+        owner
+        version
+        createdAtEpochMs
+        updatedAtEpochMs
+        algorithm
+        keyId
+        keyRingId
+        owners {
+          id
+          issuer
+        }
+        fundingSourceId
+        currency
+        state
+        activeToEpochMs
+        cancelledAtEpochMs
+        last4
+        cardHolder
+        alias
+        pan
+        csc
+        billingAddress {
+          addressLine1
+          addressLine2
+          city
+          state
+          postalCode
+          country
+        }
+        expiry {
+          mm
+          yyyy
+        }
+      }
+      aws_ds
+    }
+    nextToken
+  }
+}
+query ListProvisionalCardsDelta(
+  $lastSync: AWSTimestamp
+  $filter: ProvisionalCardFilterInput
+  $limit: Int
+) {
+  listProvisionalCardsDelta(
+    lastSync: $lastSync
+    filter: $filter
+    limit: $limit
+  ) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    clientRefId
+    provisioningState
+    card {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      algorithm
+      keyId
+      keyRingId
+      owners {
+        id
+        issuer
+      }
+      fundingSourceId
+      currency
+      state
+      activeToEpochMs
+      cancelledAtEpochMs
+      last4
+      cardHolder
+      alias
+      pan
+      csc
+      billingAddress {
+        addressLine1
+        addressLine2
+        city
+        state
+        postalCode
+        country
+      }
+      expiry {
+        mm
+        yyyy
+      }
+    }
+    aws_ds
+  }
+}
+query GetCard($id: ID!, $keyId: String!) {
+  getCard(id: $id, keyId: $keyId) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    algorithm
+    keyId
+    keyRingId
+    owners {
+      id
+      issuer
+    }
+    fundingSourceId
+    currency
+    state
+    activeToEpochMs
+    cancelledAtEpochMs
+    last4
+    cardHolder
+    alias
+    pan
+    csc
+    billingAddress {
+      addressLine1
+      addressLine2
+      city
+      state
+      postalCode
+      country
+    }
+    expiry {
+      mm
+      yyyy
+    }
+  }
+}
+query ListCards($filter: CardFilterInput, $limit: Int, $nextToken: String) {
+  listCards(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      algorithm
+      keyId
+      keyRingId
+      owners {
+        id
+        issuer
+      }
+      fundingSourceId
+      currency
+      state
+      activeToEpochMs
+      cancelledAtEpochMs
+      last4
+      cardHolder
+      alias
+      pan
+      csc
+      billingAddress {
+        addressLine1
+        addressLine2
+        city
+        state
+        postalCode
+        country
+      }
+      expiry {
+        mm
+        yyyy
+      }
+    }
+    nextToken
+  }
+}
+query GetTransaction($id: ID!, $keyId: String!) {
+  getTransaction(id: $id, keyId: $keyId) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    algorithm
+    keyId
+    cardId
+    sequenceId
+    type
+    transactedAtEpochMs
+    billedAmount {
+      currency
+      amount
+    }
+    transactedAmount {
+      currency
+      amount
+    }
+    description
+    declineReason
+    detail {
+      virtualCardAmount {
+        currency
+        amount
+      }
+      markup {
+        percent
+        flat
+        minCharge
+      }
+      markupAmount {
+        currency
+        amount
+      }
+      fundingSourceAmount {
+        currency
+        amount
+      }
+      fundingSourceId
+      description
+    }
+  }
+}
+query ListTransactions(
+  $filter: TransactionFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listTransactions(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      algorithm
+      keyId
+      cardId
+      sequenceId
+      type
+      transactedAtEpochMs
+      billedAmount {
+        currency
+        amount
+      }
+      transactedAmount {
+        currency
+        amount
+      }
+      description
+      declineReason
+      detail {
+        virtualCardAmount {
+          currency
+          amount
+        }
+        markup {
+          percent
+          flat
+          minCharge
+        }
+        markupAmount {
+          currency
+          amount
+        }
+        fundingSourceAmount {
+          currency
+          amount
+        }
+        fundingSourceId
+        description
+      }
+    }
+    nextToken
+  }
+}
+query GetFundingSourceClientConfiguration {
+  getFundingSourceClientConfiguration {
+    data
+  }
+}
+query GetFundingSource($id: ID!) {
+  getFundingSource(id: $id) {
+    ... on CreditCardFundingSource {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      state
+      currency
+      last4
+      network
+    }
+  }
+}
+query ListFundingSources(
+  $filter: FundingSourceFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listFundingSources(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      ... on CreditCardFundingSource {
+        id
+        owner
+        version
+        createdAtEpochMs
+        updatedAtEpochMs
+        state
+        currency
+        last4
+        network
+      }
+    }
+    nextToken
+  }
+}
+query GetPublicKeyForVirtualCards($keyId: String!) {
+  getPublicKeyForVirtualCards(keyId: $keyId) {
+    id
+    keyId
+    keyRingId
+    algorithm
+    publicKey
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+  }
+}
+query GetPublicKeysForVirtualCards($limit: Int, $nextToken: String) {
+  getPublicKeysForVirtualCards(limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      keyId
+      keyRingId
+      algorithm
+      publicKey
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+    }
+    nextToken
+  }
+}
+query GetKeyRingForVirtualCards(
+  $keyRingId: String!
+  $limit: Int
+  $nextToken: String
+) {
+  getKeyRingForVirtualCards(
+    keyRingId: $keyRingId
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      keyId
+      keyRingId
+      algorithm
+      publicKey
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+    }
+    nextToken
+  }
+}
+mutation CardProvision($input: CardProvisionRequest!) {
+  cardProvision(input: $input) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    clientRefId
+    provisioningState
+    card {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      algorithm
+      keyId
+      keyRingId
+      owners {
+        id
+        issuer
+      }
+      fundingSourceId
+      currency
+      state
+      activeToEpochMs
+      cancelledAtEpochMs
+      last4
+      cardHolder
+      alias
+      pan
+      csc
+      billingAddress {
+        addressLine1
+        addressLine2
+        city
+        state
+        postalCode
+        country
+      }
+      expiry {
+        mm
+        yyyy
+      }
+    }
+    aws_ds
+  }
+}
+mutation UpdateCard($input: CardUpdateRequest!) {
+  updateCard(input: $input) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    algorithm
+    keyId
+    keyRingId
+    owners {
+      id
+      issuer
+    }
+    fundingSourceId
+    currency
+    state
+    activeToEpochMs
+    cancelledAtEpochMs
+    last4
+    cardHolder
+    alias
+    pan
+    csc
+    billingAddress {
+      addressLine1
+      addressLine2
+      city
+      state
+      postalCode
+      country
+    }
+    expiry {
+      mm
+      yyyy
+    }
+  }
+}
+mutation CancelCard($input: CardCancelRequest!) {
+  cancelCard(input: $input) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    algorithm
+    keyId
+    keyRingId
+    owners {
+      id
+      issuer
+    }
+    fundingSourceId
+    currency
+    state
+    activeToEpochMs
+    cancelledAtEpochMs
+    last4
+    cardHolder
+    alias
+    pan
+    csc
+    billingAddress {
+      addressLine1
+      addressLine2
+      city
+      state
+      postalCode
+      country
+    }
+    expiry {
+      mm
+      yyyy
+    }
+  }
+}
+mutation SetupFundingSource($input: SetupFundingSourceRequest!) {
+  setupFundingSource(input: $input) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    provisioningData
+  }
+}
+mutation CompleteFundingSource($input: CompleteFundingSourceRequest!) {
+  completeFundingSource(input: $input) {
+    ... on CreditCardFundingSource {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      state
+      currency
+      last4
+      network
+    }
+  }
+}
+mutation CancelFundingSource($input: IdInput!) {
+  cancelFundingSource(input: $input) {
+    ... on CreditCardFundingSource {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      state
+      currency
+      last4
+      network
+    }
+  }
+}
+mutation CreatePublicKeyForVirtualCards($input: CreatePublicKeyInput!) {
+  createPublicKeyForVirtualCards(input: $input) {
+    id
+    keyId
+    keyRingId
+    algorithm
+    publicKey
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+  }
+}
+mutation DeletePublicKeyForVirtualCards($input: DeletePublicKeyInput) {
+  deletePublicKeyForVirtualCards(input: $input) {
+    id
+    keyId
+    keyRingId
+    algorithm
+    publicKey
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+  }
+}
+subscription OnDeltaProvisionalCard($owner: ID!) {
+  onDeltaProvisionalCard(owner: $owner) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    clientRefId
+    provisioningState
+    card {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      algorithm
+      keyId
+      keyRingId
+      owners {
+        id
+        issuer
+      }
+      fundingSourceId
+      currency
+      state
+      activeToEpochMs
+      cancelledAtEpochMs
+      last4
+      cardHolder
+      alias
+      pan
+      csc
+      billingAddress {
+        addressLine1
+        addressLine2
+        city
+        state
+        postalCode
+        country
+      }
+      expiry {
+        mm
+        yyyy
+      }
+    }
+    aws_ds
+  }
+}
+subscription OnUpdateCardProvisionState($owner: ID!, $clientRefId: String!) {
+  onUpdateCardProvisionState(owner: $owner, clientRefId: $clientRefId) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    clientRefId
+    provisioningState
+    card {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      algorithm
+      keyId
+      keyRingId
+      owners {
+        id
+        issuer
+      }
+      fundingSourceId
+      currency
+      state
+      activeToEpochMs
+      cancelledAtEpochMs
+      last4
+      cardHolder
+      alias
+      pan
+      csc
+      billingAddress {
+        addressLine1
+        addressLine2
+        city
+        state
+        postalCode
+        country
+      }
+      expiry {
+        mm
+        yyyy
+      }
+    }
+    aws_ds
+  }
+}
+subscription OnCardProvisionComplete($owner: ID!, $clientRefId: String!) {
+  onCardProvisionComplete(owner: $owner, clientRefId: $clientRefId) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    algorithm
+    keyId
+    keyRingId
+    owners {
+      id
+      issuer
+    }
+    fundingSourceId
+    currency
+    state
+    activeToEpochMs
+    cancelledAtEpochMs
+    last4
+    cardHolder
+    alias
+    pan
+    csc
+    billingAddress {
+      addressLine1
+      addressLine2
+      city
+      state
+      postalCode
+      country
+    }
+    expiry {
+      mm
+      yyyy
+    }
+  }
+}
+subscription OnUpdateCard($owner: ID!, $clientRefId: String!) {
+  onUpdateCard(owner: $owner, clientRefId: $clientRefId) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    algorithm
+    keyId
+    keyRingId
+    owners {
+      id
+      issuer
+    }
+    fundingSourceId
+    currency
+    state
+    activeToEpochMs
+    cancelledAtEpochMs
+    last4
+    cardHolder
+    alias
+    pan
+    csc
+    billingAddress {
+      addressLine1
+      addressLine2
+      city
+      state
+      postalCode
+      country
+    }
+    expiry {
+      mm
+      yyyy
+    }
+  }
+}
+subscription OnTransactionUpdate($owner: ID!) {
+  onTransactionUpdate(owner: $owner) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    algorithm
+    keyId
+    cardId
+    sequenceId
+    type
+    transactedAtEpochMs
+    billedAmount {
+      currency
+      amount
+    }
+    transactedAmount {
+      currency
+      amount
+    }
+    description
+    declineReason
+    detail {
+      virtualCardAmount {
+        currency
+        amount
+      }
+      markup {
+        percent
+        flat
+        minCharge
+      }
+      markupAmount {
+        currency
+        amount
+      }
+      fundingSourceAmount {
+        currency
+        amount
+      }
+      fundingSourceId
+      description
+    }
+  }
+}
+subscription OnTransactionDelete($owner: ID!) {
+  onTransactionDelete(owner: $owner) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    algorithm
+    keyId
+    cardId
+    sequenceId
+    type
+    transactedAtEpochMs
+    billedAmount {
+      currency
+      amount
+    }
+    transactedAmount {
+      currency
+      amount
+    }
+    description
+    declineReason
+    detail {
+      virtualCardAmount {
+        currency
+        amount
+      }
+      markup {
+        percent
+        flat
+        minCharge
+      }
+      markupAmount {
+        currency
+        amount
+      }
+      fundingSourceAmount {
+        currency
+        amount
+      }
+      fundingSourceId
+      description
+    }
+  }
+}

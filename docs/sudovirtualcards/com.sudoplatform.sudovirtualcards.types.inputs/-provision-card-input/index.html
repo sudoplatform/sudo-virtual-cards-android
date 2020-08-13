@@ -1,0 +1,96 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>ProvisionCardInput - sudovirtualcards</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="../index.html">com.sudoplatform.sudovirtualcards.types.inputs</a>&nbsp;/&nbsp;<a href="./index.html">ProvisionCardInput</a><br/>
+<br/>
+<h1>ProvisionCardInput</h1>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">ProvisionCardInput</span></code>
+<p>A request to provision a virtual payment card.</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">ProvisionCardInput</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String)/clientRefId">clientRefId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>&nbsp;<span class="symbol">=</span>&nbsp;UUID.randomUUID().toString()<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String)/sudoId">sudoId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String)/fundingSourceId">fundingSourceId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String)/cardHolder">cardHolder</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String)/alias">alias</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String)/addressLine1">addressLine1</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String)/addressLine2">addressLine2</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String)/city">city</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String)/state">state</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String)/postalCode">postalCode</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String)/country">country</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String)/currency">currency</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span></code><code><span class="identifier">ProvisionCardInput</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.BillingAddress, kotlin.String)/clientRefId">clientRefId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>&nbsp;<span class="symbol">=</span>&nbsp;UUID.randomUUID().toString()<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.BillingAddress, kotlin.String)/sudoId">sudoId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.BillingAddress, kotlin.String)/fundingSourceId">fundingSourceId</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.BillingAddress, kotlin.String)/cardHolder">cardHolder</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.BillingAddress, kotlin.String)/alias">alias</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.BillingAddress, kotlin.String)/billingAddress">billingAddress</span><span class="symbol">:</span>&nbsp;<a href="../../com.sudoplatform.sudovirtualcards.types/-billing-address/index.html"><span class="identifier">BillingAddress</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, kotlin.String, com.sudoplatform.sudovirtualcards.types.BillingAddress, kotlin.String)/currency">currency</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span></code>
+<p>A request to provision a virtual payment card.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="alias.html">alias</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">alias</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>User defined name associated with the card.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="billing-address.html">billingAddress</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">billingAddress</span><span class="symbol">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-billing-address/index.html"><span class="identifier">BillingAddress</span></a><span class="symbol">?</span></code>
+<p><a href="../../com.sudoplatform.sudovirtualcards.types/-billing-address/index.html">BillingAddress</a> associated with the card. If not supplied, the default billing address will be used.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="card-holder.html">cardHolder</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">cardHolder</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>The name on the front of the card.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="client-ref-id.html">clientRefId</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">clientRefId</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>A reference identifier generated by the caller.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="currency.html">currency</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">currency</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>The ISO 4217 currency code.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="funding-source-id.html">fundingSourceId</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">fundingSourceId</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>Identifier of the associated funding source used to fund the provisioned card.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="sudo-id.html">sudoId</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">sudoId</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
+<p>Identifier of the <a href="#">com.sudoplatform.sudoprofiles.Sudo</a> to provision a card for.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

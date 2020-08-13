@@ -1,0 +1,11 @@
+$dokka.format:html
+$dokka.linkExtension:html
+
+com.sudoplatform.sudovirtualcards
+com.sudoplatform.sudovirtualcards.graphql
+com.sudoplatform.sudovirtualcards.graphql.type
+com.sudoplatform.sudovirtualcards.subscription
+com.sudoplatform.sudovirtualcards.types
+com.sudoplatform.sudovirtualcards.types.inputs
+com.sudoplatform.sudovirtualcards.types.inputs.filters
+com.sudoplatform.sudovirtualcards.util
