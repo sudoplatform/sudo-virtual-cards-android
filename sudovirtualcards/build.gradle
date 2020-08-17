@@ -75,7 +75,7 @@ dependencies {
 
     // Sudo Platform
     implementation "com.sudoplatform:sudouser:8.0.5"
-    implementation "com.sudoplatform:sudoprofiles:3.0.6"
+    implementation "com.sudoplatform:sudoprofiles:3.1.7"
     implementation "com.sudoplatform:sudoidentityverification:3.0.0"
 
     // Utils
@@ -220,9 +220,25 @@ if (project.file("${rootProject.projectDir}/util/sonarqube.gradle").exists()) {
     apply from: "${rootProject.projectDir}/util/sonarqube.gradle"
 }
 
-// Internal publishing
-if (project.file("${rootProject.projectDir}/util/publish-internal-android.gradle").exists()) {
-    apply from: "${rootProject.projectDir}/util/publish-internal-android.gradle"
+// Setup common publishing variables
+ext {
+    projectGroup = 'com.sudoplatform'
+    projectArtifact = project.name
+    projectDescription = 'Sudo Virtual Cards SDK for the Sudo Platform by Anonyome Labs.'
+    projectUrl = 'https://github.com/sudoplatform/sudo-virtual-cards-android'
+    projectSCM = 'scm:git:github.com/sudoplatform/sudo-virtual-cards-android.git'
+    if (project.findProperty("tag")) {
+        projectVersion = "$tag"
+    } else {
+        projectVersion = project.android.defaultConfig.versionName
+    }
 }
 
-
+// Internal and External publishing
+if(project.findProperty("tag") &&
+        project.file("${rootProject.projectDir}/util/publish-mavencentral.gradle").exists()) {
+    apply from: "${rootProject.projectDir}/util/publish-mavencentral.gradle"
+}
+else if (project.file("${rootProject.projectDir}/util/publish-internal-android.gradle").exists()) {
+    apply from: "${rootProject.projectDir}/util/publish-internal-android.gradle"
+}
