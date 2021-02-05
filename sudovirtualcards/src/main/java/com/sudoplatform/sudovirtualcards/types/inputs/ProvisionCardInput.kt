@@ -49,5 +49,6 @@ data class ProvisionCardInput(
         cardHolder = cardHolder,
         alias = alias,
         billingAddress = BillingAddress(addressLine1, addressLine2, city, state, postalCode, country),
-        currency = currency)
+        currency = currency
+    )
 }

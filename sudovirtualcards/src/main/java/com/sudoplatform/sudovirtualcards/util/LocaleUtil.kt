@@ -17,7 +17,7 @@ import java.io.InputStreamReader
  *
  * @since 2020-06-17
  */
-class LocaleUtil {
+class LocaleUtil private constructor() {
 
     companion object {
         /**

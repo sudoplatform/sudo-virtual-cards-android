@@ -12,15 +12,7 @@ import com.sudoplatform.sudovirtualcards.types.Card
  * A filter that can be applied when listing cards so that only the subset
  * of cards that match the items in the filter are returned.
  *
- * Here is an example of how this is used.
- * <pre>
- *     val cards = vcClient.listCards {
- *          filterCardsBy {
- *              state equalTo "ISSUED"
- *          }
- *     }
- * </pre>
- *
+ * @sample com.sudoplatform.sudovirtualcards.samples.Samples.cardsFilter
  * @since 2020-07-22
  */
 class CardFilter private constructor(val propertyFilters: Set<PropertyFilter>) {
@@ -61,7 +53,7 @@ class CardFilter private constructor(val propertyFilters: Set<PropertyFilter>) {
     )
 
     /** A Builder that is used to create a [CardFilter] */
-    class Builder {
+    class Builder internal constructor() {
 
         private val propertyFilters = mutableSetOf<PropertyFilter>()
 
@@ -124,14 +116,7 @@ class CardFilter private constructor(val propertyFilters: Set<PropertyFilter>) {
 /**
  * A helper function to make it easy to specify the filter of cards.
  *
- * Here is an example of how this is used.
- * <pre>
- *     val cards = vcClient.listTransactions {
- *          filterCardsBy {
- *              state equalTo "CLOSED"
- *          }
- *     }
- * </pre>
+ * @sample com.sudoplatform.sudovirtualcards.samples.Samples.cardsFilter
  */
 fun filterCardsBy(
     init: CardFilter.Builder.() -> Unit = {}

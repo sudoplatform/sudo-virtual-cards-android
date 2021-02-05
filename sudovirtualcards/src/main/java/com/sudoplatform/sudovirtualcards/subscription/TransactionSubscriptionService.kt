@@ -56,17 +56,21 @@ internal class TransactionSubscriptionService(
 
         scope.launch {
             if (updateSubscriptionManager.watcher == null) {
-                val watcher = appSyncClient.subscribe(OnTransactionUpdateSubscription.builder()
-                    .owner(userSubject)
-                    .build())
+                val watcher = appSyncClient.subscribe(
+                    OnTransactionUpdateSubscription.builder()
+                        .owner(userSubject)
+                        .build()
+                )
                 updateSubscriptionManager.watcher = watcher
                 watcher.execute(updateCallback)
             }
 
             if (deleteSubscriptionManager.watcher == null) {
-                val watcher = appSyncClient.subscribe(OnTransactionDeleteSubscription.builder()
-                    .owner(userSubject)
-                    .build())
+                val watcher = appSyncClient.subscribe(
+                    OnTransactionDeleteSubscription.builder()
+                        .owner(userSubject)
+                        .build()
+                )
                 deleteSubscriptionManager.watcher = watcher
                 watcher.execute(deleteCallback)
             }

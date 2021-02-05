@@ -36,6 +36,7 @@ import java.util.Objects
 /**
  * Interface encapsulating a library for interacting with the Sudo Platform Virtual Cards service.
  *
+ * @sample com.sudoplatform.sudovirtualcards.samples.Samples.sudoVirtualCardsClient
  * @since 2020-05-21
  */
 interface SudoVirtualCardsClient : AutoCloseable {
@@ -53,7 +54,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
     /**
      * Builder used to construct the [SudoVirtualCardsClient].
      */
-    class Builder {
+    class Builder internal constructor() {
         private var context: Context? = null
         private var sudoUserClient: SudoUserClient? = null
         private var sudoProfilesClient: SudoProfilesClient? = null
@@ -357,6 +358,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * @param filter Filter the cards so that only those that match all of the values of the
      * fields in the filter are returned.
      * @return A list of [Card]s or an empty list if no virtual payment cards can be found.
+     * @sample com.sudoplatform.sudovirtualcards.samples.Samples.cardsFilter
      */
     @Throws(CardException::class)
     suspend fun listCards(
@@ -416,6 +418,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * @param filter Filter the transactions so that only those that match all of the values of the
      * fields in the filter are returned.
      * @return A [ListOutput] of [Transaction]s filtered by the [filter].
+     * @sample com.sudoplatform.sudovirtualcards.samples.Samples.transactionFilter
      */
     @Throws(TransactionException::class)
     suspend fun listTransactions(
@@ -466,13 +469,15 @@ suspend fun SudoVirtualCardsClient.subscribeToTransactions(
     onConnectionChange: (status: TransactionSubscriber.ConnectionState) -> Unit = {},
     onTransactionChange: (transaction: Transaction) -> Unit
 ) =
-    subscribeToTransactions(id, object : TransactionSubscriber {
-        override fun connectionStatusChanged(state: TransactionSubscriber.ConnectionState) {
-            onConnectionChange.invoke(state)
-        }
+    subscribeToTransactions(
+        id,
+        object : TransactionSubscriber {
+            override fun connectionStatusChanged(state: TransactionSubscriber.ConnectionState) {
+                onConnectionChange.invoke(state)
+            }
 
-        override fun transactionChanged(transaction: Transaction) {
-            onTransactionChange.invoke(transaction)
+            override fun transactionChanged(transaction: Transaction) {
+                onTransactionChange.invoke(transaction)
+            }
         }
-    }
-)
+    )

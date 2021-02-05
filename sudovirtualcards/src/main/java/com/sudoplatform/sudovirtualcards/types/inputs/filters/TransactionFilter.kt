@@ -12,15 +12,7 @@ import com.sudoplatform.sudovirtualcards.types.Transaction
  * A filter that can be applied when listing transactions so that only the subset
  * of transactions that match the items in the filter are returned.
  *
- * Here is an example of how this is used.
- * <pre>
- *     val transactions = vcClient.listTransactions {
- *          filterTransactionsBy {
- *              cardId between ("a" to "z")
- *          }
- *     }
- * </pre>
- *
+ * @sample com.sudoplatform.sudovirtualcards.samples.Samples.transactionFilter
  * @since 2020-07-17
  */
 class TransactionFilter private constructor(val propertyFilters: Set<PropertyFilter>) {
@@ -62,7 +54,7 @@ class TransactionFilter private constructor(val propertyFilters: Set<PropertyFil
     )
 
     /** A Builder that is used to create a [TransactionFilter] */
-    class Builder {
+    class Builder internal constructor() {
 
         private val propertyFilters = mutableSetOf<PropertyFilter>()
 
@@ -126,15 +118,7 @@ class TransactionFilter private constructor(val propertyFilters: Set<PropertyFil
 /**
  * A helper function to make it easy to specify the filter of transactions.
  *
- * Here is an example of how this is used.
- * <pre>
- *     val transactions = vcClient.listTransactions {
- *          filterTransactionsBy {
- *              cardId between ("a" to "z")
- *              sequenceId greaterThan "0000"
- *          }
- *     }
- * </pre>
+ * @sample com.sudoplatform.sudovirtualcards.samples.Samples.transactionFilter
  */
 fun filterTransactionsBy(
     init: TransactionFilter.Builder.() -> Unit = {}

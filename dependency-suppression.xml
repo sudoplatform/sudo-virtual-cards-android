@@ -6,11 +6,15 @@
             ]]></notes>
         <cve>CVE-2018-20200</cve>
     </suppress>
-    <suppress until="2020-10-12">
+    <suppress until="2021-03-31">
         <notes><![CDATA[
-            Kotlin script is not used in the Sudo Platform Email Example App. Set suppression to expire in
+            Kotlin script is not used in the Sudo Platform Virtual Cards SDK. Set suppression to expire in
             2 months. We can re-evaluate and possible move to Kotlin 1.4.0 if it's out of RC by then.
             ]]></notes>
         <cve>CVE-2020-15824</cve>
+    </suppress>
+    <suppress until="2021-03-31">
+        <notes>Kotlin analysis is only used during documentation generation</notes>
+        <cve>CVE-2015-5237</cve>
     </suppress>
 </suppressions>

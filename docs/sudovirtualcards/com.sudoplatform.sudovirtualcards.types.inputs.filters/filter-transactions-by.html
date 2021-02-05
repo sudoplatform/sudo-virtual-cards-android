@@ -1,16 +1,75 @@
-<HTML>
-<HEAD>
-<meta charset="UTF-8">
-<title>filterTransactionsBy - sudovirtualcards</title>
-<link rel="stylesheet" href="../../style.css">
-</HEAD>
-<BODY>
-<a href="../index.html">sudovirtualcards</a>&nbsp;/&nbsp;<a href="index.html">com.sudoplatform.sudovirtualcards.types.inputs.filters</a>&nbsp;/&nbsp;<a href="./filter-transactions-by.html">filterTransactionsBy</a><br/>
-<br/>
-<h1>filterTransactionsBy</h1>
-<a name="com.sudoplatform.sudovirtualcards.types.inputs.filters$filterTransactionsBy(kotlin.Function1((com.sudoplatform.sudovirtualcards.types.inputs.filters.TransactionFilter.Builder, kotlin.Unit)))"></a>
-<code><span class="keyword">fun </span><span class="identifier">filterTransactionsBy</span><span class="symbol">(</span><span class="identifier" id="com.sudoplatform.sudovirtualcards.types.inputs.filters$filterTransactionsBy(kotlin.Function1((com.sudoplatform.sudovirtualcards.types.inputs.filters.TransactionFilter.Builder, kotlin.Unit)))/init">init</span><span class="symbol">:</span>&nbsp;<a href="-transaction-filter/-builder/index.html"><span class="identifier">TransactionFilter.Builder</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a>&nbsp;<span class="symbol">=</span>&nbsp;{}<span class="symbol">)</span><span class="symbol">: </span><a href="-transaction-filter/index.html"><span class="identifier">TransactionFilter</span></a></code>
-<p>A helper function to make it easy to specify the filter of transactions.</p>
-<p>Here is an example of how this is used.</p>
-</BODY>
-</HTML>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>filterTransactionsBy</title>
+<script src="https://unpkg.com/kotlin-playground@1" data-selector="code.runnablesample"></script>    <link href="../../styles/style.css" rel="Stylesheet">
+    <script type="text/javascript" src="../../scripts/navigationLoader.js" async="async"></script>
+    <script type="text/javascript" src="../../scripts/platformContentHandler.js" async="async"></script>
+    <script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async="async"></script>
+    <script type="text/javascript" src="../../scripts/clipboard.js" async="async"></script>
+    <link href="../../styles/jetbrains-mono.css" rel="Stylesheet">
+    <script>var pathToRoot = "../../";</script>
+  </head>
+  <body>
+    <div id="container">
+      <div id="leftColumn">
+        <div id="logo"></div>
+        <div id="paneSearch"></div>
+        <div id="sideMenu"></div>
+      </div>
+      <div id="main">
+        <div id="searchBar"></div>
+        <script type="text/javascript" src="../../scripts/pages.js"></script>
+        <script type="text/javascript" src="../../scripts/main.js"></script>
+        <div id="content" pageIds="com.sudoplatform.sudovirtualcards.types.inputs.filters//filterTransactionsBy/#kotlin.Function1[com.sudoplatform.sudovirtualcards.types.inputs.filters.TransactionFilter.Builder,kotlin.Unit]/PointingToDeclaration/">
+          <div class="breadcrumbs"><a href="../index.html">sudovirtualcards</a>/<a href="index.html">com.sudoplatform.sudovirtualcards.types.inputs.filters</a>/<a href="filter-transactions-by.html">filterTransactionsBy</a></div>
+          <div class="cover ">
+            <h1 class="cover"><a data-name="filtertransactionsby"></a><span>filterTransactionsBy</span></h1>
+          </div>
+<div class="divergent-group" data-filterable-current=":sudovirtualcards/release" data-filterable-set=":sudovirtualcards/release"><div class="brief-with-platform-tags"><div class="inner-brief-with-platform-tags"><p class="paragraph">A helper function to make it easy to specify the filter of transactions.</p><h2 class=""><a data-name="samples"></a>Samples</h2><div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Samples"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards/release"><div class="sample-container"><code class="runnablesample monospace" theme="idea"><pre>import android.content.Context
+import com.nhaarman.mockitokotlin2.mock
+import com.sudoplatform.sudoprofiles.SudoProfilesClient
+import com.sudoplatform.sudouser.SudoUserClient
+import com.sudoplatform.sudovirtualcards.BaseTests
+import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
+import com.sudoplatform.sudovirtualcards.types.inputs.filters.filterCardsBy
+import com.sudoplatform.sudovirtualcards.types.inputs.filters.filterTransactionsBy
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+fun main() { 
+   //sampleStart 
+   val myPrimaryCardTransactions = virtualCardsClient.listTransactions {
+    filterTransactionsBy {
+        cardId equalTo &quot;4242424242424242&quot;
+    }
+}
+val allMyCardTransactions = virtualCardsClient.listTransactions {
+    filterTransactionsBy {
+        cardId between (&quot;4242424242424242&quot; to &quot;4242999999999999&quot;)
+    }
+} 
+   //sampleEnd
+}</pre></code></div></div></div></div>
+<span class="pull-right"></span></div>
+
+  <div class="main-subrow">
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards/release"><div class="symbol "><div class="symbol monospace">fun <a href="filter-transactions-by.html">filterTransactionsBy</a>(init: <a href="-transaction-filter/-builder/index.html">TransactionFilter.Builder</a>.() -&gt; <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a>): <a href="-transaction-filter/index.html">TransactionFilter</a><span class="top-right-position"><span class="copy-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4H15V16H5V4ZM17 7H19V18V20H17H8V18H17V7Z" fill="black"/>
+                       </svg></span><div class="copy-popup-wrapper popup-to-left"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 9C18 14 14 18 9 18C4 18 0 14 0 9C0 4 4 0 9 0C14 0 18 4 18 9ZM14.2 6.2L12.8 4.8L7.5 10.1L5.3 7.8L3.8 9.2L7.5 13L14.2 6.2Z" fill="#4DBB5F"/>
+</svg><span>Content copied to clipboard</span></div></span></div></div></div></div>
+  </div>
+</div>
+        </div>
+        <div class="footer"><span class="go-to-top-icon"><a href="#container"><svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M11.3337 9.66683H0.666992L6.00033 3.66683L11.3337 9.66683Z" fill="black"/>
+    <path d="M0.666992 0.333496H11.3337V1.66683H0.666992V0.333496Z" fill="black"/>
+</svg></a></span><span>© 2020 Copyright</span><span class="pull-right"><span>Sponsored and developed by dokka</span><a href="https://github.com/Kotlin/dokka"><span class="padded-icon"><svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8 0H2.3949L4.84076 2.44586L0 7.28662L0.713376 8L5.55414 3.15924L8 5.6051V0Z" fill="black"/>
+</svg></span></a></span></div>
+      </div>
+    </div>
+  </body>
+</html>
+

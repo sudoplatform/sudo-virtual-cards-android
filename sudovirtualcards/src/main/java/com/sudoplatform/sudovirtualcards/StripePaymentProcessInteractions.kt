@@ -45,14 +45,16 @@ class StripePaymentProcessInteractions : PaymentProcessInteractions {
 
         // Build billing details
         val billingDetails = PaymentMethod.BillingDetails.Builder()
-            .setAddress(Address.Builder()
-                .setLine1(input.addressLine1)
-                .setLine2(input.addressLine2)
-                .setCity(input.city)
-                .setState(input.state)
-                .setPostalCode(input.postalCode)
-                .setCountry(ensureAlpha2CountryCode(context, input.country))
-                .build())
+            .setAddress(
+                Address.Builder()
+                    .setLine1(input.addressLine1)
+                    .setLine2(input.addressLine2)
+                    .setCity(input.city)
+                    .setState(input.state)
+                    .setPostalCode(input.postalCode)
+                    .setCountry(ensureAlpha2CountryCode(context, input.country))
+                    .build()
+            )
             .build()
 
         // Confirm setup
