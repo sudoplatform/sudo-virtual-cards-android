@@ -12,10 +12,9 @@ buildscript {
         maven { url = "https://plugins.gradle.org/m2" }
         google()
         mavenCentral()
-        jcenter()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:4.0.1"
+        classpath "com.android.tools.build:gradle:4.0.2"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.owasp:dependency-check-gradle:6.1.0"
         classpath "com.cookpad.android.licensetools:license-tools-plugin:1.7.0"
@@ -34,7 +33,9 @@ allprojects {
         mavenLocal()
         google()
         mavenCentral()
-        jcenter()
+        //  the following line is required to access the dependency
+        //  org.jetbrains.trove4j:trove4j:20160824.
+        maven { url 'https://plugins.gradle.org/m2/' }
     }
     gradle.projectsEvaluated {
         tasks.withType(Test) {

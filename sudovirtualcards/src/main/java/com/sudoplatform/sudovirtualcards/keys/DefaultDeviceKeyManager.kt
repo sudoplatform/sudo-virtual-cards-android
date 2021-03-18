@@ -6,9 +6,7 @@
 
 package com.sudoplatform.sudovirtualcards.keys
 
-import android.content.Context
 import com.sudoplatform.sudokeymanager.KeyManagerException
-import com.sudoplatform.sudokeymanager.KeyManagerFactory
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudologging.AndroidUtilsLogDriver
 import com.sudoplatform.sudologging.LogLevel
@@ -23,10 +21,9 @@ import java.util.UUID
  * @since 2020-06-16
  */
 internal class DefaultDeviceKeyManager(
-    context: Context,
     private val keyRingServiceName: String,
     private val userClient: SudoUserClient,
-    private val keyManager: KeyManagerInterface = KeyManagerFactory(context).createAndroidKeyManager(),
+    private val keyManager: KeyManagerInterface,
     private val logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO))
 ) : DeviceKeyManager {
 

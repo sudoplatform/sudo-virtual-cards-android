@@ -60,7 +60,6 @@ class DeviceKeyManagerExceptionTest : BaseTests() {
 
     private val deviceKeyManager by before {
         DefaultDeviceKeyManager(
-            context = mockContext,
             userClient = mockUserClient,
             keyRingServiceName = keyRingServiceName,
             keyManager = mockKeyManager,

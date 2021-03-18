@@ -47,7 +47,7 @@ abstract class BaseIntegrationTest {
     }
 
     protected val keyManager by lazy {
-        KeyManagerFactory(context).createAndroidKeyManager()
+        KeyManagerFactory(context).createAndroidKeyManager("vc-client-test")
     }
 
     protected suspend fun register() {

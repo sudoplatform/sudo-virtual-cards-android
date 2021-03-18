@@ -49,6 +49,8 @@ interface SudoVirtualCardsClient : AutoCloseable {
         const val DEFAULT_CARD_LIMIT = 10
         const val DEFAULT_FUNDING_SOURCE_LIMIT = 10
         const val DEFAULT_TRANSACTION_LIMIT = 100
+
+        const val DEFAULT_KEY_NAMESPACE = "vc"
     }
 
     /**
@@ -133,10 +135,9 @@ interface SudoVirtualCardsClient : AutoCloseable {
             val appSyncClient = appSyncClient ?: ApiClientManager.getClient(this@Builder.context!!, this@Builder.sudoUserClient!!)
 
             val deviceKeyManager = DefaultDeviceKeyManager(
-                context = context!!,
                 keyRingServiceName = "sudo-virtual-cards",
                 userClient = sudoUserClient!!,
-                keyManager = keyManager ?: KeyManagerFactory(context!!).createAndroidKeyManager()
+                keyManager = keyManager ?: KeyManagerFactory(context!!).createAndroidKeyManager(DEFAULT_KEY_NAMESPACE)
             )
 
             val publicKeyService = DefaultPublicKeyService(

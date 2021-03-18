@@ -70,7 +70,6 @@ class UnsealerTest : BaseTests() {
 
     private val deviceKeyManager by before {
         DefaultDeviceKeyManager(
-            context = context,
             userClient = mockUserClient,
             keyRingServiceName = keyRingServiceName,
             keyManager = keyManager

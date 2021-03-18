@@ -35,6 +35,7 @@ import timber.log.Timber
 import java.util.Calendar
 import java.util.UUID
 import java.util.logging.Logger
+import com.sudoplatform.sudokeymanager.KeyManagerFactory
 
 /**
  * Test the operation of the [SudoVirtualCardsClient].
@@ -73,6 +74,9 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             Logger.getLogger("org.apache.http").level = java.util.logging.Level.FINEST
         }
 
+        // Remove all keys from the Android Keystore so we can start with a clean slate.
+        KeyManagerFactory(context).createAndroidKeyManager().removeAllKeys()
+        sudoClient.generateEncryptionKey()
         vcClient = SudoVirtualCardsClient.builder()
             .setContext(context)
             .setSudoUserClient(userClient)
@@ -1281,5 +1285,66 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         shouldThrow<SudoVirtualCardsClient.TransactionException.AuthenticationException> {
             vcClient.subscribeToTransactions("id") {}
         }
+    }
+
+    @Test
+    fun resetShouldNotAffectOtherClients() = runBlocking<Unit> {
+        assumeTrue(clientConfigFilesPresent())
+
+        signInAndRegister()
+        assumeTrue(userClient.isRegistered())
+
+        verifyTestUserIdentity()
+
+        val keyManager = KeyManagerFactory(context).createAndroidKeyManager("vc")
+        keyManager.removeAllKeys()
+
+        val vcClient = SudoVirtualCardsClient.builder()
+            .setContext(context)
+            .setSudoUserClient(userClient)
+            .setSudoProfilesClient(sudoClient)
+            .setKeyManager(keyManager)
+            .build()
+
+        val fundingSourceInput = CreditCardFundingSourceInput(
+            TestData.Visa.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            TestData.Visa.securityCode,
+            TestData.VerifiedUser.addressLine1,
+            TestData.VerifiedUser.addressLine2,
+            TestData.VerifiedUser.city,
+            TestData.VerifiedUser.state,
+            TestData.VerifiedUser.postalCode,
+            TestData.VerifiedUser.country
+        )
+
+        val fundingSource = vcClient.createFundingSource(fundingSourceInput)
+        fundingSource shouldNotBe null
+
+        val sudo = createSudo(
+            Sudo("Mr", "Theodore", "Bear", "Shopping", null, null)
+        )
+        sudo.id shouldNotBe null
+
+        val provisionCardInput = ProvisionCardInput(
+            sudoId = sudo.id!!,
+            fundingSourceId = fundingSource.id,
+            cardHolder = "Unlimited Cards",
+            alias = "Ted Bear",
+            addressLine1 = "123 Nowhere St",
+            city = "Menlo Park",
+            state = "CA",
+            postalCode = "94025",
+            country = "US",
+            currency = "USD"
+        )
+        provisionCard(provisionCardInput, vcClient)
+
+        keyManager.exportKeys().size shouldBe 3
+
+        vcClient.reset()
+        keyManager.exportKeys().size shouldBe 0
+        assumeTrue(userClient.isRegistered())
     }
 }

@@ -547,6 +547,7 @@ internal class DefaultSudoVirtualCardsClient(
 
     override fun reset() {
         close()
+        this.deviceKeyManager.removeAllKeys()
     }
 
     /** Private Methods */

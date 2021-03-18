@@ -34,7 +34,6 @@ class DeviceKeyManagerTest : BaseIntegrationTest() {
 
     private val deviceKeyManager by lazy {
         DefaultDeviceKeyManager(
-            context = context,
             userClient = userClient,
             keyRingServiceName = keyRingServiceName,
             keyManager = keyManager
