@@ -1,1 +1,1 @@
-sourceset_dependencies = '{":sudovirtualcards/debug": [], ":sudovirtualcards/main": [], ":sudovirtualcards/release": []}'
+sourceset_dependencies = '{":sudovirtualcards/androidTestRelease": [], ":sudovirtualcards/debug": [], ":sudovirtualcards/main": [], ":sudovirtualcards/release": []}'

@@ -40,7 +40,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.ResponseBody.Companion.toResponseBody
-import org.eclipse.paho.client.mqttv3.internal.websocket.Base64
+import org.bouncycastle.util.encoders.Base64
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -48,6 +48,7 @@ import org.mockito.ArgumentMatchers.anyString
 import java.net.HttpURLConnection
 import java.util.Date
 import java.util.concurrent.CancellationException
+import kotlin.text.Charsets.UTF_8
 
 /**
  * Test the correct operation of [SudoVirtualCardsClient.listCards] using mocks
@@ -61,7 +62,7 @@ class SudoVirtualCardsListCardsTest : BaseTests() {
         val valueBytes = value.toByteArray()
         val data = ByteArray(256)
         valueBytes.copyInto(data)
-        return Base64.encodeBytes(data)
+        return String(Base64.encode(data), UTF_8)
     }
 
     private val billingAddress by before {

@@ -43,7 +43,7 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Protocol
 import okhttp3.ResponseBody.Companion.toResponseBody
-import org.eclipse.paho.client.mqttv3.internal.websocket.Base64
+import org.bouncycastle.util.encoders.Base64
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -62,7 +62,7 @@ class SudoVirtualCardsUpdateCardTest : BaseTests() {
         val valueBytes = value.toByteArray()
         val data = ByteArray(256)
         valueBytes.copyInto(data)
-        return Base64.encodeBytes(data)
+        return String(Base64.encode(data), Charsets.UTF_8)
     }
 
     private val address by before {

@@ -43,7 +43,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import org.eclipse.paho.client.mqttv3.internal.websocket.Base64
+import org.bouncycastle.util.encoders.Base64
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -125,7 +125,7 @@ class SudoVirtualCardsProvisionCardTest : BaseTests() {
             "keyId",
             "keyRingId",
             "algorithm",
-            Base64.encode("publicKey"),
+            String(Base64.encode("publicKey".toByteArray()), Charsets.UTF_8),
             "owner",
             1,
             1.0,
@@ -143,7 +143,7 @@ class SudoVirtualCardsProvisionCardTest : BaseTests() {
             .keyId("keyId")
             .keyRingId("keyRingId")
             .algorithm("algorithm")
-            .publicKey(Base64.encode("publicKey"))
+            .publicKey(String(Base64.encode("publicKey".toByteArray()), Charsets.UTF_8))
             .build()
     }
 
@@ -154,7 +154,7 @@ class SudoVirtualCardsProvisionCardTest : BaseTests() {
             "keyId",
             "keyRingId",
             "algorithm",
-            Base64.encode("publicKey"),
+            String(Base64.encode("publicKey".toByteArray()), Charsets.UTF_8),
             "owner",
             1,
             1.0,
