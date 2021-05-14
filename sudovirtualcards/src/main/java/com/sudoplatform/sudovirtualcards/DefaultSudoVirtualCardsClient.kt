@@ -95,11 +95,14 @@ internal class DefaultSudoVirtualCardsClient(
 
     companion object {
         /** Exception messages */
+        private const val INVALID_TOKEN_MSG = "An invalid token error has occurred"
         private const val UNSEAL_CARD_ERROR_MSG = "Unable to unseal card data"
         private const val KEY_RETRIEVAL_ERROR_MSG = "Failed to retrieve a public key pair"
         private const val NO_RESULT_ERROR_MSG = "No result returned"
         private const val IDENTITY_NOT_VERIFIED_MSG = "Identity has not been verified"
+        private const val IDENTITY_INSUFFICIENT_MSG = "Identity is insufficient"
         private const val FUNDING_SOURCE_NOT_FOUND_MSG = "Funding source not found"
+        private const val FUNDING_SOURCE_STATE_MSG = "Funding source state is inappropriate for the requested operation"
         private const val FUNDING_SOURCE_NOT_COMPLETE_MSG = "Failed to complete funding source creation"
         private const val DUPLICATE_FUNDING_SOURCE_MSG = "Duplicate funding source"
         private const val UNACCEPTABLE_FUNDING_SOURCE_MSG = "Funding source is not acceptable to be created"
@@ -109,13 +112,17 @@ internal class DefaultSudoVirtualCardsClient(
         private const val FUNDING_SOURCE_NOT_ACTIVE_MSG = "Funding source is not active"
         private const val VELOCITY_EXCEEDED_MSG = "Velocity has been exceeded"
         private const val ENTITLEMENT_EXCEEDED_MSG = "Entitlements have been exceeded"
+        private const val ACCOUNT_LOCKED_MSG = "Account is locked"
 
         /** Errors returned from the service */
         private const val ERROR_TYPE = "errorType"
         private const val SERVICE_ERROR = "ServiceError"
+        private const val ERROR_INVALID_TOKEN = "InvalidTokenError"
         private const val ERROR_IDENTITY_NOT_VERIFIED = "IdentityVerificationNotVerifiedError"
+        private const val ERROR_IDENTITY_INSUFFICIENT = "IdentityVerificationInsufficientError"
         private const val ERROR_FUNDING_SOURCE_NOT_FOUND = "FundingSourceNotFoundError"
         private const val ERROR_FUNDING_SOURCE_NOT_SETUP = "FundingSourceNotSetupErrorCode"
+        private const val ERROR_FUNDING_SOURCE_STATE = "FundingSourceStateError"
         private const val ERROR_FUNDING_SOURCE_COMPLETION_DATA_INVALID = "FundingSourceCompletionDataInvalidError"
         private const val ERROR_PROVISIONAL_FUNDING_SOURCE_NOT_FOUND = "ProvisionalFundingSourceNotFoundError"
         private const val ERROR_DUPLICATE_FUNDING_SOURCE = "DuplicateFundingSourceError"
@@ -126,6 +133,7 @@ internal class DefaultSudoVirtualCardsClient(
         private const val ERROR_FUNDING_SOURCE_NOT_ACTIVE = "FundingSourceNotActiveError"
         private const val ERROR_VELOCITY_EXCEEDED = "VelocityExceededError"
         private const val ERROR_ENTITLEMENT_EXCEEDED = "EntitlementExceededError"
+        private const val ERROR_ACCOUNT_LOCKED = "AccountLockedError"
     }
 
     /** This manages the subscriptions to transaction updates and deletes */
@@ -719,6 +727,9 @@ internal class DefaultSudoVirtualCardsClient(
         if (error.contains(ERROR_DUPLICATE_FUNDING_SOURCE)) {
             return SudoVirtualCardsClient.FundingSourceException.DuplicateFundingSourceException(DUPLICATE_FUNDING_SOURCE_MSG)
         }
+        if (error.contains(ERROR_FUNDING_SOURCE_STATE)) {
+            return SudoVirtualCardsClient.FundingSourceException.FundingSourceStateException(FUNDING_SOURCE_STATE_MSG)
+        }
         if (error.contains(ERROR_FUNDING_SOURCE_NOT_SETUP) || error.contains(ERROR_FUNDING_SOURCE_COMPLETION_DATA_INVALID)) {
             return SudoVirtualCardsClient.FundingSourceException.CompletionFailedException(FUNDING_SOURCE_NOT_COMPLETE_MSG)
         }
@@ -731,11 +742,17 @@ internal class DefaultSudoVirtualCardsClient(
         if (error.contains(ERROR_IDENTITY_NOT_VERIFIED) || error.contains(SERVICE_ERROR)) {
             return SudoVirtualCardsClient.FundingSourceException.IdentityVerificationException(IDENTITY_NOT_VERIFIED_MSG)
         }
+        if (error.contains(ERROR_ACCOUNT_LOCKED)) {
+            return SudoVirtualCardsClient.FundingSourceException.AccountLockedException(ACCOUNT_LOCKED_MSG)
+        }
         return SudoVirtualCardsClient.FundingSourceException.FailedException(e.toString())
     }
 
     private fun interpretCardError(e: Error): SudoVirtualCardsClient.CardException {
         val error = e.customAttributes()[ERROR_TYPE]?.toString() ?: ""
+        if (error.contains(ERROR_INVALID_TOKEN)) {
+            return SudoVirtualCardsClient.CardException.ProvisionFailedException(INVALID_TOKEN_MSG)
+        }
         if (error.contains(ERROR_CARD_NOT_FOUND)) {
             return SudoVirtualCardsClient.CardException.CardNotFoundException(CARD_NOT_FOUND_MSG)
         }
@@ -759,6 +776,12 @@ internal class DefaultSudoVirtualCardsClient(
         }
         if (error.contains(ERROR_IDENTITY_NOT_VERIFIED)) {
             return SudoVirtualCardsClient.CardException.IdentityVerificationException(IDENTITY_NOT_VERIFIED_MSG)
+        }
+        if (error.contains(ERROR_IDENTITY_INSUFFICIENT)) {
+            return SudoVirtualCardsClient.CardException.IdentityVerificationInsufficientException(IDENTITY_INSUFFICIENT_MSG)
+        }
+        if (error.contains(ERROR_ACCOUNT_LOCKED)) {
+            return SudoVirtualCardsClient.CardException.AccountLockedException(ACCOUNT_LOCKED_MSG)
         }
         return SudoVirtualCardsClient.CardException.FailedException(e.toString())
     }

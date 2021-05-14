@@ -693,6 +693,100 @@ class SudoVirtualCardsCreateFundingSourceTest : BaseTests() {
     }
 
     @Test
+    fun `createFundingSource() should throw when response has an account locked error`
+    () = runBlocking<Unit> {
+
+        configHolder.callback shouldBe null
+        setupHolder.callback shouldBe null
+        completeHolder.callback shouldBe null
+
+        val errorCreateResponse by before {
+            val error = com.apollographql.apollo.api.Error(
+                "mock",
+                emptyList(),
+                mapOf("errorType" to "AccountLockedError")
+            )
+            Response.builder<CompleteFundingSourceMutation.Data>(CompleteFundingSourceMutation(completeRequest))
+                .errors(listOf(error))
+                .data(null)
+                .build()
+        }
+
+        val deferredResult = async(Dispatchers.IO) {
+            shouldThrow<SudoVirtualCardsClient.FundingSourceException.AccountLockedException> {
+                client.createFundingSource(input)
+            }
+        }
+        deferredResult.start()
+
+        delay(100L)
+        configHolder.callback shouldNotBe null
+        configHolder.callback?.onResponse(configResponse)
+
+        delay(100L)
+        setupHolder.callback shouldNotBe null
+        setupHolder.callback?.onResponse(setupResponse)
+
+        delay(100L)
+        completeHolder.callback shouldNotBe null
+        completeHolder.callback?.onResponse(errorCreateResponse)
+
+        deferredResult.await()
+
+        verify(mockAppSyncClient).query(any<GetFundingSourceClientConfigurationQuery>())
+        verify(mockAppSyncClient).mutate(any<SetupFundingSourceMutation>())
+        verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
+        verify(mockPaymentProcessorInteractions).process(any(), any(), any(), any())
+    }
+
+    @Test
+    fun `createFundingSource() should throw when response has a funding source state error`
+    () = runBlocking<Unit> {
+
+        configHolder.callback shouldBe null
+        setupHolder.callback shouldBe null
+        completeHolder.callback shouldBe null
+
+        val errorCreateResponse by before {
+            val error = com.apollographql.apollo.api.Error(
+                "mock",
+                emptyList(),
+                mapOf("errorType" to "FundingSourceStateError")
+            )
+            Response.builder<CompleteFundingSourceMutation.Data>(CompleteFundingSourceMutation(completeRequest))
+                .errors(listOf(error))
+                .data(null)
+                .build()
+        }
+
+        val deferredResult = async(Dispatchers.IO) {
+            shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceStateException> {
+                client.createFundingSource(input)
+            }
+        }
+        deferredResult.start()
+
+        delay(100L)
+        configHolder.callback shouldNotBe null
+        configHolder.callback?.onResponse(configResponse)
+
+        delay(100L)
+        setupHolder.callback shouldNotBe null
+        setupHolder.callback?.onResponse(setupResponse)
+
+        delay(100L)
+        completeHolder.callback shouldNotBe null
+        completeHolder.callback?.onResponse(errorCreateResponse)
+
+        deferredResult.await()
+
+        verify(mockAppSyncClient).query(any<GetFundingSourceClientConfigurationQuery>())
+        verify(mockAppSyncClient).mutate(any<SetupFundingSourceMutation>())
+        verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
+        verify(mockPaymentProcessorInteractions).process(any(), any(), any(), any())
+    }
+
+    @Test
     fun `createFundingSource() should throw when response has a service error`
     () = runBlocking<Unit> {
 

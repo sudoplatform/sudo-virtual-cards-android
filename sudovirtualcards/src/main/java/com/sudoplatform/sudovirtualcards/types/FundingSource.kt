@@ -7,7 +7,7 @@
 package com.sudoplatform.sudovirtualcards.types
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 /**
  * Representation of a [FundingSource] used in the Sudo Platform Virtual Cards SDK.

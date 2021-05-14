@@ -378,7 +378,7 @@ class SudoVirtualCardsProvisionCardTest : BaseTests() {
     }
 
     @Test
-    fun `provisionCard() should throw when response has an identity verification error`() = runBlocking<Unit> {
+    fun `provisionCard() should throw when response has an identity verification not verified error`() = runBlocking<Unit> {
 
         provisionHolder.callback shouldBe null
         keyRingHolder.callback shouldBe null
@@ -398,6 +398,56 @@ class SudoVirtualCardsProvisionCardTest : BaseTests() {
 
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<SudoVirtualCardsClient.CardException.IdentityVerificationException> {
+                client.provisionCard(input)
+            }
+        }
+        deferredResult.start()
+        delay(100L)
+
+        keyRingHolder.callback shouldNotBe null
+        keyRingHolder.callback?.onResponse(keyRingResponse)
+
+        delay(100L)
+        publicKeyHolder.callback shouldNotBe null
+        publicKeyHolder.callback?.onResponse(publicKeyResponse)
+
+        delay(100L)
+        provisionHolder.callback shouldNotBe null
+        provisionHolder.callback?.onResponse(errorProvisionResponse)
+
+        verify(mockAppSyncClient).query(any<GetKeyRingForVirtualCardsQuery>())
+        verify(mockAppSyncClient).mutate(any<CreatePublicKeyForVirtualCardsMutation>())
+        verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
+        verify(mockKeyManager).getPassword(anyString())
+        verify(mockKeyManager).getPublicKeyData(anyString())
+        verify(mockKeyManager).getPrivateKeyData(anyString())
+        verify(mockUserClient, times(2)).getSubject()
+        verify(mockUserClient).refreshTokens(anyString())
+        verify(mockUserClient).getRefreshToken()
+        verify(mockSudoClient).getOwnershipProof(any<Sudo>(), anyString())
+    }
+
+    @Test
+    fun `provisionCard() should throw when response has an identity verification insufficient error`() = runBlocking<Unit> {
+
+        provisionHolder.callback shouldBe null
+        keyRingHolder.callback shouldBe null
+        publicKeyHolder.callback shouldBe null
+
+        val errorProvisionResponse by before {
+            val error = com.apollographql.apollo.api.Error(
+                "mock",
+                emptyList(),
+                mapOf("errorType" to "IdentityVerificationInsufficientError")
+            )
+            Response.builder<CardProvisionMutation.Data>(CardProvisionMutation(cardProvisionRequest))
+                .errors(listOf(error))
+                .data(null)
+                .build()
+        }
+
+        val deferredResult = async(Dispatchers.IO) {
+            shouldThrow<SudoVirtualCardsClient.CardException.IdentityVerificationInsufficientException> {
                 client.provisionCard(input)
             }
         }
@@ -648,6 +698,106 @@ class SudoVirtualCardsProvisionCardTest : BaseTests() {
 
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<SudoVirtualCardsClient.CardException.UnsupportedCurrencyException> {
+                client.provisionCard(input)
+            }
+        }
+        deferredResult.start()
+        delay(100L)
+
+        keyRingHolder.callback shouldNotBe null
+        keyRingHolder.callback?.onResponse(keyRingResponse)
+
+        delay(100L)
+        publicKeyHolder.callback shouldNotBe null
+        publicKeyHolder.callback?.onResponse(publicKeyResponse)
+
+        delay(100L)
+        provisionHolder.callback shouldNotBe null
+        provisionHolder.callback?.onResponse(errorProvisionResponse)
+
+        verify(mockAppSyncClient).query(any<GetKeyRingForVirtualCardsQuery>())
+        verify(mockAppSyncClient).mutate(any<CreatePublicKeyForVirtualCardsMutation>())
+        verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
+        verify(mockKeyManager).getPassword(anyString())
+        verify(mockKeyManager).getPublicKeyData(anyString())
+        verify(mockKeyManager).getPrivateKeyData(anyString())
+        verify(mockUserClient, times(2)).getSubject()
+        verify(mockUserClient).refreshTokens(anyString())
+        verify(mockUserClient).getRefreshToken()
+        verify(mockSudoClient).getOwnershipProof(any<Sudo>(), anyString())
+    }
+
+    @Test
+    fun `provisionCard() should throw when response has an invalid token error`() = runBlocking<Unit> {
+
+        provisionHolder.callback shouldBe null
+        keyRingHolder.callback shouldBe null
+        publicKeyHolder.callback shouldBe null
+
+        val errorProvisionResponse by before {
+            val error = com.apollographql.apollo.api.Error(
+                "mock",
+                emptyList(),
+                mapOf("errorType" to "InvalidTokenError")
+            )
+            Response.builder<CardProvisionMutation.Data>(CardProvisionMutation(cardProvisionRequest))
+                .errors(listOf(error))
+                .data(null)
+                .build()
+        }
+
+        val deferredResult = async(Dispatchers.IO) {
+            shouldThrow<SudoVirtualCardsClient.CardException.ProvisionFailedException> {
+                client.provisionCard(input)
+            }
+        }
+        deferredResult.start()
+        delay(100L)
+
+        keyRingHolder.callback shouldNotBe null
+        keyRingHolder.callback?.onResponse(keyRingResponse)
+
+        delay(100L)
+        publicKeyHolder.callback shouldNotBe null
+        publicKeyHolder.callback?.onResponse(publicKeyResponse)
+
+        delay(100L)
+        provisionHolder.callback shouldNotBe null
+        provisionHolder.callback?.onResponse(errorProvisionResponse)
+
+        verify(mockAppSyncClient).query(any<GetKeyRingForVirtualCardsQuery>())
+        verify(mockAppSyncClient).mutate(any<CreatePublicKeyForVirtualCardsMutation>())
+        verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
+        verify(mockKeyManager).getPassword(anyString())
+        verify(mockKeyManager).getPublicKeyData(anyString())
+        verify(mockKeyManager).getPrivateKeyData(anyString())
+        verify(mockUserClient, times(2)).getSubject()
+        verify(mockUserClient).refreshTokens(anyString())
+        verify(mockUserClient).getRefreshToken()
+        verify(mockSudoClient).getOwnershipProof(any<Sudo>(), anyString())
+    }
+
+    @Test
+    fun `provisionCard() should throw when response has an account locked error`() = runBlocking<Unit> {
+
+        provisionHolder.callback shouldBe null
+        keyRingHolder.callback shouldBe null
+        publicKeyHolder.callback shouldBe null
+
+        val errorProvisionResponse by before {
+            val error = com.apollographql.apollo.api.Error(
+                "mock",
+                emptyList(),
+                mapOf("errorType" to "AccountLockedError")
+            )
+            Response.builder<CardProvisionMutation.Data>(CardProvisionMutation(cardProvisionRequest))
+                .errors(listOf(error))
+                .data(null)
+                .build()
+        }
+
+        val deferredResult = async(Dispatchers.IO) {
+            shouldThrow<SudoVirtualCardsClient.CardException.AccountLockedException> {
                 client.provisionCard(input)
             }
         }

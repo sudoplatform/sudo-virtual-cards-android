@@ -181,6 +181,8 @@ interface SudoVirtualCardsClient : AutoCloseable {
             FundingSourceException(message = message, cause = cause)
         class SetupFailedException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
+        class FundingSourceStateException(message: String? = null, cause: Throwable? = null) :
+            FundingSourceException(message = message, cause = cause)
         class CompletionFailedException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
         class CancelFailedException(message: String? = null, cause: Throwable? = null) :
@@ -194,6 +196,8 @@ interface SudoVirtualCardsClient : AutoCloseable {
         class UnsupportedCurrencyException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
         class IdentityVerificationException(message: String? = null, cause: Throwable? = null) :
+            FundingSourceException(message = message, cause = cause)
+        class AccountLockedException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
         class UnknownException(cause: Throwable) :
             FundingSourceException(cause = cause)
@@ -230,9 +234,13 @@ interface SudoVirtualCardsClient : AutoCloseable {
             CardException(message = message, cause = cause)
         class IdentityVerificationException(message: String? = null, cause: Throwable? = null) :
             CardException(message = message, cause = cause)
+        class IdentityVerificationInsufficientException(message: String? = null, cause: Throwable? = null) :
+            CardException(message = message, cause = cause)
         class PublicKeyException(message: String? = null, cause: Throwable? = null) :
             CardException(message = message, cause = cause)
         class UnsealingException(message: String? = null, cause: Throwable? = null) :
+            CardException(message = message, cause = cause)
+        class AccountLockedException(message: String? = null, cause: Throwable? = null) :
             CardException(message = message, cause = cause)
         class UnknownException(cause: Throwable) :
             CardException(cause = cause)

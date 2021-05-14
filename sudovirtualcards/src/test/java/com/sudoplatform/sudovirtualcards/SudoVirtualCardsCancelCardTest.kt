@@ -325,6 +325,41 @@ class SudoVirtualCardsCancelCardTest : BaseTests() {
     }
 
     @Test
+    fun `cancelCard() should throw when response has an account locked error`() = runBlocking<Unit> {
+
+        mutationHolder.callback shouldBe null
+
+        val errorMutationResponse by before {
+            val error = com.apollographql.apollo.api.Error(
+                "mock",
+                emptyList(),
+                mapOf("errorType" to "AccountLockedError")
+            )
+            Response.builder<CancelCardMutation.Data>(CancelCardMutation(mutationRequest))
+                .errors(listOf(error))
+                .data(null)
+                .build()
+        }
+
+        val deferredResult = async(Dispatchers.IO) {
+            shouldThrow<SudoVirtualCardsClient.CardException.AccountLockedException> {
+                client.cancelCard("id")
+            }
+        }
+        deferredResult.start()
+
+        delay(100L)
+        mutationHolder.callback shouldNotBe null
+        mutationHolder.callback?.onResponse(errorMutationResponse)
+
+        verify(mockAppSyncClient).mutate(any<CancelCardMutation>())
+        verify(mockKeyManager).getPassword(anyString())
+        verify(mockKeyManager).getPublicKeyData(anyString())
+        verify(mockKeyManager).getPrivateKeyData(anyString())
+        verify(mockUserClient).getSubject()
+    }
+
+    @Test
     fun `cancelCard() should throw when password retrieval fails`() = runBlocking<Unit> {
 
         mockKeyManager.stub {

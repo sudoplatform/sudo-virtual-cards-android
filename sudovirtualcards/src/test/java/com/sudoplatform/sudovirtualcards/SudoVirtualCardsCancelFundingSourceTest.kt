@@ -212,6 +212,39 @@ class SudoVirtualCardsCancelFundingSourceTest : BaseTests() {
     }
 
     @Test
+    fun `cancelFundingSource() should throw when response has an account locked error`() = runBlocking<Unit> {
+
+        holder.callback shouldBe null
+
+        val errorCancelResponse by before {
+            val error = com.apollographql.apollo.api.Error(
+                "mock",
+                emptyList(),
+                mapOf("errorType" to "AccountLockedError")
+            )
+            Response.builder<CancelFundingSourceMutation.Data>(CancelFundingSourceMutation(idInput))
+                .errors(listOf(error))
+                .data(null)
+                .build()
+        }
+
+        val deferredResult = async(Dispatchers.IO) {
+            shouldThrow<SudoVirtualCardsClient.FundingSourceException.AccountLockedException> {
+                client.cancelFundingSource("id")
+            }
+        }
+        deferredResult.start()
+        delay(100L)
+
+        holder.callback shouldNotBe null
+        holder.callback?.onResponse(errorCancelResponse)
+
+        deferredResult.await()
+
+        verify(mockAppSyncClient).mutate(any<CancelFundingSourceMutation>())
+    }
+
+    @Test
     fun `cancelFundingSource() should throw when http error occurs`() = runBlocking<Unit> {
 
         holder.callback shouldBe null
