@@ -6,7 +6,7 @@
 package com.sudoplatform.sudovirtualcards.samples
 
 import android.content.Context
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.mock
 import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.BaseTests

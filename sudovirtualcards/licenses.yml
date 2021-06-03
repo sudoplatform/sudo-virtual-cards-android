@@ -572,12 +572,6 @@
   license: Android Software Development Kit License
   licenseUrl: https://developer.android.com/studio/terms.html
   url: https://developers.google.com/android/guides/overview
-- artifact: org.jetbrains.kotlinx:kotlinx-coroutines-core-common:+
-  name: kotlinx-coroutines-core
-  copyrightHolder: Jetbrains, Inc.
-  license: The Apache Software License, Version 2.0
-  licenseUrl: https://www.apache.org/licenses/LICENSE-2.0.txt
-  url: https://github.com/Kotlin/kotlinx.coroutines
 - artifact: androidx.annotation:annotation-experimental:+
   name: Experimental annotation
   copyrightHolder: Google, Inc.
@@ -620,4 +614,21 @@
   license: Bouncy Castle Licence
   licenseUrl: http://www.bouncycastle.org/licence.html
   url: http://www.bouncycastle.org/java.html
-
+- artifact: android.arch.lifecycle:common:+
+  name: Android Lifecycle-Common
+  copyrightHolder: Google, Inc.
+  license: The Apache Software License, Version 2.0
+  licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.txt
+  url: https://developer.android.com/topic/libraries/architecture/index.html
+- artifact: android.arch.lifecycle:runtime:+
+  name: Android Lifecycle Runtime
+  copyrightHolder: Google, Inc.
+  license: The Apache Software License, Version 2.0
+  licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.txt
+  url: https://developer.android.com/topic/libraries/architecture/index.html
+- artifact: android.arch.core:common:+
+  name: Android Arch-Common
+  copyrightHolder: Google, Inc.
+  license: The Apache Software License, Version 2.0
+  licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.txt
+  url: https://developer.android.com/topic/libraries/architecture/index.html
