@@ -9,6 +9,7 @@ package com.sudoplatform.sudovirtualcards
 import android.content.Context
 import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
+import com.sudoplatform.sudoentitlements.SudoEntitlementsClient
 import com.sudoplatform.sudoidentityverification.DefaultSudoIdentityVerificationClient
 import com.sudoplatform.sudokeymanager.KeyManagerFactory
 import com.sudoplatform.sudoprofiles.DefaultSudoProfilesClient
@@ -40,6 +41,13 @@ abstract class BaseIntegrationTest {
     protected val sudoClient by lazy {
         val containerURI = Uri.fromFile(context.cacheDir)
         DefaultSudoProfilesClient(context, userClient, containerURI)
+    }
+
+    private val entitlementsClient by lazy {
+        SudoEntitlementsClient.builder()
+            .setContext(context)
+            .setSudoUserClient(userClient)
+            .build()
     }
 
     private val identityVerificationClient by lazy {
@@ -87,6 +95,7 @@ abstract class BaseIntegrationTest {
         userClient.isRegistered() shouldBe true
         signIn()
         userClient.isSignedIn() shouldBe true
+        entitlementsClient.redeemEntitlements()
     }
 
     protected fun clientConfigFilesPresent(): Boolean {
