@@ -422,18 +422,6 @@
   copyrightHolder: The JSR-330 Expert Group
   licenseUrl: http://www.bouncycastle.org/licence.html
   url: http://www.bouncycastle.org/java.html
-- artifact: com.squareup.retrofit2:retrofit:+
-  name: Retrofit
-  copyrightHolder: Square, Inc.
-  license: The Apache Software License, Version 2.0
-  licenseUrl: https://github.com/square/retrofit/blob/master/LICENSE.txt
-  url: https://github.com/square/retrofit
-- artifact: com.squareup.retrofit2:converter-gson:+
-  name: Converter Gson
-  copyrightHolder: Square, Inc.
-  license: The Apache Software License, Version 2.0
-  licenseUrl: https://github.com/square/retrofit/blob/master/LICENSE.txt
-  url: https://mvnrepository.com/artifact/com.google.code.gson/gson
 - artifact: com.google.android.gms:play-services-base:+
   name: play-services-base
   copyrightHolder: Google, Inc.
@@ -650,3 +638,15 @@
   license: Bouncy Castle Licence
   licenseUrl: http://www.bouncycastle.org/licence.html
   url: http://www.bouncycastle.org/java.html
+- artifact: org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:+
+  name: kotlinx-serialization-core
+  copyrightHolder: JetBrains, Inc.
+  license: The Apache Software License, Version 2.0
+  licenseUrl: https://www.apache.org/licenses/LICENSE-2.0.txt
+  url: https://github.com/Kotlin/kotlinx.serialization
+- artifact: org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:+
+  name: kotlinx-serialization-json
+  copyrightHolder: JetBrains, Inc.
+  license: The Apache Software License, Version 2.0
+  licenseUrl: https://www.apache.org/licenses/LICENSE-2.0.txt
+  url: https://github.com/Kotlin/kotlinx.serialization

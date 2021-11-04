@@ -81,12 +81,12 @@ dependencies {
     // Sudo Platform
     implementation "com.sudoplatform:sudokeymanager:3.8.0"
     implementation "com.sudoplatform:sudologging:1.1.0"
-    implementation "com.sudoplatform:sudouser:9.4.0"
-    implementation 'com.sudoplatform:sudoapiclient:2.1.0'
-    implementation "com.sudoplatform:sudoprofiles:7.0.0"
+    implementation "com.sudoplatform:sudouser:9.4.2"
+    implementation 'com.sudoplatform:sudoapiclient:2.1.2'
+    implementation "com.sudoplatform:sudoprofiles:7.0.1"
 
     androidTestImplementation 'com.sudoplatform:sudoidentityverification:5.1.0'
-    androidTestImplementation 'com.sudoplatform:sudoentitlements:2.3.0'
+    androidTestImplementation 'com.sudoplatform:sudoentitlements:2.3.1'
 
     // Utils
     //noinspection GradleDependency

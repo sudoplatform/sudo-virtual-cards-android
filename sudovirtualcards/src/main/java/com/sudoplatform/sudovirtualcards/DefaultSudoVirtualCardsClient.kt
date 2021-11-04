@@ -136,6 +136,16 @@ internal class DefaultSudoVirtualCardsClient(
         private const val ERROR_ACCOUNT_LOCKED = "AccountLockedError"
     }
 
+    /**
+     * Checksum's for each file are generated and are used to create a checksum that is used when
+     * publishing to maven central. In order to retry a failed publish without needing to change any
+     * functionality, we need a way to generate a different checksum for the source code.  We can
+     * change the value of this property which will generate a different checksum for publishing
+     * and allow us to retry.  The value of `version` doesn't need to be kept up-to-date with the
+     * version of the code.
+     */
+    private val version: String = "3.0.1"
+
     /** This manages the subscriptions to transaction updates and deletes */
     private val transactionSubscriptions = TransactionSubscriptionService(appSyncClient, deviceKeyManager, sudoUserClient, logger)
 
