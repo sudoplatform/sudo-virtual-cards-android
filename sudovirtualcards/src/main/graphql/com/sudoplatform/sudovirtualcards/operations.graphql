@@ -1,4 +1,70 @@
 # this is an auto generated file. This will be overwritten
+query GetPublicKeyForVirtualCards($keyId: String!, $keyFormats: [KeyFormat!]) {
+  getPublicKeyForVirtualCards(keyId: $keyId, keyFormats: $keyFormats) {
+    id
+    keyId
+    keyRingId
+    algorithm
+    keyFormat
+    publicKey
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+  }
+}
+query GetPublicKeysForVirtualCards(
+  $limit: Int
+  $nextToken: String
+  $keyFormats: [KeyFormat!]
+) {
+  getPublicKeysForVirtualCards(
+    limit: $limit
+    nextToken: $nextToken
+    keyFormats: $keyFormats
+  ) {
+    items {
+      id
+      keyId
+      keyRingId
+      algorithm
+      keyFormat
+      publicKey
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+    }
+    nextToken
+  }
+}
+query GetKeyRingForVirtualCards(
+  $keyRingId: String!
+  $limit: Int
+  $nextToken: String
+  $keyFormats: [KeyFormat!]
+) {
+  getKeyRingForVirtualCards(
+    keyRingId: $keyRingId
+    limit: $limit
+    nextToken: $nextToken
+    keyFormats: $keyFormats
+  ) {
+    items {
+      id
+      keyId
+      keyRingId
+      algorithm
+      keyFormat
+      publicKey
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+    }
+    nextToken
+  }
+}
 query GetProvisionalCard($id: ID!) {
   getProvisionalCard(id: $id) {
     id
@@ -42,6 +108,12 @@ query GetProvisionalCard($id: ID!) {
       expiry {
         mm
         yyyy
+      }
+      metadata {
+        algorithm
+        keyId
+        plainTextType
+        base64EncodedSealedData
       }
     }
     aws_ds
@@ -95,6 +167,12 @@ query ListProvisionalCards(
         expiry {
           mm
           yyyy
+        }
+        metadata {
+          algorithm
+          keyId
+          plainTextType
+          base64EncodedSealedData
         }
       }
       aws_ds
@@ -154,11 +232,17 @@ query ListProvisionalCardsDelta(
         mm
         yyyy
       }
+      metadata {
+        algorithm
+        keyId
+        plainTextType
+        base64EncodedSealedData
+      }
     }
     aws_ds
   }
 }
-query GetCard($id: ID!, $keyId: String!) {
+query GetCard($id: ID!, $keyId: String) {
   getCard(id: $id, keyId: $keyId) {
     id
     owner
@@ -193,6 +277,57 @@ query GetCard($id: ID!, $keyId: String!) {
     expiry {
       mm
       yyyy
+    }
+    lastTransaction {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      sortDateEpochMs
+      algorithm
+      keyId
+      cardId
+      sequenceId
+      type
+      transactedAtEpochMs
+      billedAmount {
+        currency
+        amount
+      }
+      transactedAmount {
+        currency
+        amount
+      }
+      description
+      declineReason
+      detail {
+        virtualCardAmount {
+          currency
+          amount
+        }
+        markup {
+          percent
+          flat
+          minCharge
+        }
+        markupAmount {
+          currency
+          amount
+        }
+        fundingSourceAmount {
+          currency
+          amount
+        }
+        fundingSourceId
+        description
+      }
+    }
+    metadata {
+      algorithm
+      keyId
+      plainTextType
+      base64EncodedSealedData
     }
   }
 }
@@ -233,17 +368,69 @@ query ListCards($filter: CardFilterInput, $limit: Int, $nextToken: String) {
         mm
         yyyy
       }
+      lastTransaction {
+        id
+        owner
+        version
+        createdAtEpochMs
+        updatedAtEpochMs
+        sortDateEpochMs
+        algorithm
+        keyId
+        cardId
+        sequenceId
+        type
+        transactedAtEpochMs
+        billedAmount {
+          currency
+          amount
+        }
+        transactedAmount {
+          currency
+          amount
+        }
+        description
+        declineReason
+        detail {
+          virtualCardAmount {
+            currency
+            amount
+          }
+          markup {
+            percent
+            flat
+            minCharge
+          }
+          markupAmount {
+            currency
+            amount
+          }
+          fundingSourceAmount {
+            currency
+            amount
+          }
+          fundingSourceId
+          description
+        }
+      }
+      metadata {
+        algorithm
+        keyId
+        plainTextType
+        base64EncodedSealedData
+      }
     }
     nextToken
   }
 }
-query GetTransaction($id: ID!, $keyId: String!) {
+query GetTransaction($id: ID!, $keyId: String) {
   getTransaction(id: $id, keyId: $keyId) {
     id
     owner
     version
     createdAtEpochMs
     updatedAtEpochMs
+    sortDateEpochMs
     algorithm
     keyId
     cardId
@@ -295,6 +482,71 @@ query ListTransactions(
       version
       createdAtEpochMs
       updatedAtEpochMs
+      sortDateEpochMs
+      algorithm
+      keyId
+      cardId
+      sequenceId
+      type
+      transactedAtEpochMs
+      billedAmount {
+        currency
+        amount
+      }
+      transactedAmount {
+        currency
+        amount
+      }
+      description
+      declineReason
+      detail {
+        virtualCardAmount {
+          currency
+          amount
+        }
+        markup {
+          percent
+          flat
+          minCharge
+        }
+        markupAmount {
+          currency
+          amount
+        }
+        fundingSourceAmount {
+          currency
+          amount
+        }
+        fundingSourceId
+        description
+      }
+    }
+    nextToken
+  }
+}
+query ListTransactionsByCardId(
+  $cardId: ID!
+  $filter: TransactionFilterInput
+  $limit: Int
+  $nextToken: String
+  $dateRange: DateRangeInput
+  $sortOrder: SortOrder
+) {
+  listTransactionsByCardId(
+    cardId: $cardId
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    dateRange: $dateRange
+    sortOrder: $sortOrder
+  ) {
+    items {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      sortDateEpochMs
       algorithm
       keyId
       cardId
@@ -378,12 +630,37 @@ query ListFundingSources(
     nextToken
   }
 }
-query GetPublicKeyForVirtualCards($keyId: String!) {
-  getPublicKeyForVirtualCards(keyId: $keyId) {
+query GetVirtualCardsConfig {
+  getVirtualCardsConfig {
+    maxFundingSourceVelocity
+    maxFundingSourceFailureVelocity
+    maxCardCreationVelocity
+    maxTransactionVelocity {
+      currency
+      velocity
+    }
+    maxTransactionAmount {
+      currency
+      amount
+    }
+    virtualCardCurrencies
+    fundingSourceSupportInfo {
+      providerType
+      fundingSourceType
+      network
+      detail {
+        cardType
+      }
+    }
+  }
+}
+mutation CreatePublicKeyForVirtualCards($input: CreatePublicKeyInput!) {
+  createPublicKeyForVirtualCards(input: $input) {
     id
     keyId
     keyRingId
     algorithm
+    keyFormat
     publicKey
     owner
     version
@@ -391,44 +668,18 @@ query GetPublicKeyForVirtualCards($keyId: String!) {
     updatedAtEpochMs
   }
 }
-query GetPublicKeysForVirtualCards($limit: Int, $nextToken: String) {
-  getPublicKeysForVirtualCards(limit: $limit, nextToken: $nextToken) {
-    items {
-      id
-      keyId
-      keyRingId
-      algorithm
-      publicKey
-      owner
-      version
-      createdAtEpochMs
-      updatedAtEpochMs
-    }
-    nextToken
-  }
-}
-query GetKeyRingForVirtualCards(
-  $keyRingId: String!
-  $limit: Int
-  $nextToken: String
-) {
-  getKeyRingForVirtualCards(
-    keyRingId: $keyRingId
-    limit: $limit
-    nextToken: $nextToken
-  ) {
-    items {
-      id
-      keyId
-      keyRingId
-      algorithm
-      publicKey
-      owner
-      version
-      createdAtEpochMs
-      updatedAtEpochMs
-    }
-    nextToken
+mutation DeletePublicKeyForVirtualCards($input: DeletePublicKeyInput) {
+  deletePublicKeyForVirtualCards(input: $input) {
+    id
+    keyId
+    keyRingId
+    algorithm
+    keyFormat
+    publicKey
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
   }
 }
 mutation CardProvision($input: CardProvisionRequest!) {
@@ -475,6 +726,57 @@ mutation CardProvision($input: CardProvisionRequest!) {
         mm
         yyyy
       }
+      lastTransaction {
+        id
+        owner
+        version
+        createdAtEpochMs
+        updatedAtEpochMs
+        sortDateEpochMs
+        algorithm
+        keyId
+        cardId
+        sequenceId
+        type
+        transactedAtEpochMs
+        billedAmount {
+          currency
+          amount
+        }
+        transactedAmount {
+          currency
+          amount
+        }
+        description
+        declineReason
+        detail {
+          virtualCardAmount {
+            currency
+            amount
+          }
+          markup {
+            percent
+            flat
+            minCharge
+          }
+          markupAmount {
+            currency
+            amount
+          }
+          fundingSourceAmount {
+            currency
+            amount
+          }
+          fundingSourceId
+          description
+        }
+      }
+      metadata {
+        algorithm
+        keyId
+        plainTextType
+        base64EncodedSealedData
+      }
     }
     aws_ds
   }
@@ -515,6 +817,57 @@ mutation UpdateCard($input: CardUpdateRequest!) {
       mm
       yyyy
     }
+    lastTransaction {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      sortDateEpochMs
+      algorithm
+      keyId
+      cardId
+      sequenceId
+      type
+      transactedAtEpochMs
+      billedAmount {
+        currency
+        amount
+      }
+      transactedAmount {
+        currency
+        amount
+      }
+      description
+      declineReason
+      detail {
+        virtualCardAmount {
+          currency
+          amount
+        }
+        markup {
+          percent
+          flat
+          minCharge
+        }
+        markupAmount {
+          currency
+          amount
+        }
+        fundingSourceAmount {
+          currency
+          amount
+        }
+        fundingSourceId
+        description
+      }
+    }
+    metadata {
+      algorithm
+      keyId
+      plainTextType
+      base64EncodedSealedData
+    }
   }
 }
 mutation CancelCard($input: CardCancelRequest!) {
@@ -553,6 +906,57 @@ mutation CancelCard($input: CardCancelRequest!) {
       mm
       yyyy
     }
+    lastTransaction {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      sortDateEpochMs
+      algorithm
+      keyId
+      cardId
+      sequenceId
+      type
+      transactedAtEpochMs
+      billedAmount {
+        currency
+        amount
+      }
+      transactedAmount {
+        currency
+        amount
+      }
+      description
+      declineReason
+      detail {
+        virtualCardAmount {
+          currency
+          amount
+        }
+        markup {
+          percent
+          flat
+          minCharge
+        }
+        markupAmount {
+          currency
+          amount
+        }
+        fundingSourceAmount {
+          currency
+          amount
+        }
+        fundingSourceId
+        description
+      }
+    }
+    metadata {
+      algorithm
+      keyId
+      plainTextType
+      base64EncodedSealedData
+    }
   }
 }
 mutation SetupFundingSource($input: SetupFundingSourceRequest!) {
@@ -562,6 +966,8 @@ mutation SetupFundingSource($input: SetupFundingSourceRequest!) {
     version
     createdAtEpochMs
     updatedAtEpochMs
+    state
+    stateReason
     provisioningData
   }
 }
@@ -595,30 +1001,385 @@ mutation CancelFundingSource($input: IdInput!) {
     }
   }
 }
-mutation CreatePublicKeyForVirtualCards($input: CreatePublicKeyInput!) {
-  createPublicKeyForVirtualCards(input: $input) {
+mutation InternalUpdateCardProvisionState(
+  $clientRefId: String!
+  $input: InternalCardProvisionStateUpdateRequest!
+) {
+  internalUpdateCardProvisionState(clientRefId: $clientRefId, input: $input) {
     id
-    keyId
-    keyRingId
-    algorithm
-    publicKey
     owner
     version
     createdAtEpochMs
     updatedAtEpochMs
+    clientRefId
+    provisioningState
+    card {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      algorithm
+      keyId
+      keyRingId
+      owners {
+        id
+        issuer
+      }
+      fundingSourceId
+      currency
+      state
+      activeToEpochMs
+      cancelledAtEpochMs
+      last4
+      cardHolder
+      alias
+      pan
+      csc
+      billingAddress {
+        addressLine1
+        addressLine2
+        city
+        state
+        postalCode
+        country
+      }
+      expiry {
+        mm
+        yyyy
+      }
+      lastTransaction {
+        id
+        owner
+        version
+        createdAtEpochMs
+        updatedAtEpochMs
+        sortDateEpochMs
+        algorithm
+        keyId
+        cardId
+        sequenceId
+        type
+        transactedAtEpochMs
+        billedAmount {
+          currency
+          amount
+        }
+        transactedAmount {
+          currency
+          amount
+        }
+        description
+        declineReason
+        detail {
+          virtualCardAmount {
+            currency
+            amount
+          }
+          markup {
+            percent
+            flat
+            minCharge
+          }
+          markupAmount {
+            currency
+            amount
+          }
+          fundingSourceAmount {
+            currency
+            amount
+          }
+          fundingSourceId
+          description
+        }
+      }
+      metadata {
+        algorithm
+        keyId
+        plainTextType
+        base64EncodedSealedData
+      }
+    }
+    aws_ds
   }
 }
-mutation DeletePublicKeyForVirtualCards($input: DeletePublicKeyInput) {
-  deletePublicKeyForVirtualCards(input: $input) {
+mutation InternalCardProvisionComplete(
+  $clientRefId: String!
+  $input: InternalSealedCardInput!
+) {
+  internalCardProvisionComplete(clientRefId: $clientRefId, input: $input) {
     id
-    keyId
-    keyRingId
-    algorithm
-    publicKey
     owner
     version
     createdAtEpochMs
     updatedAtEpochMs
+    algorithm
+    keyId
+    keyRingId
+    owners {
+      id
+      issuer
+    }
+    fundingSourceId
+    currency
+    state
+    activeToEpochMs
+    cancelledAtEpochMs
+    last4
+    cardHolder
+    alias
+    pan
+    csc
+    billingAddress {
+      addressLine1
+      addressLine2
+      city
+      state
+      postalCode
+      country
+    }
+    expiry {
+      mm
+      yyyy
+    }
+    lastTransaction {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      sortDateEpochMs
+      algorithm
+      keyId
+      cardId
+      sequenceId
+      type
+      transactedAtEpochMs
+      billedAmount {
+        currency
+        amount
+      }
+      transactedAmount {
+        currency
+        amount
+      }
+      description
+      declineReason
+      detail {
+        virtualCardAmount {
+          currency
+          amount
+        }
+        markup {
+          percent
+          flat
+          minCharge
+        }
+        markupAmount {
+          currency
+          amount
+        }
+        fundingSourceAmount {
+          currency
+          amount
+        }
+        fundingSourceId
+        description
+      }
+    }
+    metadata {
+      algorithm
+      keyId
+      plainTextType
+      base64EncodedSealedData
+    }
+  }
+}
+mutation InternalCreateTransaction(
+  $input: InternalSealedTransactionCreateInput!
+) {
+  internalCreateTransaction(input: $input) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    sortDateEpochMs
+    algorithm
+    keyId
+    cardId
+    sequenceId
+    type
+    transactedAtEpochMs
+    billedAmount {
+      currency
+      amount
+    }
+    transactedAmount {
+      currency
+      amount
+    }
+    description
+    declineReason
+    detail {
+      virtualCardAmount {
+        currency
+        amount
+      }
+      markup {
+        percent
+        flat
+        minCharge
+      }
+      markupAmount {
+        currency
+        amount
+      }
+      fundingSourceAmount {
+        currency
+        amount
+      }
+      fundingSourceId
+      description
+    }
+  }
+}
+mutation InternalUpdateTransaction(
+  $input: InternalSealedTransactionUpdateInput!
+) {
+  internalUpdateTransaction(input: $input) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    sortDateEpochMs
+    algorithm
+    keyId
+    cardId
+    sequenceId
+    type
+    transactedAtEpochMs
+    billedAmount {
+      currency
+      amount
+    }
+    transactedAmount {
+      currency
+      amount
+    }
+    description
+    declineReason
+    detail {
+      virtualCardAmount {
+        currency
+        amount
+      }
+      markup {
+        percent
+        flat
+        minCharge
+      }
+      markupAmount {
+        currency
+        amount
+      }
+      fundingSourceAmount {
+        currency
+        amount
+      }
+      fundingSourceId
+      description
+    }
+  }
+}
+mutation InternalFireOnTransactionDeleted(
+  $input: InternalFireSealedTransactionInput!
+) {
+  internalFireOnTransactionDeleted(input: $input) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    sortDateEpochMs
+    algorithm
+    keyId
+    cardId
+    sequenceId
+    type
+    transactedAtEpochMs
+    billedAmount {
+      currency
+      amount
+    }
+    transactedAmount {
+      currency
+      amount
+    }
+    description
+    declineReason
+    detail {
+      virtualCardAmount {
+        currency
+        amount
+      }
+      markup {
+        percent
+        flat
+        minCharge
+      }
+      markupAmount {
+        currency
+        amount
+      }
+      fundingSourceAmount {
+        currency
+        amount
+      }
+      fundingSourceId
+      description
+    }
+  }
+}
+mutation InternalCreateCreditCardFundingSource(
+  $input: InternalCreditCardFundingSourceCreateInput
+) {
+  internalCreateCreditCardFundingSource(input: $input) {
+    id
+    owner
+    version
+    createdAtEpochMs
+    updatedAtEpochMs
+    state
+    stateReason
+    currency
+    fingerprint
+    providerName
+    providerId
+    last4
+    network
+  }
+}
+mutation InternalUpdateFundingSourceState(
+  $input: InternalFundingSourceStateUpdateRequest!
+) {
+  internalUpdateFundingSourceState(input: $input) {
+    ... on CreditCardFundingSource {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      state
+      stateReason
+      currency
+      fingerprint
+      providerName
+      providerId
+      last4
+      network
+    }
   }
 }
 subscription OnDeltaProvisionalCard($owner: ID!) {
@@ -665,11 +1426,17 @@ subscription OnDeltaProvisionalCard($owner: ID!) {
         mm
         yyyy
       }
+      metadata {
+        algorithm
+        keyId
+        plainTextType
+        base64EncodedSealedData
+      }
     }
     aws_ds
   }
 }
-subscription OnUpdateCardProvisionState($owner: ID!, $clientRefId: String!) {
+subscription OnUpdateCardProvisionState($owner: ID!, $clientRefId: String) {
   onUpdateCardProvisionState(owner: $owner, clientRefId: $clientRefId) {
     id
     owner
@@ -713,11 +1480,62 @@ subscription OnUpdateCardProvisionState($owner: ID!, $clientRefId: String!) {
         mm
         yyyy
       }
+      lastTransaction {
+        id
+        owner
+        version
+        createdAtEpochMs
+        updatedAtEpochMs
+        sortDateEpochMs
+        algorithm
+        keyId
+        cardId
+        sequenceId
+        type
+        transactedAtEpochMs
+        billedAmount {
+          currency
+          amount
+        }
+        transactedAmount {
+          currency
+          amount
+        }
+        description
+        declineReason
+        detail {
+          virtualCardAmount {
+            currency
+            amount
+          }
+          markup {
+            percent
+            flat
+            minCharge
+          }
+          markupAmount {
+            currency
+            amount
+          }
+          fundingSourceAmount {
+            currency
+            amount
+          }
+          fundingSourceId
+          description
+        }
+      }
+      metadata {
+        algorithm
+        keyId
+        plainTextType
+        base64EncodedSealedData
+      }
     }
     aws_ds
   }
 }
-subscription OnCardProvisionComplete($owner: ID!, $clientRefId: String!) {
+subscription OnCardProvisionComplete($owner: ID!, $clientRefId: String) {
   onCardProvisionComplete(owner: $owner, clientRefId: $clientRefId) {
     id
     owner
@@ -753,9 +1571,60 @@ subscription OnCardProvisionComplete($owner: ID!, $clientRefId: String!) {
       mm
       yyyy
     }
+    lastTransaction {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      sortDateEpochMs
+      algorithm
+      keyId
+      cardId
+      sequenceId
+      type
+      transactedAtEpochMs
+      billedAmount {
+        currency
+        amount
+      }
+      transactedAmount {
+        currency
+        amount
+      }
+      description
+      declineReason
+      detail {
+        virtualCardAmount {
+          currency
+          amount
+        }
+        markup {
+          percent
+          flat
+          minCharge
+        }
+        markupAmount {
+          currency
+          amount
+        }
+        fundingSourceAmount {
+          currency
+          amount
+        }
+        fundingSourceId
+        description
+      }
+    }
+    metadata {
+      algorithm
+      keyId
+      plainTextType
+      base64EncodedSealedData
+    }
   }
 }
-subscription OnUpdateCard($owner: ID!, $clientRefId: String!) {
+subscription OnUpdateCard($owner: ID!, $clientRefId: String) {
   onUpdateCard(owner: $owner, clientRefId: $clientRefId) {
     id
     owner
@@ -791,6 +1660,57 @@ subscription OnUpdateCard($owner: ID!, $clientRefId: String!) {
       mm
       yyyy
     }
+    lastTransaction {
+      id
+      owner
+      version
+      createdAtEpochMs
+      updatedAtEpochMs
+      sortDateEpochMs
+      algorithm
+      keyId
+      cardId
+      sequenceId
+      type
+      transactedAtEpochMs
+      billedAmount {
+        currency
+        amount
+      }
+      transactedAmount {
+        currency
+        amount
+      }
+      description
+      declineReason
+      detail {
+        virtualCardAmount {
+          currency
+          amount
+        }
+        markup {
+          percent
+          flat
+          minCharge
+        }
+        markupAmount {
+          currency
+          amount
+        }
+        fundingSourceAmount {
+          currency
+          amount
+        }
+        fundingSourceId
+        description
+      }
+    }
+    metadata {
+      algorithm
+      keyId
+      plainTextType
+      base64EncodedSealedData
+    }
   }
 }
 subscription OnTransactionUpdate($owner: ID!) {
@@ -800,6 +1720,7 @@ subscription OnTransactionUpdate($owner: ID!) {
     version
     createdAtEpochMs
     updatedAtEpochMs
+    sortDateEpochMs
     algorithm
     keyId
     cardId
@@ -846,6 +1767,7 @@ subscription OnTransactionDelete($owner: ID!) {
     version
     createdAtEpochMs
     updatedAtEpochMs
+    sortDateEpochMs
     algorithm
     keyId
     cardId

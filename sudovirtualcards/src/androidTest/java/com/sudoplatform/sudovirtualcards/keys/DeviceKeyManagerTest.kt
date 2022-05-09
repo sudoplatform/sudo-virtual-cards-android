@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -24,8 +24,6 @@ import java.util.logging.Logger
 
 /**
  * Test the operation of [DefaultDeviceKeyManager] on Android.
- *
- * @since 2020-06-16
  */
 @RunWith(AndroidJUnit4::class)
 class DeviceKeyManagerTest : BaseIntegrationTest() {
@@ -52,13 +50,11 @@ class DeviceKeyManagerTest : BaseIntegrationTest() {
 
     @After
     fun fini() = runBlocking {
-        if (clientConfigFilesPresent()) {
-            if (userClient.isRegistered()) {
-                deregister()
-            }
-            userClient.reset()
-            sudoClient.reset()
+        if (userClient.isRegistered()) {
+            deregister()
         }
+        userClient.reset()
+        sudoClient.reset()
 
         Timber.uprootAll()
     }
@@ -73,7 +69,7 @@ class DeviceKeyManagerTest : BaseIntegrationTest() {
     @Test
     fun shouldBeAbleToPerformOperationsAfterSignIn() = runBlocking {
 
-        signInAndRegister()
+        registerSignInAndEntitle()
 
         deviceKeyManager.getCurrentKeyPair() shouldBe null
         deviceKeyManager.getKeyPairWithId("bogusValue") shouldBe null

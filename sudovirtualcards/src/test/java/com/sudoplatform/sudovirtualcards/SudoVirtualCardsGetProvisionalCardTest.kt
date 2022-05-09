@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -24,7 +24,7 @@ import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.GetProvisionalCardQuery
 import com.sudoplatform.sudovirtualcards.graphql.type.DeltaAction
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisioningState
-import com.sudoplatform.sudovirtualcards.types.ProvisionalCard
+import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -40,9 +40,8 @@ import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 
 /**
- * Test the correct operation of [SudoVirtualCardsClient.getProvisionalCard] using mocks and spies.
- *
- * @since 2020-06-23
+ * Test the correct operation of [SudoVirtualCardsClient.getProvisionalCard]
+ * using mocks and spies.
  */
 class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
 
@@ -144,7 +143,7 @@ class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
             clientRefId shouldBe "clientRefId"
             owner shouldBe "owner"
             version shouldBe 1
-            state shouldBe ProvisionalCard.State.PROVISIONING
+            provisioningState shouldBe ProvisionalVirtualCard.ProvisioningState.PROVISIONING
             card shouldBe null
             createdAt shouldNotBe null
             updatedAt shouldNotBe null
@@ -165,15 +164,16 @@ class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
         }
 
         val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.CardException.FailedException> {
-                client.getProvisionalCard("id")
-            }
+            client.getProvisionalCard("id")
         }
         deferredResult.start()
-        delay(100L)
 
+        delay(100L)
         queryHolder.callback shouldNotBe null
         queryHolder.callback?.onResponse(nullQueryResponse)
+
+        val result = deferredResult.await()
+        result shouldBe null
 
         verify(mockAppSyncClient).query(any<GetProvisionalCardQuery>())
     }
@@ -196,7 +196,7 @@ class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
         }
 
         val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.CardException.IdentityVerificationException> {
+            shouldThrow<SudoVirtualCardsClient.VirtualCardException.IdentityVerificationException> {
                 client.getProvisionalCard("id")
             }
         }
@@ -229,7 +229,7 @@ class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
             on { query(any<GetProvisionalCardQuery>()) } doThrow Unsealer.UnsealerException.SealedDataTooShortException("mock")
         }
 
-        shouldThrow<SudoVirtualCardsClient.CardException.UnsealingException> {
+        shouldThrow<SudoVirtualCardsClient.VirtualCardException.UnsealingException> {
             client.getProvisionalCard("id")
         }
         verify(mockAppSyncClient).query(any<GetProvisionalCardQuery>())

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -28,8 +28,6 @@ import kotlinx.coroutines.launch
 
 /**
  * Manage the subscriptions of transaction updates.
- *
- * @since 2020-07-22
  */
 internal class TransactionSubscriptionService(
     private val appSyncClient: AWSAppSyncClient,

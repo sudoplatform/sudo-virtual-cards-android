@@ -2,26 +2,30 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>com.sudoplatform.sudovirtualcards.types</title>
-<link href="../../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../";</script><script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async="async"></script><link href="../../styles/style.css" rel="Stylesheet"><link href="../../styles/logo-styles.css" rel="Stylesheet"><link href="../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../styles/main.css" rel="Stylesheet"><script type="text/javascript" src="../../scripts/clipboard.js" async="async"></script><script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script><script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script><script type="text/javascript" src="../../scripts/main.js" async="async"></script>  </head>
+<link href="../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../";</script>    <script>const storage = localStorage.getItem("dokka-dark-mode")
+const savedDarkMode = storage ? JSON.parse(storage) : false
+if(savedDarkMode === true){
+    document.getElementsByTagName("html")[0].classList.add("theme-dark")
+}</script>
+<script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async="async"></script><link href="../../styles/style.css" rel="Stylesheet"><link href="../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../styles/main.css" rel="Stylesheet"><link href="../../styles/prism.css" rel="Stylesheet"><link href="../../styles/logo-styles.css" rel="Stylesheet"><script type="text/javascript" src="../../scripts/clipboard.js" async="async"></script><script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script><script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script><script type="text/javascript" src="../../scripts/main.js" defer="defer"></script><script type="text/javascript" src="../../scripts/prism.js" async="async"></script>  </head>
   <body>
+    <div class="navigation-wrapper" id="navigation-wrapper">
+      <div id="leftToggler"><span class="icon-toggler"></span></div>
+      <div class="library-name"><a href="../../index.html">sudovirtualcards</a></div>
+      <div></div>
+      <div class="pull-right d-flex"><button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+      </div>
+    </div>
     <div id="container">
-      <div id="leftColumn"><a href="../../index.html">
-          <div id="logo"></div>
-        </a>
-        <div id="paneSearch"></div>
+      <div id="leftColumn">
         <div id="sideMenu"></div>
       </div>
       <div id="main">
-        <div id="leftToggler"><span class="icon-toggler"></span></div>
-<script type="text/javascript" src="../../scripts/main.js"></script>        <div class="main-content" id="content" pageIds="sudovirtualcards::com.sudoplatform.sudovirtualcards.types////PointingToDeclaration//-2124582697">
-          <div class="navigation-wrapper" id="navigation-wrapper">
-            <div class="breadcrumbs"><a href="../../index.html">sudovirtualcards</a>/<a href="index.html">com.sudoplatform.sudovirtualcards.types</a></div>
-            <div class="pull-right d-flex">
-              <div id="searchBar"></div>
-            </div>
-          </div>
+        <div class="main-content" id="content" pageIds="sudovirtualcards::com.sudoplatform.sudovirtualcards.types////PointingToDeclaration//-2124582697">
+          <div class="breadcrumbs"><a href="../../index.html">sudovirtualcards</a>/<a href="index.html">com.sudoplatform.sudovirtualcards.types</a></div>
           <div class="cover ">
-            <h1 class="cover"><span>Package com.</span><wbr></wbr><span>sudoplatform.</span><wbr></wbr><span>sudovirtualcards.</span><wbr></wbr><span>types</span></h1>
+            <h1 class="cover"><span><span>Package</span></span> <span>com.</span><wbr></wbr><span>sudoplatform.</span><wbr></wbr><span>sudovirtualcards.</span><wbr></wbr><span>types</span></h1>
             <div class="platform-hinted UnderCoverText" data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><p class="paragraph">Types used by the methods of the Sudo Platform Virtual Cards SDK.</p></div></div>
           </div>
           <div class="tabbedcontent">
@@ -31,323 +35,360 @@
               <div class="table" data-togglable="Types"><a data-name="-927644550%2FClasslikes%2F-2124582697" anchor-label="BillingAddress" id="-927644550%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-billing-address/index.html">BillingAddress</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-927644550%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-billing-address/index.html"><span>Billing</span><wbr></wbr><span><span>Address</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-927644550%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">data class <a href="-billing-address/index.html">BillingAddress</a>(addressLine1: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, addressLine2: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>?, city: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, state: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, postalCode: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, country: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>) : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-927644550%2FClasslikes%2F-2124582697" anchor-label="BillingAddress" id="-927644550%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-927644550%2FClasslikes%2F-2124582697" anchor-label="BillingAddress" id="-927644550%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>The legal residence of a cardholder for purposes of billing.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-billing-address/index.html">BillingAddress</a><span class="token punctuation">(</span>addressLine1<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>addressLine2<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span>city<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>state<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>postalCode<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>country<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">)</span> : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">The representation of the legal residence of a cardholder for purposes of billing in the Sudo Platform Virtual Cards SDK.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="1547883387%2FClasslikes%2F-2124582697" anchor-label="CachePolicy" id="1547883387%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-cache-policy/index.html">CachePolicy</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1547883387%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-cache-policy/index.html"><span>Cache</span><wbr></wbr><span><span>Policy</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1547883387%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">enum <a href="-cache-policy/index.html">CachePolicy</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a>&lt;<a href="-cache-policy/index.html">CachePolicy</a>&gt; <span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="1547883387%2FClasslikes%2F-2124582697" anchor-label="CachePolicy" id="1547883387%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="1547883387%2FClasslikes%2F-2124582697" anchor-label="CachePolicy" id="1547883387%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Enumeration outlining options for how data will be fetched.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">enum </span><a href="-cache-policy/index.html">CachePolicy</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="-cache-policy/index.html">CachePolicy</a><span class="token operator">&gt; </span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Representation of an enumeration outlining options for how data will be fetched in the Sudo Platform Virtual Cards SDK.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="-1091009341%2FClasslikes%2F-2124582697" anchor-label="Card" id="-1091009341%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="-87401840%2FClasslikes%2F-2124582697" anchor-label="CreateKeysIfAbsentResult" id="-87401840%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-card/index.html">Card</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1091009341%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-create-keys-if-absent-result/index.html"><span>Create</span><wbr></wbr><span>Keys</span><wbr></wbr><span>If</span><wbr></wbr><span>Absent</span><wbr></wbr><span><span>Result</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-87401840%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">data class <a href="-card/index.html">Card</a>(id: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, owners: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a>&lt;<a href="-owner/index.html">Owner</a>&gt;, owner: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, version: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, fundingSourceId: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, state: <a href="-card/-state/index.html">Card.State</a>, cardHolder: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, alias: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, last4: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, cardNumber: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, securityCode: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, billingAddress: <a href="-billing-address/index.html">BillingAddress</a>?, expirationMonth: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, expirationYear: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, currency: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, activeTo: <a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a>, cancelledAt: <a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a>?, createdAt: <a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a>, updatedAt: <a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a>) : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-1091009341%2FClasslikes%2F-2124582697" anchor-label="Card" id="-1091009341%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-1091009341%2FClasslikes%2F-2124582697" anchor-label="Card" id="-1091009341%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Representation of a Virtual Card used in the Sudo Platform SDK.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-create-keys-if-absent-result/index.html">CreateKeysIfAbsentResult</a><span class="token punctuation">(</span>symmetricKey<span class="token operator">: </span><a href="-key-result/index.html">KeyResult</a><span class="token punctuation">, </span>keyPair<span class="token operator">: </span><a href="-key-result/index.html">KeyResult</a><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">The result of the create keys if absent API.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="661607338%2FClasslikes%2F-2124582697" anchor-label="CurrencyAmount" id="661607338%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-currency-amount/index.html">CurrencyAmount</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="661607338%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-currency-amount/index.html"><span>Currency</span><wbr></wbr><span><span>Amount</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="661607338%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">data class <a href="-currency-amount/index.html">CurrencyAmount</a>(currency: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, amount: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>) : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="661607338%2FClasslikes%2F-2124582697" anchor-label="CurrencyAmount" id="661607338%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="661607338%2FClasslikes%2F-2124582697" anchor-label="CurrencyAmount" id="661607338%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>A currency used in the virtual cards system.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-currency-amount/index.html">CurrencyAmount</a><span class="token punctuation">(</span>currency<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>amount<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">)</span> : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">The representation of the currency and amount used in the Sudo Platform Virtual Cards SDK.</p></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-1697202048%2FClasslikes%2F-2124582697" anchor-label="DateRange" id="-1697202048%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-date-range/index.html"><span>Date</span><wbr></wbr><span><span>Range</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1697202048%2FClasslikes%2F-2124582697"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-date-range/index.html">DateRange</a><span class="token punctuation">(</span>startDate<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span>endDate<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Representation of a date range  used in the Sudo Platform Virtual Cards SDK.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="1627204917%2FClasslikes%2F-2124582697" anchor-label="DeclineReason" id="1627204917%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-decline-reason/index.html">DeclineReason</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1627204917%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-decline-reason/index.html"><span>Decline</span><wbr></wbr><span><span>Reason</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1627204917%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">enum <a href="-decline-reason/index.html">DeclineReason</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a>&lt;<a href="-decline-reason/index.html">DeclineReason</a>&gt; <span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="1627204917%2FClasslikes%2F-2124582697" anchor-label="DeclineReason" id="1627204917%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="1627204917%2FClasslikes%2F-2124582697" anchor-label="DeclineReason" id="1627204917%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>The reason why a <a href="-transaction/index.html">Transaction</a> was declined.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">enum </span><a href="-decline-reason/index.html">DeclineReason</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="-decline-reason/index.html">DeclineReason</a><span class="token operator">&gt; </span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Representation of an enumeration depicting why a <a href="-transaction/index.html">Transaction</a> was declined in the Sudo Platform Virtual Cards SDK.</p></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-1262272640%2FClasslikes%2F-2124582697" anchor-label="Expiry" id="-1262272640%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-expiry/index.html"><span><span>Expiry</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1262272640%2FClasslikes%2F-2124582697"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-expiry/index.html">Expiry</a><span class="token punctuation">(</span>mm<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>yyyy<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">)</span> : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">The representation of expiry information for a virtual card in the Sudo Platform Virtual Cards SDK.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="-619370921%2FClasslikes%2F-2124582697" anchor-label="FundingSource" id="-619370921%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-funding-source/index.html">FundingSource</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-619370921%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-funding-source/index.html"><span>Funding</span><wbr></wbr><span><span>Source</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-619370921%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">data class <a href="-funding-source/index.html">FundingSource</a>(id: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, owner: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, version: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, state: <a href="-funding-source/-state/index.html">FundingSource.State</a>, currency: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, last4: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, network: <a href="-funding-source/-credit-card-network/index.html">FundingSource.CreditCardNetwork</a>) : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-619370921%2FClasslikes%2F-2124582697" anchor-label="FundingSource" id="-619370921%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-619370921%2FClasslikes%2F-2124582697" anchor-label="FundingSource" id="-619370921%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Representation of a <a href="-funding-source/index.html">FundingSource</a> used in the Sudo Platform Virtual Cards SDK.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-funding-source/index.html">FundingSource</a><span class="token punctuation">(</span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>owner<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>version<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span>createdAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span>updatedAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span>state<span class="token operator">: </span><a href="-funding-source/-state/index.html">FundingSource.State</a><span class="token punctuation">, </span>currency<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>last4<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>network<span class="token operator">: </span><a href="-funding-source/-credit-card-network/index.html">FundingSource.CreditCardNetwork</a><span class="token punctuation">)</span> : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Representation of a funding source used in the Sudo Platform Virtual Cards SDK.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="-629327555%2FClasslikes%2F-2124582697" anchor-label="FundingSourceType" id="-629327555%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="1233668064%2FClasslikes%2F-2124582697" anchor-label="FundingSourceClientConfiguration" id="1233668064%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-funding-source-type/index.html">FundingSourceType</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-629327555%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-funding-source-client-configuration/index.html"><span>Funding</span><wbr></wbr><span>Source</span><wbr></wbr><span>Client</span><wbr></wbr><span><span>Configuration</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1233668064%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">data class <a href="-funding-source-type/index.html">FundingSourceType</a>(type: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, version: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, apiKey: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-629327555%2FClasslikes%2F-2124582697" anchor-label="FundingSourceType" id="-629327555%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-629327555%2FClasslikes%2F-2124582697" anchor-label="FundingSourceType" id="-629327555%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Representation of a Stripe <a href="-funding-source-type/index.html">FundingSourceType</a> configuration.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-funding-source-client-configuration/index.html">FundingSourceClientConfiguration</a><span class="token punctuation">(</span>type<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>version<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span>apiKey<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">)</span> : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">A representation of the funding source client configuration in the Sudo Platform Virtual Cards SDK.</p></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="1884564370%2FClasslikes%2F-2124582697" anchor-label="FundingSourceTypes" id="1884564370%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-funding-source-types/index.html"><span>Funding</span><wbr></wbr><span>Source</span><wbr></wbr><span><span>Types</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1884564370%2FClasslikes%2F-2124582697"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-funding-source-types/index.html">FundingSourceTypes</a><span class="token punctuation">(</span>fundingSourceTypes<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="-funding-source-client-configuration/index.html">FundingSourceClientConfiguration</a><span class="token operator">&gt;</span><span class="token punctuation">)</span> : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Representation of a FundingSourceType configuration.</p></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="506831859%2FClasslikes%2F-2124582697" anchor-label="KeyResult" id="506831859%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-key-result/index.html"><span>Key</span><wbr></wbr><span><span>Result</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="506831859%2FClasslikes%2F-2124582697"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-key-result/index.html">KeyResult</a><span class="token punctuation">(</span>created<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span>keyId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">The result containing information about whether the key was created and its identifier.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="751942132%2FClasslikes%2F-2124582697" anchor-label="ListOutput" id="751942132%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-list-output/index.html">ListOutput</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="751942132%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-list-output/index.html"><span>List</span><wbr></wbr><span><span>Output</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="751942132%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">data class <a href="-list-output/index.html">ListOutput</a>&lt;<a href="-list-output/index.html">T</a>&gt;(items: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a>&lt;<a href="-list-output/index.html">T</a>&gt;, nextToken: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>?)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="751942132%2FClasslikes%2F-2124582697" anchor-label="ListOutput" id="751942132%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="751942132%2FClasslikes%2F-2124582697" anchor-label="ListOutput" id="751942132%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Representation of a generic type to wrap around a GraphQL list type.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-list-output/index.html">ListOutput</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="-list-output/index.html">T</a><span class="token operator">&gt;</span><span class="token punctuation">(</span>items<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="-list-output/index.html">T</a><span class="token operator">&gt;</span><span class="token punctuation">, </span>nextToken<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Representation of a generic type to wrap around a GraphQL list type. This is useful for exposing a list of <a href="-list-output/items.html">items</a> and <a href="-list-output/next-token.html">nextToken</a> to allow for pagination by calling for the next set of paginated results.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="471282731%2FClasslikes%2F-2124582697" anchor-label="Markup" id="471282731%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-markup/index.html">Markup</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="471282731%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-markup/index.html"><span><span>Markup</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="471282731%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">data class <a href="-markup/index.html">Markup</a>(percent: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, flat: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, minCharge: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>) : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="471282731%2FClasslikes%2F-2124582697" anchor-label="Markup" id="471282731%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="471282731%2FClasslikes%2F-2124582697" anchor-label="Markup" id="471282731%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>The rates of markup applied to a <a href="-transaction/index.html">Transaction</a> when calculating the fees.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-markup/index.html">Markup</a><span class="token punctuation">(</span>percent<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span>flat<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span>minCharge<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span><span class="token punctuation">)</span> : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">The rates of markup applied to a <a href="-transaction/index.html">Transaction</a> when calculating the fees.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="611032956%2FClasslikes%2F-2124582697" anchor-label="Owner" id="611032956%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-owner/index.html">Owner</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="611032956%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-owner/index.html"><span><span>Owner</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="611032956%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">data class <a href="-owner/index.html">Owner</a>(id: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, issuer: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>) : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="611032956%2FClasslikes%2F-2124582697" anchor-label="Owner" id="611032956%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="611032956%2FClasslikes%2F-2124582697" anchor-label="Owner" id="611032956%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>This represents the relationship of a unique identifier <a href="-owner/id.html">id</a> with the <a href="-owner/issuer.html">issuer</a> to a <a href="-card/index.html">Card</a></div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-owner/index.html">Owner</a><span class="token punctuation">(</span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>issuer<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">)</span> : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">This represents the relationship of a unique identifier <a href="-owner/id.html">id</a> with the <a href="-owner/issuer.html">issuer</a> to a <a href="-virtual-card/index.html">VirtualCard</a>.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="1850663007%2FClasslikes%2F-2124582697" anchor-label="ProvisionalCard" id="1850663007%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="1317532685%2FClasslikes%2F-2124582697" anchor-label="ProviderCommonData" id="1317532685%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-provisional-card/index.html">ProvisionalCard</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1850663007%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-provider-common-data/index.html"><span>Provider</span><wbr></wbr><span>Common</span><wbr></wbr><span><span>Data</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1317532685%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">data class <a href="-provisional-card/index.html">ProvisionalCard</a>(id: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, clientRefId: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, owner: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, version: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, state: <a href="-provisional-card/-state/index.html">ProvisionalCard.State</a>, card: <a href="-card/index.html">Card</a>?, createdAt: <a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a>, updatedAt: <a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="1850663007%2FClasslikes%2F-2124582697" anchor-label="ProvisionalCard" id="1850663007%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="1850663007%2FClasslikes%2F-2124582697" anchor-label="ProvisionalCard" id="1850663007%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>A card that is in the process of being provisioned.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="-provider-common-data/index.html">ProviderCommonData</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Representation of <a href="-provider-common-data/index.html">ProviderCommonData</a> which provides common data for all funding source provider based data.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="-1859352527%2FClasslikes%2F-2124582697" anchor-label="StripeClientConfiguration" id="-1859352527%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="-917386436%2FClasslikes%2F-2124582697" anchor-label="ProviderCompletionData" id="-917386436%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-stripe-client-configuration/index.html">StripeClientConfiguration</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1859352527%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-provider-completion-data/index.html"><span>Provider</span><wbr></wbr><span>Completion</span><wbr></wbr><span><span>Data</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-917386436%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">data class <a href="-stripe-client-configuration/index.html">StripeClientConfiguration</a>(fundingSourceTypes: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a>&lt;<a href="-funding-source-type/index.html">FundingSourceType</a>&gt;)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-1859352527%2FClasslikes%2F-2124582697" anchor-label="StripeClientConfiguration" id="-1859352527%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-1859352527%2FClasslikes%2F-2124582697" anchor-label="StripeClientConfiguration" id="-1859352527%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Representation of a <a href="-stripe-client-configuration/index.html">StripeClientConfiguration</a> used to perform API calls to Stripe.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-provider-completion-data/index.html">ProviderCompletionData</a><span class="token punctuation">(</span>provider<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>version<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span>paymentMethod<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">)</span> : <a href="-provider-common-data/index.html">ProviderCommonData</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Representation of <a href="-provider-completion-data/index.html">ProviderCompletionData</a> received from the provider used to complete the funding source creation.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="110836913%2FClasslikes%2F-2124582697" anchor-label="StripeCommonData" id="110836913%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="-544492336%2FClasslikes%2F-2124582697" anchor-label="ProviderDefaults" id="-544492336%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-stripe-common-data/index.html">StripeCommonData</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="110836913%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-provider-defaults/index.html"><span>Provider</span><wbr></wbr><span><span>Defaults</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-544492336%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract class <a href="-stripe-common-data/index.html">StripeCommonData</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="110836913%2FClasslikes%2F-2124582697" anchor-label="StripeCommonData" id="110836913%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="110836913%2FClasslikes%2F-2124582697" anchor-label="StripeCommonData" id="110836913%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Representation of <a href="-stripe-common-data/index.html">StripeCommonData</a> which provides common data for all Stripe based data.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">object </span><a href="-provider-defaults/index.html">ProviderDefaults</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Initializes <a href="-provider-defaults/index.html">ProviderDefaults</a>.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="1065886176%2FClasslikes%2F-2124582697" anchor-label="StripeCompletionData" id="1065886176%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="74848827%2FClasslikes%2F-2124582697" anchor-label="ProvisionalFundingSource" id="74848827%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-stripe-completion-data/index.html">StripeCompletionData</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1065886176%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-provisional-funding-source/index.html"><span>Provisional</span><wbr></wbr><span>Funding</span><wbr></wbr><span><span>Source</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="74848827%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">data class <a href="-stripe-completion-data/index.html">StripeCompletionData</a>(provider: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, version: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, paymentMethod: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>) : <a href="-stripe-common-data/index.html">StripeCommonData</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="1065886176%2FClasslikes%2F-2124582697" anchor-label="StripeCompletionData" id="1065886176%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="1065886176%2FClasslikes%2F-2124582697" anchor-label="StripeCompletionData" id="1065886176%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Representation of <a href="-stripe-completion-data/index.html">StripeCompletionData</a> received from Stripe used to complete the funding source creation.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-provisional-funding-source/index.html">ProvisionalFundingSource</a><span class="token punctuation">(</span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>owner<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>version<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span>createdAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span>updatedAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span>state<span class="token operator">: </span><a href="-provisional-funding-source/-provisioning-state/index.html">ProvisionalFundingSource.ProvisioningState</a><span class="token punctuation">, </span>stateReason<span class="token operator">: </span><a href="-provisional-funding-source/-state-reason/index.html">ProvisionalFundingSource.StateReason</a><span class="token punctuation">, </span>provisioningData<span class="token operator">: </span><a href="-provisioning-data/index.html">ProvisioningData</a><span class="token punctuation">)</span> : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">A representation of a funding source that is in the process of being created in the Sudo Platform Virtual Cards SDK.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="-1262715236%2FClasslikes%2F-2124582697" anchor-label="StripeData" id="-1262715236%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="2144569560%2FClasslikes%2F-2124582697" anchor-label="ProvisionalVirtualCard" id="2144569560%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-stripe-data/index.html">StripeData</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1262715236%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-provisional-virtual-card/index.html"><span>Provisional</span><wbr></wbr><span>Virtual</span><wbr></wbr><span><span>Card</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2144569560%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">data class <a href="-stripe-data/index.html">StripeData</a>(provider: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, version: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, intent: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, clientSecret: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>) : <a href="-stripe-common-data/index.html">StripeCommonData</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-1262715236%2FClasslikes%2F-2124582697" anchor-label="StripeData" id="-1262715236%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-1262715236%2FClasslikes%2F-2124582697" anchor-label="StripeData" id="-1262715236%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Representation of <a href="-stripe-data/index.html">StripeData</a> used for the <a href="-stripe-setup/index.html">StripeSetup</a> intent.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-provisional-virtual-card/index.html">ProvisionalVirtualCard</a><span class="token punctuation">(</span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>owner<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>version<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span>createdAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span>updatedAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span>clientRefId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>provisioningState<span class="token operator">: </span><a href="-provisional-virtual-card/-provisioning-state/index.html">ProvisionalVirtualCard.ProvisioningState</a><span class="token punctuation">, </span>card<span class="token operator">: </span><a href="-virtual-card/index.html">VirtualCard</a><span class="token operator">?</span><span class="token punctuation">)</span> : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">A representation of a virtual card that is in the process of being provisioned in the Sudo Platform Virtual Cards SDK.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="2019612276%2FClasslikes%2F-2124582697" anchor-label="StripeDefaults" id="2019612276%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="-1574048132%2FClasslikes%2F-2124582697" anchor-label="ProvisioningData" id="-1574048132%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-stripe-defaults/index.html">StripeDefaults</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2019612276%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-provisioning-data/index.html"><span>Provisioning</span><wbr></wbr><span><span>Data</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1574048132%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">object <a href="-stripe-defaults/index.html">StripeDefaults</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="2019612276%2FClasslikes%2F-2124582697" anchor-label="StripeDefaults" id="2019612276%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="2019612276%2FClasslikes%2F-2124582697" anchor-label="StripeDefaults" id="2019612276%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Initializes <a href="-stripe-defaults/index.html">StripeDefaults</a>.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-provisioning-data/index.html">ProvisioningData</a><span class="token punctuation">(</span>provider<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>version<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span>intent<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>clientSecret<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">)</span> : <a href="-provider-common-data/index.html">ProviderCommonData</a>, <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Representation of <a href="-provisioning-data/index.html">ProvisioningData</a> used to provision a funding source.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="35948575%2FClasslikes%2F-2124582697" anchor-label="StripeSetup" id="35948575%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="877115775%2FClasslikes%2F-2124582697" anchor-label="SortOrder" id="877115775%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-stripe-setup/index.html">StripeSetup</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="35948575%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-sort-order/index.html"><span>Sort</span><wbr></wbr><span><span>Order</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="877115775%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">data class <a href="-stripe-setup/index.html">StripeSetup</a>(id: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, data: <a href="-stripe-data/index.html">StripeData</a>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="35948575%2FClasslikes%2F-2124582697" anchor-label="StripeSetup" id="35948575%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="35948575%2FClasslikes%2F-2124582697" anchor-label="StripeSetup" id="35948575%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Representation of <a href="-stripe-setup/index.html">StripeSetup</a> data from the setup intent.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">enum </span><a href="-sort-order/index.html">SortOrder</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="-sort-order/index.html">SortOrder</a><span class="token operator">&gt; </span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">An enumeration depicting sort order in the Sudo Platform Virtual Cards SDK.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="362759985%2FClasslikes%2F-2124582697" anchor-label="Transaction" id="362759985%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-transaction/index.html">Transaction</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="362759985%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-transaction/index.html"><span><span>Transaction</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="362759985%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">data class <a href="-transaction/index.html">Transaction</a>(id: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, owner: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, version: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, cardId: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, sequenceId: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, type: <a href="-transaction/-type/index.html">Transaction.Type</a>, billedAmount: <a href="-currency-amount/index.html">CurrencyAmount</a>, transactedAmount: <a href="-currency-amount/index.html">CurrencyAmount</a>, description: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, declineReason: <a href="-decline-reason/index.html">DeclineReason</a>?, details: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a>&lt;<a href="-transaction-charge-detail/index.html">TransactionChargeDetail</a>&gt;, transactedAt: <a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a>, createdAt: <a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a>, updatedAt: <a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a>) : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="362759985%2FClasslikes%2F-2124582697" anchor-label="Transaction" id="362759985%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="362759985%2FClasslikes%2F-2124582697" anchor-label="Transaction" id="362759985%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Representation of a Virtual Card Transaction used in the Sudo Platform SDK.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-transaction/index.html">Transaction</a><span class="token punctuation">(</span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>owner<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>version<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span>createdAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span>updatedAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span>transactedAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span>settledAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token operator">?</span><span class="token punctuation">, </span>cardId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>sequenceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>type<span class="token operator">: </span><a href="-transaction/-transaction-type/index.html">Transaction.TransactionType</a><span class="token punctuation">, </span>billedAmount<span class="token operator">: </span><a href="-currency-amount/index.html">CurrencyAmount</a><span class="token punctuation">, </span>transactedAmount<span class="token operator">: </span><a href="-currency-amount/index.html">CurrencyAmount</a><span class="token punctuation">, </span>description<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>declineReason<span class="token operator">: </span><a href="-decline-reason/index.html">DeclineReason</a><span class="token operator">?</span><span class="token punctuation">, </span>details<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="-transaction-detail-charge/index.html">TransactionDetailCharge</a><span class="token operator">&gt;</span><span class="token punctuation">)</span> : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Representation of a Virtual Card Transaction used in the Sudo Platform Virtual Cards SDK.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="2143292044%2FClasslikes%2F-2124582697" anchor-label="TransactionChargeDetail" id="2143292044%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="-652018612%2FClasslikes%2F-2124582697" anchor-label="TransactionDetailCharge" id="-652018612%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-transaction-charge-detail/index.html">TransactionChargeDetail</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2143292044%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-transaction-detail-charge/index.html"><span>Transaction</span><wbr></wbr><span>Detail</span><wbr></wbr><span><span>Charge</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-652018612%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">data class <a href="-transaction-charge-detail/index.html">TransactionChargeDetail</a>(virtualCardAmount: <a href="-currency-amount/index.html">CurrencyAmount</a>, markup: <a href="-markup/index.html">Markup</a>, markupAmount: <a href="-currency-amount/index.html">CurrencyAmount</a>, fundingSourceAmount: <a href="-currency-amount/index.html">CurrencyAmount</a>, fundingSourceId: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, description: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>) : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="2143292044%2FClasslikes%2F-2124582697" anchor-label="TransactionChargeDetail" id="2143292044%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="2143292044%2FClasslikes%2F-2124582697" anchor-label="TransactionChargeDetail" id="2143292044%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>The details of how a <a href="-transaction/index.html">Transaction</a> is charged against a <a href="-card/index.html">Card</a> and <a href="-funding-source/index.html">FundingSource</a> as well as the amount of markup that was applied to the <a href="-transaction/index.html">Transaction</a>.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-transaction-detail-charge/index.html">TransactionDetailCharge</a><span class="token punctuation">(</span>virtualCardAmount<span class="token operator">: </span><a href="-currency-amount/index.html">CurrencyAmount</a><span class="token punctuation">, </span>markup<span class="token operator">: </span><a href="-markup/index.html">Markup</a><span class="token punctuation">, </span>markupAmount<span class="token operator">: </span><a href="-currency-amount/index.html">CurrencyAmount</a><span class="token punctuation">, </span>fundingSourceAmount<span class="token operator">: </span><a href="-currency-amount/index.html">CurrencyAmount</a><span class="token punctuation">, </span>fundingSourceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>description<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">)</span> : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">The details of how a <a href="-transaction/index.html">Transaction</a> is charged against a <a href="-virtual-card/index.html">VirtualCard</a> and <a href="-funding-source/index.html">FundingSource</a> as well as the amount of markup that was applied to the <a href="-transaction/index.html">Transaction</a>.</p></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-1547768844%2FClasslikes%2F-2124582697" anchor-label="VirtualCard" id="-1547768844%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-virtual-card/index.html"><span>Virtual</span><wbr></wbr><span><span>Card</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1547768844%2FClasslikes%2F-2124582697"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-virtual-card/index.html">VirtualCard</a><span class="token punctuation">(</span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>owner<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>version<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span>createdAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span>updatedAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span>owners<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="-owner/index.html">Owner</a><span class="token operator">&gt;</span><span class="token punctuation">, </span>fundingSourceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>currency<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>state<span class="token operator">: </span><a href="-virtual-card/-state/index.html">VirtualCard.State</a><span class="token punctuation">, </span>activeTo<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span>cancelledAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token operator">?</span><span class="token punctuation">, </span>cardHolder<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>last4<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>cardNumber<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>securityCode<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>alias<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span>billingAddress<span class="token operator">: </span><a href="-billing-address/index.html">BillingAddress</a><span class="token operator">?</span><span class="token punctuation">, </span>expiry<span class="token operator">: </span><a href="-expiry/index.html">Expiry</a><span class="token punctuation">, </span>lastTransaction<span class="token operator">: </span><a href="-transaction/index.html">Transaction</a><span class="token operator">?</span><span class="token punctuation">)</span> : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Representation of a Virtual Card used in the Sudo Platform Virtual Cards SDK.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -355,7 +396,7 @@
             </div>
           </div>
         </div>
-        <div class="footer"><span class="go-to-top-icon"><a href="#content"></a></span><span>© 2021 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span></div>
+        <div class="footer"><span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2022 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span></div>
       </div>
     </div>
   </body>

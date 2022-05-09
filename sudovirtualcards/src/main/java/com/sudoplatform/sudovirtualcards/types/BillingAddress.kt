@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -10,16 +10,15 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 /**
- * The legal residence of a cardholder for purposes of billing.
+ * The representation of the legal residence of a cardholder for purposes of billing
+ * in the Sudo Platform Virtual Cards SDK.
  *
- * @property addressLine1 Street address for the cardholder's legal residence.
- * @property addressLine2 Optional secondary address information for the cardholder's legal residence.
- * @property city City of the cardholder's legal residence.
- * @property state State or province of the cardholder's legal residence.
- * @property postalCode Postal code for the cardholder's legal residence.
- * @property country ISO-3166 Alpha-2 country code of the cardholder's legal residence.
- *
- * @since 2020-06-10
+ * @property addressLine1 [String] Street address for the cardholder's legal residence.
+ * @property addressLine2 [String] Optional secondary address information for the cardholder's legal residence.
+ * @property city [String] City of the cardholder's legal residence.
+ * @property state [String] State or province of the cardholder's legal residence.
+ * @property postalCode [String] Postal code for the cardholder's legal residence.
+ * @property country [String] ISO-3166 Alpha-2 country code of the cardholder's legal residence.
  */
 @Parcelize
 data class BillingAddress(

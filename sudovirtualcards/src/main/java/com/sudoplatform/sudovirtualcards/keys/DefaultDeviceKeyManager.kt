@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -17,8 +17,6 @@ import java.util.UUID
 
 /**
  * Responsible for Managing the lifecycle of key pairs associated with the virtual cards service.
- *
- * @since 2020-06-16
  */
 internal class DefaultDeviceKeyManager(
     private val keyRingServiceName: String,
@@ -29,6 +27,7 @@ internal class DefaultDeviceKeyManager(
 
     companion object {
         private const val CURRENT_KEY_ID_NAME = "current"
+        private const val SECRET_KEY_ID_NAME = "vc-secret-key"
     }
 
     /**
@@ -71,7 +70,7 @@ internal class DefaultDeviceKeyManager(
                 privateKey = privateKey
             )
         } catch (e: KeyManagerException) {
-            throw DeviceKeyManager.DeviceKeyManagerException.KeyNotFoundException("KeyManager exception", e)
+            throw DeviceKeyManager.DeviceKeyManagerException.KeyOperationFailedException("KeyManager exception", e)
         }
     }
 
@@ -93,7 +92,7 @@ internal class DefaultDeviceKeyManager(
                 privateKey = privateKey
             )
         } catch (e: KeyManagerException) {
-            throw DeviceKeyManager.DeviceKeyManagerException.KeyNotFoundException("KeyManager exception", e)
+            throw DeviceKeyManager.DeviceKeyManagerException.KeyOperationFailedException("KeyManager exception", e)
         }
     }
 
@@ -136,13 +135,56 @@ internal class DefaultDeviceKeyManager(
     }
 
     /**
+     * Generate a new symmetric key.
+     *
+     * @return The generated symmetric key identifier.
+     * @throws [DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException] if unable to generate the symmetric key.
+     */
+    @Throws(DeviceKeyManager.DeviceKeyManagerException::class)
+    override fun generateNewCurrentSymmetricKey(): String {
+        val keyId = UUID.randomUUID().toString()
+        try {
+            // Replace the old current key identifier with a new one
+            keyManager.deletePassword(SECRET_KEY_ID_NAME)
+            keyManager.addPassword(keyId.toByteArray(), SECRET_KEY_ID_NAME)
+
+            // Generate the key pair for the new symmetric key
+            keyManager.generateSymmetricKey(keyId)
+            return keyId
+        } catch (e: Exception) {
+            logger.error("error $e")
+            throw DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException("Failed to generate symmetric key", e)
+        }
+    }
+
+    /**
+     * Returns the symmetric key identifier that is currently being used by this service.
+     * If no symmetric key has been previously generated, will return null and require the caller
+     * to call [generateNewCurrentSymmetricKey] if a current symmetric key is required.
+     *
+     * @return The current symmetric key identifier in use or null.
+     * @throws [DeviceKeyManager.DeviceKeyManagerException.KeyOperationFailedException] if key operation fails.
+     */
+    @Throws(DeviceKeyManager.DeviceKeyManagerException::class)
+    override fun getCurrentSymmetricKeyId(): String? {
+        try {
+            val symmetricKeyIdBits = keyManager.getPassword(SECRET_KEY_ID_NAME) ?: return null
+            val symmetricKeyId = symmetricKeyIdBits.toString(Charsets.UTF_8)
+            keyManager.getSymmetricKeyData(symmetricKeyId) ?: return null
+            return symmetricKeyId
+        } catch (e: KeyManagerException) {
+            logger.error("error $e")
+            throw DeviceKeyManager.DeviceKeyManagerException.KeyOperationFailedException("KeyManager exception", e)
+        }
+    }
+
+    /**
      * Decrypt the [data] with the private key [keyId] and [algorithm]
      *
      * @param data Data to be decrypted
      * @param keyId Key to use to decrypt the [data]
      * @param algorithm Algorithm to use to decrypt the [data]
      * @return The decrypted data
-     * @throws [DeviceKeyManager.DeviceKeyManagerException.KeyNotFoundException] if the key with identifier [keyId] cannot be found
      * @throws [DeviceKeyManager.DeviceKeyManagerException.DecryptionException] if the data cannot be decrypted
      */
     @Throws(DeviceKeyManager.DeviceKeyManagerException::class)

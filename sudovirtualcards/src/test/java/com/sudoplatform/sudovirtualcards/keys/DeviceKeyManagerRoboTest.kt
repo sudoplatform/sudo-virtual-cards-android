@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -14,7 +14,6 @@ import org.mockito.kotlin.stub
 import com.sudoplatform.sudokeymanager.AndroidSQLiteStore
 import com.sudoplatform.sudokeymanager.KeyManager
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
-import com.sudoplatform.sudologging.LogDriverInterface
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.BaseTests
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
@@ -33,8 +32,6 @@ import timber.log.Timber
 
 /**
  * Test the operation of [DefaultDeviceKeyManager] using mocks under Robolectric.
- *
- * @since 2020-06-16
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
@@ -52,10 +49,6 @@ class DeviceKeyManagerRoboTest : BaseTests() {
 
     private val keyManager by before {
         KeyManager(AndroidSQLiteStore(context))
-    }
-
-    private val mockLogger by lazy {
-        com.sudoplatform.sudologging.Logger("mock", mock<LogDriverInterface>())
     }
 
     private val deviceKeyManager by before {
@@ -142,5 +135,17 @@ class DeviceKeyManagerRoboTest : BaseTests() {
 
         decryptedData = deviceKeyManager.decryptWithSymmetricKey(symmetricKey, secretData)
         decryptedData shouldBe clearData
+    }
+
+    @Test
+    fun shouldBeAbleToGenerateSymmetricKeyId() = runBlocking {
+        deviceKeyManager.getCurrentSymmetricKeyId() shouldBe null
+
+        val symmetricKey = deviceKeyManager.generateNewCurrentSymmetricKey()
+        symmetricKey.isBlank() shouldBe false
+
+        val symmetricKeyId = deviceKeyManager.getCurrentSymmetricKeyId()
+        symmetricKeyId shouldNotBe null
+        symmetricKeyId?.isBlank() shouldBe false
     }
 }

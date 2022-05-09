@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -10,9 +10,8 @@ import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers
 import com.apollographql.apollo.fetcher.ResponseFetcher
 
 /**
- * Enumeration outlining options for how data will be fetched.
- *
- * @since 2020-06-08
+ * Representation of an enumeration outlining options for how data will be fetched in the
+ * Sudo Platform Virtual Cards SDK.
  */
 enum class CachePolicy {
     /**

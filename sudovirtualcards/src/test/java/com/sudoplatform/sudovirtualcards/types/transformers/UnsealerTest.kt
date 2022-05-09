@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -28,8 +28,10 @@ import com.sudoplatform.sudovirtualcards.keys.DefaultPublicKeyService
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
 import com.sudoplatform.sudovirtualcards.graphql.type.DeltaAction
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisioningState
-import com.sudoplatform.sudovirtualcards.types.Card
-import com.sudoplatform.sudovirtualcards.types.ProvisionalCard
+import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
+import com.sudoplatform.sudovirtualcards.types.Expiry
+import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
+import com.sudoplatform.sudovirtualcards.types.VirtualCard
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -45,10 +47,7 @@ import timber.log.Timber
 import java.util.UUID
 
 /**
- *
  * Test the operation of [Unsealer] under Robolectric.
- *
- * @since 2020-06-23
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
@@ -133,6 +132,17 @@ class UnsealerTest : BaseTests() {
     }
 
     @Test
+    fun `unseal amount to CurrencyAmount`() {
+        val clearCurrency = "USD"
+        val clearAmount = "100"
+
+        val sealedCurrency = seal(clearCurrency)
+        val sealedAmount = seal(clearAmount)
+
+        unsealer.unsealAmount(sealedCurrency, sealedAmount) shouldBe CurrencyAmount("USD", 100)
+    }
+
+    @Test
     fun `unseal CardProvisionMutation BillingAddress`() {
 
         val sealedBillingAddress = CardProvisionMutation.BillingAddress(
@@ -158,6 +168,24 @@ class UnsealerTest : BaseTests() {
         }
 
         unsealer.unseal(null as CardProvisionMutation.BillingAddress?) shouldBe null
+    }
+
+    @Test
+    fun `unseal CardProvisionMutation Expiry`() {
+
+        val sealedExpiry = CardProvisionMutation.Expiry(
+            "typename",
+            seal("12"),
+            seal("2020")
+        )
+
+        val expiry = unsealer.unseal(sealedExpiry)
+        expiry shouldNotBe null
+
+        with(expiry) {
+            mm shouldBe "12"
+            yyyy shouldBe "2020"
+        }
     }
 
     @Test
@@ -189,6 +217,24 @@ class UnsealerTest : BaseTests() {
     }
 
     @Test
+    fun `unseal GetProvisionalCardQuery Expiry`() {
+
+        val sealedExpiry = GetProvisionalCardQuery.Expiry(
+            "typename",
+            seal("12"),
+            seal("2020")
+        )
+
+        val expiry = unsealer.unseal(sealedExpiry)
+        expiry shouldNotBe null
+
+        with(expiry) {
+            mm shouldBe "12"
+            yyyy shouldBe "2020"
+        }
+    }
+
+    @Test
     fun `unseal GetCardQuery BillingAddress`() {
 
         val sealedBillingAddress = GetCardQuery.BillingAddress(
@@ -214,6 +260,24 @@ class UnsealerTest : BaseTests() {
         }
 
         unsealer.unseal(null as GetCardQuery.BillingAddress?) shouldBe null
+    }
+
+    @Test
+    fun `unseal GetCardQuery Expiry`() {
+
+        val sealedExpiry = GetCardQuery.Expiry(
+            "typename",
+            seal("12"),
+            seal("2020")
+        )
+
+        val expiry = unsealer.unseal(sealedExpiry)
+        expiry shouldNotBe null
+
+        with(expiry) {
+            mm shouldBe "12"
+            yyyy shouldBe "2020"
+        }
     }
 
     @Test
@@ -245,6 +309,24 @@ class UnsealerTest : BaseTests() {
     }
 
     @Test
+    fun `unseal ListCardsQuery Expiry`() {
+
+        val sealedExpiry = ListCardsQuery.Expiry(
+            "typename",
+            seal("12"),
+            seal("2020")
+        )
+
+        val expiry = unsealer.unseal(sealedExpiry)
+        expiry shouldNotBe null
+
+        with(expiry) {
+            mm shouldBe "12"
+            yyyy shouldBe "2020"
+        }
+    }
+
+    @Test
     fun `unseal UpdateCardMutation BillingAddress`() {
 
         val sealedBillingAddress = UpdateCardMutation.BillingAddress(
@@ -273,6 +355,24 @@ class UnsealerTest : BaseTests() {
     }
 
     @Test
+    fun `unseal UpdateCardMutation Expiry`() {
+
+        val sealedExpiry = UpdateCardMutation.Expiry(
+            "typename",
+            seal("12"),
+            seal("2020")
+        )
+
+        val expiry = unsealer.unseal(sealedExpiry)
+        expiry shouldNotBe null
+
+        with(expiry) {
+            mm shouldBe "12"
+            yyyy shouldBe "2020"
+        }
+    }
+
+    @Test
     fun `unseal CancelCardMutation BillingAddress`() {
 
         val sealedBillingAddress = CancelCardMutation.BillingAddress(
@@ -298,6 +398,24 @@ class UnsealerTest : BaseTests() {
         }
 
         unsealer.unseal(null as CancelCardMutation.BillingAddress?) shouldBe null
+    }
+
+    @Test
+    fun `unseal CancelCardMutation Expiry`() {
+
+        val sealedExpiry = CancelCardMutation.Expiry(
+            "typename",
+            seal("12"),
+            seal("2020")
+        )
+
+        val expiry = unsealer.unseal(sealedExpiry)
+        expiry shouldNotBe null
+
+        with(expiry) {
+            mm shouldBe "12"
+            yyyy shouldBe "2020"
+        }
     }
 
     @Test
@@ -347,10 +465,11 @@ class UnsealerTest : BaseTests() {
                 "typename",
                 seal("01"),
                 seal("2021")
-            )
+            ),
+            null
         )
 
-        val provisionalCard = CardTransformer.toCardFromGetProvisionalCardQueryResult(deviceKeyManager, sealedProvisionalCard)
+        val provisionalCard = VirtualCardTransformer.toEntityFromGetProvisionalCardQueryResult(deviceKeyManager, sealedProvisionalCard)
 
         with(provisionalCard) {
             id shouldBe "id"
@@ -363,7 +482,7 @@ class UnsealerTest : BaseTests() {
             owners.first().issuer shouldBe "issuer"
             fundingSourceId shouldBe "fundingSourceId"
             currency shouldBe "currency"
-            state shouldBe Card.State.ISSUED
+            state shouldBe VirtualCard.State.ISSUED
             activeTo.time shouldBeGreaterThan 0L
             cancelledAt shouldBe null
             last4 shouldBe "last4"
@@ -372,8 +491,7 @@ class UnsealerTest : BaseTests() {
             cardNumber shouldBe "pan"
             securityCode shouldBe "csc"
             billingAddress shouldNotBe null
-            expirationMonth shouldBe 1
-            expirationYear shouldBe 2021
+            expiry shouldBe Expiry("01", "2021")
         }
 
         with(provisionalCard.billingAddress!!) {
@@ -425,7 +543,9 @@ class UnsealerTest : BaseTests() {
                 "typename",
                 seal("01"),
                 seal("2021")
-            )
+            ),
+            null,
+            null
         )
 
         val sealedCardProvision = CardProvisionMutation.CardProvision(
@@ -441,7 +561,7 @@ class UnsealerTest : BaseTests() {
             DeltaAction.DELETE
         )
 
-        val provisionResult = CardTransformer.toEntityFromCardProvisionMutationResult(deviceKeyManager, sealedCardProvision)
+        val provisionResult = VirtualCardTransformer.toEntityFromCardProvisionMutationResult(deviceKeyManager, sealedCardProvision)
 
         with(provisionResult) {
             id shouldBe "id"
@@ -450,7 +570,7 @@ class UnsealerTest : BaseTests() {
             createdAt.time shouldBeGreaterThan 0L
             updatedAt.time shouldBeGreaterThan 0L
             clientRefId shouldBe "clientRefId"
-            state shouldBe ProvisionalCard.State.COMPLETED
+            provisioningState shouldBe ProvisionalVirtualCard.ProvisioningState.COMPLETED
             card shouldNotBe null
         }
         with(provisionResult.card!!) {
@@ -459,7 +579,7 @@ class UnsealerTest : BaseTests() {
             owners.first().issuer shouldBe "issuer"
             fundingSourceId shouldBe "fundingSourceId"
             currency shouldBe "currency"
-            state shouldBe Card.State.ISSUED
+            state shouldBe VirtualCard.State.ISSUED
             activeTo.time shouldBeGreaterThan 0L
             cancelledAt shouldBe null
             last4 shouldBe "last4"
@@ -468,8 +588,7 @@ class UnsealerTest : BaseTests() {
             cardNumber shouldBe "pan"
             securityCode shouldBe "csc"
             billingAddress shouldNotBe null
-            expirationMonth shouldBe 1
-            expirationYear shouldBe 2021
+            expiry shouldBe Expiry("01", "2021")
         }
         with(provisionResult.card!!.billingAddress!!) {
             addressLine1 shouldBe "333 Ravenswood Ave"
@@ -520,10 +639,12 @@ class UnsealerTest : BaseTests() {
                 "typename",
                 seal("01"),
                 seal("2021")
-            )
+            ),
+            null,
+            null
         )
 
-        val card = CardTransformer.toEntityFromGetCardQueryResult(deviceKeyManager, sealedCard)
+        val card = VirtualCardTransformer.toEntityFromGetCardQueryResult(deviceKeyManager, sealedCard)
 
         with(card) {
             id shouldBe "id"
@@ -536,7 +657,7 @@ class UnsealerTest : BaseTests() {
             owners.first().issuer shouldBe "issuer"
             fundingSourceId shouldBe "fundingSourceId"
             currency shouldBe "currency"
-            state shouldBe Card.State.ISSUED
+            state shouldBe VirtualCard.State.ISSUED
             activeTo.time shouldBeGreaterThan 0L
             cancelledAt shouldBe null
             last4 shouldBe "last4"
@@ -545,8 +666,7 @@ class UnsealerTest : BaseTests() {
             cardNumber shouldBe "pan"
             securityCode shouldBe "csc"
             billingAddress shouldNotBe null
-            expirationMonth shouldBe 1
-            expirationYear shouldBe 2021
+            expiry shouldBe Expiry("01", "2021")
         }
 
         with(card.billingAddress!!) {
@@ -598,11 +718,13 @@ class UnsealerTest : BaseTests() {
                 "typename",
                 seal("01"),
                 seal("2021")
-            )
+            ),
+            null,
+            null
         )
         val sealedCards = arrayListOf(sealedCard)
 
-        val card = CardTransformer.toEntityFromListCardsQueryResult(deviceKeyManager, sealedCards)
+        val card = VirtualCardTransformer.toEntityFromListCardsQueryResult(deviceKeyManager, sealedCards)
 
         with(card[0]) {
             id shouldBe "id"
@@ -615,7 +737,7 @@ class UnsealerTest : BaseTests() {
             owners.first().issuer shouldBe "issuer"
             fundingSourceId shouldBe "fundingSourceId"
             currency shouldBe "currency"
-            state shouldBe Card.State.ISSUED
+            state shouldBe VirtualCard.State.ISSUED
             activeTo.time shouldBeGreaterThan 0L
             cancelledAt shouldBe null
             last4 shouldBe "last4"
@@ -624,8 +746,7 @@ class UnsealerTest : BaseTests() {
             cardNumber shouldBe "pan"
             securityCode shouldBe "csc"
             billingAddress shouldNotBe null
-            expirationMonth shouldBe 1
-            expirationYear shouldBe 2021
+            expiry shouldBe Expiry("01", "2021")
         }
 
         with(card[0].billingAddress!!) {
@@ -677,10 +798,12 @@ class UnsealerTest : BaseTests() {
                 "typename",
                 seal("01"),
                 seal("2021")
-            )
+            ),
+            null,
+            null
         )
 
-        val updatedCard = CardTransformer.toEntityFromUpdateCardMutationResult(deviceKeyManager, sealedUpdatedCard)
+        val updatedCard = VirtualCardTransformer.toEntityFromUpdateCardMutationResult(deviceKeyManager, sealedUpdatedCard)
 
         with(updatedCard) {
             owners.isEmpty() shouldBe false
@@ -688,7 +811,7 @@ class UnsealerTest : BaseTests() {
             owners.first().issuer shouldBe "issuer"
             fundingSourceId shouldBe "fundingSourceId"
             currency shouldBe "currency"
-            state shouldBe Card.State.ISSUED
+            state shouldBe VirtualCard.State.ISSUED
             activeTo.time shouldBeGreaterThan 0L
             cancelledAt shouldBe null
             last4 shouldBe "last4"
@@ -697,8 +820,7 @@ class UnsealerTest : BaseTests() {
             cardNumber shouldBe "pan"
             securityCode shouldBe "csc"
             billingAddress shouldNotBe null
-            expirationMonth shouldBe 1
-            expirationYear shouldBe 2021
+            expiry shouldBe Expiry("01", "2021")
         }
 
         with(updatedCard.billingAddress!!) {
@@ -750,10 +872,12 @@ class UnsealerTest : BaseTests() {
                 "typename",
                 seal("01"),
                 seal("2021")
-            )
+            ),
+            null,
+            null
         )
 
-        val cancelledCard = CardTransformer.toEntityFromCancelCardMutationResult(deviceKeyManager, sealedCancelledCard)
+        val cancelledCard = VirtualCardTransformer.toEntityFromCancelCardMutationResult(deviceKeyManager, sealedCancelledCard)
 
         with(cancelledCard) {
             owners.isEmpty() shouldBe false
@@ -761,7 +885,7 @@ class UnsealerTest : BaseTests() {
             owners.first().issuer shouldBe "issuer"
             fundingSourceId shouldBe "fundingSourceId"
             currency shouldBe "currency"
-            state shouldBe Card.State.CLOSED
+            state shouldBe VirtualCard.State.CLOSED
             activeTo.time shouldBeGreaterThan 0L
             cancelledAt shouldBe null
             last4 shouldBe "last4"
@@ -770,8 +894,7 @@ class UnsealerTest : BaseTests() {
             cardNumber shouldBe "pan"
             securityCode shouldBe "csc"
             billingAddress shouldNotBe null
-            expirationMonth shouldBe 1
-            expirationYear shouldBe 2021
+            expiry shouldBe Expiry("01", "2021")
         }
 
         with(cancelledCard.billingAddress!!) {

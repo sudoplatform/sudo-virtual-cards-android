@@ -2,27 +2,31 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>Builder</title>
-<link href="../../../../../../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../../";</script><script type="text/javascript" src="../../../../scripts/sourceset_dependencies.js" async="async"></script><link href="../../../../styles/style.css" rel="Stylesheet"><link href="../../../../styles/logo-styles.css" rel="Stylesheet"><link href="../../../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../../../styles/main.css" rel="Stylesheet"><script type="text/javascript" src="../../../../scripts/clipboard.js" async="async"></script><script type="text/javascript" src="../../../../scripts/navigation-loader.js" async="async"></script><script type="text/javascript" src="../../../../scripts/platform-content-handler.js" async="async"></script><script type="text/javascript" src="../../../../scripts/main.js" async="async"></script>  </head>
+<link href="../../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../../";</script>    <script>const storage = localStorage.getItem("dokka-dark-mode")
+const savedDarkMode = storage ? JSON.parse(storage) : false
+if(savedDarkMode === true){
+    document.getElementsByTagName("html")[0].classList.add("theme-dark")
+}</script>
+<script type="text/javascript" src="../../../../scripts/sourceset_dependencies.js" async="async"></script><link href="../../../../styles/style.css" rel="Stylesheet"><link href="../../../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../../../styles/main.css" rel="Stylesheet"><link href="../../../../styles/prism.css" rel="Stylesheet"><link href="../../../../styles/logo-styles.css" rel="Stylesheet"><script type="text/javascript" src="../../../../scripts/clipboard.js" async="async"></script><script type="text/javascript" src="../../../../scripts/navigation-loader.js" async="async"></script><script type="text/javascript" src="../../../../scripts/platform-content-handler.js" async="async"></script><script type="text/javascript" src="../../../../scripts/main.js" defer="defer"></script><script type="text/javascript" src="../../../../scripts/prism.js" async="async"></script>  </head>
   <body>
+    <div class="navigation-wrapper" id="navigation-wrapper">
+      <div id="leftToggler"><span class="icon-toggler"></span></div>
+      <div class="library-name"><a href="../../../../index.html">sudovirtualcards</a></div>
+      <div></div>
+      <div class="pull-right d-flex"><button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+      </div>
+    </div>
     <div id="container">
-      <div id="leftColumn"><a href="../../../../index.html">
-          <div id="logo"></div>
-        </a>
-        <div id="paneSearch"></div>
+      <div id="leftColumn">
         <div id="sideMenu"></div>
       </div>
       <div id="main">
-        <div id="leftToggler"><span class="icon-toggler"></span></div>
-<script type="text/javascript" src="../../../../scripts/main.js"></script>        <div class="main-content" id="content" pageIds="sudovirtualcards::com.sudoplatform.sudovirtualcards/SudoVirtualCardsClient.Builder///PointingToDeclaration//-2124582697">
-          <div class="navigation-wrapper" id="navigation-wrapper">
-            <div class="breadcrumbs"><a href="../../../../index.html">sudovirtualcards</a>/<a href="../../index.html">com.sudoplatform.sudovirtualcards</a>/<a href="../index.html">SudoVirtualCardsClient</a>/<a href="index.html">Builder</a></div>
-            <div class="pull-right d-flex">
-              <div id="searchBar"></div>
-            </div>
-          </div>
+        <div class="main-content" id="content" pageIds="sudovirtualcards::com.sudoplatform.sudovirtualcards/SudoVirtualCardsClient.Builder///PointingToDeclaration//-2124582697">
+          <div class="breadcrumbs"><a href="../../../../index.html">sudovirtualcards</a>/<a href="../../index.html">com.sudoplatform.sudovirtualcards</a>/<a href="../index.html">SudoVirtualCardsClient</a>/<a href="index.html">Builder</a></div>
           <div class="cover ">
-            <h1 class="cover"><span>Builder</span></h1>
-            <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">class <a href="index.html">Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">Builder used to construct the <a href="../index.html">SudoVirtualCardsClient</a>.</p></div></div>
+            <h1 class="cover"><span><span>Builder</span></span></h1>
+            <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">Builder used to construct the <a href="../index.html">SudoVirtualCardsClient</a>.</p></div></div>
           </div>
           <div class="tabbedcontent">
             <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Functions">Functions</button></div>
@@ -31,136 +35,105 @@
               <div class="table" data-togglable="Functions"><a data-name="-734960680%2FFunctions%2F-2124582697" anchor-label="build" id="-734960680%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="build.html">build</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-734960680%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="build.html"><span><span>build</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-734960680%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">fun <a href="build.html">build</a>(): <a href="../index.html">SudoVirtualCardsClient</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-734960680%2FFunctions%2F-2124582697" anchor-label="build" id="-734960680%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-734960680%2FFunctions%2F-2124582697" anchor-label="build" id="-734960680%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Construct the <a href="../index.html">SudoVirtualCardsClient</a>.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="build.html"><span class="token function">build</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">SudoVirtualCardsClient</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Construct the <a href="../index.html">SudoVirtualCardsClient</a>. Will throw a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-null-pointer-exception/index.html">NullPointerException</a> if the <span data-unresolved-link="com.sudoplatform.sudovirtualcards/SudoVirtualCardsClient.Builder/context/#/PointingToDeclaration/">context</span>, <span data-unresolved-link="com.sudoplatform.sudovirtualcards/SudoVirtualCardsClient.Builder/sudoUserClient/#/PointingToDeclaration/">sudoUserClient</span> and <span data-unresolved-link="com.sudoplatform.sudovirtualcards/SudoVirtualCardsClient.Builder/sudoProfilesClient/#/PointingToDeclaration/">sudoProfilesClient</span> has not been provided.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="-1426040205%2FFunctions%2F-2124582697" anchor-label="setAppSyncClient" id="-1426040205%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="set-app-sync-client.html">setAppSyncClient</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1426040205%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="set-app-sync-client.html"><span>set</span><wbr></wbr><span>App</span><wbr></wbr><span>Sync</span><wbr></wbr><span><span>Client</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1426040205%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">fun <a href="set-app-sync-client.html">setAppSyncClient</a>(appSyncClient: <span data-unresolved-link="com.amazonaws.mobileconnectors.appsync/AWSAppSyncClient///PointingToDeclaration/">AWSAppSyncClient</span>): <a href="index.html">SudoVirtualCardsClient.Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-1426040205%2FFunctions%2F-2124582697" anchor-label="setAppSyncClient" id="-1426040205%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-1426040205%2FFunctions%2F-2124582697" anchor-label="setAppSyncClient" id="-1426040205%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Provide an <span data-unresolved-link="com.amazonaws.mobileconnectors.appsync/AWSAppSyncClient///PointingToDeclaration/">AWSAppSyncClient</span> for the <a href="../index.html">SudoVirtualCardsClient</a> to use (optional input).</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="set-app-sync-client.html"><span class="token function">setAppSyncClient</span></a><span class="token punctuation">(</span>appSyncClient<span class="token operator">: </span><span data-unresolved-link="com.amazonaws.mobileconnectors.appsync/AWSAppSyncClient///PointingToDeclaration/">AWSAppSyncClient</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">SudoVirtualCardsClient.Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Provide an <span data-unresolved-link="com.amazonaws.mobileconnectors.appsync/AWSAppSyncClient///PointingToDeclaration/">AWSAppSyncClient</span> for the <a href="../index.html">SudoVirtualCardsClient</a> to use (optional input). If this is not supplied, an <span data-unresolved-link="com.amazonaws.mobileconnectors.appsync/AWSAppSyncClient///PointingToDeclaration/">AWSAppSyncClient</span> will be constructed and used.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="12416288%2FFunctions%2F-2124582697" anchor-label="setContext" id="12416288%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="set-context.html">setContext</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="12416288%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="set-context.html"><span>set</span><wbr></wbr><span><span>Context</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="12416288%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">fun <a href="set-context.html">setContext</a>(context: <a href="https://developer.android.com/reference/kotlin/android/content/Context.html">Context</a>): <a href="index.html">SudoVirtualCardsClient.Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="12416288%2FFunctions%2F-2124582697" anchor-label="setContext" id="12416288%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="12416288%2FFunctions%2F-2124582697" anchor-label="setContext" id="12416288%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Provide the application context (required input).</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="set-context.html"><span class="token function">setContext</span></a><span class="token punctuation">(</span>context<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/content/Context.html">Context</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">SudoVirtualCardsClient.Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Provide the application context (required input).</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="312627635%2FFunctions%2F-2124582697" anchor-label="setKeyManager" id="312627635%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="set-key-manager.html">setKeyManager</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="312627635%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="set-key-manager.html"><span>set</span><wbr></wbr><span>Key</span><wbr></wbr><span><span>Manager</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="312627635%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">fun <a href="set-key-manager.html">setKeyManager</a>(keyManager: <span data-unresolved-link="com.sudoplatform.sudokeymanager/KeyManagerInterface///PointingToDeclaration/">KeyManagerInterface</span>): <a href="index.html">SudoVirtualCardsClient.Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="312627635%2FFunctions%2F-2124582697" anchor-label="setKeyManager" id="312627635%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="312627635%2FFunctions%2F-2124582697" anchor-label="setKeyManager" id="312627635%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Provide the implementation of the <span data-unresolved-link="com.sudoplatform.sudokeymanager/KeyManagerInterface///PointingToDeclaration/">KeyManagerInterface</span> used for key management and cryptographic operations (optional input).</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="set-key-manager.html"><span class="token function">setKeyManager</span></a><span class="token punctuation">(</span>keyManager<span class="token operator">: </span><span data-unresolved-link="com.sudoplatform.sudokeymanager/KeyManagerInterface///PointingToDeclaration/">KeyManagerInterface</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">SudoVirtualCardsClient.Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Provide the implementation of the <span data-unresolved-link="com.sudoplatform.sudokeymanager/KeyManagerInterface///PointingToDeclaration/">KeyManagerInterface</span> used for key management and cryptographic operations (optional input). If a value is not supplied a default implementation will be used.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="1325440961%2FFunctions%2F-2124582697" anchor-label="setLogger" id="1325440961%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="set-logger.html">setLogger</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1325440961%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="set-logger.html"><span>set</span><wbr></wbr><span><span>Logger</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1325440961%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">fun <a href="set-logger.html">setLogger</a>(logger: <span data-unresolved-link="com.sudoplatform.sudologging/Logger///PointingToDeclaration/">Logger</span>): <a href="index.html">SudoVirtualCardsClient.Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="1325440961%2FFunctions%2F-2124582697" anchor-label="setLogger" id="1325440961%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="1325440961%2FFunctions%2F-2124582697" anchor-label="setLogger" id="1325440961%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Provide the implementation of the <span data-unresolved-link="com.sudoplatform.sudologging/Logger///PointingToDeclaration/">Logger</span> used for logging errors (optional input).</div></div>
-</div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="-787728536%2FFunctions%2F-2124582697" anchor-label="setPaymentProcessInteractions" id="-787728536%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="set-payment-process-interactions.html">setPaymentProcessInteractions</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-787728536%2FFunctions%2F-2124582697"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">fun <a href="set-payment-process-interactions.html">setPaymentProcessInteractions</a>(paymentProcessInteractions: <a href="../../-payment-process-interactions/index.html">PaymentProcessInteractions</a>): <a href="index.html">SudoVirtualCardsClient.Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-787728536%2FFunctions%2F-2124582697" anchor-label="setPaymentProcessInteractions" id="-787728536%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-787728536%2FFunctions%2F-2124582697" anchor-label="setPaymentProcessInteractions" id="-787728536%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Provide the implementation of the <a href="../../-payment-process-interactions/index.html">PaymentProcessInteractions</a> used to perform Payment setup confirmation.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="set-logger.html"><span class="token function">setLogger</span></a><span class="token punctuation">(</span>logger<span class="token operator">: </span><span data-unresolved-link="com.sudoplatform.sudologging/Logger///PointingToDeclaration/">Logger</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">SudoVirtualCardsClient.Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Provide the implementation of the <span data-unresolved-link="com.sudoplatform.sudologging/Logger///PointingToDeclaration/">Logger</span> used for logging errors (optional input). If a value is not supplied a default implementation will be used.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="1707254378%2FFunctions%2F-2124582697" anchor-label="setSudoProfilesClient" id="1707254378%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="set-sudo-profiles-client.html">setSudoProfilesClient</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1707254378%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="set-sudo-profiles-client.html"><span>set</span><wbr></wbr><span>Sudo</span><wbr></wbr><span>Profiles</span><wbr></wbr><span><span>Client</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1707254378%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">fun <a href="set-sudo-profiles-client.html">setSudoProfilesClient</a>(sudoProfilesClient: <span data-unresolved-link="com.sudoplatform.sudoprofiles/SudoProfilesClient///PointingToDeclaration/">SudoProfilesClient</span>): <a href="index.html">SudoVirtualCardsClient.Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="1707254378%2FFunctions%2F-2124582697" anchor-label="setSudoProfilesClient" id="1707254378%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="1707254378%2FFunctions%2F-2124582697" anchor-label="setSudoProfilesClient" id="1707254378%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Provide the implementation of the <span data-unresolved-link="com.sudoplatform.sudoprofiles/SudoProfilesClient///PointingToDeclaration/">SudoProfilesClient</span> used to perform ownership proof lifecycle operations (required input).</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="set-sudo-profiles-client.html"><span class="token function">setSudoProfilesClient</span></a><span class="token punctuation">(</span>sudoProfilesClient<span class="token operator">: </span><span data-unresolved-link="com.sudoplatform.sudoprofiles/SudoProfilesClient///PointingToDeclaration/">SudoProfilesClient</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">SudoVirtualCardsClient.Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Provide the implementation of the <span data-unresolved-link="com.sudoplatform.sudoprofiles/SudoProfilesClient///PointingToDeclaration/">SudoProfilesClient</span> used to perform ownership proof lifecycle operations (required input).</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="-2070307383%2FFunctions%2F-2124582697" anchor-label="setSudoUserClient" id="-2070307383%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="set-sudo-user-client.html">setSudoUserClient</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2070307383%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="set-sudo-user-client.html"><span>set</span><wbr></wbr><span>Sudo</span><wbr></wbr><span>User</span><wbr></wbr><span><span>Client</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2070307383%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">fun <a href="set-sudo-user-client.html">setSudoUserClient</a>(sudoUserClient: <a href="https://sudoplatform.github.io/sudo-user-android/sudouser/sudouser/com.sudoplatform.sudouser/-sudo-user-client/index.html">SudoUserClient</a>): <a href="index.html">SudoVirtualCardsClient.Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-2070307383%2FFunctions%2F-2124582697" anchor-label="setSudoUserClient" id="-2070307383%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-2070307383%2FFunctions%2F-2124582697" anchor-label="setSudoUserClient" id="-2070307383%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Provide the implementation of the <a href="https://sudoplatform.github.io/sudo-user-android/sudouser/sudouser/com.sudoplatform.sudouser/-sudo-user-client/index.html">SudoUserClient</a> used to perform sign in and ownership operations (required input).</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="set-sudo-user-client.html"><span class="token function">setSudoUserClient</span></a><span class="token punctuation">(</span>sudoUserClient<span class="token operator">: </span><a href="https://sudoplatform.github.io/sudo-user-android/sudouser/sudouser/com.sudoplatform.sudouser/-sudo-user-client/index.html">SudoUserClient</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">SudoVirtualCardsClient.Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Provide the implementation of the <a href="https://sudoplatform.github.io/sudo-user-android/sudouser/sudouser/com.sudoplatform.sudouser/-sudo-user-client/index.html">SudoUserClient</a> used to perform sign in and ownership operations (required input).</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -168,7 +141,7 @@
             </div>
           </div>
         </div>
-        <div class="footer"><span class="go-to-top-icon"><a href="#content"></a></span><span>© 2021 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span></div>
+        <div class="footer"><span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2022 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span></div>
       </div>
     </div>
   </body>

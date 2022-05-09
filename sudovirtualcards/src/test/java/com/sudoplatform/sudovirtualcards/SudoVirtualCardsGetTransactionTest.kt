@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -47,9 +47,8 @@ import org.mockito.ArgumentMatchers.anyString
 import java.net.HttpURLConnection
 
 /**
- * Test the correct operation of [SudoVirtualCardsClient.getTransaction] using mocks and spies.
- *
- * @since 2020-07-17
+ * Test the correct operation of [SudoVirtualCardsClient.getTransaction]
+ * using mocks and spies.
  */
 class SudoVirtualCardsGetTransactionTest : BaseTests() {
 
@@ -66,6 +65,7 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
             "id",
             "owner",
             1,
+            1.0,
             1.0,
             1.0,
             "algorithm",
@@ -185,7 +185,7 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
             owner shouldBe "owner"
             version shouldBe 1
             cardId shouldNotBe null
-            type shouldBe Transaction.Type.COMPLETE
+            type shouldBe Transaction.TransactionType.COMPLETE
             description.isBlank() shouldBe false
             sequenceId shouldBe "sequenceId"
             transactedAt shouldNotBe null

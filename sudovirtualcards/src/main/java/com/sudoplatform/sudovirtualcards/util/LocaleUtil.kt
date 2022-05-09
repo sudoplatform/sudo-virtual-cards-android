@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -14,8 +14,6 @@ import java.io.InputStreamReader
 
 /**
  * Locale related utility methods.
- *
- * @since 2020-06-17
  */
 class LocaleUtil private constructor() {
 

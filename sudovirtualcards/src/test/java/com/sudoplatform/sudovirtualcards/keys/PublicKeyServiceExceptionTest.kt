@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -29,8 +29,6 @@ import java.lang.RuntimeException
 
 /**
  * Test the operation of [DefaultPublicKeyService] under exceptional conditions using mocks.
- *
- * @since 2020-06-23
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
@@ -98,7 +96,7 @@ class PublicKeyServiceExceptionTest : BaseTests() {
             on { mutate(any<CreatePublicKeyForVirtualCardsMutation>()) } doThrow RuntimeException("mock")
         }
         shouldThrow<PublicKeyService.PublicKeyServiceException.UnknownException> {
-            publicKeyService.create(KeyPair("id", "ringId", ByteArray(42), ByteArray(42)))
+            publicKeyService.create("id", "ringId", ByteArray(42))
         }
     }
 }

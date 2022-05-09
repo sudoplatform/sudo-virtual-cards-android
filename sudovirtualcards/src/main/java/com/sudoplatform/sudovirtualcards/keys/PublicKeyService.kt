@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -12,8 +12,6 @@ import java.lang.RuntimeException
 
 /**
  * Responsible for managing the storage and lifecycle of key pairs locally and remotely in the virtual cards service.
- *
- * @since 2020-06-18
  */
 internal interface PublicKeyService {
 
@@ -59,8 +57,10 @@ internal interface PublicKeyService {
      * Create/Register a new public key. Although a key pair is passed in, only the public key is
      * sent external to the device. **Private keys remain on the device only**.
      *
-     * @param keyPair The public/private pair of keys.
+     * @param keyId [String] The identifier of the key.
+     * @param keyRingId [String] The identifier of the key ring that contains the keys.
+     * @param publicKey [ByteArray] Bytes of the public key (PEM format) to register/create.
      */
     @Throws(PublicKeyServiceException::class)
-    suspend fun create(keyPair: KeyPair): PublicKey
+    suspend fun create(keyId: String, keyRingId: String, publicKey: ByteArray): PublicKey
 }

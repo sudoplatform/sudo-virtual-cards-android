@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -8,8 +8,6 @@ package com.sudoplatform.sudovirtualcards
 
 /**
  * Data used in tests.
- *
- * @since 2020-06-17
  */
 object TestData {
 

@@ -1,16 +1,16 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
+
 package com.sudoplatform.sudovirtualcards.types
 
 import androidx.annotation.Keep
 
 /**
- * The reason why a [Transaction] was declined.
- *
- * @since 2020-08-07
+ * Representation of an enumeration depicting why a [Transaction] was declined in the
+ * Sudo Platform Virtual Cards SDK.
  */
 @Keep
 enum class DeclineReason {

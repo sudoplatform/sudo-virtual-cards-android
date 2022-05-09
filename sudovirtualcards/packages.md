@@ -22,11 +22,7 @@ Types used by the methods of the Sudo Platform Virtual Cards SDK.
 
 # Package com.sudoplatform.sudovirtualcards.types.inputs
 
-Types used by the methods of the Sudo Platform Virtual Cards SDK an inputs. 
-
-# Package com.sudoplatform.sudovirtualcards.types.inputs.filters
-
-Card and transaction filter types used with the APIs that allow filtered querying of cards and transactions.
+Types used by the methods of the Sudo Platform Virtual Cards SDK an inputs.
 
 # Package com.sudoplatform.sudovirtualcards.util
 

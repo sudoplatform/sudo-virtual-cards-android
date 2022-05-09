@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -15,15 +15,13 @@ import com.sudoplatform.sudovirtualcards.keys.KeyRing
 /**
  * Transformer responsible for transforming the keys GraphQL data types to the
  * entity type that is exposed to users.
- *
- * @since 2020-05-26
  */
 internal object KeyTransformer {
 
     /**
      * Transform the results of the [GetKeyRingForVirtualCardsQuery].
      *
-     * @param result The GraphQL query results.
+     * @param result [GetKeyRingForVirtualCardsQuery.GetKeyRingForVirtualCards] The GraphQL query results.
      * @return The [KeyRing] entity type.
      */
     fun toKeyRing(result: GetKeyRingForVirtualCardsQuery.GetKeyRingForVirtualCards): KeyRing {
@@ -34,16 +32,18 @@ internal object KeyTransformer {
                 algorithm = it.algorithm()
             )
         }
+        val nextToken = result.nextToken()
         return KeyRing(
             id = result.items().firstOrNull()?.keyRingId() ?: "",
-            keys = keys
+            keys = keys,
+            nextToken = nextToken
         )
     }
 
     /**
      * Transform the results of the [CreatePublicKeyForVirtualCardsMutation].
      *
-     * @param result The GraphQL mutation results.
+     * @param result [CreatePublicKeyForVirtualCardsMutation.CreatePublicKeyForVirtualCards] The GraphQL mutation results.
      * @return The [PublicKey] entity type.
      */
     fun toPublicKey(result: CreatePublicKeyForVirtualCardsMutation.CreatePublicKeyForVirtualCards): PublicKey {

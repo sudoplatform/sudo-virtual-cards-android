@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,8 +13,6 @@ package com.sudoplatform.sudovirtualcards.keys
  * @property keyRingId Identifier of the key ring that contains the key pair.
  * @property publicKey Bytes of the public key (PEM format)
  * @property privateKey Bytes of the private key (PEM format)
- *
- * @since 2020-06-16
  */
 internal data class KeyPair(
     val keyId: String,

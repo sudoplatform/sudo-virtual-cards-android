@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -10,8 +10,6 @@ import com.sudoplatform.sudokeymanager.KeyManagerInterface
 
 /**
  * Responsible for managing the local storage and lifecycle of key pairs associated with the virtual cards service.
- *
- * @since 2020-06-16
  */
 internal interface DeviceKeyManager {
 
@@ -26,7 +24,7 @@ internal interface DeviceKeyManager {
             DeviceKeyManagerException(message = message, cause = cause)
         class KeyGenerationException(message: String? = null, cause: Throwable? = null) :
             DeviceKeyManagerException(message = message, cause = cause)
-        class KeyNotFoundException(message: String? = null, cause: Throwable? = null) :
+        class KeyOperationFailedException(message: String? = null, cause: Throwable? = null) :
             DeviceKeyManagerException(message = message, cause = cause)
         class DecryptionException(message: String? = null, cause: Throwable? = null) :
             DeviceKeyManagerException(message = message, cause = cause)
@@ -71,13 +69,32 @@ internal interface DeviceKeyManager {
     fun generateNewCurrentKeyPair(): KeyPair
 
     /**
+     * Generate a new symmetric key.
+     *
+     * @return The generated symmetric key identifier.
+     * @throws [DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException] if unable to generate the symmetric key.
+     */
+    @Throws(DeviceKeyManagerException::class)
+    fun generateNewCurrentSymmetricKey(): String
+
+    /**
+     * Returns the symmetric key identifier that is currently being used by this service.
+     * If no symmetric key has been previously generated, will return null and require the caller
+     * to call [generateNewCurrentSymmetricKey] if a current symmetric key is required.
+     *
+     * @return The current symmetric key identifier in use or null.
+     * @throws [DeviceKeyManager.DeviceKeyManagerException.KeyOperationFailedException] if key operation fails.
+     */
+    @Throws(DeviceKeyManagerException::class)
+    fun getCurrentSymmetricKeyId(): String?
+
+    /**
      * Decrypt the [data] with the private key [keyId] and [algorithm]
      *
      * @param data Data to be decrypted
      * @param keyId Key to use to decrypt the [data]
      * @param algorithm Algorithm to use to decrypt the [data]
      * @return the decrypted data
-     * @throws [DeviceKeyManager.DeviceKeyManagerException.KeyNotFoundException] if the key with identifier [keyId] cannot be found
      * @throws [DeviceKeyManager.DeviceKeyManagerException.DecryptionException] if the data cannot be decrypted
      */
     @Throws(DeviceKeyManagerException::class)

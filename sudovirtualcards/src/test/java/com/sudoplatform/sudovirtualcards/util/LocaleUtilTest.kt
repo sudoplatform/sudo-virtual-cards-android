@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -16,8 +16,6 @@ import org.robolectric.annotation.Config
 
 /**
  * Test that the country codes are correctly converted.
- *
- * @since 2020-06-23
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)

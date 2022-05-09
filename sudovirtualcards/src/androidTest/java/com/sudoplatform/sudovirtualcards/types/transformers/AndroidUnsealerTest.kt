@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -16,7 +16,6 @@ import com.sudoplatform.sudovirtualcards.keys.DefaultPublicKeyService
 import io.kotlintest.shouldBe
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
@@ -28,8 +27,6 @@ import java.util.UUID
 
 /**
  * Test the operation of the [Unsealer] on a real device with real crypto.
- *
- * @since 2020-07-31
  */
 @RunWith(AndroidJUnit4::class)
 class AndroidUnsealerTest : BaseIntegrationTest() {
@@ -55,22 +52,17 @@ class AndroidUnsealerTest : BaseIntegrationTest() {
 
     @After
     fun fini() = runBlocking {
-        if (clientConfigFilesPresent()) {
-            if (userClient.isRegistered()) {
-                deregister()
-            }
-            userClient.reset()
-            sudoClient.reset()
+        if (userClient.isRegistered()) {
+            deregister()
         }
+        userClient.reset()
+        sudoClient.reset()
         Timber.uprootAll()
     }
 
     @Test
     fun shouldBeAbleToUnseal() = runBlocking {
-
-        assumeTrue(clientConfigFilesPresent())
-
-        signInAndRegister()
+        registerSignInAndEntitle()
 
         val symmetricKeyId = UUID.randomUUID().toString()
 
@@ -99,10 +91,7 @@ class AndroidUnsealerTest : BaseIntegrationTest() {
     @Test
     @Ignore // Enable when you want to examine peformance
     fun bulkUnsealingShouldBeFast() = runBlocking {
-
-        assumeTrue(clientConfigFilesPresent())
-
-        signInAndRegister()
+        registerSignInAndEntitle()
 
         val keyPair = deviceKeyManager.generateNewCurrentKeyPair()
 

@@ -2,40 +2,42 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>SudoVirtualCardsClient</title>
-<link href="../../../../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script><script src="https://unpkg.com/kotlin-playground@1" data-selector="code.runnablesample"></script><script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script><link href="../../../styles/style.css" rel="Stylesheet"><link href="../../../styles/logo-styles.css" rel="Stylesheet"><link href="../../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../../styles/main.css" rel="Stylesheet"><script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script><script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script><script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script><script type="text/javascript" src="../../../scripts/main.js" async="async"></script>  </head>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>    <script>const storage = localStorage.getItem("dokka-dark-mode")
+const savedDarkMode = storage ? JSON.parse(storage) : false
+if(savedDarkMode === true){
+    document.getElementsByTagName("html")[0].classList.add("theme-dark")
+}</script>
+<script src="https://unpkg.com/kotlin-playground@1"></script><script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script><link href="../../../styles/style.css" rel="Stylesheet"><link href="../../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../../styles/main.css" rel="Stylesheet"><link href="../../../styles/prism.css" rel="Stylesheet"><link href="../../../styles/logo-styles.css" rel="Stylesheet"><script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script><script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script><script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script><script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script><script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>  </head>
   <body>
+    <div class="navigation-wrapper" id="navigation-wrapper">
+      <div id="leftToggler"><span class="icon-toggler"></span></div>
+      <div class="library-name"><a href="../../../index.html">sudovirtualcards</a></div>
+      <div></div>
+      <div class="pull-right d-flex"><button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+      </div>
+    </div>
     <div id="container">
-      <div id="leftColumn"><a href="../../../index.html">
-          <div id="logo"></div>
-        </a>
-        <div id="paneSearch"></div>
+      <div id="leftColumn">
         <div id="sideMenu"></div>
       </div>
       <div id="main">
-        <div id="leftToggler"><span class="icon-toggler"></span></div>
-<script type="text/javascript" src="../../../scripts/main.js"></script>        <div class="main-content" id="content" pageIds="sudovirtualcards::com.sudoplatform.sudovirtualcards/SudoVirtualCardsClient///PointingToDeclaration//-2124582697">
-          <div class="navigation-wrapper" id="navigation-wrapper">
-            <div class="breadcrumbs"><a href="../../../index.html">sudovirtualcards</a>/<a href="../index.html">com.sudoplatform.sudovirtualcards</a>/<a href="index.html">SudoVirtualCardsClient</a></div>
-            <div class="pull-right d-flex">
-              <div id="searchBar"></div>
-            </div>
-          </div>
+        <div class="main-content" id="content" pageIds="sudovirtualcards::com.sudoplatform.sudovirtualcards/SudoVirtualCardsClient///PointingToDeclaration//-2124582697">
+          <div class="breadcrumbs"><a href="../../../index.html">sudovirtualcards</a>/<a href="../index.html">com.sudoplatform.sudovirtualcards</a>/<a href="index.html">SudoVirtualCardsClient</a></div>
           <div class="cover ">
-            <h1 class="cover"><span>Sudo</span><wbr></wbr><span>Virtual</span><wbr></wbr><span>Cards</span><wbr></wbr><span>Client</span></h1>
-            <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">interface <a href="index.html">SudoVirtualCardsClient</a> : <a href="https://developer.android.com/reference/kotlin/java/lang/AutoCloseable.html">AutoCloseable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">Interface encapsulating a library for interacting with the Sudo Platform Virtual Cards service.</p><h4 class="">Since</h4><p class="paragraph">2020-05-21</p></div></div>
+            <h1 class="cover"><span>Sudo</span><wbr></wbr><span>Virtual</span><wbr></wbr><span>Cards</span><wbr></wbr><span><span>Client</span></span></h1>
+            <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">interface </span><a href="index.html">SudoVirtualCardsClient</a> : <a href="https://developer.android.com/reference/kotlin/java/lang/AutoCloseable.html">AutoCloseable</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">Interface encapsulating a library for interacting with the Sudo Platform Virtual Cards service.</p></div></div>
           </div>
           <div class="tabbedcontent">
             <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Types">Types</button><button class="section-tab" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Extensions">Extensions</button><button class="section-tab" data-togglable="Samples">Samples</button></div>
             <div class="tabs-section-body">
               <h2 class="">Samples</h2>
-              <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Samples"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="sample-container"><code class="runnablesample monospace" theme="idea"><pre>import android.content.Context
+              <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Samples"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="sample-container"><pre><code class="runnablesample monospace block lang-kotlin" theme="idea">import android.content.Context
 import org.mockito.kotlin.mock
 import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.BaseTests
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
-import com.sudoplatform.sudovirtualcards.types.inputs.filters.filterCardsBy
-import com.sudoplatform.sudovirtualcards.types.inputs.filters.filterTransactionsBy
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -47,381 +49,382 @@ fun main() {
     .setSudoProfilesClient(sudoProfilesClient)
     .build() 
    //sampleEnd
-}</pre></code></div></div></div>
+}</code></pre></div></div></div>
               <h2 class="">Types</h2>
               <div class="table" data-togglable="Types"><a data-name="-1149875061%2FClasslikes%2F-2124582697" anchor-label="Builder" id="-1149875061%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-builder/index.html">Builder</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1149875061%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-builder/index.html"><span><span>Builder</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1149875061%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">class <a href="-builder/index.html">Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-1149875061%2FClasslikes%2F-2124582697" anchor-label="Builder" id="-1149875061%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-1149875061%2FClasslikes%2F-2124582697" anchor-label="Builder" id="-1149875061%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Builder used to construct the <a href="index.html">SudoVirtualCardsClient</a>.</div></div>
-</div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="1492110791%2FClasslikes%2F-2124582697" anchor-label="CardException" id="1492110791%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-card-exception/index.html">CardException</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1492110791%2FClasslikes%2F-2124582697"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">sealed class <a href="-card-exception/index.html">CardException</a> : <a href="https://developer.android.com/reference/kotlin/java/lang/RuntimeException.html">RuntimeException</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="1492110791%2FClasslikes%2F-2124582697" anchor-label="CardException" id="1492110791%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="1492110791%2FClasslikes%2F-2124582697" anchor-label="CardException" id="1492110791%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Defines the exceptions for the virtual payment card based methods.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">class </span><a href="-builder/index.html">Builder</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Builder used to construct the <a href="index.html">SudoVirtualCardsClient</a>.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="-423667462%2FClasslikes%2F-2124582697" anchor-label="Companion" id="-423667462%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-companion/index.html">Companion</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-423667462%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-companion/index.html"><span><span>Companion</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-423667462%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">object <a href="-companion/index.html">Companion</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-</div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">object </span><a href="-companion/index.html">Companion</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="-387988955%2FClasslikes%2F-2124582697" anchor-label="FundingSourceException" id="-387988955%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-funding-source-exception/index.html">FundingSourceException</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-387988955%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-funding-source-exception/index.html"><span>Funding</span><wbr></wbr><span>Source</span><wbr></wbr><span><span>Exception</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-387988955%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">sealed class <a href="-funding-source-exception/index.html">FundingSourceException</a> : <a href="https://developer.android.com/reference/kotlin/java/lang/RuntimeException.html">RuntimeException</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-387988955%2FClasslikes%2F-2124582697" anchor-label="FundingSourceException" id="-387988955%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-387988955%2FClasslikes%2F-2124582697" anchor-label="FundingSourceException" id="-387988955%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Defines the exceptions for the funding source based methods.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">sealed </span><span class="token keyword">class </span><a href="-funding-source-exception/index.html">FundingSourceException</a> : <a href="https://developer.android.com/reference/kotlin/java/lang/RuntimeException.html">RuntimeException</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Defines the exceptions for the funding source based methods.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="1897761995%2FClasslikes%2F-2124582697" anchor-label="TransactionException" id="1897761995%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-transaction-exception/index.html">TransactionException</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1897761995%2FClasslikes%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-transaction-exception/index.html"><span>Transaction</span><wbr></wbr><span><span>Exception</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1897761995%2FClasslikes%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">sealed class <a href="-transaction-exception/index.html">TransactionException</a> : <a href="https://developer.android.com/reference/kotlin/java/lang/RuntimeException.html">RuntimeException</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="1897761995%2FClasslikes%2F-2124582697" anchor-label="TransactionException" id="1897761995%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="1897761995%2FClasslikes%2F-2124582697" anchor-label="TransactionException" id="1897761995%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Defines the exceptions for the virtual payment transaction based methods.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">sealed </span><span class="token keyword">class </span><a href="-transaction-exception/index.html">TransactionException</a> : <a href="https://developer.android.com/reference/kotlin/java/lang/RuntimeException.html">RuntimeException</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Defines the exceptions for the virtual payment transaction based methods.</p></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="1984402280%2FClasslikes%2F-2124582697" anchor-label="VirtualCardException" id="1984402280%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="-virtual-card-exception/index.html"><span>Virtual</span><wbr></wbr><span>Card</span><wbr></wbr><span><span>Exception</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1984402280%2FClasslikes%2F-2124582697"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">sealed </span><span class="token keyword">class </span><a href="-virtual-card-exception/index.html">VirtualCardException</a> : <a href="https://developer.android.com/reference/kotlin/java/lang/RuntimeException.html">RuntimeException</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Defines the exceptions for the virtual payment card based methods.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
               <h2 class="">Functions</h2>
-              <div class="table" data-togglable="Functions"><a data-name="-2035325177%2FFunctions%2F-2124582697" anchor-label="cancelCard" id="-2035325177%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+              <div class="table" data-togglable="Functions"><a data-name="1024812623%2FFunctions%2F-2124582697" anchor-label="cancelFundingSource" id="1024812623%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="cancel-card.html">cancelCard</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2035325177%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="cancel-funding-source.html"><span>cancel</span><wbr></wbr><span>Funding</span><wbr></wbr><span><span>Source</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1024812623%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract suspend fun <a href="cancel-card.html">cancelCard</a>(id: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>): <a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html">Card</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-2035325177%2FFunctions%2F-2124582697" anchor-label="cancelCard" id="-2035325177%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-2035325177%2FFunctions%2F-2124582697" anchor-label="cancelCard" id="-2035325177%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Cancel a <a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html">Card</a> using the <a href="cancel-card.html">id</a> parameter.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="cancel-funding-source.html"><span class="token function">cancelFundingSource</span></a><span class="token punctuation">(</span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Cancel a <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a> using the <a href="cancel-funding-source.html">id</a> parameter.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="1024812623%2FFunctions%2F-2124582697" anchor-label="cancelFundingSource" id="1024812623%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="1451238226%2FFunctions%2F-2124582697" anchor-label="cancelVirtualCard" id="1451238226%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="cancel-funding-source.html">cancelFundingSource</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1024812623%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="cancel-virtual-card.html"><span>cancel</span><wbr></wbr><span>Virtual</span><wbr></wbr><span><span>Card</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1451238226%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract suspend fun <a href="cancel-funding-source.html">cancelFundingSource</a>(id: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>): <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="1024812623%2FFunctions%2F-2124582697" anchor-label="cancelFundingSource" id="1024812623%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="1024812623%2FFunctions%2F-2124582697" anchor-label="cancelFundingSource" id="1024812623%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Cancel a <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a> using the <a href="cancel-funding-source.html">id</a> parameter.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="cancel-virtual-card.html"><span class="token function">cancelVirtualCard</span></a><span class="token punctuation">(</span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-virtual-card/index.html">VirtualCard</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Cancel a <a href="../../com.sudoplatform.sudovirtualcards.types/-virtual-card/index.html">VirtualCard</a> using the <a href="cancel-virtual-card.html">id</a> parameter.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="-1117130810%2FFunctions%2F-2124582697" anchor-label="close" id="-1117130810%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="index.html#-1117130810%2FFunctions%2F-2124582697">close</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1117130810%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="index.html#-1117130810%2FFunctions%2F-2124582697"><span><span>close</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1117130810%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract fun <a href="index.html#-1117130810%2FFunctions%2F-2124582697">close</a>()<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-</div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="index.html#-1117130810%2FFunctions%2F-2124582697"><span class="token function">close</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="1926193288%2FFunctions%2F-2124582697" anchor-label="createFundingSource" id="1926193288%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="-871783653%2FFunctions%2F-2124582697" anchor-label="completeFundingSource" id="-871783653%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="create-funding-source.html">createFundingSource</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1926193288%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="complete-funding-source.html"><span>complete</span><wbr></wbr><span>Funding</span><wbr></wbr><span><span>Source</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-871783653%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract suspend fun <a href="create-funding-source.html">createFundingSource</a>(input: <a href="../../com.sudoplatform.sudovirtualcards.types.inputs/-credit-card-funding-source-input/index.html">CreditCardFundingSourceInput</a>): <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="1926193288%2FFunctions%2F-2124582697" anchor-label="createFundingSource" id="1926193288%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="1926193288%2FFunctions%2F-2124582697" anchor-label="createFundingSource" id="1926193288%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Creates a <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a> using a credit card input.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="complete-funding-source.html"><span class="token function">completeFundingSource</span></a><span class="token punctuation">(</span>input<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types.inputs/-complete-funding-source-input/index.html">CompleteFundingSourceInput</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Complete the creation of a <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a>.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="1216829219%2FFunctions%2F-2124582697" anchor-label="getCard" id="1216829219%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="-168798367%2FFunctions%2F-2124582697" anchor-label="createKeysIfAbsent" id="-168798367%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="get-card.html">getCard</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1216829219%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="create-keys-if-absent.html"><span>create</span><wbr></wbr><span>Keys</span><wbr></wbr><span>If</span><wbr></wbr><span><span>Absent</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-168798367%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract suspend fun <a href="get-card.html">getCard</a>(id: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, cachePolicy: <a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html">CachePolicy</a> = CachePolicy.REMOTE_ONLY): <a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html">Card</a>?<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="1216829219%2FFunctions%2F-2124582697" anchor-label="getCard" id="1216829219%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="1216829219%2FFunctions%2F-2124582697" anchor-label="getCard" id="1216829219%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Get a virtual payment <a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html">Card</a> using the <a href="get-card.html">id</a> parameter.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="create-keys-if-absent.html"><span class="token function">createKeysIfAbsent</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-create-keys-if-absent-result/index.html">CreateKeysIfAbsentResult</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Create key pair and secret key for use by the virtual cards client if they have not already been created.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="-163230965%2FFunctions%2F-2124582697" anchor-label="getFundingSource" id="-163230965%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="get-funding-source.html">getFundingSource</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-163230965%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="get-funding-source.html"><span>get</span><wbr></wbr><span>Funding</span><wbr></wbr><span><span>Source</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-163230965%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract suspend fun <a href="get-funding-source.html">getFundingSource</a>(id: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, cachePolicy: <a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html">CachePolicy</a> = CachePolicy.REMOTE_ONLY): <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a>?<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-163230965%2FFunctions%2F-2124582697" anchor-label="getFundingSource" id="-163230965%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-163230965%2FFunctions%2F-2124582697" anchor-label="getFundingSource" id="-163230965%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Get a <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a> using the <a href="get-funding-source.html">id</a> parameter.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="get-funding-source.html"><span class="token function">getFundingSource</span></a><span class="token punctuation">(</span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>cachePolicy<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html">CachePolicy</a><span class="token operator"> = </span>CachePolicy.REMOTE_ONLY<span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a><span class="token operator">?</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Get a <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a> using the <a href="get-funding-source.html">id</a> parameter.</p></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-1463708022%2FFunctions%2F-2124582697" anchor-label="getFundingSourceClientConfiguration" id="-1463708022%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="get-funding-source-client-configuration.html"><span>get</span><wbr></wbr><span>Funding</span><wbr></wbr><span>Source</span><wbr></wbr><span>Client</span><wbr></wbr><span><span>Configuration</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1463708022%2FFunctions%2F-2124582697"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="get-funding-source-client-configuration.html"><span class="token function">getFundingSourceClientConfiguration</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source-client-configuration/index.html">FundingSourceClientConfiguration</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Get the <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source-client-configuration/index.html">FundingSourceClientConfiguration</a> from the service.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="-959290749%2FFunctions%2F-2124582697" anchor-label="getProvisionalCard" id="-959290749%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="get-provisional-card.html">getProvisionalCard</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-959290749%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="get-provisional-card.html"><span>get</span><wbr></wbr><span>Provisional</span><wbr></wbr><span><span>Card</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-959290749%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract suspend fun <a href="get-provisional-card.html">getProvisionalCard</a>(id: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, cachePolicy: <a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html">CachePolicy</a> = CachePolicy.REMOTE_ONLY): <a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/index.html">ProvisionalCard</a>?<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-959290749%2FFunctions%2F-2124582697" anchor-label="getProvisionalCard" id="-959290749%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-959290749%2FFunctions%2F-2124582697" anchor-label="getProvisionalCard" id="-959290749%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Get a provisional virtual payment card.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="get-provisional-card.html"><span class="token function">getProvisionalCard</span></a><span class="token punctuation">(</span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>cachePolicy<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html">CachePolicy</a><span class="token operator"> = </span>CachePolicy.REMOTE_ONLY<span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-virtual-card/index.html">ProvisionalVirtualCard</a><span class="token operator">?</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Get a <a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-virtual-card/index.html">ProvisionalVirtualCard</a> using the <a href="get-provisional-card.html">id</a> parameter.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="1587258609%2FFunctions%2F-2124582697" anchor-label="getTransaction" id="1587258609%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="get-transaction.html">getTransaction</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1587258609%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="get-transaction.html"><span>get</span><wbr></wbr><span><span>Transaction</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1587258609%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract suspend fun <a href="get-transaction.html">getTransaction</a>(id: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, cachePolicy: <a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html">CachePolicy</a> = CachePolicy.REMOTE_ONLY): <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>?<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="1587258609%2FFunctions%2F-2124582697" anchor-label="getTransaction" id="1587258609%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="1587258609%2FFunctions%2F-2124582697" anchor-label="getTransaction" id="1587258609%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Get a virtual payment <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a> using the <a href="get-transaction.html">id</a> parameter.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="get-transaction.html"><span class="token function">getTransaction</span></a><span class="token punctuation">(</span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>cachePolicy<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html">CachePolicy</a><span class="token operator"> = </span>CachePolicy.REMOTE_ONLY<span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a><span class="token operator">?</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Get a <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a> using the <a href="get-transaction.html">id</a> parameter.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="-2126745680%2FFunctions%2F-2124582697" anchor-label="listCards" id="-2126745680%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="1640312974%2FFunctions%2F-2124582697" anchor-label="getVirtualCard" id="1640312974%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="list-cards.html">listCards</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2126745680%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="get-virtual-card.html"><span>get</span><wbr></wbr><span>Virtual</span><wbr></wbr><span><span>Card</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1640312974%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract suspend fun <a href="list-cards.html">listCards</a>(limit: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a> = DEFAULT_CARD_LIMIT, nextToken: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>? = null, cachePolicy: <a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html">CachePolicy</a> = CachePolicy.REMOTE_ONLY, filter: () -&gt; <a href="../../com.sudoplatform.sudovirtualcards.types.inputs.filters/-card-filter/index.html">CardFilter</a>? = { null }): <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a>&lt;<a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html">Card</a>&gt;<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-2126745680%2FFunctions%2F-2124582697" anchor-label="listCards" id="-2126745680%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-2126745680%2FFunctions%2F-2124582697" anchor-label="listCards" id="-2126745680%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Get a <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a> of virtual payment <a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html">Card</a>s.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="get-virtual-card.html"><span class="token function">getVirtualCard</span></a><span class="token punctuation">(</span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>cachePolicy<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html">CachePolicy</a><span class="token operator"> = </span>CachePolicy.REMOTE_ONLY<span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-virtual-card/index.html">VirtualCard</a><span class="token operator">?</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Get a <a href="../../com.sudoplatform.sudovirtualcards.types/-virtual-card/index.html">VirtualCard</a> using the <a href="get-virtual-card.html">id</a> parameter.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="-1986349442%2FFunctions%2F-2124582697" anchor-label="listFundingSources" id="-1986349442%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="list-funding-sources.html">listFundingSources</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1986349442%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="list-funding-sources.html"><span>list</span><wbr></wbr><span>Funding</span><wbr></wbr><span><span>Sources</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1986349442%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract suspend fun <a href="list-funding-sources.html">listFundingSources</a>(limit: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a> = DEFAULT_FUNDING_SOURCE_LIMIT, nextToken: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>? = null, cachePolicy: <a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html">CachePolicy</a> = CachePolicy.REMOTE_ONLY): <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a>&lt;<a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a>&gt;<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-1986349442%2FFunctions%2F-2124582697" anchor-label="listFundingSources" id="-1986349442%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-1986349442%2FFunctions%2F-2124582697" anchor-label="listFundingSources" id="-1986349442%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Get a <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a> of <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a>s.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="list-funding-sources.html"><span class="token function">listFundingSources</span></a><span class="token punctuation">(</span>limit<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token operator"> = </span>DEFAULT_FUNDING_SOURCE_LIMIT<span class="token punctuation">, </span>nextToken<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span>cachePolicy<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html">CachePolicy</a><span class="token operator"> = </span>CachePolicy.REMOTE_ONLY<span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Get a <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a> of <a href="../../com.sudoplatform.sudovirtualcards.types/-funding-source/index.html">FundingSource</a>s.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="-1786946606%2FFunctions%2F-2124582697" anchor-label="listTransactions" id="-1786946606%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="1638109891%2FFunctions%2F-2124582697" anchor-label="listTransactionsByCardId" id="1638109891%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="list-transactions.html">listTransactions</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1786946606%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="list-transactions-by-card-id.html"><span>list</span><wbr></wbr><span>Transactions</span><wbr></wbr><span>By</span><wbr></wbr><span>Card</span><wbr></wbr><span><span>Id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1638109891%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract suspend fun <a href="list-transactions.html">listTransactions</a>(limit: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a> = DEFAULT_TRANSACTION_LIMIT, nextToken: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>? = null, cachePolicy: <a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html">CachePolicy</a> = CachePolicy.REMOTE_ONLY, filter: () -&gt; <a href="../../com.sudoplatform.sudovirtualcards.types.inputs.filters/-transaction-filter/index.html">TransactionFilter</a>? = { null }): <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a>&lt;<a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>&gt;<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-1786946606%2FFunctions%2F-2124582697" anchor-label="listTransactions" id="-1786946606%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-1786946606%2FFunctions%2F-2124582697" anchor-label="listTransactions" id="-1786946606%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Get a <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a> of virtual payment <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="list-transactions-by-card-id.html"><span class="token function">listTransactionsByCardId</span></a><span class="token punctuation">(</span>cardId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>limit<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token operator"> = </span>DEFAULT_TRANSACTION_LIMIT<span class="token punctuation">, </span>nextToken<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span>cachePolicy<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html">CachePolicy</a><span class="token operator"> = </span>CachePolicy.REMOTE_ONLY<span class="token punctuation">, </span>dateRange<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-date-range/index.html">DateRange</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span>sortOrder<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-sort-order/index.html">SortOrder</a><span class="token operator"> = </span>SortOrder.DESC<span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Get a <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a> of all <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s related to a virtual card.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="-908530905%2FFunctions%2F-2124582697" anchor-label="provisionCard" id="-908530905%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="1354844891%2FFunctions%2F-2124582697" anchor-label="listVirtualCards" id="1354844891%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="provision-card.html">provisionCard</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-908530905%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="list-virtual-cards.html"><span>list</span><wbr></wbr><span>Virtual</span><wbr></wbr><span><span>Cards</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1354844891%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract suspend fun <a href="provision-card.html">provisionCard</a>(input: <a href="../../com.sudoplatform.sudovirtualcards.types.inputs/-provision-card-input/index.html">ProvisionCardInput</a>): <a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-card/index.html">ProvisionalCard</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-908530905%2FFunctions%2F-2124582697" anchor-label="provisionCard" id="-908530905%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-908530905%2FFunctions%2F-2124582697" anchor-label="provisionCard" id="-908530905%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Provision a virtual payment card.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="list-virtual-cards.html"><span class="token function">listVirtualCards</span></a><span class="token punctuation">(</span>limit<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token operator"> = </span>DEFAULT_CARD_LIMIT<span class="token punctuation">, </span>nextToken<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span>cachePolicy<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-cache-policy/index.html">CachePolicy</a><span class="token operator"> = </span>CachePolicy.REMOTE_ONLY<span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../com.sudoplatform.sudovirtualcards.types/-virtual-card/index.html">VirtualCard</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Get a <a href="../../com.sudoplatform.sudovirtualcards.types/-list-output/index.html">ListOutput</a> of <a href="../../com.sudoplatform.sudovirtualcards.types/-virtual-card/index.html">VirtualCard</a>s.</p></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-1421390651%2FFunctions%2F-2124582697" anchor-label="provisionVirtualCard" id="-1421390651%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="provision-virtual-card.html"><span>provision</span><wbr></wbr><span>Virtual</span><wbr></wbr><span><span>Card</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1421390651%2FFunctions%2F-2124582697"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="provision-virtual-card.html"><span class="token function">provisionVirtualCard</span></a><span class="token punctuation">(</span>input<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types.inputs/-provision-virtual-card-input/index.html">ProvisionVirtualCardInput</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-virtual-card/index.html">ProvisionalVirtualCard</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Provision a <a href="../../com.sudoplatform.sudovirtualcards.types/-virtual-card/index.html">VirtualCard</a>.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="-1277944764%2FFunctions%2F-2124582697" anchor-label="reset" id="-1277944764%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="reset.html">reset</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1277944764%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="reset.html"><span><span>reset</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1277944764%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract fun <a href="reset.html">reset</a>()<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-1277944764%2FFunctions%2F-2124582697" anchor-label="reset" id="-1277944764%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-1277944764%2FFunctions%2F-2124582697" anchor-label="reset" id="-1277944764%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Reset any internal state and cached content.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="reset.html"><span class="token function">reset</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Reset any internal state and cached content.</p></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="419574053%2FFunctions%2F-2124582697" anchor-label="setupFundingSource" id="419574053%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex">
+                        <div><a href="setup-funding-source.html"><span>setup</span><wbr></wbr><span>Funding</span><wbr></wbr><span><span>Source</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="419574053%2FFunctions%2F-2124582697"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="setup-funding-source.html"><span class="token function">setupFundingSource</span></a><span class="token punctuation">(</span>input<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types.inputs/-setup-funding-source-input/index.html">SetupFundingSourceInput</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-funding-source/index.html">ProvisionalFundingSource</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Begin the setup of a <a href="../../com.sudoplatform.sudovirtualcards.types/-provisional-funding-source/index.html">ProvisionalFundingSource</a>.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="-851324585%2FFunctions%2F-2124582697" anchor-label="subscribeToTransactions" id="-851324585%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="subscribe-to-transactions.html">subscribeToTransactions</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-851324585%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="subscribe-to-transactions.html"><span>subscribe</span><wbr></wbr><span>To</span><wbr></wbr><span><span>Transactions</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-851324585%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract suspend fun <a href="subscribe-to-transactions.html">subscribeToTransactions</a>(id: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, subscriber: <a href="../../com.sudoplatform.sudovirtualcards.subscription/-transaction-subscriber/index.html">TransactionSubscriber</a>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-851324585%2FFunctions%2F-2124582697" anchor-label="subscribeToTransactions" id="-851324585%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-851324585%2FFunctions%2F-2124582697" anchor-label="subscribeToTransactions" id="-851324585%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Subscribes to be notified of new, updated and deleted <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="subscribe-to-transactions.html"><span class="token function">subscribeToTransactions</span></a><span class="token punctuation">(</span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>subscriber<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.subscription/-transaction-subscriber/index.html">TransactionSubscriber</a><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Subscribes to be notified of new, updated and deleted <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="-1661304201%2FFunctions%2F-2124582697" anchor-label="unsubscribeAll" id="-1661304201%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="unsubscribe-all.html">unsubscribeAll</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1661304201%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="unsubscribe-all.html"><span>unsubscribe</span><wbr></wbr><span><span>All</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1661304201%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract suspend fun <a href="unsubscribe-all.html">unsubscribeAll</a>()<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-1661304201%2FFunctions%2F-2124582697" anchor-label="unsubscribeAll" id="-1661304201%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-1661304201%2FFunctions%2F-2124582697" anchor-label="unsubscribeAll" id="-1661304201%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Unsubscribe all subscribers from receiving notifications about new, updated or deleted <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="unsubscribe-all.html"><span class="token function">unsubscribeAll</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Unsubscribe all subscribers from receiving notifications about new, updated or deleted <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 <a data-name="1151986881%2FFunctions%2F-2124582697" anchor-label="unsubscribeFromTransactions" id="1151986881%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="unsubscribe-from-transactions.html">unsubscribeFromTransactions</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1151986881%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="unsubscribe-from-transactions.html"><span>unsubscribe</span><wbr></wbr><span>From</span><wbr></wbr><span><span>Transactions</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1151986881%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract suspend fun <a href="unsubscribe-from-transactions.html">unsubscribeFromTransactions</a>(id: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="1151986881%2FFunctions%2F-2124582697" anchor-label="unsubscribeFromTransactions" id="1151986881%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="1151986881%2FFunctions%2F-2124582697" anchor-label="unsubscribeFromTransactions" id="1151986881%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Unsubscribe the specified subscriber so that it no longer receives notifications about new, updated or deleted <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="unsubscribe-from-transactions.html"><span class="token function">unsubscribeFromTransactions</span></a><span class="token punctuation">(</span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Unsubscribe the specified subscriber so that it no longer receives notifications about new, updated or deleted <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-<a data-name="-457644187%2FFunctions%2F-2124582697" anchor-label="updateCard" id="-457644187%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+<a data-name="1859378113%2FFunctions%2F-2124582697" anchor-label="updateVirtualCard" id="1859378113%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="update-card.html">updateCard</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-457644187%2FFunctions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="update-virtual-card.html"><span>update</span><wbr></wbr><span>Virtual</span><wbr></wbr><span><span>Card</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1859378113%2FFunctions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">abstract suspend fun <a href="update-card.html">updateCard</a>(input: <a href="../../com.sudoplatform.sudovirtualcards.types.inputs/-update-card-input/index.html">UpdateCardInput</a>): <a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html">Card</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="-457644187%2FFunctions%2F-2124582697" anchor-label="updateCard" id="-457644187%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="-457644187%2FFunctions%2F-2124582697" anchor-label="updateCard" id="-457644187%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Update the details of a <a href="../../com.sudoplatform.sudovirtualcards.types/-card/index.html">Card</a>.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="update-virtual-card.html"><span class="token function">updateVirtualCard</span></a><span class="token punctuation">(</span>input<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types.inputs/-update-virtual-card-input/index.html">UpdateVirtualCardInput</a><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-virtual-card/index.html">VirtualCard</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Update the details of a <a href="../../com.sudoplatform.sudovirtualcards.types/-virtual-card/index.html">VirtualCard</a>.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -430,17 +433,15 @@ fun main() {
               <div class="table" data-togglable="Extensions"><a data-name="1382427634%2FExtensions%2F-2124582697" anchor-label="subscribeToTransactions" id="1382427634%2FExtensions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
                 <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="../subscribe-to-transactions.html">subscribeToTransactions</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1382427634%2FExtensions%2F-2124582697"></span>
+                    <div class=""><span class="inline-flex">
+                        <div><a href="../subscribe-to-transactions.html"><span>subscribe</span><wbr></wbr><span>To</span><wbr></wbr><span><span>Transactions</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1382427634%2FExtensions%2F-2124582697"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
-                      <div class="title"><div class="divergent-group" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
-
-  <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace">suspend fun <a href="index.html">SudoVirtualCardsClient</a>.<a href="../subscribe-to-transactions.html">subscribeToTransactions</a>(id: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a>, onConnectionChange: (status: <a href="../../com.sudoplatform.sudovirtualcards.subscription/-transaction-subscriber/-connection-state/index.html">TransactionSubscriber.ConnectionState</a>) -&gt; <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a> = {}, onTransactionChange: (transaction: <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>) -&gt; <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-  </div>
-<a data-name="1382427634%2FExtensions%2F-2124582697" anchor-label="subscribeToTransactions" id="1382427634%2FExtensions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="brief "><a data-name="1382427634%2FExtensions%2F-2124582697" anchor-label="subscribeToTransactions" id="1382427634%2FExtensions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>Subscribes to be notified of new, updated and deleted <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s.</div></div>
-</div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="index.html">SudoVirtualCardsClient</a><span class="token punctuation">.</span><a href="../subscribe-to-transactions.html"><span class="token function">subscribeToTransactions</span></a><span class="token punctuation">(</span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span>onConnectionChange<span class="token operator">: </span><span class="token punctuation">(</span><span class="token keyword"></span>status<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.subscription/-transaction-subscriber/-connection-state/index.html">TransactionSubscriber.ConnectionState</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator"> = </span>{}<span class="token punctuation">, </span>onTransactionChange<span class="token operator">: </span><span class="token punctuation">(</span><span class="token keyword"></span>transaction<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Subscribes to be notified of new, updated and deleted <a href="../../com.sudoplatform.sudovirtualcards.types/-transaction/index.html">Transaction</a>s.</p></div></div></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -448,7 +449,7 @@ fun main() {
             </div>
           </div>
         </div>
-        <div class="footer"><span class="go-to-top-icon"><a href="#content"></a></span><span>© 2021 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span></div>
+        <div class="footer"><span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2022 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span></div>
       </div>
     </div>
   </body>

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -21,23 +21,26 @@ import com.sudoplatform.sudovirtualcards.keys.DefaultPublicKeyService
 import com.sudoplatform.sudovirtualcards.logging.LogConstants
 import com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
-import com.sudoplatform.sudovirtualcards.types.Card
+import com.sudoplatform.sudovirtualcards.types.CreateKeysIfAbsentResult
+import com.sudoplatform.sudovirtualcards.types.DateRange
 import com.sudoplatform.sudovirtualcards.types.FundingSource
+import com.sudoplatform.sudovirtualcards.types.FundingSourceClientConfiguration
 import com.sudoplatform.sudovirtualcards.types.ListOutput
-import com.sudoplatform.sudovirtualcards.types.ProvisionalCard
+import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
+import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
+import com.sudoplatform.sudovirtualcards.types.SortOrder
 import com.sudoplatform.sudovirtualcards.types.Transaction
-import com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInput
-import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionCardInput
-import com.sudoplatform.sudovirtualcards.types.inputs.filters.TransactionFilter
-import com.sudoplatform.sudovirtualcards.types.inputs.UpdateCardInput
-import com.sudoplatform.sudovirtualcards.types.inputs.filters.CardFilter
+import com.sudoplatform.sudovirtualcards.types.VirtualCard
+import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
+import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
+import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
+import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
 import java.util.Objects
 
 /**
  * Interface encapsulating a library for interacting with the Sudo Platform Virtual Cards service.
  *
  * @sample com.sudoplatform.sudovirtualcards.samples.Samples.sudoVirtualCardsClient
- * @since 2020-05-21
  */
 interface SudoVirtualCardsClient : AutoCloseable {
 
@@ -61,7 +64,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
         private var sudoUserClient: SudoUserClient? = null
         private var sudoProfilesClient: SudoProfilesClient? = null
         private var appSyncClient: AWSAppSyncClient? = null
-        private var paymentProcessInteractions: PaymentProcessInteractions? = null
         private var keyManager: KeyManagerInterface? = null
         private var logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO))
 
@@ -95,15 +97,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
          */
         fun setAppSyncClient(appSyncClient: AWSAppSyncClient) = also {
             this.appSyncClient = appSyncClient
-        }
-
-        /**
-         * Provide the implementation of the [PaymentProcessInteractions] used to perform
-         * Payment setup confirmation. This is primarily only supplied in order to mock this
-         * functionality when testing (optional input).
-         */
-        fun setPaymentProcessInteractions(paymentProcessInteractions: PaymentProcessInteractions) = also {
-            this.paymentProcessInteractions = paymentProcessInteractions
         }
 
         /**
@@ -146,35 +139,23 @@ interface SudoVirtualCardsClient : AutoCloseable {
                 logger = logger
             )
 
-            paymentProcessInteractions?.let {
-                return DefaultSudoVirtualCardsClient(
-                    context = context!!,
-                    appSyncClient = appSyncClient,
-                    sudoUserClient = sudoUserClient!!,
-                    sudoProfilesClient = sudoProfilesClient!!,
-                    paymentProcessInteractions = it,
-                    logger = logger,
-                    deviceKeyManager = deviceKeyManager,
-                    publicKeyService = publicKeyService
-                )
-            }
-                ?: return DefaultSudoVirtualCardsClient(
-                    context = context!!,
-                    appSyncClient = appSyncClient,
-                    sudoUserClient = sudoUserClient!!,
-                    sudoProfilesClient = sudoProfilesClient!!,
-                    logger = logger,
-                    deviceKeyManager = deviceKeyManager,
-                    publicKeyService = publicKeyService
-                )
+            return DefaultSudoVirtualCardsClient(
+                context = context!!,
+                appSyncClient = appSyncClient,
+                sudoUserClient = sudoUserClient!!,
+                sudoProfilesClient = sudoProfilesClient!!,
+                logger = logger,
+                deviceKeyManager = deviceKeyManager,
+                publicKeyService = publicKeyService
+            )
         }
     }
 
     /**
      * Defines the exceptions for the funding source based methods.
      *
-     * @property message Accompanying message for the exception.
-     * @property cause The cause for the exception.
+     * @property message [String] Accompanying message for the exception.
+     * @property cause [Throwable] The cause of the exception.
      */
     sealed class FundingSourceException(message: String? = null, cause: Throwable? = null) : RuntimeException(message, cause) {
         class FailedException(message: String? = null, cause: Throwable? = null) :
@@ -191,13 +172,21 @@ interface SudoVirtualCardsClient : AutoCloseable {
             FundingSourceException(message = message, cause = cause)
         class FundingSourceNotFoundException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
+        class ProvisionalFundingSourceNotFoundException(message: String? = null, cause: Throwable? = null) :
+            FundingSourceException(message = message, cause = cause)
         class UnacceptableFundingSourceException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
         class UnsupportedCurrencyException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
+        class CompletionDataInvalidException(message: String? = null, cause: Throwable? = null) :
+            FundingSourceException(message = message, cause = cause)
         class IdentityVerificationException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
         class AccountLockedException(message: String? = null, cause: Throwable? = null) :
+            FundingSourceException(message = message, cause = cause)
+        class EntitlementExceededException(message: String? = null, cause: Throwable? = null) :
+            FundingSourceException(message = message, cause = cause)
+        class VelocityExceededException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
         class UnknownException(cause: Throwable) :
             FundingSourceException(cause = cause)
@@ -206,51 +195,51 @@ interface SudoVirtualCardsClient : AutoCloseable {
     /**
      * Defines the exceptions for the virtual payment card based methods.
      *
-     * @property message Accompanying message for the exception.
-     * @property cause The cause of the exception.
+     * @property message [String] Accompanying message for the exception.
+     * @property cause [Throwable] The cause of the exception.
      */
-    sealed class CardException(message: String? = null, cause: Throwable? = null) : RuntimeException(message, cause) {
+    sealed class VirtualCardException(message: String? = null, cause: Throwable? = null) : RuntimeException(message, cause) {
         class FailedException(message: String? = null, cause: Throwable? = null) :
-            CardException(message = message, cause = cause)
+            VirtualCardException(message = message, cause = cause)
         class ProvisionFailedException(message: String? = null, cause: Throwable? = null) :
-            CardException(message = message, cause = cause)
+            VirtualCardException(message = message, cause = cause)
         class UpdateFailedException(message: String? = null, cause: Throwable? = null) :
-            CardException(message = message, cause = cause)
+            VirtualCardException(message = message, cause = cause)
         class CancelFailedException(message: String? = null, cause: Throwable? = null) :
-            CardException(message = message, cause = cause)
+            VirtualCardException(message = message, cause = cause)
         class CardNotFoundException(message: String? = null, cause: Throwable? = null) :
-            CardException(message = message, cause = cause)
+            VirtualCardException(message = message, cause = cause)
         class CardStateException(message: String? = null, cause: Throwable? = null) :
-            CardException(message = message, cause = cause)
+            VirtualCardException(message = message, cause = cause)
         class FundingSourceNotFoundException(message: String? = null, cause: Throwable? = null) :
-            CardException(message = message, cause = cause)
+            VirtualCardException(message = message, cause = cause)
         class FundingSourceNotActiveException(message: String? = null, cause: Throwable? = null) :
-            CardException(message = message, cause = cause)
+            VirtualCardException(message = message, cause = cause)
         class VelocityExceededException(message: String? = null, cause: Throwable? = null) :
-            CardException(message = message, cause = cause)
+            VirtualCardException(message = message, cause = cause)
         class EntitlementExceededException(message: String? = null, cause: Throwable? = null) :
-            CardException(message = message, cause = cause)
+            VirtualCardException(message = message, cause = cause)
         class UnsupportedCurrencyException(message: String? = null, cause: Throwable? = null) :
-            CardException(message = message, cause = cause)
+            VirtualCardException(message = message, cause = cause)
         class IdentityVerificationException(message: String? = null, cause: Throwable? = null) :
-            CardException(message = message, cause = cause)
+            VirtualCardException(message = message, cause = cause)
         class IdentityVerificationInsufficientException(message: String? = null, cause: Throwable? = null) :
-            CardException(message = message, cause = cause)
+            VirtualCardException(message = message, cause = cause)
         class PublicKeyException(message: String? = null, cause: Throwable? = null) :
-            CardException(message = message, cause = cause)
+            VirtualCardException(message = message, cause = cause)
         class UnsealingException(message: String? = null, cause: Throwable? = null) :
-            CardException(message = message, cause = cause)
+            VirtualCardException(message = message, cause = cause)
         class AccountLockedException(message: String? = null, cause: Throwable? = null) :
-            CardException(message = message, cause = cause)
+            VirtualCardException(message = message, cause = cause)
         class UnknownException(cause: Throwable) :
-            CardException(cause = cause)
+            VirtualCardException(cause = cause)
     }
 
     /**
      * Defines the exceptions for the virtual payment transaction based methods.
      *
-     * @property message Accompanying message for the exception.
-     * @property cause The cause of the exception.
+     * @property message [String] Accompanying message for the exception.
+     * @property cause [Throwable] The cause of the exception.
      */
     sealed class TransactionException(message: String? = null, cause: Throwable? = null) : RuntimeException(message, cause) {
         class FailedException(message: String? = null, cause: Throwable? = null) :
@@ -266,37 +255,80 @@ interface SudoVirtualCardsClient : AutoCloseable {
     }
 
     /**
-     * Creates a [FundingSource] using a credit card input.
+     * Create key pair and secret key for use by the virtual cards client if they have not
+     * already been created.
      *
-     * @param input Information needed to create a credit card funding source.
-     * @return The created [FundingSource].
+     * The key pair is used to register a public key with the service for the encryption of
+     * virtual card and transaction details.
+     *
+     * The secret key is used for client side encryption of user specific card metadata.
+     *
+     * @return The [CreateKeysIfAbsentResult] containing the key pair and symmetric key.
+     *
+     * @throws [VirtualCardException].
+     */
+    @Throws(VirtualCardException::class)
+    suspend fun createKeysIfAbsent(): CreateKeysIfAbsentResult
+
+    /**
+     * Begin the setup of a [ProvisionalFundingSource].
+     *
+     * @param input [SetupFundingSourceInput] Parameters used to setup the provisional funding source.
+     * @return The created [ProvisionalFundingSource] in a provisioning state.
+     *
+     * @throws [FundingSourceException].
      */
     @Throws(FundingSourceException::class)
-    suspend fun createFundingSource(input: CreditCardFundingSourceInput): FundingSource
+    suspend fun setupFundingSource(input: SetupFundingSourceInput): ProvisionalFundingSource
+
+    /**
+     * Complete the creation of a [FundingSource].
+     *
+     * @param input [CompleteFundingSourceInput] Parameters used to complete the creation of a funding source.
+     * @return The created [FundingSource].
+     *
+     * @throws [FundingSourceException].
+     */
+    @Throws(FundingSourceException::class)
+    suspend fun completeFundingSource(input: CompleteFundingSourceInput): FundingSource
+
+    /**
+     * Get the [FundingSourceClientConfiguration] from the service.
+     *
+     * @return The [FundingSourceClientConfiguration] of the client funding source data.
+     */
+    @Throws(FundingSourceException::class)
+    suspend fun getFundingSourceClientConfiguration(): List<FundingSourceClientConfiguration>
 
     /**
      * Get a [FundingSource] using the [id] parameter.
      *
-     * @param id Identifier of the [FundingSource] to be retrieved.
-     * @param cachePolicy Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     * be aware that this will only return cached results of similar exact API calls.
-     * @return The [FundingSource] associated with the [id] or null if the funding source cannot be found.
+     * @param id [String] Identifier of the [FundingSource] to be retrieved.
+     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
+     *  be aware that this will only return cached results of identical API calls.
+     * @return The [FundingSource] associated with the [id] or null if it could not be found.
+     *
+     * @throws [FundingSourceException].
      */
     @Throws(FundingSourceException::class)
     suspend fun getFundingSource(id: String, cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY): FundingSource?
 
     /**
-     * Get a [ListOutput] of [FundingSource]s. If no [FundingSource]s can be found, the [ListOutput]
-     * will contain null for the [ListOutput.nextToken] field and contain an empty list.
+     * Get a [ListOutput] of [FundingSource]s.
      *
-     * @param limit Number of [FundingSource]s to return. If omitted the limit defaults to 10.
-     * @param nextToken A token generated from previous calls to [listFundingSources].
-     * This is to allow for pagination. This value should be generated from a
-     * previous pagination call, otherwise it will throw an exception. The same
-     * arguments should be supplied to this method if using a previously generated [nextToken].
-     * @param cachePolicy Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     * be aware that this will only return cached results of similar exact API calls.
-     * @return A list of [FundingSource]s or an empty list if no funding sources can be found.
+     * If no [FundingSource]s can be found, the [ListOutput] will contain null for the [ListOutput.nextToken]
+     * field and contain an empty [ListOutput.items] list.
+     *
+     * @param limit [Int] Number of [FundingSource]s to return. If omitted the limit defaults to 10.
+     * @param nextToken [String] A token generated from previous calls to [listFundingSources].
+     *  This is to allow for pagination. This value should be generated from a
+     *  previous pagination call, otherwise it will throw an exception. The same
+     *  arguments should be supplied to this method if using a previously generated [nextToken].
+     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
+     *  be aware that this will only return cached results of identical API calls.
+     * @return A list of [FundingSource]s or an empty list if no matching funding sources can be found.
+     *
+     * @throws [FundingSourceException].
      */
     @Throws(FundingSourceException::class)
     suspend fun listFundingSources(
@@ -308,140 +340,161 @@ interface SudoVirtualCardsClient : AutoCloseable {
     /**
      * Cancel a [FundingSource] using the [id] parameter.
      *
-     * @param id Identifier of the [FundingSource] to cancel.
+     * @param id [String] Identifier of the [FundingSource] to cancel.
      * @return The [FundingSource] that has been cancelled and is in an inactive state.
+     *
+     * @throws [FundingSourceException].
      */
     @Throws(FundingSourceException::class)
     suspend fun cancelFundingSource(id: String): FundingSource
 
     /**
-     * Provision a virtual payment card. Initially a [ProvisionalCard] is returned with the details of
-     * the card being created. You should query the state of this card periodically by calling
-     * [getProvisionalCard] to monitor the card's progress from a state of [ProvisionalCard.State.PROVISIONING]
-     * to [ProvisionalCard.State.COMPLETED] or [ProvisionalCard.State.FAILED].
+     * Provision a [VirtualCard].
      *
-     * @param input Information needed to create a new card.
-     * @return A [ProvisionalCard] in the [ProvisionalCard.State.PROVISIONING] state.
+     * Initially a [ProvisionalVirtualCard] is returned with the details of the virtual card being
+     * created. The state of this virtual card can be queried periodically by calling
+     * [getProvisionalCard] to monitor the card's progress from a provisioning state to a completed
+     * or failed state.
+     *
+     * @param input [ProvisionVirtualCardInput] Parameters used to provision a virtual card.
+     * @return A [ProvisionalVirtualCard] in a provisioning state.
+     *
+     * @throws [VirtualCardException].
      */
-    @Throws(CardException::class)
-    suspend fun provisionCard(input: ProvisionCardInput): ProvisionalCard
+    @Throws(VirtualCardException::class)
+    suspend fun provisionVirtualCard(input: ProvisionVirtualCardInput): ProvisionalVirtualCard
 
     /**
-     * Get a provisional virtual payment card. A provisional card is one that is in the process
-     * of being provisioned.
+     * Get a [ProvisionalVirtualCard] using the [id] parameter.
      *
-     * @param id Identifier of the [ProvisionalCard] to be retrieved.
-     * @param cachePolicy Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     * be aware that this will only return cached results of similar exact API calls.
-     * @return The provisional card or null if a provisional card with that [id] could not be found
+     * A provisional virtual card is one that is in the process of being provisioned.
+     *
+     * @param id [String] Identifier of the [ProvisionalVirtualCard] to be retrieved.
+     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
+     *  be aware that this will only return cached results of identical API calls.
+     * @return The [ProvisionalVirtualCard] associated with the [id] or null if it could not be found.
+     *
+     * @throws [VirtualCardException].
      */
-    @Throws(CardException::class)
-    suspend fun getProvisionalCard(id: String, cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY): ProvisionalCard?
+    @Throws(VirtualCardException::class)
+    suspend fun getProvisionalCard(id: String, cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY): ProvisionalVirtualCard?
 
     /**
-     * Get a virtual payment [Card] using the [id] parameter.
+     * Get a [VirtualCard] using the [id] parameter.
      *
-     * @param id Identifier of the [Card] to be retrieved.
-     * @param cachePolicy Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     * be aware that this will only return cached results of similar exact API calls.
-     * @returns The [Card] associated with the [id] or null if the virtual payment card cannot be found.
+     * @param id [String] Identifier of the [VirtualCard] to be retrieved.
+     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
+     *  be aware that this will only return cached results of identical API calls.
+     * @returns The [VirtualCard] associated with the [id] or null if it cannot be found.
+     *
+     * @throws [VirtualCardException].
      */
-    @Throws(CardException::class)
-    suspend fun getCard(id: String, cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY): Card?
+    @Throws(VirtualCardException::class)
+    suspend fun getVirtualCard(id: String, cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY): VirtualCard?
 
     /**
-     * Get a [ListOutput] of virtual payment [Card]s. If no [Card]s can be found, the [ListOutput]
-     * will contain null for the [ListOutput.nextToken] field and contain an empty list.
+     * Get a [ListOutput] of [VirtualCard]s.
      *
-     * The results of this operation are filtered locally as well as on the server. To ensure you obtain all the
-     * cards that match, you should continue to call this method whenever the [ListOutput.nextToken]
-     * field is not null, even if the [ListOutput.items] is empty.
+     * If no [VirtualCard]s can be found, the [ListOutput] will contain null for the [ListOutput.nextToken]
+     * field and contain an empty [ListOutput.items] list.
      *
-     * @param limit Number of [Card]s to return. If omitted the limit defaults to 10.
-     * @param nextToken A token generated from previous calls to [listCards].
-     * This is to allow for pagination. This value should be generated from a
-     * previous pagination call, otherwise it will throw an exception. The same
-     * arguments should be passed to this method if using a previously generated [nextToken].
-     * @param cachePolicy Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     * be aware that this will only return cached results of similar exact API calls.
-     * @param filter Filter the cards so that only those that match all of the values of the
-     * fields in the filter are returned.
-     * @return A list of [Card]s or an empty list if no virtual payment cards can be found.
-     * @sample com.sudoplatform.sudovirtualcards.samples.Samples.cardsFilter
+     * To ensure you obtain all the virtual cards that match, you should continue to call this method
+     * whenever the [ListOutput.nextToken] field is not null, even if the [ListOutput.items] is empty.
+     *
+     * @param limit [Int] Number of [VirtualCard]s to return. If omitted the limit defaults to 10.
+     * @param nextToken [String] A token generated from previous calls to [listVirtualCards].
+     *  This is to allow for pagination. This value should be generated from a
+     *  previous pagination call, otherwise it will throw an exception. The same
+     *  arguments should be passed to this method if using a previously generated [nextToken].
+     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
+     *  be aware that this will only return cached results of identical API calls.
+     * @return A list of [VirtualCard]s or an empty list if no virtual cards can be found.
+     *
+     * @throws [VirtualCardException].
      */
-    @Throws(CardException::class)
-    suspend fun listCards(
+    @Throws(VirtualCardException::class)
+    suspend fun listVirtualCards(
         limit: Int = DEFAULT_CARD_LIMIT,
         nextToken: String? = null,
-        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,
-        filter: () -> CardFilter? = { null }
-    ): ListOutput<Card>
+        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY
+    ): ListOutput<VirtualCard>
 
     /**
-     * Update the details of a [Card].
+     * Update the details of a [VirtualCard].
      *
-     * Be aware that when updating a card, all fields that should remain unchanged must be populated
-     * as part of the input.
+     * Be aware that when updating a virtual card, all fields that should remain unchanged must be
+     * populated as part of the input.
      *
-     * @param input Information needed to update a card.
-     * @return An updated [Card].
+     * @param input [UpdateVirtualCardInput] Parameters used to update a virtual card.
+     * @return The [VirtualCard] that was updated.
+     *
+     * @throws [VirtualCardException].
      */
-    @Throws(CardException::class)
-    suspend fun updateCard(input: UpdateCardInput): Card
+    @Throws(VirtualCardException::class)
+    suspend fun updateVirtualCard(input: UpdateVirtualCardInput): VirtualCard
 
     /**
-     * Cancel a [Card] using the [id] parameter.
+     * Cancel a [VirtualCard] using the [id] parameter.
      *
-     * @param id Identifier of the [Card] to cancel.
-     * @return The [Card] that has been cancelled and is in a closed state.
+     * @param id [String] Identifier of the [VirtualCard] to cancel.
+     * @return The [VirtualCard] that has been cancelled and is in a closed state.
+     *
+     * @throws [VirtualCardException].
      */
-    @Throws(CardException::class)
-    suspend fun cancelCard(id: String): Card
+    @Throws(VirtualCardException::class)
+    suspend fun cancelVirtualCard(id: String): VirtualCard
 
     /**
-     * Get a virtual payment [Transaction] using the [id] parameter.
+     * Get a [Transaction] using the [id] parameter.
      *
-     * @param id Identifier of the [Transaction] to be retrieved.
-     * @param cachePolicy Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     * be aware that this will only return cached results of similar exact API calls.
-     * @returns The [Transaction] associated with the [id] or null if the virtual payment transaction cannot be found.
+     * @param id [String] Identifier of the [Transaction] to be retrieved.
+     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
+     *  be aware that this will only return cached results of identical API calls.
+     * @returns The [Transaction] associated with the [id] or null if it cannot be found.
+     *
+     * @throws [TransactionException].
      */
     @Throws(TransactionException::class)
     suspend fun getTransaction(id: String, cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY): Transaction?
 
     /**
-     * Get a [ListOutput] of virtual payment [Transaction]s. If no [Transaction]s can be found, the [ListOutput]
-     * will contain null for the [ListOutput.nextToken] field and contain an empty list.
+     * Get a [ListOutput] of all [Transaction]s related to a virtual card.
      *
-     * The results of this operation are filtered locally as well as on the server. To ensure you obtain all the
-     * transactions that match, you should continue to call this method whenever the [ListOutput.nextToken]
-     * field is not null, even if the [ListOutput.items] is empty.
+     * If no [Transaction]s can be found, the [ListOutput] will contain null for the [ListOutput.nextToken]
+     * field and contain an empty [ListOutput.items] list.
      *
-     * @param limit Number of [Transaction]s to return. If omitted the limit defaults to 100.
-     * @param nextToken A token generated from previous calls to [listTransactions].
-     * This is to allow for pagination. This value should be generated from a
-     * previous pagination call, otherwise it will throw an exception. You should call
-     * this method with the same argument if you using a previously generated [ListOutput.nextToken].
-     * @param cachePolicy Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     * be aware that this will only return cached results of similar exact API calls.
-     * @param filter Filter the transactions so that only those that match all of the values of the
-     * fields in the filter are returned.
-     * @return A [ListOutput] of [Transaction]s filtered by the [filter].
-     * @sample com.sudoplatform.sudovirtualcards.samples.Samples.transactionFilter
+     * To ensure you obtain all the transactions that match, you should continue to call this method
+     * whenever the [ListOutput.nextToken] field is not null, even if the [ListOutput.items] is empty.
+     *
+     * @param cardId [String] Identifier of the virtual card to list for related transactions.
+     * @param limit [Int] Number of [Transaction]s to return. If omitted the limit defaults to 100.
+     * @param nextToken [String] A token generated from previous calls to [listTransactions].
+     *  This is to allow for pagination. This value should be generated from a
+     *  previous pagination call, otherwise it will throw an exception. You should call
+     *  this method with the same argument if you using a previously generated [ListOutput.nextToken].
+     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
+     *  be aware that this will only return cached results of identical API calls.
+     * @param dateRange [DateRange] The date range of transactions to return.
+     * @param sortOrder [SortOrder] The order in which the transactions are returned. Defaults to descending.
+     * @return A list of [Transaction]s or an empty list if no transactions can be found.
+     *
+     * @throws [TransactionException].
      */
     @Throws(TransactionException::class)
-    suspend fun listTransactions(
+    suspend fun listTransactionsByCardId(
+        cardId: String,
         limit: Int = DEFAULT_TRANSACTION_LIMIT,
         nextToken: String? = null,
         cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,
-        filter: () -> TransactionFilter? = { null }
+        dateRange: DateRange? = null,
+        sortOrder: SortOrder = SortOrder.DESC
     ): ListOutput<Transaction>
 
     /**
      * Subscribes to be notified of new, updated and deleted [Transaction]s.
      *
-     * @param id unique ID for the subscriber.
-     * @param subscriber subscriber to notify.
+     * @param id [String] Unique identifier of the subscriber.
+     * @param subscriber [TransactionSubscriber] Subscriber to notify.
      */
     @Throws(TransactionException::class)
     suspend fun subscribeToTransactions(id: String, subscriber: TransactionSubscriber)
@@ -450,12 +503,13 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * Unsubscribe the specified subscriber so that it no longer receives notifications about
      * new, updated or deleted [Transaction]s.
      *
-     * @param id unique ID for the subscriber.
+     * @param id [String] Unique identifier of the subscriber.
      */
     suspend fun unsubscribeFromTransactions(id: String)
 
     /**
-     * Unsubscribe all subscribers from receiving notifications about new, updated or deleted [Transaction]s.
+     * Unsubscribe all subscribers from receiving notifications about new, updated or
+     * deleted [Transaction]s.
      */
     suspend fun unsubscribeAll()
 
@@ -468,7 +522,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
 /**
  * Subscribes to be notified of new, updated and deleted [Transaction]s.
  *
- * @param id unique ID for the subscriber.
+ * @param id [String] Unique identifier of the subscriber.
  * @param onConnectionChange lambda that is called when the subscription connection state changes.
  * @param onTransactionChange lambda that receives updates as [Transaction]s change.
  */

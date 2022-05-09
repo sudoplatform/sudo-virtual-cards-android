@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -27,8 +27,6 @@ private const val UNEXPECTED_EXCEPTION = "Unexpected exception"
 
 /**
  * The default implementation of the [PublicKeyService].
- *
- * @since 2020-06-18
  */
 internal class DefaultPublicKeyService(
     private val deviceKeyManager: DeviceKeyManager,
@@ -89,14 +87,14 @@ internal class DefaultPublicKeyService(
         }
     }
 
-    override suspend fun create(keyPair: KeyPair): PublicKey {
+    override suspend fun create(keyId: String, keyRingId: String, publicKey: ByteArray): PublicKey {
 
         try {
             val mutationInput = CreatePublicKeyInput.builder()
-                .publicKey(String(Base64.encode(keyPair.publicKey), Charsets.UTF_8))
+                .publicKey(String(Base64.encode(publicKey), Charsets.UTF_8))
                 .algorithm(DEFAULT_ALGORITHM)
-                .keyId(keyPair.keyId)
-                .keyRingId(keyPair.keyRingId)
+                .keyId(keyId)
+                .keyRingId(keyRingId)
                 .build()
             val mutation = CreatePublicKeyForVirtualCardsMutation.builder()
                 .input(mutationInput)
