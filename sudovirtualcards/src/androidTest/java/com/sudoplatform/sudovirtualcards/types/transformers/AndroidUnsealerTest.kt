@@ -83,7 +83,8 @@ class AndroidUnsealerTest : BaseIntegrationTest() {
         val sealedData = encryptedKeyData + encryptedData
         val sealedBase64 = Base64.encodeAsString(*sealedData)
 
-        val unsealer = Unsealer(deviceKeyManager, keyPair.keyId, DefaultPublicKeyService.DEFAULT_ALGORITHM)
+        val keyInfo = KeyInfo(keyPair.keyId, KeyType.PRIVATE_KEY, DefaultPublicKeyService.DEFAULT_ALGORITHM)
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
         val unsealedText = unsealer.unseal(sealedBase64)
         unsealedText shouldBe clearText
     }
@@ -117,7 +118,8 @@ class AndroidUnsealerTest : BaseIntegrationTest() {
             sealedBase64.add(Base64.encodeAsString(*sealedData))
         }
 
-        val unsealer = Unsealer(deviceKeyManager, keyPair.keyId, DefaultPublicKeyService.DEFAULT_ALGORITHM)
+        val keyInfo = KeyInfo(keyPair.keyId, KeyType.PRIVATE_KEY, DefaultPublicKeyService.DEFAULT_ALGORITHM)
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
 
         val start = Instant.now()
         sealedBase64.forEach { sealedValue ->

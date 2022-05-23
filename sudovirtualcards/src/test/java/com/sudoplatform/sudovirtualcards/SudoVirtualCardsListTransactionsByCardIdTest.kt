@@ -10,6 +10,7 @@ import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
+import com.sudoplatform.sudokeymanager.KeyManagerException
 import org.mockito.kotlin.any
 import org.mockito.kotlin.check
 import org.mockito.kotlin.doReturn
@@ -29,8 +30,10 @@ import com.sudoplatform.sudovirtualcards.graphql.type.SortOrder as SortOrderEnti
 import com.sudoplatform.sudovirtualcards.graphql.type.TransactionType
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
 import com.sudoplatform.sudovirtualcards.types.DateRange
+import com.sudoplatform.sudovirtualcards.types.ListAPIResult
 import com.sudoplatform.sudovirtualcards.types.SortOrder
 import com.sudoplatform.sudovirtualcards.types.Transaction
+import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
 import io.kotlintest.matchers.doubles.shouldBeLessThan
 import io.kotlintest.shouldBe
@@ -46,6 +49,7 @@ import okhttp3.Request
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.bouncycastle.util.encoders.Base64
 import org.junit.After
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
@@ -56,8 +60,6 @@ import java.util.concurrent.CancellationException
 /**
  * Test the correct operation of [SudoVirtualCardsClient.listTransactionsByCardId] using mocks
  * and spies.
- *
- * @since 2020-07-16
  */
 class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
 
@@ -165,7 +167,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     @Test
-    fun `listTransactionsByCardId() should return results when no error present`() = runBlocking<Unit> {
+    fun `listTransactionsByCardId() should return success result when no error present`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
@@ -184,13 +186,21 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
         queryHolder.callback shouldNotBe null
         queryHolder.callback?.onResponse(queryResponse)
 
-        val result = deferredResult.await()
-        result shouldNotBe null
-        result.items.isEmpty() shouldBe false
-        result.items.size shouldBe 1
-        result.nextToken shouldBe null
+        val listTransactions = deferredResult.await()
+        listTransactions shouldNotBe null
 
-        checkTransaction(result.items[0])
+        when (listTransactions) {
+            is ListAPIResult.Success -> {
+                listTransactions.result.items.isEmpty() shouldBe false
+                listTransactions.result.items.size shouldBe 1
+                listTransactions.result.nextToken shouldBe null
+
+                checkTransaction(listTransactions.result.items[0])
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
+        }
 
         verify(mockAppSyncClient)
             .query<ListTransactionsByCardIdQuery.Data, ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Variables>(
@@ -208,7 +218,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     @Test
-    fun `listTransactionsByCardId() should return results using default inputs when no error present`() = runBlocking<Unit> {
+    fun `listTransactionsByCardId() should return success result using default inputs when no error present`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
@@ -221,13 +231,21 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
         queryHolder.callback shouldNotBe null
         queryHolder.callback?.onResponse(queryResponse)
 
-        val result = deferredResult.await()
-        result shouldNotBe null
-        result.items.isEmpty() shouldBe false
-        result.items.size shouldBe 1
-        result.nextToken shouldBe null
+        val listTransactions = deferredResult.await()
+        listTransactions shouldNotBe null
 
-        checkTransaction(result.items[0])
+        when (listTransactions) {
+            is ListAPIResult.Success -> {
+                listTransactions.result.items.isEmpty() shouldBe false
+                listTransactions.result.items.size shouldBe 1
+                listTransactions.result.nextToken shouldBe null
+
+                checkTransaction(listTransactions.result.items[0])
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
+        }
 
         verify(mockAppSyncClient)
             .query<ListTransactionsByCardIdQuery.Data, ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Variables>(
@@ -243,29 +261,8 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
         verify(mockKeyManager, times(16)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
     }
 
-    private fun checkTransaction(transaction: Transaction) {
-        with(transaction) {
-            id shouldBe "id"
-            owner shouldBe "owner"
-            version shouldBe 1
-            cardId shouldNotBe null
-            type shouldBe Transaction.TransactionType.COMPLETE
-            description.isBlank() shouldBe false
-            sequenceId shouldBe "sequenceId"
-            transactedAt shouldNotBe null
-            billedAmount.currency.isBlank() shouldBe false
-            transactedAmount.currency.isBlank() shouldBe false
-            declineReason shouldBe null
-            createdAt shouldBe Date(1L)
-            updatedAt shouldBe Date(1L)
-            details.isEmpty() shouldBe false
-            details[0].fundingSourceId shouldBe "fundingSourceId"
-            details[0].description.isBlank() shouldBe false
-        }
-    }
-
     @Test
-    fun `listTransactionsByCardId() should return results when populating nextToken`() = runBlocking<Unit> {
+    fun `listTransactionsByCardId() should return success result when populating nextToken`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
@@ -297,13 +294,21 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
         queryHolder.callback shouldNotBe null
         queryHolder.callback?.onResponse(responseWithNextToken)
 
-        val result = deferredResult.await()
-        result shouldNotBe null
-        result.items.isEmpty() shouldBe false
-        result.items.size shouldBe 1
-        result.nextToken shouldBe "dummyNextToken"
+        val listTransactions = deferredResult.await()
+        listTransactions shouldNotBe null
 
-        checkTransaction(result.items[0])
+        when (listTransactions) {
+            is ListAPIResult.Success -> {
+                listTransactions.result.items.isEmpty() shouldBe false
+                listTransactions.result.items.size shouldBe 1
+                listTransactions.result.nextToken shouldBe "dummyNextToken"
+
+                checkTransaction(listTransactions.result.items[0])
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
+        }
 
         verify(mockAppSyncClient)
             .query<ListTransactionsByCardIdQuery.Data, ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Variables>(
@@ -320,7 +325,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     @Test
-    fun `listTransactionsByCardId() should return empty list output when query result data is empty`() = runBlocking<Unit> {
+    fun `listTransactionsByCardId() should return success empty list result when query result data is empty`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
@@ -347,11 +352,19 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
         queryHolder.callback shouldNotBe null
         queryHolder.callback?.onResponse(responseWithEmptyList)
 
-        val result = deferredResult.await()
-        result shouldNotBe null
-        result.items.isEmpty() shouldBe true
-        result.items.size shouldBe 0
-        result.nextToken shouldBe null
+        val listTransactions = deferredResult.await()
+        listTransactions shouldNotBe null
+
+        when (listTransactions) {
+            is ListAPIResult.Success -> {
+                listTransactions.result.items.isEmpty() shouldBe true
+                listTransactions.result.items.size shouldBe 0
+                listTransactions.result.nextToken shouldBe null
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
+        }
 
         verify(mockAppSyncClient)
             .query<ListTransactionsByCardIdQuery.Data, ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Variables>(
@@ -366,7 +379,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     @Test
-    fun `listTransactionsByCardId() should return empty list output when query result data is null`() = runBlocking<Unit> {
+    fun `listTransactionsByCardId() should return success empty list result when query result data is null`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
@@ -385,11 +398,19 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
         queryHolder.callback shouldNotBe null
         queryHolder.callback?.onResponse(responseWithNullData)
 
-        val result = deferredResult.await()
-        result shouldNotBe null
-        result.items.isEmpty() shouldBe true
-        result.items.size shouldBe 0
-        result.nextToken shouldBe null
+        val listTransactions = deferredResult.await()
+        listTransactions shouldNotBe null
+
+        when (listTransactions) {
+            is ListAPIResult.Success -> {
+                listTransactions.result.items.isEmpty() shouldBe true
+                listTransactions.result.items.size shouldBe 0
+                listTransactions.result.nextToken shouldBe null
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
+        }
 
         verify(mockAppSyncClient)
             .query<ListTransactionsByCardIdQuery.Data, ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Variables>(
@@ -404,7 +425,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     @Test
-    fun `listTransactionsByCardId() should return empty list output when query response is null`() = runBlocking<Unit> {
+    fun `listTransactionsByCardId() should return success empty list result when query response is null`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
@@ -423,11 +444,19 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
         queryHolder.callback shouldNotBe null
         queryHolder.callback?.onResponse(nullQueryResponse)
 
-        val result = deferredResult.await()
-        result shouldNotBe null
-        result.items.isEmpty() shouldBe true
-        result.items.size shouldBe 0
-        result.nextToken shouldBe null
+        val listTransactions = deferredResult.await()
+        listTransactions shouldNotBe null
+
+        when (listTransactions) {
+            is ListAPIResult.Success -> {
+                listTransactions.result.items.isEmpty() shouldBe true
+                listTransactions.result.items.size shouldBe 0
+                listTransactions.result.nextToken shouldBe null
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
+        }
 
         verify(mockAppSyncClient)
             .query<ListTransactionsByCardIdQuery.Data, ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Variables>(
@@ -439,6 +468,53 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     it.variables().sortOrder() shouldBe SortOrderEntity.DESC
                 }
             )
+    }
+
+    @Test
+    fun `listTransactionsByCardId() should return partial results when unsealing fails`() = runBlocking<Unit> {
+
+        mockKeyManager.stub {
+            on { decryptWithPrivateKey(anyString(), any(), any()) } doThrow KeyManagerException("KeyManagerException")
+        }
+
+        val deferredResult = async(Dispatchers.IO) {
+            client.listTransactionsByCardId("cardId")
+        }
+        deferredResult.start()
+
+        delay(100L)
+        queryHolder.callback shouldNotBe null
+        queryHolder.callback?.onResponse(queryResponse)
+
+        val listTransactions = deferredResult.await()
+        listTransactions shouldNotBe null
+
+        when (listTransactions) {
+            is ListAPIResult.Partial -> {
+                listTransactions.result.items.isEmpty() shouldBe true
+                listTransactions.result.items.size shouldBe 0
+                listTransactions.result.failed.isEmpty() shouldBe false
+                listTransactions.result.failed.size shouldBe 1
+                listTransactions.result.nextToken shouldBe null
+
+                with(listTransactions.result.failed[0].partial) {
+                    id shouldBe "id"
+                    owner shouldBe "owner"
+                    version shouldBe 1
+                    cardId shouldNotBe null
+                    type shouldBe TransactionTypeEntity.COMPLETE
+                    sequenceId shouldBe "sequenceId"
+                    createdAt shouldBe Date(1L)
+                    updatedAt shouldBe Date(1L)
+                }
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
+        }
+
+        verify(mockAppSyncClient).query(any<ListTransactionsByCardIdQuery>())
+        verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
     }
 
     @Test
@@ -560,5 +636,26 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     it.variables().sortOrder() shouldBe SortOrderEntity.DESC
                 }
             )
+    }
+
+    private fun checkTransaction(transaction: Transaction) {
+        with(transaction) {
+            id shouldBe "id"
+            owner shouldBe "owner"
+            version shouldBe 1
+            cardId shouldNotBe null
+            type shouldBe TransactionTypeEntity.COMPLETE
+            description.isBlank() shouldBe false
+            sequenceId shouldBe "sequenceId"
+            transactedAt shouldNotBe null
+            billedAmount.currency.isBlank() shouldBe false
+            transactedAmount.currency.isBlank() shouldBe false
+            declineReason shouldBe null
+            createdAt shouldBe Date(1L)
+            updatedAt shouldBe Date(1L)
+            details.isEmpty() shouldBe false
+            details[0].fundingSourceId shouldBe "fundingSourceId"
+            details[0].description.isBlank() shouldBe false
+        }
     }
 }

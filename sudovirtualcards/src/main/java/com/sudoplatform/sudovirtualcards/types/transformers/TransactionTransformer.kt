@@ -15,8 +15,10 @@ import com.sudoplatform.sudovirtualcards.graphql.type.TransactionType
 import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
 import com.sudoplatform.sudovirtualcards.types.DeclineReason
 import com.sudoplatform.sudovirtualcards.types.Markup
+import com.sudoplatform.sudovirtualcards.types.PartialTransaction
 import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.TransactionDetailCharge
+import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
 
 /**
  * Transformer responsible for transforming the [Transaction] GraphQL data
@@ -35,7 +37,9 @@ internal object TransactionTransformer {
         deviceKeyManager: DeviceKeyManager,
         result: GetTransactionQuery.GetTransaction
     ): Transaction {
-        return result.toTransaction(Unsealer(deviceKeyManager, result.keyId(), result.algorithm()))
+        val keyInfo = KeyInfo(result.keyId(), KeyType.PRIVATE_KEY, result.algorithm())
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
+        return result.toTransaction(unsealer)
     }
 
     private fun GetTransactionQuery.GetTransaction.toTransaction(unsealer: Unsealer): Transaction {
@@ -58,19 +62,38 @@ internal object TransactionTransformer {
     }
 
     /**
-     * Transform the results of the [ListTransactionsByCardIdQuery].
+     * Transform the results of the [ListTransactionsByCardIdQuery.Item].
      *
      * @param deviceKeyManager [DeviceKeyManager] Used to retrieve keys to unseal data.
-     * @param results [List<ListTransactionsByCardIdQuery.Item>] The GraphQL query results.
-     * @return The list of [Transaction] entity types.
+     * @param result [ListTransactionsByCardIdQuery.Item] The GraphQL query result.
+     * @return The [Transaction] entity type.
      */
     fun toEntityFromListTransactionsByCardIdQueryResult(
         deviceKeyManager: DeviceKeyManager,
-        results: List<ListTransactionsByCardIdQuery.Item>
-    ): List<Transaction> {
-        return results.map { result ->
-            result.toTransaction(Unsealer(deviceKeyManager, result.keyId(), result.algorithm()))
-        }.toList()
+        result: ListTransactionsByCardIdQuery.Item
+    ): Transaction {
+        val keyInfo = KeyInfo(result.keyId(), KeyType.PRIVATE_KEY, result.algorithm())
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
+        return result.toTransaction(unsealer)
+    }
+
+    /**
+     * Transform the results of the [ListTransactionsByCardIdQuery.Item] into a [PartialTransaction].
+     *
+     * @param result [ListTransactionsByCardIdQuery.Item] The GraphQL query result.
+     * @return The [PartialTransaction] entity type.
+     */
+    fun toPartialEntityFromListTransactionsByCardIdQueryResult(result: ListTransactionsByCardIdQuery.Item): PartialTransaction {
+        return PartialTransaction(
+            id = result.id(),
+            owner = result.owner(),
+            version = result.version(),
+            cardId = result.cardId(),
+            sequenceId = result.sequenceId(),
+            type = result.type().toTransactionType(),
+            createdAt = result.createdAtEpochMs().toDate(),
+            updatedAt = result.updatedAtEpochMs().toDate()
+        )
     }
 
     private fun ListTransactionsByCardIdQuery.Item.toTransaction(unsealer: Unsealer): Transaction {
@@ -92,13 +115,13 @@ internal object TransactionTransformer {
         )
     }
 
-    private fun TransactionType.toTransactionType(): Transaction.TransactionType {
-        for (txnType in Transaction.TransactionType.values()) {
+    private fun TransactionType.toTransactionType(): TransactionTypeEntity {
+        for (txnType in TransactionTypeEntity.values()) {
             if (txnType.name == this.name) {
                 return txnType
             }
         }
-        return Transaction.TransactionType.UNKNOWN
+        return TransactionTypeEntity.UNKNOWN
     }
 
     private fun toEntityFromGetTransactionDetail(
@@ -178,7 +201,8 @@ internal object TransactionTransformer {
         deviceKeyManager: DeviceKeyManager,
         result: OnTransactionUpdateSubscription.OnTransactionUpdate
     ): Transaction {
-        val unsealer = Unsealer(deviceKeyManager, result.keyId(), result.algorithm())
+        val keyInfo = KeyInfo(result.keyId(), KeyType.PRIVATE_KEY, result.algorithm())
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
         return with(result) {
             Transaction(
                 id = id(),
@@ -244,7 +268,8 @@ internal object TransactionTransformer {
         deviceKeyManager: DeviceKeyManager,
         result: OnTransactionDeleteSubscription.OnTransactionDelete
     ): Transaction {
-        val unsealer = Unsealer(deviceKeyManager, result.keyId(), result.algorithm())
+        val keyInfo = KeyInfo(result.keyId(), KeyType.PRIVATE_KEY, result.algorithm())
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
         return with(result) {
             Transaction(
                 id = id(),

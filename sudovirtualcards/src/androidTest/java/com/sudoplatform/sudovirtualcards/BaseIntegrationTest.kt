@@ -26,9 +26,7 @@ import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateAuthoriz
 import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateDebitInput
 import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateRefundInput
 import com.sudoplatform.sudovirtualcards.types.FundingSource
-import com.sudoplatform.sudovirtualcards.types.ListOutput
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
-import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.VirtualCard
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInput
@@ -39,7 +37,6 @@ import com.sudoplatform.sudovirtualcards.util.LocaleUtil
 import com.sudoplatform.sudovirtualcards.util.StripeIntentWorker
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import java.util.Calendar
@@ -220,29 +217,9 @@ abstract class BaseIntegrationTest {
         return client.completeFundingSource(completeInput)
     }
 
-    protected suspend fun provisionVirtualCard(client: SudoVirtualCardsClient, fundingSourceId: String): VirtualCard {
-        val sudo = createSudo(
-            Sudo("Mr", "Theodore", "Bear", "Shopping", null, null)
-        )
-        sudo.id shouldNotBe null
+    protected suspend fun provisionVirtualCard(client: SudoVirtualCardsClient, input: ProvisionVirtualCardInput): VirtualCard {
 
-        val ownershipProof = getOwnershipProof(sudo)
-        ownershipProof shouldNotBe null
-
-        val provisionCardInput = ProvisionVirtualCardInput(
-            ownershipProofs = listOf(ownershipProof),
-            fundingSourceId = fundingSourceId,
-            cardHolder = "Unlimited Cards",
-            alias = "Ted Bear",
-            addressLine1 = "123 Nowhere St",
-            city = "Menlo Park",
-            state = "CA",
-            postalCode = "94025",
-            country = "US",
-            currency = "USD"
-        )
-
-        val provisionalCard1 = client.provisionVirtualCard(provisionCardInput)
+        val provisionalCard1 = client.provisionVirtualCard(input)
         var state = provisionalCard1.provisioningState
 
         return withTimeout<VirtualCard>(20_000L) {
@@ -310,15 +287,5 @@ abstract class BaseIntegrationTest {
             createdAt.time shouldBeGreaterThan 0L
             updatedAt.time shouldBeGreaterThan 0L
         }
-    }
-
-    protected suspend fun listTransactionsByCardId(client: SudoVirtualCardsClient, cardId: String): List<Transaction> {
-        val transactions = mutableListOf<Transaction>()
-        var listOutput: ListOutput<Transaction>? = null
-        while (listOutput == null || listOutput.nextToken != null) {
-            listOutput = client.listTransactionsByCardId(cardId, nextToken = listOutput?.nextToken)
-            transactions.addAll(listOutput.items)
-        }
-        return transactions
     }
 }

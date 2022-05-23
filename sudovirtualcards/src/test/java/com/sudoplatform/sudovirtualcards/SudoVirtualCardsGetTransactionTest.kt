@@ -25,6 +25,7 @@ import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.GetTransactionQuery
 import com.sudoplatform.sudovirtualcards.graphql.type.TransactionType
+import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
@@ -185,7 +186,7 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
             owner shouldBe "owner"
             version shouldBe 1
             cardId shouldNotBe null
-            type shouldBe Transaction.TransactionType.COMPLETE
+            type shouldBe TransactionTypeEntity.COMPLETE
             description.isBlank() shouldBe false
             sequenceId shouldBe "sequenceId"
             transactedAt shouldNotBe null

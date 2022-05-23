@@ -139,6 +139,32 @@ class DeviceKeyManagerExceptionTest : BaseTests() {
     }
 
     @Test
+    fun decryptWithSymmetricKeyIdShouldThrowIfKeyManagerThrows() {
+        mockKeyManager.stub {
+            on { decryptWithSymmetricKey(anyString(), any<ByteArray>()) } doThrow KeyManagerException("mock")
+        }
+        shouldThrow<DeviceKeyManager.DeviceKeyManagerException.DecryptionException> {
+            deviceKeyManager.decryptWithSymmetricKeyId(
+                "42",
+                ByteArray(42)
+            )
+        }
+    }
+
+    @Test
+    fun encryptWithSymmetricKeyIdShouldThrowIfKeyManagerThrows() {
+        mockKeyManager.stub {
+            on { encryptWithSymmetricKey(anyString(), any()) } doThrow KeyManagerException("mock")
+        }
+        shouldThrow<DeviceKeyManager.DeviceKeyManagerException.EncryptionException> {
+            deviceKeyManager.encryptWithSymmetricKeyId(
+                "42",
+                ByteArray(42)
+            )
+        }
+    }
+
+    @Test
     fun removeAllKeysShouldThrowIfKeyManagerThrows() {
         mockKeyManager.stub {
             on { removeAllKeys() } doThrow RuntimeException("mock")

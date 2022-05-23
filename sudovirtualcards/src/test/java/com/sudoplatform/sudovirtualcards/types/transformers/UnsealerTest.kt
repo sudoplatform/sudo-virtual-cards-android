@@ -9,6 +9,7 @@ package com.sudoplatform.sudovirtualcards.types.transformers
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.amazonaws.util.Base64
+import com.google.gson.Gson
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.stub
@@ -28,10 +29,12 @@ import com.sudoplatform.sudovirtualcards.keys.DefaultPublicKeyService
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
 import com.sudoplatform.sudovirtualcards.graphql.type.DeltaAction
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisioningState
+import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
 import com.sudoplatform.sudovirtualcards.types.Expiry
+import com.sudoplatform.sudovirtualcards.types.JsonValue
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
-import com.sudoplatform.sudovirtualcards.types.VirtualCard
+import com.sudoplatform.sudovirtualcards.types.SymmetricKeyEncryptionAlgorithm
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -77,12 +80,20 @@ class UnsealerTest : BaseTests() {
 
     private val symmetricKeyId = "symmetricKey"
     private val publicKeyId = UUID.randomUUID().toString()
+    private val keyInfo = KeyInfo(publicKeyId, KeyType.PRIVATE_KEY, DefaultPublicKeyService.DEFAULT_ALGORITHM)
+    private val keyInfo2 = KeyInfo(symmetricKeyId, KeyType.SYMMETRIC_KEY, DefaultPublicKeyService.DEFAULT_ALGORITHM)
 
     private val unsealer by before {
         Unsealer(
             deviceKeyManager,
-            publicKeyId,
-            DefaultPublicKeyService.DEFAULT_ALGORITHM
+            keyInfo
+        )
+    }
+
+    private val metadataUnsealer by before {
+        Unsealer(
+            deviceKeyManager,
+            keyInfo2
         )
     }
 
@@ -106,6 +117,12 @@ class UnsealerTest : BaseTests() {
         encryptedData.copyInto(data, Unsealer.KEY_SIZE_AES)
 
         return String(Base64.encode(data), Charsets.UTF_8)
+    }
+
+    private fun sealMetadata(value: JsonValue<Any>): String {
+        val serializedMetadata = Gson().toJson(value.unwrap()).toByteArray(Charsets.UTF_8)
+        val encryptedMetadata = deviceKeyManager.encryptWithSymmetricKeyId(symmetricKeyId, serializedMetadata)
+        return String(Base64.encode(encryptedMetadata), Charsets.UTF_8)
     }
 
     @Before
@@ -140,6 +157,40 @@ class UnsealerTest : BaseTests() {
         val sealedAmount = seal(clearAmount)
 
         unsealer.unsealAmount(sealedCurrency, sealedAmount) shouldBe CurrencyAmount("USD", 100)
+    }
+
+    @Test
+    fun `unseal CardProvisionMutation Metadata should throw for unsupported algorithm`() {
+
+        val sealedMetadata = CardProvisionMutation.Metadata(
+            "typename",
+            "algorithm",
+            "keyId",
+            "json-string",
+            sealMetadata(JsonValue.JsonString("metadata"))
+        )
+
+        shouldThrow<Unsealer.UnsealerException.UnsupportedAlgorithmException> {
+            metadataUnsealer.unseal(sealedMetadata)
+        }
+    }
+
+    @Test
+    fun `unseal CardProvisionMutation Metadata`() {
+
+        val sealedMetadata = CardProvisionMutation.Metadata(
+            "typename",
+            SymmetricKeyEncryptionAlgorithm.AES_CBC_PKCS7PADDING.toString(),
+            "keyId",
+            "json-string",
+            sealMetadata(JsonValue.JsonString("metadata"))
+        )
+
+        val metadata = metadataUnsealer.unseal(sealedMetadata)
+        metadata shouldNotBe null
+
+        metadata shouldBe JsonValue.JsonString("metadata")
+        metadata.unwrap() shouldBe "metadata"
     }
 
     @Test
@@ -189,6 +240,24 @@ class UnsealerTest : BaseTests() {
     }
 
     @Test
+    fun `unseal GetProvisionalCardQuery Metadata`() {
+
+        val sealedMetadata = GetProvisionalCardQuery.Metadata(
+            "typename",
+            SymmetricKeyEncryptionAlgorithm.AES_CBC_PKCS7PADDING.toString(),
+            "keyId",
+            "json-string",
+            sealMetadata(JsonValue.JsonInteger(10))
+        )
+
+        val metadata = metadataUnsealer.unseal(sealedMetadata)
+        metadata shouldNotBe null
+
+        metadata shouldBe JsonValue.JsonInteger(10)
+        metadata.unwrap() shouldBe 10
+    }
+
+    @Test
     fun `unseal GetProvisionalCardQuery BillingAddress`() {
 
         val sealedBillingAddress = GetProvisionalCardQuery.BillingAddress(
@@ -232,6 +301,24 @@ class UnsealerTest : BaseTests() {
             mm shouldBe "12"
             yyyy shouldBe "2020"
         }
+    }
+
+    @Test
+    fun `unseal GetCardQuery Metadata`() {
+
+        val sealedMetadata = GetCardQuery.Metadata(
+            "typename",
+            SymmetricKeyEncryptionAlgorithm.AES_CBC_PKCS7PADDING.toString(),
+            "keyId",
+            "json-string",
+            sealMetadata(JsonValue.JsonBoolean(true))
+        )
+
+        val metadata = metadataUnsealer.unseal(sealedMetadata)
+        metadata shouldNotBe null
+
+        metadata shouldBe JsonValue.JsonBoolean(true)
+        metadata.unwrap() shouldBe true
     }
 
     @Test
@@ -281,6 +368,24 @@ class UnsealerTest : BaseTests() {
     }
 
     @Test
+    fun `unseal ListCardsQuery Metadata`() {
+
+        val sealedMetadata = ListCardsQuery.Metadata(
+            "typename",
+            SymmetricKeyEncryptionAlgorithm.AES_CBC_PKCS7PADDING.toString(),
+            "keyId",
+            "json-string",
+            sealMetadata(JsonValue.JsonArray(listOf("metadata")))
+        )
+
+        val metadata = metadataUnsealer.unseal(sealedMetadata)
+        metadata shouldNotBe null
+
+        metadata shouldBe JsonValue.JsonArray(listOf("metadata"))
+        metadata.unwrap() shouldBe listOf("metadata")
+    }
+
+    @Test
     fun `unseal ListCardsQuery BillingAddress`() {
 
         val sealedBillingAddress = ListCardsQuery.BillingAddress(
@@ -327,6 +432,24 @@ class UnsealerTest : BaseTests() {
     }
 
     @Test
+    fun `unseal UpdateCardMutation Metadata`() {
+
+        val sealedMetadata = UpdateCardMutation.Metadata(
+            "typename",
+            SymmetricKeyEncryptionAlgorithm.AES_CBC_PKCS7PADDING.toString(),
+            "keyId",
+            "json-string",
+            sealMetadata(JsonValue.JsonMap(mapOf("color" to "blue")))
+        )
+
+        val metadata = metadataUnsealer.unseal(sealedMetadata)
+        metadata shouldNotBe null
+
+        metadata shouldBe JsonValue.JsonMap(mapOf("color" to "blue"))
+        metadata.unwrap() shouldBe mapOf("color" to "blue")
+    }
+
+    @Test
     fun `unseal UpdateCardMutation BillingAddress`() {
 
         val sealedBillingAddress = UpdateCardMutation.BillingAddress(
@@ -370,6 +493,24 @@ class UnsealerTest : BaseTests() {
             mm shouldBe "12"
             yyyy shouldBe "2020"
         }
+    }
+
+    @Test
+    fun `unseal CancelCardMutation Metadata`() {
+
+        val sealedMetadata = CancelCardMutation.Metadata(
+            "typename",
+            SymmetricKeyEncryptionAlgorithm.AES_CBC_PKCS7PADDING.toString(),
+            "keyId",
+            "json-string",
+            sealMetadata(JsonValue.JsonDouble(10.5))
+        )
+
+        val metadata = metadataUnsealer.unseal(sealedMetadata)
+        metadata shouldNotBe null
+
+        metadata shouldBe JsonValue.JsonDouble(10.5)
+        metadata.unwrap() shouldBe 10.5
     }
 
     @Test
@@ -482,7 +623,7 @@ class UnsealerTest : BaseTests() {
             owners.first().issuer shouldBe "issuer"
             fundingSourceId shouldBe "fundingSourceId"
             currency shouldBe "currency"
-            state shouldBe VirtualCard.State.ISSUED
+            state shouldBe CardStateEntity.ISSUED
             activeTo.time shouldBeGreaterThan 0L
             cancelledAt shouldBe null
             last4 shouldBe "last4"
@@ -579,7 +720,7 @@ class UnsealerTest : BaseTests() {
             owners.first().issuer shouldBe "issuer"
             fundingSourceId shouldBe "fundingSourceId"
             currency shouldBe "currency"
-            state shouldBe VirtualCard.State.ISSUED
+            state shouldBe CardStateEntity.ISSUED
             activeTo.time shouldBeGreaterThan 0L
             cancelledAt shouldBe null
             last4 shouldBe "last4"
@@ -657,7 +798,7 @@ class UnsealerTest : BaseTests() {
             owners.first().issuer shouldBe "issuer"
             fundingSourceId shouldBe "fundingSourceId"
             currency shouldBe "currency"
-            state shouldBe VirtualCard.State.ISSUED
+            state shouldBe CardStateEntity.ISSUED
             activeTo.time shouldBeGreaterThan 0L
             cancelledAt shouldBe null
             last4 shouldBe "last4"
@@ -722,11 +863,10 @@ class UnsealerTest : BaseTests() {
             null,
             null
         )
-        val sealedCards = arrayListOf(sealedCard)
 
-        val card = VirtualCardTransformer.toEntityFromListCardsQueryResult(deviceKeyManager, sealedCards)
+        val card = VirtualCardTransformer.toEntityFromListCardsQueryResult(deviceKeyManager, sealedCard)
 
-        with(card[0]) {
+        with(card) {
             id shouldBe "id"
             owner shouldBe "owner"
             version shouldBe 1
@@ -737,7 +877,7 @@ class UnsealerTest : BaseTests() {
             owners.first().issuer shouldBe "issuer"
             fundingSourceId shouldBe "fundingSourceId"
             currency shouldBe "currency"
-            state shouldBe VirtualCard.State.ISSUED
+            state shouldBe CardStateEntity.ISSUED
             activeTo.time shouldBeGreaterThan 0L
             cancelledAt shouldBe null
             last4 shouldBe "last4"
@@ -749,7 +889,7 @@ class UnsealerTest : BaseTests() {
             expiry shouldBe Expiry("01", "2021")
         }
 
-        with(card[0].billingAddress!!) {
+        with(card.billingAddress!!) {
             addressLine1 shouldBe "333 Ravenswood Ave"
             addressLine2 shouldBe "Building 201"
             city shouldBe "Menlo Park"
@@ -811,7 +951,7 @@ class UnsealerTest : BaseTests() {
             owners.first().issuer shouldBe "issuer"
             fundingSourceId shouldBe "fundingSourceId"
             currency shouldBe "currency"
-            state shouldBe VirtualCard.State.ISSUED
+            state shouldBe CardStateEntity.ISSUED
             activeTo.time shouldBeGreaterThan 0L
             cancelledAt shouldBe null
             last4 shouldBe "last4"
@@ -885,7 +1025,7 @@ class UnsealerTest : BaseTests() {
             owners.first().issuer shouldBe "issuer"
             fundingSourceId shouldBe "fundingSourceId"
             currency shouldBe "currency"
-            state shouldBe VirtualCard.State.CLOSED
+            state shouldBe CardStateEntity.CLOSED
             activeTo.time shouldBeGreaterThan 0L
             cancelledAt shouldBe null
             last4 shouldBe "last4"

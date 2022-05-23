@@ -28,6 +28,8 @@ internal interface DeviceKeyManager {
             DeviceKeyManagerException(message = message, cause = cause)
         class DecryptionException(message: String? = null, cause: Throwable? = null) :
             DeviceKeyManagerException(message = message, cause = cause)
+        class EncryptionException(message: String? = null, cause: Throwable? = null) :
+            DeviceKeyManagerException(message = message, cause = cause)
         class UnknownException(message: String? = null, cause: Throwable? = null) :
             DeviceKeyManagerException(message = message, cause = cause)
     }
@@ -110,6 +112,28 @@ internal interface DeviceKeyManager {
      */
     @Throws(DeviceKeyManagerException::class)
     fun decryptWithSymmetricKey(key: ByteArray, data: ByteArray): ByteArray
+
+    /**
+     * Decrypt the [data] with the symmetric key [keyId].
+     *
+     * @param keyId [String] Key identifier belonging to the symmetric key used to decrypt the [data].
+     * @param data [ByteArray] Data to be decrypted.
+     * @return the decrypted data.
+     * @throws [DeviceKeyManager.DeviceKeyManagerException.DecryptionException] if the data cannot be decrypted.
+     */
+    @Throws(DeviceKeyManagerException::class)
+    fun decryptWithSymmetricKeyId(keyId: String, data: ByteArray): ByteArray
+
+    /**
+     * Encrypt the [data] with the symmetric key [keyId].
+     *
+     * @param keyId [String] Key identifier belonging to the symmetric key used to encrypt the [data].
+     * @param data [ByteArray] Data to be encrypted.
+     * @return the encrypted data.
+     * @throws [DeviceKeyManager.DeviceKeyManagerException.EncryptionException] if the data cannot be encrypted.
+     */
+    @Throws(DeviceKeyManagerException::class)
+    fun encryptWithSymmetricKeyId(keyId: String, data: ByteArray): ByteArray
 
     /**
      * Remove all the keys from the [DeviceKeyManager]

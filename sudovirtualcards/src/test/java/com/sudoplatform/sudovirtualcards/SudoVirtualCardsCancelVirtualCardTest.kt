@@ -10,6 +10,7 @@ import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
+import com.sudoplatform.sudokeymanager.KeyManagerException
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
@@ -27,8 +28,10 @@ import com.sudoplatform.sudovirtualcards.graphql.CancelCardMutation
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.graphql.type.CardCancelRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
-import com.sudoplatform.sudovirtualcards.types.VirtualCard
+import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
+import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
+import io.kotlintest.fail
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
@@ -177,7 +180,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
     }
 
     @Test
-    fun `cancelVirtualCard() should return results when no error present`() = runBlocking<Unit> {
+    fun `cancelVirtualCard() should return success result when no error present`() = runBlocking<Unit> {
 
         mutationHolder.callback shouldBe null
 
@@ -190,28 +193,33 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         mutationHolder.callback shouldNotBe null
         mutationHolder.callback?.onResponse(mutationResponse)
 
-        val result = deferredResult.await()
-        result shouldNotBe null
+        val cancelCard = deferredResult.await()
+        cancelCard shouldNotBe null
 
-        with(result) {
-            id shouldBe "id"
-            owners shouldNotBe null
-            owner shouldBe "owner"
-            version shouldBe 1
-            fundingSourceId shouldBe "fundingSourceId"
-            state shouldBe VirtualCard.State.CLOSED
-            cardHolder shouldNotBe null
-            alias shouldNotBe null
-            last4 shouldBe "last4"
-            cardNumber shouldNotBe null
-            securityCode shouldNotBe null
-            billingAddress shouldNotBe null
-            expiry shouldNotBe null
-            currency shouldBe "currency"
-            activeTo shouldNotBe null
-            cancelledAt shouldBe Date(1L)
-            createdAt shouldBe Date(1L)
-            updatedAt shouldBe Date(1L)
+        when (cancelCard) {
+            is SingleAPIResult.Success -> {
+                cancelCard.result.id shouldBe "id"
+                cancelCard.result.owners shouldNotBe null
+                cancelCard.result.owner shouldBe "owner"
+                cancelCard.result.version shouldBe 1
+                cancelCard.result.fundingSourceId shouldBe "fundingSourceId"
+                cancelCard.result.state shouldBe CardStateEntity.CLOSED
+                cancelCard.result.cardHolder shouldNotBe null
+                cancelCard.result.alias shouldNotBe null
+                cancelCard.result.last4 shouldBe "last4"
+                cancelCard.result.cardNumber shouldNotBe null
+                cancelCard.result.securityCode shouldNotBe null
+                cancelCard.result.billingAddress shouldNotBe null
+                cancelCard.result.expiry shouldNotBe null
+                cancelCard.result.currency shouldBe "currency"
+                cancelCard.result.activeTo shouldNotBe null
+                cancelCard.result.cancelledAt shouldBe Date(1L)
+                cancelCard.result.createdAt shouldBe Date(1L)
+                cancelCard.result.updatedAt shouldBe Date(1L)
+            }
+            else -> {
+                fail("Unexpected SingleAPIResult")
+            }
         }
 
         verify(mockAppSyncClient).mutate(any<CancelCardMutation>())
@@ -220,6 +228,53 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         verify(mockKeyManager).getPrivateKeyData(anyString())
         verify(mockKeyManager, times(12)).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockKeyManager, times(12)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+        verify(mockUserClient).getSubject()
+    }
+
+    @Test
+    fun `cancelVirtualCard() should return partial result when unsealing fails`() = runBlocking<Unit> {
+
+        mockKeyManager.stub {
+            on { decryptWithPrivateKey(anyString(), any(), any()) } doThrow KeyManagerException("KeyManagerException")
+        }
+
+        val deferredResult = async(Dispatchers.IO) {
+            client.cancelVirtualCard("id")
+        }
+        deferredResult.start()
+
+        delay(100L)
+        mutationHolder.callback shouldNotBe null
+        mutationHolder.callback?.onResponse(mutationResponse)
+
+        val cancelCard = deferredResult.await()
+        cancelCard shouldNotBe null
+
+        when (cancelCard) {
+            is SingleAPIResult.Partial -> {
+                cancelCard.result.partial.id shouldBe "id"
+                cancelCard.result.partial.owners shouldNotBe null
+                cancelCard.result.partial.owner shouldBe "owner"
+                cancelCard.result.partial.version shouldBe 1
+                cancelCard.result.partial.fundingSourceId shouldBe "fundingSourceId"
+                cancelCard.result.partial.state shouldBe CardStateEntity.CLOSED
+                cancelCard.result.partial.last4 shouldBe "last4"
+                cancelCard.result.partial.currency shouldBe "currency"
+                cancelCard.result.partial.activeTo shouldNotBe null
+                cancelCard.result.partial.cancelledAt shouldBe Date(1L)
+                cancelCard.result.partial.createdAt shouldBe Date(1L)
+                cancelCard.result.partial.updatedAt shouldBe Date(1L)
+            }
+            else -> {
+                fail("Unexpected SingleAPIResult")
+            }
+        }
+
+        verify(mockAppSyncClient).mutate(any<CancelCardMutation>())
+        verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
+        verify(mockKeyManager).getPassword(anyString())
+        verify(mockKeyManager).getPublicKeyData(anyString())
+        verify(mockKeyManager).getPrivateKeyData(anyString())
         verify(mockUserClient).getSubject()
     }
 

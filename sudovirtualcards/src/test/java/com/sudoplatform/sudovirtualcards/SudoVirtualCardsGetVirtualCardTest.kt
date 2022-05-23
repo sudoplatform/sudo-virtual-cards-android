@@ -26,7 +26,7 @@ import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.GetCardQuery
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
-import com.sudoplatform.sudovirtualcards.types.VirtualCard
+import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -191,7 +191,7 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
             owner shouldBe "owner"
             version shouldBe 1
             fundingSourceId shouldBe "fundingSourceId"
-            state shouldBe VirtualCard.State.ISSUED
+            state shouldBe CardStateEntity.ISSUED
             cardHolder shouldNotBe null
             alias shouldNotBe null
             last4 shouldBe "last4"

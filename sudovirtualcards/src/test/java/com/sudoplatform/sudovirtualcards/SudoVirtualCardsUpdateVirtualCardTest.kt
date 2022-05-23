@@ -10,6 +10,7 @@ import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
+import com.sudoplatform.sudokeymanager.KeyManagerException
 import org.mockito.kotlin.any
 import org.mockito.kotlin.check
 import org.mockito.kotlin.doReturn
@@ -29,9 +30,11 @@ import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.graphql.type.AddressInput
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
 import com.sudoplatform.sudovirtualcards.graphql.type.CardUpdateRequest
-import com.sudoplatform.sudovirtualcards.types.VirtualCard
+import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
+import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
+import io.kotlintest.fail
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
@@ -101,6 +104,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             10,
             "newCardHolder",
             "newAlias",
+            null,
             "addressLine1",
             "addressLine2",
             "city",
@@ -210,7 +214,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
     }
 
     @Test
-    fun `updateVirtualCard() should return results when no error present`() = runBlocking<Unit> {
+    fun `updateVirtualCard() should return success result when no error present`() = runBlocking<Unit> {
 
         mutationHolder.callback shouldBe null
 
@@ -223,28 +227,32 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         mutationHolder.callback shouldNotBe null
         mutationHolder.callback?.onResponse(mutationResponse)
 
-        val result = deferredResult.await()
-        result shouldNotBe null
+        val updateCard = deferredResult.await()
+        updateCard shouldNotBe null
 
-        with(result) {
-            id shouldBe "id"
-            owners shouldNotBe null
-            owner shouldBe "owner"
-            version shouldBe 2
-            fundingSourceId shouldBe "fundingSourceId"
-            state shouldBe VirtualCard.State.ISSUED
-            cardHolder shouldNotBe null
-            alias shouldNotBe null
-            last4 shouldBe "last4"
-            cardNumber shouldNotBe null
-            securityCode shouldNotBe null
-            billingAddress shouldNotBe null
-            expiry shouldNotBe null
-            currency shouldBe "currency"
-            activeTo shouldNotBe null
-            cancelledAt shouldBe null
-            createdAt shouldBe Date(1L)
-            updatedAt shouldBe Date(1L)
+        when (updateCard) {
+            is SingleAPIResult.Success -> {
+                updateCard.result.id shouldBe "id"
+                updateCard.result.owners shouldNotBe null
+                updateCard.result.owner shouldBe "owner"
+                updateCard.result.version shouldBe 2
+                updateCard.result.fundingSourceId shouldBe "fundingSourceId"
+                updateCard.result.state shouldBe CardStateEntity.ISSUED
+                updateCard.result.cardHolder shouldNotBe null
+                updateCard.result.alias shouldNotBe null
+                updateCard.result.last4 shouldBe "last4"
+                updateCard.result.cardNumber shouldNotBe null
+                updateCard.result.securityCode shouldNotBe null
+                updateCard.result.billingAddress shouldNotBe null
+                updateCard.result.expiry shouldNotBe null
+                updateCard.result.currency shouldBe "currency"
+                updateCard.result.activeTo shouldNotBe null
+                updateCard.result.createdAt shouldBe Date(1L)
+                updateCard.result.updatedAt shouldBe Date(1L)
+            }
+            else -> {
+                fail("Unexpected SingleAPIResult")
+            }
         }
 
         verify(mockAppSyncClient).mutate<UpdateCardMutation.Data, UpdateCardMutation, UpdateCardMutation.Variables>(
@@ -266,6 +274,66 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         verify(mockKeyManager).getPrivateKeyData(anyString())
         verify(mockKeyManager, times(12)).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockKeyManager, times(12)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+        verify(mockUserClient).getSubject()
+    }
+
+    @Test
+    fun `updateVirtualCard() should return partial result when unsealing fails`() = runBlocking<Unit> {
+
+        mockKeyManager.stub {
+            on { decryptWithPrivateKey(anyString(), any(), any()) } doThrow KeyManagerException("KeyManagerException")
+        }
+
+        val deferredResult = async(Dispatchers.IO) {
+            client.updateVirtualCard(input)
+        }
+        deferredResult.start()
+
+        delay(100L)
+        mutationHolder.callback shouldNotBe null
+        mutationHolder.callback?.onResponse(mutationResponse)
+
+        val updateCard = deferredResult.await()
+        updateCard shouldNotBe null
+
+        when (updateCard) {
+            is SingleAPIResult.Partial -> {
+                updateCard.result.partial.id shouldBe "id"
+                updateCard.result.partial.owners shouldNotBe null
+                updateCard.result.partial.owner shouldBe "owner"
+                updateCard.result.partial.version shouldBe 2
+                updateCard.result.partial.fundingSourceId shouldBe "fundingSourceId"
+                updateCard.result.partial.state shouldBe CardStateEntity.ISSUED
+                updateCard.result.partial.last4 shouldBe "last4"
+                updateCard.result.partial.currency shouldBe "currency"
+                updateCard.result.partial.activeTo shouldNotBe null
+                updateCard.result.partial.cancelledAt shouldBe null
+                updateCard.result.partial.createdAt shouldBe Date(1L)
+                updateCard.result.partial.updatedAt shouldBe Date(1L)
+            }
+            else -> {
+                fail("Unexpected SingleAPIResult")
+            }
+        }
+
+        verify(mockAppSyncClient).mutate<UpdateCardMutation.Data, UpdateCardMutation, UpdateCardMutation.Variables>(
+            check {
+                it.variables().input().id() shouldBe "id"
+                it.variables().input().expectedVersion() shouldBe 10
+                it.variables().input().cardHolder() shouldBe "newCardHolder"
+                it.variables().input().alias() shouldBe "newAlias"
+                it.variables().input().billingAddress()?.addressLine1() shouldBe "addressLine1"
+                it.variables().input().billingAddress()?.addressLine2() shouldBe "addressLine2"
+                it.variables().input().billingAddress()?.city() shouldBe "city"
+                it.variables().input().billingAddress()?.state() shouldBe "state"
+                it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
+                it.variables().input().billingAddress()?.country() shouldBe "country"
+            }
+        )
+        verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
+        verify(mockKeyManager).getPassword(anyString())
+        verify(mockKeyManager).getPublicKeyData(anyString())
+        verify(mockKeyManager).getPrivateKeyData(anyString())
         verify(mockUserClient).getSubject()
     }
 

@@ -52,9 +52,14 @@ import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceClientConfiguration
 import com.sudoplatform.sudovirtualcards.types.FundingSourceTypes
 import com.sudoplatform.sudovirtualcards.types.KeyResult
+import com.sudoplatform.sudovirtualcards.types.ListAPIResult
 import com.sudoplatform.sudovirtualcards.types.ListOutput
+import com.sudoplatform.sudovirtualcards.types.PartialVirtualCard
+import com.sudoplatform.sudovirtualcards.types.PartialResult
+import com.sudoplatform.sudovirtualcards.types.PartialTransaction
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
+import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
 import com.sudoplatform.sudovirtualcards.types.SortOrder
 import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.VirtualCard
@@ -63,11 +68,12 @@ import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.transformers.DateRangeTransformer.toDateRangeInput
-import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer
-import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer.toAddressInput
 import com.sudoplatform.sudovirtualcards.types.transformers.FundingSourceTransformer
 import com.sudoplatform.sudovirtualcards.types.transformers.TransactionTransformer
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
+import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer
+import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer.toAddressInput
+import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer.toMetadataInput
 import java.util.concurrent.CancellationException
 
 /**
@@ -183,7 +189,7 @@ internal class DefaultSudoVirtualCardsClient(
                 .enqueue()
 
             if (mutationResponse.hasErrors()) {
-                logger.debug("errors = ${mutationResponse.errors()}")
+                logger.error("errors = ${mutationResponse.errors()}")
                 throw interpretFundingSourceError(mutationResponse.errors().first())
             }
 
@@ -193,7 +199,7 @@ internal class DefaultSudoVirtualCardsClient(
             }
             throw SudoVirtualCardsClient.FundingSourceException.SetupFailedException(FUNDING_SOURCE_NOT_SETUP_MSG)
         } catch (e: Throwable) {
-            logger.debug("unexpected error $e")
+            logger.error("unexpected error $e")
             when (e) {
                 is ApolloException -> throw SudoVirtualCardsClient.FundingSourceException.SetupFailedException(cause = e)
                 else -> throw interpretFundingSourceException(e)
@@ -220,7 +226,7 @@ internal class DefaultSudoVirtualCardsClient(
                 .enqueue()
 
             if (mutationResponse.hasErrors()) {
-                logger.debug("errors = ${mutationResponse.errors()}")
+                logger.error("errors = ${mutationResponse.errors()}")
                 throw interpretFundingSourceError(mutationResponse.errors().first())
             }
 
@@ -230,7 +236,7 @@ internal class DefaultSudoVirtualCardsClient(
             }
             throw SudoVirtualCardsClient.FundingSourceException.CompletionFailedException(FUNDING_SOURCE_NOT_COMPLETE_MSG)
         } catch (e: Throwable) {
-            logger.debug("unexpected error $e")
+            logger.error("unexpected error $e")
             when (e) {
                 is ApolloException -> throw SudoVirtualCardsClient.FundingSourceException.CompletionFailedException(cause = e)
                 else -> throw interpretFundingSourceException(e)
@@ -250,7 +256,7 @@ internal class DefaultSudoVirtualCardsClient(
                 .enqueueFirst()
 
             if (queryResponse.hasErrors()) {
-                logger.debug("errors = ${queryResponse.errors()}")
+                logger.error("errors = ${queryResponse.errors()}")
                 throw interpretFundingSourceError(queryResponse.errors().first())
             }
 
@@ -262,7 +268,7 @@ internal class DefaultSudoVirtualCardsClient(
                 throw SudoVirtualCardsClient.FundingSourceException.FailedException()
             }
         } catch (e: Throwable) {
-            logger.debug("unexpected error $e")
+            logger.error("unexpected error $e")
             when (e) {
                 is ApolloException -> throw SudoVirtualCardsClient.FundingSourceException.FailedException(cause = e)
                 else -> throw interpretFundingSourceException(e)
@@ -282,14 +288,14 @@ internal class DefaultSudoVirtualCardsClient(
                 .enqueueFirst()
 
             if (queryResponse.hasErrors()) {
-                logger.warning("errors = ${queryResponse.errors()}")
+                logger.error("errors = ${queryResponse.errors()}")
                 throw interpretFundingSourceError(queryResponse.errors().first())
             }
 
             val result = queryResponse.data()?.fundingSource ?: return null
             return FundingSourceTransformer.toEntityFromGetFundingSourceQueryResult(result)
         } catch (e: Throwable) {
-            logger.warning("unexpected error $e")
+            logger.error("unexpected error $e")
             when (e) {
                 is ApolloException -> throw SudoVirtualCardsClient.FundingSourceException.FailedException(cause = e)
                 else -> throw interpretFundingSourceException(e)
@@ -314,7 +320,7 @@ internal class DefaultSudoVirtualCardsClient(
                 .enqueueFirst()
 
             if (queryResponse.hasErrors()) {
-                logger.warning("errors = ${queryResponse.errors()}")
+                logger.error("errors = ${queryResponse.errors()}")
                 throw interpretFundingSourceError(queryResponse.errors().first())
             }
 
@@ -322,7 +328,7 @@ internal class DefaultSudoVirtualCardsClient(
             val fundingSources = FundingSourceTransformer.toEntityFromListFundingSourcesQueryResult(result.items())
             return ListOutput(fundingSources, result.nextToken())
         } catch (e: Throwable) {
-            logger.warning("unexpected error $e")
+            logger.error("unexpected error $e")
             when (e) {
                 is ApolloException -> throw SudoVirtualCardsClient.FundingSourceException.FailedException(cause = e)
                 else -> throw interpretFundingSourceException(e)
@@ -344,7 +350,7 @@ internal class DefaultSudoVirtualCardsClient(
                 .enqueue()
 
             if (mutationResponse.hasErrors()) {
-                logger.warning("errors = ${mutationResponse.errors()}")
+                logger.error("errors = ${mutationResponse.errors()}")
                 throw interpretFundingSourceError(mutationResponse.errors().first())
             }
 
@@ -354,7 +360,7 @@ internal class DefaultSudoVirtualCardsClient(
             }
             throw SudoVirtualCardsClient.FundingSourceException.CancelFailedException(NO_RESULT_ERROR_MSG)
         } catch (e: Throwable) {
-            logger.warning("unexpected error $e")
+            logger.error("unexpected error $e")
             when (e) {
                 is ApolloException -> throw SudoVirtualCardsClient.FundingSourceException.CancelFailedException(cause = e)
                 else -> throw interpretFundingSourceException(e)
@@ -375,6 +381,7 @@ internal class DefaultSudoVirtualCardsClient(
                 .fundingSourceId(input.fundingSourceId)
                 .cardHolder(input.cardHolder)
                 .alias(input.alias)
+                .metadata(input.metadata.toMetadataInput(deviceKeyManager))
                 .billingAddress(input.billingAddress.toAddressInput())
                 .currency(input.currency)
                 .build()
@@ -386,7 +393,7 @@ internal class DefaultSudoVirtualCardsClient(
                 .enqueue()
 
             if (mutationResponse.hasErrors()) {
-                logger.warning("errors = ${mutationResponse.errors()}")
+                logger.error("errors = ${mutationResponse.errors()}")
                 throw interpretVirtualCardError(mutationResponse.errors().first())
             }
 
@@ -396,7 +403,7 @@ internal class DefaultSudoVirtualCardsClient(
             }
             throw SudoVirtualCardsClient.VirtualCardException.ProvisionFailedException(NO_RESULT_ERROR_MSG)
         } catch (e: Throwable) {
-            logger.warning("unexpected error $e")
+            logger.error("unexpected error $e")
             when (e) {
                 is ApolloException -> throw SudoVirtualCardsClient.VirtualCardException.ProvisionFailedException(cause = e)
                 else -> throw interpretVirtualCardException(e)
@@ -416,14 +423,14 @@ internal class DefaultSudoVirtualCardsClient(
                 .enqueueFirst()
 
             if (queryResponse.hasErrors()) {
-                logger.warning("errors = ${queryResponse.errors()}")
+                logger.error("errors = ${queryResponse.errors()}")
                 throw interpretVirtualCardError(queryResponse.errors().first())
             }
 
             val result = queryResponse.data()?.provisionalCard ?: return null
             return VirtualCardTransformer.toEntityFromGetProvisionalCardQueryResult(deviceKeyManager, result)
         } catch (e: Throwable) {
-            logger.warning("unexpected error $e")
+            logger.error("unexpected error $e")
             when (e) {
                 is ApolloException -> throw SudoVirtualCardsClient.VirtualCardException.FailedException(cause = e)
                 else -> throw interpretVirtualCardException(e)
@@ -448,14 +455,14 @@ internal class DefaultSudoVirtualCardsClient(
                 .enqueueFirst()
 
             if (queryResponse.hasErrors()) {
-                logger.warning("errors = ${queryResponse.errors()}")
+                logger.error("errors = ${queryResponse.errors()}")
                 throw interpretVirtualCardError(queryResponse.errors().first())
             }
 
             val result = queryResponse.data()?.card ?: return null
             return VirtualCardTransformer.toEntityFromGetCardQueryResult(deviceKeyManager, result)
         } catch (e: Throwable) {
-            logger.warning("unexpected error $e")
+            logger.error("unexpected error $e")
             when (e) {
                 is ApolloException -> throw SudoVirtualCardsClient.VirtualCardException.FailedException(cause = e)
                 else -> throw interpretVirtualCardException(e)
@@ -468,7 +475,7 @@ internal class DefaultSudoVirtualCardsClient(
         limit: Int,
         nextToken: String?,
         cachePolicy: CachePolicy,
-    ): ListOutput<VirtualCard> {
+    ): ListAPIResult<VirtualCard, PartialVirtualCard> {
         try {
             val query = ListCardsQuery.builder()
                 .limit(limit)
@@ -480,15 +487,34 @@ internal class DefaultSudoVirtualCardsClient(
                 .enqueueFirst()
 
             if (queryResponse.hasErrors()) {
-                logger.warning("errors = ${queryResponse.errors()}")
+                logger.error("errors = ${queryResponse.errors()}")
                 throw interpretVirtualCardError(queryResponse.errors().first())
             }
 
-            val result = queryResponse.data()?.listCards() ?: return ListOutput(emptyList(), null)
-            val virtualCards = VirtualCardTransformer.toEntityFromListCardsQueryResult(deviceKeyManager, result.items())
-            return ListOutput(virtualCards, result.nextToken())
+            val queryResult = queryResponse.data()?.listCards()
+            val sealedCards = queryResult?.items() ?: emptyList()
+            val newNextToken = queryResult?.nextToken()
+
+            val success: MutableList<VirtualCard> = mutableListOf()
+            val partials: MutableList<PartialResult<PartialVirtualCard>> = mutableListOf()
+            for (sealedCard in sealedCards) {
+                try {
+                    val unsealedCard = VirtualCardTransformer.toEntityFromListCardsQueryResult(deviceKeyManager, sealedCard)
+                    success.add(unsealedCard)
+                } catch (e: Exception) {
+                    val partialCard = VirtualCardTransformer.toPartialVirtualCardFromListCardsQueryResult(sealedCard)
+                    val partialResult = PartialResult(partialCard, e)
+                    partials.add(partialResult)
+                }
+            }
+            if (partials.isNotEmpty()) {
+                val listPartialResult = ListAPIResult.ListPartialResult(success, partials, newNextToken)
+                return ListAPIResult.Partial(listPartialResult)
+            }
+            val listSuccessResult = ListAPIResult.ListSuccessResult(success, newNextToken)
+            return ListAPIResult.Success(listSuccessResult)
         } catch (e: Throwable) {
-            logger.warning("unexpected error $e")
+            logger.error("unexpected error $e")
             when (e) {
                 is ApolloException -> throw SudoVirtualCardsClient.VirtualCardException.FailedException(cause = e)
                 else -> throw interpretVirtualCardException(e)
@@ -497,9 +523,9 @@ internal class DefaultSudoVirtualCardsClient(
     }
 
     @Throws(SudoVirtualCardsClient.VirtualCardException::class)
-    override suspend fun updateVirtualCard(input: UpdateVirtualCardInput): VirtualCard {
+    override suspend fun updateVirtualCard(input: UpdateVirtualCardInput): SingleAPIResult<VirtualCard, PartialVirtualCard> {
         try {
-            val keyPairResult = publicKeyService.getCurrentKeyPair(PublicKeyService.MissingKeyPolicy.GENERATE_IF_MISSING)
+            val keyPairResult = publicKeyService.getCurrentKeyPair()
                 ?: throw SudoVirtualCardsClient.VirtualCardException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
             val keyId = keyPairResult.keyId
 
@@ -509,8 +535,10 @@ internal class DefaultSudoVirtualCardsClient(
                 .expectedVersion(input.expectedCardVersion)
                 .cardHolder(input.cardHolder)
                 .alias(input.alias)
+                .metadata(input.metadata.toMetadataInput(deviceKeyManager))
                 .billingAddress(input.billingAddress.toAddressInput())
                 .build()
+
             val mutation = UpdateCardMutation.builder()
                 .input(mutationInput)
                 .build()
@@ -519,17 +547,24 @@ internal class DefaultSudoVirtualCardsClient(
                 .enqueue()
 
             if (mutationResponse.hasErrors()) {
-                logger.warning("errors = ${mutationResponse.errors()}")
+                logger.error("errors = ${mutationResponse.errors()}")
                 throw interpretVirtualCardError(mutationResponse.errors().first())
             }
 
             val updatedCard = mutationResponse.data()?.updateCard()
             updatedCard?.let {
-                return VirtualCardTransformer.toEntityFromUpdateCardMutationResult(deviceKeyManager, updatedCard)
+                try {
+                    val unsealedUpdatedCard = VirtualCardTransformer.toEntityFromUpdateCardMutationResult(deviceKeyManager, updatedCard)
+                    return SingleAPIResult.Success(unsealedUpdatedCard)
+                } catch (e: Exception) {
+                    val partialUpdatedCard = VirtualCardTransformer.toPartialEntityFromUpdateCardMutationResult(updatedCard)
+                    val partialResult = PartialResult(partialUpdatedCard, e)
+                    return SingleAPIResult.Partial(partialResult)
+                }
             }
             throw SudoVirtualCardsClient.VirtualCardException.FailedException(NO_RESULT_ERROR_MSG)
         } catch (e: Throwable) {
-            logger.warning("unexpected error $e")
+            logger.error("unexpected error $e")
             when (e) {
                 is ApolloException -> throw SudoVirtualCardsClient.VirtualCardException.UpdateFailedException(cause = e)
                 else -> throw interpretVirtualCardException(e)
@@ -537,9 +572,9 @@ internal class DefaultSudoVirtualCardsClient(
         }
     }
 
-    override suspend fun cancelVirtualCard(id: String): VirtualCard {
+    override suspend fun cancelVirtualCard(id: String): SingleAPIResult<VirtualCard, PartialVirtualCard> {
         try {
-            val keyPairResult = publicKeyService.getCurrentKeyPair(PublicKeyService.MissingKeyPolicy.GENERATE_IF_MISSING)
+            val keyPairResult = publicKeyService.getCurrentKeyPair()
                 ?: throw SudoVirtualCardsClient.VirtualCardException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
             val keyId = keyPairResult.keyId
 
@@ -555,17 +590,24 @@ internal class DefaultSudoVirtualCardsClient(
                 .enqueue()
 
             if (mutationResponse.hasErrors()) {
-                logger.warning("errors = ${mutationResponse.errors()}")
+                logger.error("errors = ${mutationResponse.errors()}")
                 throw interpretVirtualCardError(mutationResponse.errors().first())
             }
 
             val cancelledCard = mutationResponse.data()?.cancelCard()
             cancelledCard?.let {
-                return VirtualCardTransformer.toEntityFromCancelCardMutationResult(deviceKeyManager, cancelledCard)
+                try {
+                    val unsealedCancelledCard = VirtualCardTransformer.toEntityFromCancelCardMutationResult(deviceKeyManager, cancelledCard)
+                    return SingleAPIResult.Success(unsealedCancelledCard)
+                } catch (e: Exception) {
+                    val partialCancelledCard = VirtualCardTransformer.toPartialVirtualCardFromCancelCardMutationResult(cancelledCard)
+                    val partialResult = PartialResult(partialCancelledCard, e)
+                    return SingleAPIResult.Partial(partialResult)
+                }
             }
             throw SudoVirtualCardsClient.VirtualCardException.FailedException(NO_RESULT_ERROR_MSG)
         } catch (e: Throwable) {
-            logger.warning("unexpected error $e")
+            logger.error("unexpected error $e")
             when (e) {
                 is ApolloException -> throw SudoVirtualCardsClient.VirtualCardException.CancelFailedException(cause = e)
                 else -> throw interpretVirtualCardException(e)
@@ -576,7 +618,7 @@ internal class DefaultSudoVirtualCardsClient(
     @Throws(SudoVirtualCardsClient.TransactionException::class)
     override suspend fun getTransaction(id: String, cachePolicy: CachePolicy): Transaction? {
         try {
-            val keyPairResult = publicKeyService.getCurrentKeyPair(PublicKeyService.MissingKeyPolicy.GENERATE_IF_MISSING)
+            val keyPairResult = publicKeyService.getCurrentKeyPair()
                 ?: throw SudoVirtualCardsClient.TransactionException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
             val keyId = keyPairResult.keyId
 
@@ -590,14 +632,14 @@ internal class DefaultSudoVirtualCardsClient(
                 .enqueueFirst()
 
             if (queryResponse.hasErrors()) {
-                logger.warning("errors = ${queryResponse.errors()}")
+                logger.error("errors = ${queryResponse.errors()}")
                 throw interpretTransactionError(queryResponse.errors().first())
             }
 
             val result = queryResponse.data()?.transaction ?: return null
             return TransactionTransformer.toEntityFromGetTransactionQueryResult(deviceKeyManager, result)
         } catch (e: Throwable) {
-            logger.warning("unexpected error $e")
+            logger.error("unexpected error $e")
             when (e) {
                 is ApolloException -> throw SudoVirtualCardsClient.TransactionException.FailedException(cause = e)
                 else -> throw interpretTransactionException(e)
@@ -613,7 +655,7 @@ internal class DefaultSudoVirtualCardsClient(
         cachePolicy: CachePolicy,
         dateRange: DateRange?,
         sortOrder: SortOrder
-    ): ListOutput<Transaction> {
+    ): ListAPIResult<Transaction, PartialTransaction> {
         try {
             val query = ListTransactionsByCardIdQuery.builder()
                 .cardId(cardId)
@@ -628,16 +670,36 @@ internal class DefaultSudoVirtualCardsClient(
                 .enqueueFirst()
 
             if (queryResponse.hasErrors()) {
-                logger.warning("errors = ${queryResponse.errors()}")
+                logger.error("errors = ${queryResponse.errors()}")
                 throw interpretTransactionError(queryResponse.errors().first())
             }
 
-            val result = queryResponse.data()?.listTransactionsByCardId()
-                ?: return ListOutput(emptyList(), null)
-            val transactions = TransactionTransformer.toEntityFromListTransactionsByCardIdQueryResult(deviceKeyManager, result.items())
-            return ListOutput(transactions, result.nextToken())
+            val queryResult = queryResponse.data()?.listTransactionsByCardId()
+            val sealedTransactions = queryResult?.items() ?: emptyList()
+            val newNextToken = queryResult?.nextToken()
+
+            val success: MutableList<Transaction> = mutableListOf()
+            val partials: MutableList<PartialResult<PartialTransaction>> = mutableListOf()
+            for (sealedTransaction in sealedTransactions) {
+                try {
+                    val unsealerTransaction =
+                        TransactionTransformer.toEntityFromListTransactionsByCardIdQueryResult(deviceKeyManager, sealedTransaction)
+                    success.add(unsealerTransaction)
+                } catch (e: Exception) {
+                    val partialTransaction =
+                        TransactionTransformer.toPartialEntityFromListTransactionsByCardIdQueryResult(sealedTransaction)
+                    val partialResult = PartialResult(partialTransaction, e)
+                    partials.add(partialResult)
+                }
+            }
+            if (partials.isNotEmpty()) {
+                val listPartialResult = ListAPIResult.ListPartialResult(success, partials, newNextToken)
+                return ListAPIResult.Partial(listPartialResult)
+            }
+            val listSuccessResult = ListAPIResult.ListSuccessResult(success, newNextToken)
+            return ListAPIResult.Success(listSuccessResult)
         } catch (e: Throwable) {
-            logger.warning("unexpected error $e")
+            logger.error("unexpected error $e")
             when (e) {
                 is ApolloException -> throw SudoVirtualCardsClient.TransactionException.FailedException(cause = e)
                 else -> throw interpretTransactionException(e)
@@ -678,7 +740,7 @@ internal class DefaultSudoVirtualCardsClient(
             }
             return KeyResult(symmetricKeyCreated, symmetricKeyId)
         } catch (e: Throwable) {
-            logger.debug("unexpected error $e")
+            logger.error("unexpected error $e")
             throw e
         }
     }
@@ -707,7 +769,7 @@ internal class DefaultSudoVirtualCardsClient(
             }
             return KeyResult(created, keyPair.keyId)
         } catch (e: Throwable) {
-            logger.debug("unexpected error $e")
+            logger.error("unexpected error $e")
             throw e
         }
     }
@@ -715,7 +777,7 @@ internal class DefaultSudoVirtualCardsClient(
     // Ensure there is a current key in the key ring registered with the backend so the card can be sealed
     private suspend fun ensurePublicKeyIsRegistered() {
 
-        val keyPair = publicKeyService.getCurrentKeyPair(PublicKeyService.MissingKeyPolicy.GENERATE_IF_MISSING)
+        val keyPair = publicKeyService.getCurrentKeyPair()
             ?: throw SudoVirtualCardsClient.VirtualCardException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
 
         // Get the key ring for the current key pair from the backend and check that it contains the current key pair

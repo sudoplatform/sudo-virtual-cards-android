@@ -7,7 +7,6 @@
 package com.sudoplatform.sudovirtualcards
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.sudoplatform.sudoprofiles.Sudo
 import com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.matchers.numerics.shouldBeGreaterThanOrEqual
@@ -18,21 +17,26 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
-import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
+import org.junit.Assume.assumeTrue
 import org.junit.runner.RunWith
 import timber.log.Timber
 import java.util.logging.Logger
 import com.sudoplatform.sudokeymanager.KeyManagerFactory
 import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateAuthorizationInput
+import com.sudoplatform.sudovirtualcards.types.CardState
 import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
 import com.sudoplatform.sudovirtualcards.types.FundingSource
+import com.sudoplatform.sudovirtualcards.types.JsonValue
+import com.sudoplatform.sudovirtualcards.types.ListAPIResult
 import com.sudoplatform.sudovirtualcards.types.ProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
+import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
 import com.sudoplatform.sudovirtualcards.types.Transaction
-import com.sudoplatform.sudovirtualcards.types.VirtualCard
+import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceType
@@ -43,12 +47,12 @@ import io.kotlintest.matchers.collections.shouldHaveSize
 import org.awaitility.Duration.ONE_HUNDRED_MILLISECONDS
 import org.awaitility.Duration.TEN_SECONDS
 import org.awaitility.Duration.TWO_HUNDRED_MILLISECONDS
-import org.junit.Ignore
-import java.util.UUID
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.has
 import org.awaitility.kotlin.untilCallTo
 import org.awaitility.kotlin.withPollInterval
+import org.junit.Assert.fail
+import java.util.UUID
 
 /**
  * Test the operation of the [SudoVirtualCardsClient].
@@ -59,8 +63,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
     private val verbose = false
 
     private lateinit var vcClient: SudoVirtualCardsClient
-
-    private val sudosToDelete = mutableListOf<Sudo>()
 
     @Before
     fun init() {
@@ -84,13 +86,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
     @After
     fun fini() = runBlocking {
         if (userClient.isRegistered()) {
-            sudosToDelete.forEach {
-                try {
-                    sudoClient.deleteSudo(it)
-                } catch (e: Throwable) {
-                    Timber.e(e)
-                }
-            }
             deregister()
         }
         vcClient.reset()
@@ -443,19 +438,19 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val fundingSource = createFundingSource(vcClient, input)
         fundingSource shouldNotBe null
 
-        val sudo = createSudo(
-            Sudo("Mr", "Theodore", "Bear", "Shopping", null, null)
-        )
+        val sudo = createSudo(TestData.sudo)
         sudo.id shouldNotBe null
 
         val ownershipProof = getOwnershipProof(sudo)
         ownershipProof shouldNotBe null
 
+        vcClient.createKeysIfAbsent()
+
         val provisionCardInput = ProvisionVirtualCardInput(
             ownershipProofs = listOf(ownershipProof),
             fundingSourceId = fundingSource.id,
             cardHolder = "Unlimited Cards",
-            alias = "Ted Bear",
+            metadata = null,
             addressLine1 = "123 Nowhere St",
             city = "Menlo Park",
             state = "CA",
@@ -497,9 +492,9 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                     card.cardNumber.isBlank() shouldBe false
                     card.last4 shouldBe card.cardNumber.substring(card.cardNumber.length - 4)
                     card.cardHolder shouldBe "Unlimited Cards"
-                    card.alias shouldBe "Ted Bear"
+                    card.metadata shouldBe null
                     card.fundingSourceId shouldBe fundingSource.id
-                    card.state shouldBe VirtualCard.State.ISSUED
+                    card.state shouldBe CardState.ISSUED
                     card.billingAddress shouldNotBe null
                     card.billingAddress?.addressLine1 shouldBe "123 Nowhere St"
                     card.billingAddress?.city shouldBe "Menlo Park"
@@ -529,6 +524,319 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
     }
 
     @Test
+    fun provisionVirtualCardWithStringMetadata() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        val fundingSourceInput = CreditCardFundingSourceInput(
+            TestData.Visa.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            TestData.Visa.securityCode,
+            TestData.VerifiedUser.addressLine1,
+            TestData.VerifiedUser.addressLine2,
+            TestData.VerifiedUser.city,
+            TestData.VerifiedUser.state,
+            TestData.VerifiedUser.postalCode,
+            TestData.VerifiedUser.country
+        )
+        val fundingSource = createFundingSource(vcClient, fundingSourceInput)
+        fundingSource shouldNotBe null
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        vcClient.createKeysIfAbsent()
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            metadata = JsonValue.JsonString("Ted Bear"),
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
+
+        with(card) {
+            metadata shouldBe JsonValue.JsonString("Ted Bear")
+            metadata?.unwrap() shouldBe "Ted Bear"
+        }
+    }
+
+    @Test
+    fun provisionVirtualCardWithIntegerMetadata() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        val fundingSourceInput = CreditCardFundingSourceInput(
+            TestData.Visa.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            TestData.Visa.securityCode,
+            TestData.VerifiedUser.addressLine1,
+            TestData.VerifiedUser.addressLine2,
+            TestData.VerifiedUser.city,
+            TestData.VerifiedUser.state,
+            TestData.VerifiedUser.postalCode,
+            TestData.VerifiedUser.country
+        )
+        val fundingSource = createFundingSource(vcClient, fundingSourceInput)
+        fundingSource shouldNotBe null
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        vcClient.createKeysIfAbsent()
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            metadata = JsonValue.JsonInteger(42),
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
+
+        with(card) {
+            metadata shouldBe JsonValue.JsonInteger(42)
+            metadata?.unwrap() shouldBe 42
+        }
+    }
+
+    @Test
+    fun provisionVirtualCardWithDoubleMetadata() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        val fundingSourceInput = CreditCardFundingSourceInput(
+            TestData.Visa.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            TestData.Visa.securityCode,
+            TestData.VerifiedUser.addressLine1,
+            TestData.VerifiedUser.addressLine2,
+            TestData.VerifiedUser.city,
+            TestData.VerifiedUser.state,
+            TestData.VerifiedUser.postalCode,
+            TestData.VerifiedUser.country
+        )
+        val fundingSource = createFundingSource(vcClient, fundingSourceInput)
+        fundingSource shouldNotBe null
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        vcClient.createKeysIfAbsent()
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            metadata = JsonValue.JsonDouble(42.5),
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
+
+        with(card) {
+            metadata shouldBe JsonValue.JsonDouble(42.5)
+            metadata?.unwrap() shouldBe 42.5
+        }
+    }
+
+    @Test
+    fun provisionVirtualCardWithBooleanMetadata() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        val fundingSourceInput = CreditCardFundingSourceInput(
+            TestData.Visa.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            TestData.Visa.securityCode,
+            TestData.VerifiedUser.addressLine1,
+            TestData.VerifiedUser.addressLine2,
+            TestData.VerifiedUser.city,
+            TestData.VerifiedUser.state,
+            TestData.VerifiedUser.postalCode,
+            TestData.VerifiedUser.country
+        )
+        val fundingSource = createFundingSource(vcClient, fundingSourceInput)
+        fundingSource shouldNotBe null
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        vcClient.createKeysIfAbsent()
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            metadata = JsonValue.JsonBoolean(true),
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
+
+        with(card) {
+            metadata shouldBe JsonValue.JsonBoolean(true)
+            metadata?.unwrap() shouldBe true
+        }
+    }
+
+    @Test
+    fun provisionVirtualCardWithArrayMetadata() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        val fundingSourceInput = CreditCardFundingSourceInput(
+            TestData.Visa.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            TestData.Visa.securityCode,
+            TestData.VerifiedUser.addressLine1,
+            TestData.VerifiedUser.addressLine2,
+            TestData.VerifiedUser.city,
+            TestData.VerifiedUser.state,
+            TestData.VerifiedUser.postalCode,
+            TestData.VerifiedUser.country
+        )
+        val fundingSource = createFundingSource(vcClient, fundingSourceInput)
+        fundingSource shouldNotBe null
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        vcClient.createKeysIfAbsent()
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            metadata = JsonValue.JsonArray(listOf("foobar", false)),
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
+
+        with(card) {
+            metadata shouldBe JsonValue.JsonArray(listOf("foobar", false))
+            metadata?.unwrap() shouldBe listOf("foobar", false)
+        }
+    }
+
+    @Test
+    fun provisionVirtualCardWithMapMetadata() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        val fundingSourceInput = CreditCardFundingSourceInput(
+            TestData.Visa.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            TestData.Visa.securityCode,
+            TestData.VerifiedUser.addressLine1,
+            TestData.VerifiedUser.addressLine2,
+            TestData.VerifiedUser.city,
+            TestData.VerifiedUser.state,
+            TestData.VerifiedUser.postalCode,
+            TestData.VerifiedUser.country
+        )
+        val fundingSource = createFundingSource(vcClient, fundingSourceInput)
+        fundingSource shouldNotBe null
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        vcClient.createKeysIfAbsent()
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            metadata = JsonValue.JsonMap(
+                mapOf(
+                    "alias" to "Ted Bear",
+                    "something" to true,
+                )
+            ),
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
+
+        with(card) {
+            metadata shouldBe JsonValue.JsonMap(
+                mapOf(
+                    "alias" to "Ted Bear",
+                    "something" to true
+                )
+            )
+            metadata?.unwrap() shouldBe mapOf(
+                "alias" to "Ted Bear",
+                "something" to true
+            )
+        }
+    }
+
+    @Test
     fun getVirtualCardShouldReturnProvisionedCardResult() = runBlocking {
         registerSignInAndEntitle()
         verifyTestUserIdentity()
@@ -548,7 +856,28 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val fundingSource = createFundingSource(vcClient, input)
         fundingSource shouldNotBe null
 
-        val card = provisionVirtualCard(vcClient, fundingSource.id)
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
 
         val retrievedCard = vcClient.getVirtualCard(card.id) ?: throw AssertionError("should not be null")
@@ -603,35 +932,66 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val fundingSource = createFundingSource(vcClient, input)
         fundingSource shouldNotBe null
 
-        val card = provisionVirtualCard(vcClient, fundingSource.id)
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
 
         val listCards = vcClient.listVirtualCards()
-        listCards.items.isEmpty() shouldBe false
-        listCards.items.size shouldBe 1
-        listCards.nextToken shouldBe null
+        listCards shouldNotBe null
 
-        val cards = listCards.items
-        cards[0].id shouldBe card.id
-        cards[0].cardNumber shouldBe card.cardNumber
-        cards[0].last4 shouldBe card.last4
-        cards[0].cardHolder shouldBe card.cardHolder
-        cards[0].alias shouldBe card.alias
-        cards[0].fundingSourceId shouldBe card.fundingSourceId
-        cards[0].state shouldBe card.state
-        cards[0].billingAddress shouldBe card.billingAddress
-        cards[0].currency shouldBe card.currency
-        cards[0].owner shouldBe card.owner
-        cards[0].owners.first().id shouldBe card.owners.first().id
-        cards[0].owners.first().issuer shouldBe card.owners.first().issuer
-        cards[0].cancelledAt shouldBe card.cancelledAt
-        cards[0].activeTo.time shouldBeGreaterThan 0L
-        cards[0].createdAt.time shouldBeGreaterThan 0L
-        cards[0].updatedAt.time shouldBeGreaterThan 0L
-        cards[0].expiry.mm.toInt() shouldBeGreaterThan 0
-        cards[0].expiry.yyyy.toInt() shouldBeGreaterThan 0
-        cards[0].securityCode shouldBe card.securityCode
-        cards[0].version shouldBeGreaterThan 0
+        when (listCards) {
+            is ListAPIResult.Success -> {
+                listCards.result.items.isEmpty() shouldBe false
+                listCards.result.items.size shouldBe 1
+                listCards.result.nextToken shouldBe null
+
+                with(listCards.result.items[0]) {
+                    id shouldBe card.id
+                    cardNumber shouldBe card.cardNumber
+                    last4 shouldBe card.last4
+                    cardHolder shouldBe card.cardHolder
+                    alias shouldBe card.alias
+                    fundingSourceId shouldBe card.fundingSourceId
+                    state shouldBe card.state
+                    billingAddress shouldBe card.billingAddress
+                    currency shouldBe card.currency
+                    owner shouldBe card.owner
+                    owners.first().id shouldBe card.owners.first().id
+                    owners.first().issuer shouldBe card.owners.first().issuer
+                    cancelledAt shouldBe card.cancelledAt
+                    activeTo.time shouldBeGreaterThan 0L
+                    createdAt.time shouldBeGreaterThan 0L
+                    updatedAt.time shouldBeGreaterThan 0L
+                    expiry.mm.toInt() shouldBeGreaterThan 0
+                    expiry.yyyy.toInt() shouldBeGreaterThan 0
+                    securityCode shouldBe card.securityCode
+                    version shouldBeGreaterThan 0
+                }
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
+        }
     }
 
     @Test
@@ -654,10 +1014,32 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val fundingSource = createFundingSource(vcClient, input)
         fundingSource shouldNotBe null
 
-        val card1 = provisionVirtualCard(vcClient, fundingSource.id)
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+
+        val card1 = provisionVirtualCard(vcClient, provisionCardInput)
         card1 shouldNotBe null
         Thread.sleep(1)
-        val card2 = provisionVirtualCard(vcClient, fundingSource.id)
+        val card2 = provisionVirtualCard(vcClient, provisionCardInput)
         card2 shouldNotBe null
 
         card2.createdAt.time shouldBeGreaterThan card1.createdAt.time
@@ -666,32 +1048,41 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val expectedCards = arrayOf(card2, card1)
 
         val listCards = vcClient.listVirtualCards()
-        listCards.items.isEmpty() shouldBe false
-        listCards.items.size shouldBe 2
-        listCards.nextToken shouldBe null
+        listCards shouldNotBe null
 
-        val actualCards = listCards.items
-        for (i in expectedCards.indices) {
-            actualCards[i].id shouldBe expectedCards[i].id
-            actualCards[i].cardNumber shouldBe expectedCards[i].cardNumber
-            actualCards[i].last4 shouldBe expectedCards[i].last4
-            actualCards[i].cardHolder shouldBe expectedCards[i].cardHolder
-            actualCards[i].alias shouldBe expectedCards[i].alias
-            actualCards[i].fundingSourceId shouldBe expectedCards[i].fundingSourceId
-            actualCards[i].state shouldBe expectedCards[i].state
-            actualCards[i].billingAddress shouldBe expectedCards[i].billingAddress
-            actualCards[i].currency shouldBe expectedCards[i].currency
-            actualCards[i].owner shouldBe expectedCards[i].owner
-            actualCards[i].owners.first().id shouldBe expectedCards[i].owners.first().id
-            actualCards[i].owners.first().issuer shouldBe expectedCards[i].owners.first().issuer
-            actualCards[i].cancelledAt shouldBe expectedCards[i].cancelledAt
-            actualCards[i].activeTo.time shouldBeGreaterThan 0L
-            actualCards[i].createdAt.time shouldBeGreaterThan 0L
-            actualCards[i].updatedAt.time shouldBeGreaterThan 0L
-            actualCards[i].expiry.mm.toInt() shouldBeGreaterThan 0
-            actualCards[i].expiry.yyyy.toInt() shouldBeGreaterThan 0
-            actualCards[i].securityCode shouldBe expectedCards[i].securityCode
-            actualCards[i].version shouldBeGreaterThan 0
+        when (listCards) {
+            is ListAPIResult.Success -> {
+                listCards.result.items.isEmpty() shouldBe false
+                listCards.result.items.size shouldBe 2
+                listCards.result.nextToken shouldBe null
+
+                val actualCards = listCards.result.items
+                for (i in expectedCards.indices) {
+                    actualCards[i].id shouldBe expectedCards[i].id
+                    actualCards[i].cardNumber shouldBe expectedCards[i].cardNumber
+                    actualCards[i].last4 shouldBe expectedCards[i].last4
+                    actualCards[i].cardHolder shouldBe expectedCards[i].cardHolder
+                    actualCards[i].alias shouldBe expectedCards[i].alias
+                    actualCards[i].fundingSourceId shouldBe expectedCards[i].fundingSourceId
+                    actualCards[i].state shouldBe expectedCards[i].state
+                    actualCards[i].billingAddress shouldBe expectedCards[i].billingAddress
+                    actualCards[i].currency shouldBe expectedCards[i].currency
+                    actualCards[i].owner shouldBe expectedCards[i].owner
+                    actualCards[i].owners.first().id shouldBe expectedCards[i].owners.first().id
+                    actualCards[i].owners.first().issuer shouldBe expectedCards[i].owners.first().issuer
+                    actualCards[i].cancelledAt shouldBe expectedCards[i].cancelledAt
+                    actualCards[i].activeTo.time shouldBeGreaterThan 0L
+                    actualCards[i].createdAt.time shouldBeGreaterThan 0L
+                    actualCards[i].updatedAt.time shouldBeGreaterThan 0L
+                    actualCards[i].expiry.mm.toInt() shouldBeGreaterThan 0
+                    actualCards[i].expiry.yyyy.toInt() shouldBeGreaterThan 0
+                    actualCards[i].securityCode shouldBe expectedCards[i].securityCode
+                    actualCards[i].version shouldBeGreaterThan 0
+                }
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
         }
     }
 
@@ -715,14 +1106,36 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val fundingSource = createFundingSource(vcClient, input)
         fundingSource shouldNotBe null
 
-        val card = provisionVirtualCard(vcClient, fundingSource.id)
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            metadata = JsonValue.JsonString("Ted Bear"),
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
 
         val updateCardInput = UpdateVirtualCardInput(
             id = card.id,
             expectedCardVersion = card.version,
             cardHolder = "Not Unlimited Cards",
-            alias = "Bed Tear",
+            metadata = JsonValue.JsonString("Bed Tear"),
             addressLine1 = "321 Somewhere St",
             city = "Olnem Park",
             state = "NY",
@@ -730,11 +1143,17 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             country = "US"
         )
         val updatedCard = vcClient.updateVirtualCard(updateCardInput)
+        updatedCard shouldNotBe null
 
-        updatedCard.id shouldBe card.id
-        updatedCard.cardHolder shouldNotBe card.cardHolder
-        updatedCard.alias shouldNotBe card.alias
-        updatedCard.billingAddress shouldNotBe card.billingAddress
+        when (updatedCard) {
+            is SingleAPIResult.Success -> {
+                updatedCard.result.id shouldBe card.id
+                updatedCard.result.cardHolder shouldNotBe card.cardHolder
+                updatedCard.result.metadata shouldNotBe card.metadata
+                updatedCard.result.billingAddress shouldNotBe card.billingAddress
+            }
+            else -> { fail("Unexpected SingleAPIResult") }
+        }
     }
 
     @Test
@@ -757,7 +1176,28 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val fundingSource = createFundingSource(vcClient, input)
         fundingSource shouldNotBe null
 
-        val card = provisionVirtualCard(vcClient, fundingSource.id)
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
 
         val updateCardInput = UpdateVirtualCardInput(
@@ -765,6 +1205,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expectedCardVersion = card.version,
             cardHolder = "Unlimited Cards",
             alias = "Bed Tear",
+            null,
             addressLine1 = "123 Nowhere St",
             city = "Menlo Park",
             state = "CA",
@@ -772,11 +1213,17 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             country = "US"
         )
         val updatedCard = vcClient.updateVirtualCard(updateCardInput)
+        updatedCard shouldNotBe null
 
-        updatedCard.id shouldBe card.id
-        updatedCard.cardHolder shouldBe card.cardHolder
-        updatedCard.alias shouldNotBe card.alias
-        updatedCard.billingAddress shouldBe card.billingAddress
+        when (updatedCard) {
+            is SingleAPIResult.Success -> {
+                updatedCard.result.id shouldBe card.id
+                updatedCard.result.cardHolder shouldBe card.cardHolder
+                updatedCard.result.alias shouldNotBe card.alias
+                updatedCard.result.billingAddress shouldBe card.billingAddress
+            }
+            else -> { fail("Unexpected SingleAPIResult") }
+        }
     }
 
     @Test
@@ -800,10 +1247,30 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val fundingSource = createFundingSource(vcClient, input)
         fundingSource shouldNotBe null
 
-        val card = provisionVirtualCard(vcClient, fundingSource.id)
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
 
-        // given
         val updateCardInput = UpdateVirtualCardInput(
             id = card.id,
             expectedCardVersion = card.version,
@@ -811,22 +1278,26 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             alias = "",
             billingAddress = null
         )
-        // when
-        val updatedCard = vcClient.updateVirtualCard(updateCardInput)
 
-        // then
-        updatedCard.id shouldBe card.id
-        updatedCard.cardHolder shouldNotBe card.cardHolder
-        updatedCard.alias shouldNotBe card.alias
-        updatedCard.billingAddress shouldNotBe card.billingAddress
-        updatedCard.billingAddress shouldBe null
+        val updatedCard = vcClient.updateVirtualCard(updateCardInput)
+        updatedCard shouldNotBe null
+
+        when (updatedCard) {
+            is SingleAPIResult.Success -> {
+                updatedCard.result.id shouldBe card.id
+                updatedCard.result.cardHolder shouldNotBe card.cardHolder
+                updatedCard.result.alias shouldNotBe card.alias
+                updatedCard.result.billingAddress shouldNotBe card.billingAddress
+                updatedCard.result.billingAddress shouldBe null
+            }
+            else -> { fail("Unexpected SingleAPIResult") }
+        }
     }
 
     @Test
     fun updateVirtualCardShouldThrowWithNonExistentId() = runBlocking<Unit> {
         registerSignInAndEntitle()
 
-        // given
         val updateCardInput = UpdateVirtualCardInput(
             id = "NonExistentId",
             cardHolder = "",
@@ -834,7 +1305,8 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             billingAddress = null
         )
 
-        // when
+        vcClient.createKeysIfAbsent()
+
         shouldThrow<SudoVirtualCardsClient.VirtualCardException.CardNotFoundException> {
             vcClient.updateVirtualCard(updateCardInput)
         }
@@ -860,37 +1332,64 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val fundingSource = createFundingSource(vcClient, input)
         fundingSource shouldNotBe null
 
-        val card = provisionVirtualCard(vcClient, fundingSource.id)
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
 
-        // when
         val cancelledCard = vcClient.cancelVirtualCard(card.id)
+        cancelledCard shouldNotBe null
 
-        // then
-        cancelledCard.id shouldBe card.id
-        cancelledCard.cardNumber shouldBe card.cardNumber
-        cancelledCard.last4 shouldBe card.last4
-        cancelledCard.cardHolder shouldBe card.cardHolder
-        cancelledCard.alias shouldBe card.alias
-        cancelledCard.fundingSourceId shouldBe card.fundingSourceId
-        cancelledCard.state shouldBe VirtualCard.State.CLOSED
-        cancelledCard.billingAddress shouldBe card.billingAddress
-        cancelledCard.currency shouldBe card.currency
-        cancelledCard.owner shouldBe card.owner
-        cancelledCard.owners.first().id shouldBe card.owners.first().id
-        cancelledCard.owners.first().issuer shouldBe card.owners.first().issuer
-        cancelledCard.cancelledAt shouldNotBe card.cancelledAt
-        cancelledCard.activeTo.time shouldBeGreaterThan 0L
-        cancelledCard.createdAt.time shouldBeGreaterThan 0L
-        cancelledCard.updatedAt.time shouldBeGreaterThan 0L
-        cancelledCard.expiry.mm.toInt() shouldBeGreaterThan 0
-        cancelledCard.expiry.yyyy.toInt() shouldBeGreaterThan 0
-        cancelledCard.version shouldBeGreaterThan 0
+        when (cancelledCard) {
+            is SingleAPIResult.Success -> {
+                cancelledCard.result.id shouldBe card.id
+                cancelledCard.result.cardNumber shouldBe card.cardNumber
+                cancelledCard.result.last4 shouldBe card.last4
+                cancelledCard.result.cardHolder shouldBe card.cardHolder
+                cancelledCard.result.alias shouldBe card.alias
+                cancelledCard.result.fundingSourceId shouldBe card.fundingSourceId
+                cancelledCard.result.state shouldBe CardState.CLOSED
+                cancelledCard.result.billingAddress shouldBe card.billingAddress
+                cancelledCard.result.currency shouldBe card.currency
+                cancelledCard.result.owner shouldBe card.owner
+                cancelledCard.result.owners.first().id shouldBe card.owners.first().id
+                cancelledCard.result.owners.first().issuer shouldBe card.owners.first().issuer
+                cancelledCard.result.cancelledAt shouldNotBe card.cancelledAt
+                cancelledCard.result.activeTo.time shouldBeGreaterThan 0L
+                cancelledCard.result.createdAt.time shouldBeGreaterThan 0L
+                cancelledCard.result.updatedAt.time shouldBeGreaterThan 0L
+                cancelledCard.result.expiry.mm.toInt() shouldBeGreaterThan 0
+                cancelledCard.result.expiry.yyyy.toInt() shouldBeGreaterThan 0
+                cancelledCard.result.version shouldBeGreaterThan 0
+            }
+            else -> { fail("Unexpected SingleAPIResult") }
+        }
     }
 
     @Test
     fun cancelVirtualCardShouldThrowWithNonExistentId() = runBlocking<Unit> {
         registerSignInAndEntitle()
+
+        vcClient.createKeysIfAbsent()
 
         shouldThrow<SudoVirtualCardsClient.VirtualCardException.CardNotFoundException> {
             vcClient.cancelVirtualCard("NonExistentId")
@@ -931,6 +1430,8 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
     fun getTransactionsShouldReturnNullForBogusId() = runBlocking {
         registerSignInAndEntitle()
 
+        vcClient.createKeysIfAbsent()
+
         vcClient.getTransaction(UUID.randomUUID().toString()) shouldBe null
     }
 
@@ -954,7 +1455,28 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val fundingSource = createFundingSource(vcClient, input)
         fundingSource shouldNotBe null
 
-        val card = provisionVirtualCard(vcClient, fundingSource.id)
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
 
         val merchant = vcSimulatorClient.getSimulatorMerchants().first()
@@ -977,26 +1499,32 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             declineReason shouldBe null
         }
 
-        val transactions = mutableListOf<Transaction>()
-        withTimeout(40_000L) {
-            while (transactions.isEmpty()) {
-                delay(500L)
-                transactions.addAll(listTransactionsByCardId(vcClient, card.id))
+        val transactions = await.atMost(TEN_SECONDS.multiply(4)) withPollInterval TWO_HUNDRED_MILLISECONDS untilCallTo {
+            runBlocking {
+                vcClient.listTransactionsByCardId(card.id)
             }
-        }
+        } has { (this as ListAPIResult.Success<Transaction>).result.items.size == 1 }
 
-        transactions.size shouldBe 1
-        with(transactions[0]) {
-            id.isBlank() shouldBe false
-            owner shouldBe card.owner
-            version shouldBe 1
-            cardId shouldBe card.id
-            sequenceId.isBlank() shouldBe false
-            type shouldBe Transaction.TransactionType.PENDING
-            billedAmount shouldBe CurrencyAmount("USD", originalAmount)
-            transactedAmount shouldBe CurrencyAmount("USD", originalAmount)
-            description shouldBe merchant.name
-            declineReason shouldBe null
+        when (transactions) {
+            is ListAPIResult.Success -> {
+                transactions.result.items shouldHaveSize 1
+
+                with(transactions.result.items[0]) {
+                    id.isBlank() shouldBe false
+                    owner shouldBe card.owner
+                    version shouldBe 1
+                    cardId shouldBe card.id
+                    sequenceId.isBlank() shouldBe false
+                    type shouldBe TransactionTypeEntity.PENDING
+                    billedAmount shouldBe CurrencyAmount("USD", originalAmount)
+                    transactedAmount shouldBe CurrencyAmount("USD", originalAmount)
+                    description shouldBe merchant.name
+                    declineReason shouldBe null
+                }
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
         }
     }
 
@@ -1020,7 +1548,28 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val fundingSource = createFundingSource(vcClient, input)
         fundingSource shouldNotBe null
 
-        val card = provisionVirtualCard(vcClient, fundingSource.id)
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
 
         simulateTransactions(card)
@@ -1030,10 +1579,15 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             runBlocking {
                 vcClient.listTransactionsByCardId(card.id)
             }
-        } has { items.size == 2 }
+        } has { (this as ListAPIResult.Success<Transaction>).result.items.size == 2 }
 
-        with(transactions) {
-            items shouldHaveSize 2
+        when (transactions) {
+            is ListAPIResult.Success -> {
+                transactions.result.items shouldHaveSize 2
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
         }
     }
 
@@ -1057,7 +1611,28 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val fundingSource = createFundingSource(vcClient, input)
         fundingSource shouldNotBe null
 
-        val card = provisionVirtualCard(vcClient, fundingSource.id)
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
 
         simulateTransactions(card)
@@ -1069,11 +1644,16 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                     limit = 1
                 )
             }
-        } has { items.size == 1 }
+        } has { (this as ListAPIResult.Success<Transaction>).result.items.size == 1 }
 
-        with(transactionsWithLimit) {
-            items shouldHaveSize 1
-            nextToken shouldBe null
+        when (transactionsWithLimit) {
+            is ListAPIResult.Success -> {
+                transactionsWithLimit.result.items shouldHaveSize 1
+                transactionsWithLimit.result.nextToken shouldBe null
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
         }
     }
 
@@ -1097,28 +1677,64 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val fundingSource = createFundingSource(vcClient, input)
         fundingSource shouldNotBe null
 
-        val card = provisionVirtualCard(vcClient, fundingSource.id)
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
 
-        with(vcClient.listTransactionsByCardId(card.id)) {
-            items.isEmpty() shouldBe true
-            nextToken shouldBe null
+        when (val initialTransactions = vcClient.listTransactionsByCardId(card.id)) {
+            is ListAPIResult.Success -> {
+                initialTransactions.result.items.isEmpty() shouldBe true
+                initialTransactions.result.nextToken shouldBe null
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
         }
 
         var transactions = vcClient.listTransactionsByCardId(
             cardId = card.id
         )
-        with(transactions) {
-            items.isEmpty() shouldBe true
-            nextToken shouldBe null
+        when (transactions) {
+            is ListAPIResult.Success -> {
+                transactions.result.items.isEmpty() shouldBe true
+                transactions.result.nextToken shouldBe null
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
         }
 
         transactions = vcClient.listTransactionsByCardId(
             cardId = card.id
         )
-        with(transactions) {
-            items.isEmpty() shouldBe true
-            nextToken shouldBe null
+        when (transactions) {
+            is ListAPIResult.Success -> {
+                transactions.result.items.isEmpty() shouldBe true
+                transactions.result.nextToken shouldBe null
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
         }
     }
 
@@ -1191,10 +1807,31 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val fundingSource = createFundingSource(vcClient, input)
         fundingSource shouldNotBe null
 
-        val card = provisionVirtualCard(vcClient, fundingSource.id)
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
 
-        keyManager.exportKeys().size shouldBe 3
+        keyManager.exportKeys().size shouldBe 5
 
         vcClient.reset()
         keyManager.exportKeys().size shouldBe 0

@@ -220,6 +220,42 @@ internal class DefaultDeviceKeyManager(
     }
 
     /**
+     * Decrypt the [data] with the symmetric key [keyId].
+     *
+     * @param keyId [String] Key identifier belonging to the symmetric key used to decrypt the [data].
+     * @param data [ByteArray] Data to be decrypted.
+     * @return the decrypted data.
+     * @throws [DeviceKeyManager.DeviceKeyManagerException.DecryptionException] if the data cannot be decrypted.
+     */
+    @Throws(DeviceKeyManager.DeviceKeyManagerException::class)
+    override fun decryptWithSymmetricKeyId(keyId: String, data: ByteArray): ByteArray {
+        try {
+            return keyManager.decryptWithSymmetricKey(keyId, data)
+        } catch (e: KeyManagerException) {
+            logger.error("error $e")
+            throw DeviceKeyManager.DeviceKeyManagerException.DecryptionException("Failed to decrypt", e)
+        }
+    }
+
+    /**
+     * Encrypt the [data] with the symmetric key [keyId].
+     *
+     * @param keyId [String] Key identifier belonging to the symmetric key used to encrypt the [data].
+     * @param data [ByteArray] Data to be encrypted.
+     * @return the encrypted data.
+     * @throws [DeviceKeyManager.DeviceKeyManagerException.EncryptionException] if the data cannot be encrypted.
+     */
+    @Throws(DeviceKeyManager.DeviceKeyManagerException::class)
+    override fun encryptWithSymmetricKeyId(keyId: String, data: ByteArray): ByteArray {
+        try {
+            return keyManager.encryptWithSymmetricKey(keyId, data)
+        } catch (e: KeyManagerException) {
+            logger.error("error $e")
+            throw DeviceKeyManager.DeviceKeyManagerException.EncryptionException("Failed to encrypt", e)
+        }
+    }
+
+    /**
      * Remove all the keys from the [DefaultDeviceKeyManager]
      */
     @Throws(DeviceKeyManager.DeviceKeyManagerException::class)

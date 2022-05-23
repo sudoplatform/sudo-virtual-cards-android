@@ -25,9 +25,13 @@ import com.sudoplatform.sudovirtualcards.types.CreateKeysIfAbsentResult
 import com.sudoplatform.sudovirtualcards.types.DateRange
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceClientConfiguration
+import com.sudoplatform.sudovirtualcards.types.ListAPIResult
 import com.sudoplatform.sudovirtualcards.types.ListOutput
+import com.sudoplatform.sudovirtualcards.types.PartialTransaction
+import com.sudoplatform.sudovirtualcards.types.PartialVirtualCard
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
+import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
 import com.sudoplatform.sudovirtualcards.types.SortOrder
 import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.VirtualCard
@@ -393,13 +397,20 @@ interface SudoVirtualCardsClient : AutoCloseable {
     suspend fun getVirtualCard(id: String, cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY): VirtualCard?
 
     /**
-     * Get a [ListOutput] of [VirtualCard]s.
+     * Get a list of [VirtualCard]s.
      *
-     * If no [VirtualCard]s can be found, the [ListOutput] will contain null for the [ListOutput.nextToken]
-     * field and contain an empty [ListOutput.items] list.
+     * This API returns a [ListAPIResult]:
+     * - On [ListAPIResult.Success] result, contains the list of requested [VirtualCard]s.
+     * - On [ListAPIResult.Partial] result, contains the list of [PartialVirtualCard]s representing
+     *    virtual cards that could not be unsealed successfully and the exception indicating why
+     *    the unsealing failed. A virtual card may fail to unseal if the client version is not up to
+     *    date or the required cryptographic key is missing from the client device.
+     *
+     * If no [VirtualCard]s can be found, the result will contain null for the [nextToken] field and
+     * contain an empty item list.
      *
      * To ensure you obtain all the virtual cards that match, you should continue to call this method
-     * whenever the [ListOutput.nextToken] field is not null, even if the [ListOutput.items] is empty.
+     * whenever the [nextToken] field is not null, even if the items list is empty.
      *
      * @param limit [Int] Number of [VirtualCard]s to return. If omitted the limit defaults to 10.
      * @param nextToken [String] A token generated from previous calls to [listVirtualCards].
@@ -408,7 +419,8 @@ interface SudoVirtualCardsClient : AutoCloseable {
      *  arguments should be passed to this method if using a previously generated [nextToken].
      * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
      *  be aware that this will only return cached results of identical API calls.
-     * @return A list of [VirtualCard]s or an empty list if no virtual cards can be found.
+     * @return A [ListAPIResult.Success] or a [ListAPIResult.Partial] result containing either a list of
+     *  [VirtualCard]s or [PartialVirtualCard]s respectively. Returns an empty list if no virtual cards can be found.
      *
      * @throws [VirtualCardException].
      */
@@ -417,7 +429,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
         limit: Int = DEFAULT_CARD_LIMIT,
         nextToken: String? = null,
         cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY
-    ): ListOutput<VirtualCard>
+    ): ListAPIResult<VirtualCard, PartialVirtualCard>
 
     /**
      * Update the details of a [VirtualCard].
@@ -425,24 +437,40 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * Be aware that when updating a virtual card, all fields that should remain unchanged must be
      * populated as part of the input.
      *
+     * This API returns a [SingleAPIResult]:
+     * - On [SingleAPIResult.Success] result, contains the updated [VirtualCard].
+     * - On [SingleAPIResult.Partial] result, contains the updated [PartialVirtualCard] representing
+     *    a virtual card that could not be unsealed successfully and the exception indicating why
+     *    the unsealing failed. A virtual card may fail to unseal if the client version is not up to
+     *    date or the required cryptographic key is missing from the client device.
+     *
      * @param input [UpdateVirtualCardInput] Parameters used to update a virtual card.
-     * @return The [VirtualCard] that was updated.
+     * @return A [SingleAPIResult.Success] or a [SingleAPIResult.Partial] result containing either a
+     *  [VirtualCard] or [PartialVirtualCard] respectively.
      *
      * @throws [VirtualCardException].
      */
     @Throws(VirtualCardException::class)
-    suspend fun updateVirtualCard(input: UpdateVirtualCardInput): VirtualCard
+    suspend fun updateVirtualCard(input: UpdateVirtualCardInput): SingleAPIResult<VirtualCard, PartialVirtualCard>
 
     /**
      * Cancel a [VirtualCard] using the [id] parameter.
      *
+     * This API returns a [SingleAPIResult]:
+     * - On [SingleAPIResult.Success] result, contains the cancelled [VirtualCard].
+     * - On [SingleAPIResult.Partial] result, contains the cancelled [PartialVirtualCard] representing
+     *    a virtual card that could not be unsealed successfully and the exception indicating why
+     *    the unsealing failed. A virtual card may fail to unseal if the client version is not up to
+     *    date or the required cryptographic key is missing from the client device.
+     *
      * @param id [String] Identifier of the [VirtualCard] to cancel.
-     * @return The [VirtualCard] that has been cancelled and is in a closed state.
+     * @return A [SingleAPIResult.Success] or a [SingleAPIResult.Partial] result containing either a
+     *  [VirtualCard] or [PartialVirtualCard] respectively that has been cancelled and is in a closed state.
      *
      * @throws [VirtualCardException].
      */
     @Throws(VirtualCardException::class)
-    suspend fun cancelVirtualCard(id: String): VirtualCard
+    suspend fun cancelVirtualCard(id: String): SingleAPIResult<VirtualCard, PartialVirtualCard>
 
     /**
      * Get a [Transaction] using the [id] parameter.
@@ -458,25 +486,33 @@ interface SudoVirtualCardsClient : AutoCloseable {
     suspend fun getTransaction(id: String, cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY): Transaction?
 
     /**
-     * Get a [ListOutput] of all [Transaction]s related to a virtual card.
+     * Get a list of all [Transaction]s related to a virtual card.
      *
-     * If no [Transaction]s can be found, the [ListOutput] will contain null for the [ListOutput.nextToken]
-     * field and contain an empty [ListOutput.items] list.
+     * This API returns a [ListAPIResult]:
+     * - On [ListAPIResult.Success] result, contains the list of requested [Transaction]s.
+     * - On [ListAPIResult.Partial] result, contains the list of [PartialTransaction]s representing
+     *    transactions that could not be unsealed successfully and the exception indicating why
+     *    the unsealing failed. A transaction may fail to unseal if the client version is not up to
+     *    date or the required cryptographic key is missing from the client device.
+     *
+     * If no [Transaction]s can be found, the result will contain null for the [nextToken] field and
+     * contain an empty item list.
      *
      * To ensure you obtain all the transactions that match, you should continue to call this method
-     * whenever the [ListOutput.nextToken] field is not null, even if the [ListOutput.items] is empty.
+     * whenever the [nextToken] field is not null, even if the items list is empty.
      *
      * @param cardId [String] Identifier of the virtual card to list for related transactions.
      * @param limit [Int] Number of [Transaction]s to return. If omitted the limit defaults to 100.
-     * @param nextToken [String] A token generated from previous calls to [listTransactions].
+     * @param nextToken [String] A token generated from previous calls to [listTransactionsByCardId].
      *  This is to allow for pagination. This value should be generated from a
      *  previous pagination call, otherwise it will throw an exception. You should call
-     *  this method with the same argument if you using a previously generated [ListOutput.nextToken].
+     *  this method with the same argument if you using a previously generated [nextToken].
      * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
      *  be aware that this will only return cached results of identical API calls.
      * @param dateRange [DateRange] The date range of transactions to return.
      * @param sortOrder [SortOrder] The order in which the transactions are returned. Defaults to descending.
-     * @return A list of [Transaction]s or an empty list if no transactions can be found.
+     * @return A [ListAPIResult.Success] or a [ListAPIResult.Partial] result containing either a list of
+     *  [Transaction]s or [PartialTransaction]s respectively. Returns an empty list if no transactions can be found.
      *
      * @throws [TransactionException].
      */
@@ -488,7 +524,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
         cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,
         dateRange: DateRange? = null,
         sortOrder: SortOrder = SortOrder.DESC
-    ): ListOutput<Transaction>
+    ): ListAPIResult<Transaction, PartialTransaction>
 
     /**
      * Subscribes to be notified of new, updated and deleted [Transaction]s.

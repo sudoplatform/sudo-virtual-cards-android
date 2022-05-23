@@ -7,6 +7,7 @@
 package com.sudoplatform.sudovirtualcards.types.inputs
 
 import com.sudoplatform.sudovirtualcards.types.BillingAddress
+import com.sudoplatform.sudovirtualcards.types.JsonValue
 import java.util.UUID
 
 /**
@@ -17,7 +18,9 @@ import java.util.UUID
  *  proof must contain an audience of "sudoplatform.virtual-cards.virtual-card".
  * @property fundingSourceId [String] Identifier of the associated funding source used to fund the provisioned virtual card.
  * @property cardHolder [String] The name to appear on the virtual card.
- * @property alias [String] User defined name associated with the virtual card.
+ * @property alias [String] *deprecated* User defined name associated with the virtual card.
+ * @property metadata [JsonValue] Custom metadata to associate with the virtual card. Can be used for values such as
+ *  card aliases, card colors, image references etc. There is a limit of 3k characters when data is serialized.
  * @property billingAddress [BillingAddress] associated with the virtual card. If not supplied, the default billing address will be used.
  * @property currency [String] The ISO 4217 currency code.
  */
@@ -26,7 +29,9 @@ data class ProvisionVirtualCardInput(
     val ownershipProofs: List<String>,
     val fundingSourceId: String,
     val cardHolder: String,
-    val alias: String,
+    @Deprecated("Store alias as a property of metadata instead")
+    val alias: String? = null,
+    val metadata: JsonValue<Any>? = null,
     val billingAddress: BillingAddress? = null,
     val currency: String
 ) {
@@ -35,7 +40,8 @@ data class ProvisionVirtualCardInput(
         ownershipProofs: List<String>,
         fundingSourceId: String,
         cardHolder: String,
-        alias: String,
+        alias: String? = null,
+        metadata: JsonValue<Any>? = null,
         addressLine1: String,
         addressLine2: String? = null,
         city: String,
@@ -49,6 +55,7 @@ data class ProvisionVirtualCardInput(
         fundingSourceId = fundingSourceId,
         cardHolder = cardHolder,
         alias = alias,
+        metadata = metadata,
         billingAddress = BillingAddress(addressLine1, addressLine2, city, state, postalCode, country),
         currency = currency
     )

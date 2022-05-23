@@ -6,6 +6,8 @@
 
 package com.sudoplatform.sudovirtualcards
 
+import com.sudoplatform.sudoprofiles.Sudo
+
 /**
  * Data used in tests.
  */
@@ -28,6 +30,20 @@ object TestData {
     object IdentityVerification {
         const val virtualCardsAudience = "sudoplatform.virtual-cards.virtual-card"
     }
+
+    /** Test information used to provision a virtual card */
+    object ProvisionCardInput {
+        const val cardHolder = "Unlimited Cards"
+        const val addressLine1 = "123 Nowhere St"
+        const val city = "Menlo Park"
+        const val state = "CA"
+        const val postalCode = "94025"
+        const val country = "US"
+        const val currency = "USD"
+    }
+
+    /** Test sudo to use for integration tests */
+    val sudo = Sudo("Mr", "Theodore", "Bear", "Shopping", null, null)
 
     /** Funding source test data.
      *

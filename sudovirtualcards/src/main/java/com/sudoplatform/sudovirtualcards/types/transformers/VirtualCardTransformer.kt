@@ -6,6 +6,8 @@
 
 package com.sudoplatform.sudovirtualcards.types.transformers
 
+import com.amazonaws.util.Base64
+import com.google.gson.Gson
 import com.sudoplatform.sudovirtualcards.graphql.CancelCardMutation
 import com.sudoplatform.sudovirtualcards.graphql.CardProvisionMutation
 import com.sudoplatform.sudovirtualcards.graphql.GetCardQuery
@@ -15,15 +17,20 @@ import com.sudoplatform.sudovirtualcards.graphql.UpdateCardMutation
 import com.sudoplatform.sudovirtualcards.graphql.type.AddressInput
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisioningState
+import com.sudoplatform.sudovirtualcards.graphql.type.SealedAttributeInput
+import com.sudoplatform.sudovirtualcards.graphql.type.TransactionType
 import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
 import com.sudoplatform.sudovirtualcards.types.BillingAddress
+import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 import com.sudoplatform.sudovirtualcards.types.DeclineReason
-import com.sudoplatform.sudovirtualcards.types.Transaction.TransactionType
-import com.sudoplatform.sudovirtualcards.graphql.type.TransactionType as TransactionTypeEntity
-import com.sudoplatform.sudovirtualcards.types.VirtualCard
+import com.sudoplatform.sudovirtualcards.types.JsonValue
 import com.sudoplatform.sudovirtualcards.types.Owner
+import com.sudoplatform.sudovirtualcards.types.PartialVirtualCard
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
+import com.sudoplatform.sudovirtualcards.types.SymmetricKeyEncryptionAlgorithm
+import com.sudoplatform.sudovirtualcards.types.VirtualCard
 import com.sudoplatform.sudovirtualcards.types.Transaction
+import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
 
 /**
  * Transformer responsible for transforming the [VirtualCard] and [ProvisionalVirtualCard] GraphQL data
@@ -45,6 +52,28 @@ internal object VirtualCardTransformer {
             .state(state)
             .postalCode(postalCode)
             .country(country)
+            .build()
+    }
+
+    /**
+     * Transform the input type [JsonValue] into the corresponding GraphQL type [SealedAttributeInput]
+     */
+    fun JsonValue<Any>?.toMetadataInput(deviceKeyManager: DeviceKeyManager): SealedAttributeInput? {
+        if (this == null) {
+            return null
+        }
+        var symmetricKeyId = deviceKeyManager.getCurrentSymmetricKeyId()
+        if (symmetricKeyId == null) {
+            symmetricKeyId = deviceKeyManager.generateNewCurrentSymmetricKey()
+        }
+        val serializedMetadata = Gson().toJson(this.unwrap()).toByteArray(Charsets.UTF_8)
+        val encryptedMetadata = deviceKeyManager.encryptWithSymmetricKeyId(symmetricKeyId, serializedMetadata)
+        val base64EncodedEncryptedMetadata = String(Base64.encode(encryptedMetadata), Charsets.UTF_8)
+        return SealedAttributeInput.builder()
+            .algorithm(SymmetricKeyEncryptionAlgorithm.AES_CBC_PKCS7PADDING.toString())
+            .base64EncodedSealedData(base64EncodedEncryptedMetadata)
+            .keyId(symmetricKeyId)
+            .plainTextType("json-string")
             .build()
     }
 
@@ -79,7 +108,8 @@ internal object VirtualCardTransformer {
      * @return The [VirtualCard] entity type.
      */
     fun toEntityFromGetProvisionalCardQueryResult(deviceKeyManager: DeviceKeyManager, result: GetProvisionalCardQuery.Card): VirtualCard {
-        val unsealer = Unsealer(deviceKeyManager, result.keyId(), result.algorithm())
+        val keyInfo = KeyInfo(result.keyId(), KeyType.PRIVATE_KEY, result.algorithm())
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
         return VirtualCard(
             id = result.id(),
             owners = result.owners().toProvOwners(),
@@ -89,6 +119,11 @@ internal object VirtualCardTransformer {
             state = result.state().toState(),
             cardHolder = unsealer.unseal(result.cardHolder()),
             alias = result.alias()?.let { unsealer.unseal(it) },
+            metadata = result.metadata()?.let {
+                val symmetricKeyInfo = KeyInfo(it.keyId(), KeyType.SYMMETRIC_KEY, it.algorithm())
+                val metadataUnsealer = Unsealer(deviceKeyManager, symmetricKeyInfo)
+                metadataUnsealer.unseal(it)
+            },
             last4 = result.last4(),
             cardNumber = unsealer.unseal(result.pan()),
             securityCode = unsealer.unseal(result.csc()),
@@ -133,7 +168,8 @@ internal object VirtualCardTransformer {
      * @return The [VirtualCard] entity type.
      */
     fun toEntityFromGetCardQueryResult(deviceKeyManager: DeviceKeyManager, result: GetCardQuery.GetCard): VirtualCard {
-        val unsealer = Unsealer(deviceKeyManager, result.keyId(), result.algorithm())
+        val keyInfo = KeyInfo(result.keyId(), KeyType.PRIVATE_KEY, result.algorithm())
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
         return VirtualCard(
             id = result.id(),
             owners = result.owners().toGetCardOwners(),
@@ -143,6 +179,11 @@ internal object VirtualCardTransformer {
             state = result.state().toState(),
             cardHolder = unsealer.unseal(result.cardHolder()),
             alias = result.alias()?.let { unsealer.unseal(it) },
+            metadata = result.metadata()?.let {
+                val symmetricKeyInfo = KeyInfo(it.keyId(), KeyType.SYMMETRIC_KEY, it.algorithm())
+                val metadataUnsealer = Unsealer(deviceKeyManager, symmetricKeyInfo)
+                metadataUnsealer.unseal(it)
+            },
             last4 = result.last4(),
             cardNumber = unsealer.unseal(result.pan()),
             securityCode = unsealer.unseal(result.csc()),
@@ -158,57 +199,29 @@ internal object VirtualCardTransformer {
     }
 
     /**
-     * Transform the results of the [ListCardsQuery].
+     * Transform the results of the [ListCardsQuery.Item].
      *
      * @param deviceKeyManager [DeviceKeyManager] Used to retrieve keys to unseal data.
-     * @param result [List<ListCardsQuery.Item>] The GraphQL query results.
-     * @return The list of [VirtualCard]s entity type.
-     */
-    fun toEntityFromListCardsQueryResult(deviceKeyManager: DeviceKeyManager, result: List<ListCardsQuery.Item>): List<VirtualCard> {
-        return result.map { card ->
-            val unsealer = Unsealer(deviceKeyManager, card.keyId(), card.algorithm())
-            VirtualCard(
-                id = card.id(),
-                owners = card.owners().toListCardsOwners(),
-                owner = card.owner(),
-                version = card.version(),
-                fundingSourceId = card.fundingSourceId(),
-                state = card.state().toState(),
-                cardHolder = unsealer.unseal(card.cardHolder()),
-                alias = card.alias()?.let { unsealer.unseal(it) },
-                last4 = card.last4(),
-                cardNumber = unsealer.unseal(card.pan()),
-                securityCode = unsealer.unseal(card.csc()),
-                billingAddress = unsealer.unseal(card.billingAddress()),
-                expiry = unsealer.unseal(card.expiry()),
-                currency = card.currency(),
-                activeTo = card.activeToEpochMs().toDate(),
-                cancelledAt = card.cancelledAtEpochMs()?.toDate(),
-                createdAt = card.createdAtEpochMs().toDate(),
-                updatedAt = card.updatedAtEpochMs().toDate(),
-                lastTransaction = card.lastTransaction()?.toTransaction(deviceKeyManager)
-            )
-        }.toList()
-    }
-
-    /**
-     * Transform the results of the [UpdateCardMutation].
-     *
-     * @param deviceKeyManager [DeviceKeyManager] Used to retrieve keys to unseal data.
-     * @param result [UpdateCardMutation.UpdateCard] The GraphQL mutation results.
+     * @param result [ListCardsQuery.Item] The GraphQL query result.
      * @return The [VirtualCard] entity type.
      */
-    fun toEntityFromUpdateCardMutationResult(deviceKeyManager: DeviceKeyManager, result: UpdateCardMutation.UpdateCard): VirtualCard {
-        val unsealer = Unsealer(deviceKeyManager, result.keyId(), result.algorithm())
+    fun toEntityFromListCardsQueryResult(deviceKeyManager: DeviceKeyManager, result: ListCardsQuery.Item): VirtualCard {
+        val keyInfo = KeyInfo(result.keyId(), KeyType.PRIVATE_KEY, result.algorithm())
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
         return VirtualCard(
             id = result.id(),
-            owners = result.owners().toUpdateCardOwners(),
+            owners = result.owners().toListCardsOwners(),
             owner = result.owner(),
             version = result.version(),
             fundingSourceId = result.fundingSourceId(),
             state = result.state().toState(),
             cardHolder = unsealer.unseal(result.cardHolder()),
             alias = result.alias()?.let { unsealer.unseal(it) },
+            metadata = result.metadata()?.let {
+                val symmetricKeyInfo = KeyInfo(it.keyId(), KeyType.SYMMETRIC_KEY, it.algorithm())
+                val metadataUnsealer = Unsealer(deviceKeyManager, symmetricKeyInfo)
+                metadataUnsealer.unseal(it)
+            },
             last4 = result.last4(),
             cardNumber = unsealer.unseal(result.pan()),
             securityCode = unsealer.unseal(result.csc()),
@@ -220,6 +233,90 @@ internal object VirtualCardTransformer {
             createdAt = result.createdAtEpochMs().toDate(),
             updatedAt = result.updatedAtEpochMs().toDate(),
             lastTransaction = result.lastTransaction()?.toTransaction(deviceKeyManager)
+        )
+    }
+
+    /**
+     * Transform the results of the [ListCardsQuery.Item] into a [PartialVirtualCard].
+     *
+     * @param result [ListCardsQuery.Item] The GraphQL query result.
+     * @return The [PartialVirtualCard] entity type.
+     */
+    fun toPartialVirtualCardFromListCardsQueryResult(result: ListCardsQuery.Item): PartialVirtualCard {
+        return PartialVirtualCard(
+            id = result.id(),
+            owners = result.owners().toListCardsOwners(),
+            owner = result.owner(),
+            version = result.version(),
+            fundingSourceId = result.fundingSourceId(),
+            state = result.state().toState(),
+            last4 = result.last4(),
+            currency = result.currency(),
+            activeTo = result.activeToEpochMs().toDate(),
+            cancelledAt = result.cancelledAtEpochMs()?.toDate(),
+            createdAt = result.createdAtEpochMs().toDate(),
+            updatedAt = result.updatedAtEpochMs().toDate()
+        )
+    }
+
+    /**
+     * Transform the results of the [UpdateCardMutation].
+     *
+     * @param deviceKeyManager [DeviceKeyManager] Used to retrieve keys to unseal data.
+     * @param result [UpdateCardMutation.UpdateCard] The GraphQL mutation results.
+     * @return The [VirtualCard] entity type.
+     */
+    fun toEntityFromUpdateCardMutationResult(deviceKeyManager: DeviceKeyManager, result: UpdateCardMutation.UpdateCard): VirtualCard {
+        val keyInfo = KeyInfo(result.keyId(), KeyType.PRIVATE_KEY, result.algorithm())
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
+        return VirtualCard(
+            id = result.id(),
+            owners = result.owners().toUpdateCardOwners(),
+            owner = result.owner(),
+            version = result.version(),
+            fundingSourceId = result.fundingSourceId(),
+            state = result.state().toState(),
+            cardHolder = unsealer.unseal(result.cardHolder()),
+            alias = result.alias()?.let { unsealer.unseal(it) },
+            metadata = result.metadata()?.let {
+                val symmetricKeyInfo = KeyInfo(it.keyId(), KeyType.SYMMETRIC_KEY, it.algorithm())
+                val metadataUnsealer = Unsealer(deviceKeyManager, symmetricKeyInfo)
+                metadataUnsealer.unseal(it)
+            },
+            last4 = result.last4(),
+            cardNumber = unsealer.unseal(result.pan()),
+            securityCode = unsealer.unseal(result.csc()),
+            billingAddress = unsealer.unseal(result.billingAddress()),
+            expiry = unsealer.unseal(result.expiry()),
+            currency = result.currency(),
+            activeTo = result.activeToEpochMs().toDate(),
+            cancelledAt = result.cancelledAtEpochMs()?.toDate(),
+            createdAt = result.createdAtEpochMs().toDate(),
+            updatedAt = result.updatedAtEpochMs().toDate(),
+            lastTransaction = result.lastTransaction()?.toTransaction(deviceKeyManager)
+        )
+    }
+
+    /**
+     * Transform the results of the [UpdateCardMutation.UpdateCard] into a [PartialVirtualCard].
+     *
+     * @param result [UpdateCardMutation.UpdateCard] The GraphQL query result.
+     * @return The [PartialVirtualCard] entity type.
+     */
+    fun toPartialEntityFromUpdateCardMutationResult(result: UpdateCardMutation.UpdateCard): PartialVirtualCard {
+        return PartialVirtualCard(
+            id = result.id(),
+            owners = result.owners().toUpdateCardOwners(),
+            owner = result.owner(),
+            version = result.version(),
+            fundingSourceId = result.fundingSourceId(),
+            state = result.state().toState(),
+            last4 = result.last4(),
+            currency = result.currency(),
+            activeTo = result.activeToEpochMs().toDate(),
+            cancelledAt = result.cancelledAtEpochMs()?.toDate(),
+            createdAt = result.createdAtEpochMs().toDate(),
+            updatedAt = result.updatedAtEpochMs().toDate()
         )
     }
 
@@ -231,7 +328,8 @@ internal object VirtualCardTransformer {
      * @return The [VirtualCard] entity type.
      */
     fun toEntityFromCancelCardMutationResult(deviceKeyManager: DeviceKeyManager, result: CancelCardMutation.CancelCard): VirtualCard {
-        val unsealer = Unsealer(deviceKeyManager, result.keyId(), result.algorithm())
+        val keyInfo = KeyInfo(result.keyId(), KeyType.PRIVATE_KEY, result.algorithm())
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
         return VirtualCard(
             id = result.id(),
             owners = result.owners().toCancelCardOwners(),
@@ -241,6 +339,11 @@ internal object VirtualCardTransformer {
             state = result.state().toState(),
             cardHolder = unsealer.unseal(result.cardHolder()),
             alias = result.alias()?.let { unsealer.unseal(it) },
+            metadata = result.metadata()?.let {
+                val symmetricKeyInfo = KeyInfo(it.keyId(), KeyType.SYMMETRIC_KEY, it.algorithm())
+                val metadataUnsealer = Unsealer(deviceKeyManager, symmetricKeyInfo)
+                metadataUnsealer.unseal(it)
+            },
             last4 = result.last4(),
             cardNumber = unsealer.unseal(result.pan()),
             securityCode = unsealer.unseal(result.csc()),
@@ -255,12 +358,35 @@ internal object VirtualCardTransformer {
         )
     }
 
-    private fun CardState.toState(): VirtualCard.State {
+    /**
+     * Transform the results of the [CancelCardMutation.CancelCard] into a [PartialVirtualCard].
+     *
+     * @param result [CancelCardMutation.CancelCard] The GraphQL query result.
+     * @return The [PartialVirtualCard] entity type.
+     */
+    fun toPartialVirtualCardFromCancelCardMutationResult(result: CancelCardMutation.CancelCard): PartialVirtualCard {
+        return PartialVirtualCard(
+            id = result.id(),
+            owners = result.owners().toCancelCardOwners(),
+            owner = result.owner(),
+            version = result.version(),
+            fundingSourceId = result.fundingSourceId(),
+            state = result.state().toState(),
+            last4 = result.last4(),
+            currency = result.currency(),
+            activeTo = result.activeToEpochMs().toDate(),
+            cancelledAt = result.cancelledAtEpochMs()?.toDate(),
+            createdAt = result.createdAtEpochMs().toDate(),
+            updatedAt = result.updatedAtEpochMs().toDate()
+        )
+    }
+
+    private fun CardState.toState(): CardStateEntity {
         return when (this) {
-            CardState.ISSUED -> VirtualCard.State.ISSUED
-            CardState.SUSPENDED -> VirtualCard.State.SUSPENDED
-            CardState.CLOSED -> VirtualCard.State.CLOSED
-            CardState.FAILED -> VirtualCard.State.FAILED
+            CardState.ISSUED -> CardStateEntity.ISSUED
+            CardState.SUSPENDED -> CardStateEntity.SUSPENDED
+            CardState.CLOSED -> CardStateEntity.CLOSED
+            CardState.FAILED -> CardStateEntity.FAILED
         }
     }
 
@@ -273,7 +399,8 @@ internal object VirtualCardTransformer {
     }
 
     private fun CardProvisionMutation.Card.toVirtualCard(deviceKeyManager: DeviceKeyManager): VirtualCard {
-        val unsealer = Unsealer(deviceKeyManager, keyId(), algorithm())
+        val keyInfo = KeyInfo(keyId(), KeyType.PRIVATE_KEY, algorithm())
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
         return VirtualCard(
             id = id(),
             owners = owners().toOwners(),
@@ -283,6 +410,11 @@ internal object VirtualCardTransformer {
             state = state().toCardState(),
             cardHolder = unsealer.unseal(cardHolder()),
             alias = alias()?.let { unsealer.unseal(it) },
+            metadata = metadata()?.let {
+                val symmetricKeyInfo = KeyInfo(it.keyId(), KeyType.SYMMETRIC_KEY, it.algorithm())
+                val metadataUnsealer = Unsealer(deviceKeyManager, symmetricKeyInfo)
+                metadataUnsealer.unseal(it)
+            },
             last4 = last4(),
             cardNumber = unsealer.unseal(pan()),
             securityCode = unsealer.unseal(csc()),
@@ -297,12 +429,12 @@ internal object VirtualCardTransformer {
         )
     }
 
-    private fun CardState.toCardState(): VirtualCard.State {
+    private fun CardState.toCardState(): CardStateEntity {
         return when (this) {
-            CardState.CLOSED -> VirtualCard.State.CLOSED
-            CardState.FAILED -> VirtualCard.State.FAILED
-            CardState.ISSUED -> VirtualCard.State.ISSUED
-            CardState.SUSPENDED -> VirtualCard.State.SUSPENDED
+            CardState.CLOSED -> CardStateEntity.CLOSED
+            CardState.FAILED -> CardStateEntity.FAILED
+            CardState.ISSUED -> CardStateEntity.ISSUED
+            CardState.SUSPENDED -> CardStateEntity.SUSPENDED
         }
     }
 
@@ -367,7 +499,8 @@ internal object VirtualCardTransformer {
     }
 
     private fun CardProvisionMutation.LastTransaction.toTransaction(deviceKeyManager: DeviceKeyManager): Transaction {
-        val unsealer = Unsealer(deviceKeyManager, keyId(), algorithm())
+        val keyInfo = KeyInfo(keyId(), KeyType.PRIVATE_KEY, algorithm())
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
         return Transaction(
             id = id(),
             owner = owner(),
@@ -386,7 +519,8 @@ internal object VirtualCardTransformer {
     }
 
     private fun GetCardQuery.LastTransaction.toTransaction(deviceKeyManager: DeviceKeyManager): Transaction {
-        val unsealer = Unsealer(deviceKeyManager, keyId(), algorithm())
+        val keyInfo = KeyInfo(keyId(), KeyType.PRIVATE_KEY, algorithm())
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
         return Transaction(
             id = id(),
             owner = owner(),
@@ -405,7 +539,8 @@ internal object VirtualCardTransformer {
     }
 
     private fun ListCardsQuery.LastTransaction.toTransaction(deviceKeyManager: DeviceKeyManager): Transaction {
-        val unsealer = Unsealer(deviceKeyManager, keyId(), algorithm())
+        val keyInfo = KeyInfo(keyId(), KeyType.PRIVATE_KEY, algorithm())
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
         return Transaction(
             id = id(),
             owner = owner(),
@@ -424,7 +559,8 @@ internal object VirtualCardTransformer {
     }
 
     private fun UpdateCardMutation.LastTransaction.toTransaction(deviceKeyManager: DeviceKeyManager): Transaction {
-        val unsealer = Unsealer(deviceKeyManager, keyId(), algorithm())
+        val keyInfo = KeyInfo(keyId(), KeyType.PRIVATE_KEY, algorithm())
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
         return Transaction(
             id = id(),
             owner = owner(),
@@ -443,7 +579,8 @@ internal object VirtualCardTransformer {
     }
 
     private fun CancelCardMutation.LastTransaction.toTransaction(deviceKeyManager: DeviceKeyManager): Transaction {
-        val unsealer = Unsealer(deviceKeyManager, keyId(), algorithm())
+        val keyInfo = KeyInfo(keyId(), KeyType.PRIVATE_KEY, algorithm())
+        val unsealer = Unsealer(deviceKeyManager, keyInfo)
         return Transaction(
             id = id(),
             owner = owner(),
@@ -461,13 +598,13 @@ internal object VirtualCardTransformer {
         )
     }
 
-    private fun TransactionTypeEntity.toTransactionType(): TransactionType {
-        for (txnType in TransactionType.values()) {
+    private fun TransactionType.toTransactionType(): TransactionTypeEntity {
+        for (txnType in TransactionTypeEntity.values()) {
             if (txnType.name == this.name) {
                 return txnType
             }
         }
-        return TransactionType.UNKNOWN
+        return TransactionTypeEntity.UNKNOWN
     }
 
     private fun String.toDeclineReason(): DeclineReason {

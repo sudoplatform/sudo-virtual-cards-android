@@ -10,6 +10,7 @@ import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
+import com.sudoplatform.sudokeymanager.KeyManagerException
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
@@ -26,7 +27,8 @@ import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.ListCardsQuery
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
-import com.sudoplatform.sudovirtualcards.types.VirtualCard
+import com.sudoplatform.sudovirtualcards.types.ListAPIResult
+import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -41,6 +43,7 @@ import okhttp3.Request
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.bouncycastle.util.encoders.Base64
 import org.junit.After
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
@@ -177,7 +180,7 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
     }
 
     @Test
-    fun `listVirtualCards() should return results when no error present`() = runBlocking<Unit> {
+    fun `listVirtualCards() should return success result when no error present`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
@@ -190,31 +193,37 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
         queryHolder.callback shouldNotBe null
         queryHolder.callback?.onResponse(queryResponse)
 
-        val result = deferredResult.await()
-        result shouldNotBe null
-        result.items.isEmpty() shouldBe false
-        result.items.size shouldBe 1
-        result.nextToken shouldBe null
+        val listCard = deferredResult.await()
+        listCard shouldNotBe null
 
-        with(result.items[0]) {
-            id shouldBe "id"
-            owners shouldNotBe null
-            owner shouldBe "owner"
-            version shouldBe 1
-            fundingSourceId shouldBe "fundingSourceId"
-            state shouldBe VirtualCard.State.ISSUED
-            cardHolder shouldNotBe null
-            alias shouldNotBe null
-            last4 shouldBe "last4"
-            cardNumber shouldNotBe null
-            securityCode shouldNotBe null
-            billingAddress shouldNotBe null
-            expiry shouldNotBe null
-            currency shouldBe "currency"
-            activeTo shouldNotBe null
-            cancelledAt shouldBe null
-            createdAt shouldBe Date(1L)
-            updatedAt shouldBe Date(1L)
+        when (listCard) {
+            is ListAPIResult.Success -> {
+                listCard.result.items.isEmpty() shouldBe false
+                listCard.result.items.size shouldBe 1
+                listCard.result.nextToken shouldBe null
+
+                with(listCard.result.items[0]) {
+                    id shouldBe "id"
+                    owners shouldNotBe null
+                    owner shouldBe "owner"
+                    version shouldBe 1
+                    fundingSourceId shouldBe "fundingSourceId"
+                    state shouldBe CardStateEntity.ISSUED
+                    cardHolder shouldNotBe null
+                    alias shouldNotBe null
+                    last4 shouldBe "last4"
+                    cardNumber shouldNotBe null
+                    securityCode shouldNotBe null
+                    billingAddress shouldNotBe null
+                    expiry shouldNotBe null
+                    currency shouldBe "currency"
+                    activeTo shouldNotBe null
+                    cancelledAt shouldBe null
+                    createdAt shouldBe Date(1L)
+                    updatedAt shouldBe Date(1L)
+                }
+            }
+            else -> { fail("Unexpected ListAPIResult") }
         }
 
         verify(mockAppSyncClient).query(any<ListCardsQuery>())
@@ -223,7 +232,7 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
     }
 
     @Test
-    fun `listVirtualCards() should return results when populating nextToken`() = runBlocking<Unit> {
+    fun `listVirtualCards() should return success result when populating nextToken`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
@@ -277,31 +286,37 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
         queryHolder.callback shouldNotBe null
         queryHolder.callback?.onResponse(responseWithNextToken)
 
-        val result = deferredResult.await()
-        result shouldNotBe null
-        result.items.isEmpty() shouldBe false
-        result.items.size shouldBe 1
-        result.nextToken shouldBe "dummyNextToken"
+        val listCard = deferredResult.await()
+        listCard shouldNotBe null
 
-        with(result.items[0]) {
-            id shouldBe "id"
-            owners shouldNotBe null
-            owner shouldBe "owner"
-            version shouldBe 1
-            fundingSourceId shouldBe "fundingSourceId"
-            state shouldBe VirtualCard.State.ISSUED
-            cardHolder shouldNotBe null
-            alias shouldNotBe null
-            last4 shouldBe "last4"
-            cardNumber shouldNotBe null
-            securityCode shouldNotBe null
-            billingAddress shouldNotBe null
-            expiry shouldNotBe null
-            currency shouldBe "currency"
-            activeTo shouldNotBe null
-            cancelledAt shouldBe null
-            createdAt shouldBe Date(1L)
-            updatedAt shouldBe Date(1L)
+        when (listCard) {
+            is ListAPIResult.Success -> {
+                listCard.result.items.isEmpty() shouldBe false
+                listCard.result.items.size shouldBe 1
+                listCard.result.nextToken shouldBe "dummyNextToken"
+
+                with(listCard.result.items[0]) {
+                    id shouldBe "id"
+                    owners shouldNotBe null
+                    owner shouldBe "owner"
+                    version shouldBe 1
+                    fundingSourceId shouldBe "fundingSourceId"
+                    state shouldBe CardStateEntity.ISSUED
+                    cardHolder shouldNotBe null
+                    alias shouldNotBe null
+                    last4 shouldBe "last4"
+                    cardNumber shouldNotBe null
+                    securityCode shouldNotBe null
+                    billingAddress shouldNotBe null
+                    expiry shouldNotBe null
+                    currency shouldBe "currency"
+                    activeTo shouldNotBe null
+                    cancelledAt shouldBe null
+                    createdAt shouldBe Date(1L)
+                    updatedAt shouldBe Date(1L)
+                }
+            }
+            else -> { fail("Unexpected ListAPIResult") }
         }
 
         verify(mockAppSyncClient).query(any<ListCardsQuery>())
@@ -310,7 +325,7 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
     }
 
     @Test
-    fun `listVirtualCards() should return empty list output when query result data is empty`() = runBlocking<Unit> {
+    fun `listVirtualCards() should return success empty list result when query result data is empty`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
@@ -339,15 +354,21 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
 
         val result = deferredResult.await()
         result shouldNotBe null
-        result.items.isEmpty() shouldBe true
-        result.items.size shouldBe 0
-        result.nextToken shouldBe null
+
+        when (result) {
+            is ListAPIResult.Success -> {
+                result.result.items.isEmpty() shouldBe true
+                result.result.items.size shouldBe 0
+                result.result.nextToken shouldBe null
+            }
+            else -> { fail("Unexpected ListAPIResult") }
+        }
 
         verify(mockAppSyncClient).query(any<ListCardsQuery>())
     }
 
     @Test
-    fun `listVirtualCards() should return empty list output when query result data is null`() = runBlocking<Unit> {
+    fun `listVirtualCards() should return success empty list result when query result data is null`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
@@ -368,15 +389,21 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
 
         val result = deferredResult.await()
         result shouldNotBe null
-        result.items.isEmpty() shouldBe true
-        result.items.size shouldBe 0
-        result.nextToken shouldBe null
+
+        when (result) {
+            is ListAPIResult.Success -> {
+                result.result.items.isEmpty() shouldBe true
+                result.result.items.size shouldBe 0
+                result.result.nextToken shouldBe null
+            }
+            else -> { fail("Unexpected ListAPIResult") }
+        }
 
         verify(mockAppSyncClient).query(any<ListCardsQuery>())
     }
 
     @Test
-    fun `listVirtualCards() should return empty list output when query response is null`() = runBlocking<Unit> {
+    fun `listVirtualCards() should return success empty list result when query response is null`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
@@ -397,11 +424,66 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
 
         val result = deferredResult.await()
         result shouldNotBe null
-        result.items.isEmpty() shouldBe true
-        result.items.size shouldBe 0
-        result.nextToken shouldBe null
+
+        when (result) {
+            is ListAPIResult.Success -> {
+                result.result.items.isEmpty() shouldBe true
+                result.result.items.size shouldBe 0
+                result.result.nextToken shouldBe null
+            }
+            else -> { fail("Unexpected ListAPIResult") }
+        }
 
         verify(mockAppSyncClient).query(any<ListCardsQuery>())
+    }
+
+    @Test
+    fun `listVirtualCards() should return partial results when unsealing fails`() = runBlocking<Unit> {
+
+        mockKeyManager.stub {
+            on { decryptWithPrivateKey(anyString(), any(), any()) } doThrow KeyManagerException("KeyManagerException")
+        }
+
+        val deferredResult = async(Dispatchers.IO) {
+            client.listVirtualCards()
+        }
+        deferredResult.start()
+
+        delay(100L)
+        queryHolder.callback shouldNotBe null
+        queryHolder.callback?.onResponse(queryResponse)
+
+        val listCard = deferredResult.await()
+        listCard shouldNotBe null
+
+        when (listCard) {
+            is ListAPIResult.Partial -> {
+                listCard.result.items.isEmpty() shouldBe true
+                listCard.result.items.size shouldBe 0
+                listCard.result.failed.isEmpty() shouldBe false
+                listCard.result.failed.size shouldBe 1
+                listCard.result.nextToken shouldBe null
+
+                with(listCard.result.failed[0].partial) {
+                    id shouldBe "id"
+                    owners shouldNotBe null
+                    owner shouldBe "owner"
+                    version shouldBe 1
+                    fundingSourceId shouldBe "fundingSourceId"
+                    state shouldBe CardStateEntity.ISSUED
+                    last4 shouldBe "last4"
+                    currency shouldBe "currency"
+                    activeTo shouldNotBe null
+                    cancelledAt shouldBe null
+                    createdAt shouldBe Date(1L)
+                    updatedAt shouldBe Date(1L)
+                }
+            }
+            else -> { fail("Unexpected ListAPIResult") }
+        }
+
+        verify(mockAppSyncClient).query(any<ListCardsQuery>())
+        verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
     }
 
     @Test

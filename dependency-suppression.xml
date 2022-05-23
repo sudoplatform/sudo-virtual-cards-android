@@ -38,4 +38,10 @@
         <packageUrl regex="true">^pkg:maven/junit/junit@.*$</packageUrl>
         <cve>CVE-2020-15250</cve>
     </suppress>
+    <suppress until="2022-09-13">
+        <notes><![CDATA[
+            file name: kotlin-analysis-intellij-1.6.10.jar (shaded: com.google.gson-2.8.8)
+            ]]></notes>
+        <cve>CVE-2022-25647</cve>
+    </suppress>
 </suppressions>

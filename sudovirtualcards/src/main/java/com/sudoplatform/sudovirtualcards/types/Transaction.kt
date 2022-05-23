@@ -46,18 +46,46 @@ data class Transaction(
     val description: String,
     val declineReason: DeclineReason? = null,
     val details: List<TransactionDetailCharge> = emptyList(),
-) : Parcelable {
-    /** Transaction type */
-    enum class TransactionType {
-        /** Transaction is still being processed */
-        PENDING,
-        /** Transaction has been completely processed */
-        COMPLETE,
-        /** The transaction is a refund */
-        REFUND,
-        /** The transaction is the decline of a charge */
-        DECLINE,
-        /** API Evolution - if this occurs, it may mean you need to update the library. */
-        UNKNOWN
-    }
+) : Parcelable
+
+/**
+ * Representation of a Virtual Card Transaction without its unsealed attributes used in
+ * the Sudo Platform Virtual Cards SDK.
+ *
+ * @property id [String] Identifier of the transaction.
+ * @property owner [String] Identifier of the user that owns the transaction.
+ * @property version [Int] Current version of the transaction.
+ * @property createdAt [Date] Date when the transaction was created.
+ * @property updatedAt [Date] Date when the transaction was last updated.
+ * @property cardId [String] Unique identifier of the [VirtualCard] associated with the transaction.
+ * @property sequenceId [String] Identifier of the sequence of related transaction.
+ * @property type [TransactionType] The type of the transaction.
+ */
+@Parcelize
+data class PartialTransaction(
+    val id: String,
+    val owner: String,
+    val version: Int,
+    val createdAt: Date,
+    val updatedAt: Date,
+    val cardId: String,
+    val sequenceId: String,
+    val type: TransactionType,
+) : Parcelable
+
+/**
+ * Representation of an enumeration depicting the type of [Transaction] in the Sudo Platform
+ * Virtual Cards SDK.
+ */
+enum class TransactionType {
+    /** Transaction is still being processed */
+    PENDING,
+    /** Transaction has been completely processed */
+    COMPLETE,
+    /** The transaction is a refund */
+    REFUND,
+    /** The transaction is the decline of a charge */
+    DECLINE,
+    /** API Evolution - if this occurs, it may mean you need to update the library. */
+    UNKNOWN
 }
