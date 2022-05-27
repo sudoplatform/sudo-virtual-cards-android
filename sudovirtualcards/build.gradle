@@ -78,12 +78,17 @@ dependencies {
     // for updating AWS SDK versions.
     implementation "com.amazonaws:aws-android-sdk-core:$aws_version!!"
     implementation "com.amazonaws:aws-android-sdk-appsync:$appsync_version!!"
+    constraints {
+        implementation("com.squareup.okhttp3:okhttp:4.9.3") {
+            because("Versions < 4.9.3 has CVE-2021-0341")
+        }
+    }
 
     // Stripe
-    implementation "com.stripe:stripe-android:19.3.1"
+    implementation "com.stripe:stripe-android:20.4.0"
 
     implementation "org.bouncycastle:bcpkix-jdk15to18:1.70"
-    implementation 'com.nimbusds:nimbus-jose-jwt:9.13'
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.22'
 
     // Sudo Platform
     implementation "com.sudoplatform:sudokeymanager:3.8.0"
@@ -103,9 +108,9 @@ dependencies {
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutine_version"
     testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     testImplementation "org.mockito.kotlin:mockito-kotlin:4.0.0"
-    testImplementation 'org.mockito:mockito-inline:4.4.0'
+    testImplementation 'org.mockito:mockito-inline:4.5.1'
     testImplementation "androidx.test:core:1.4.0"
-    testImplementation 'org.robolectric:robolectric:4.7.3'
+    testImplementation 'org.robolectric:robolectric:4.8.1'
     testImplementation "com.jakewharton.timber:timber:4.7.1"
     androidTestImplementation "androidx.test.ext:junit:1.1.3"
     androidTestImplementation "androidx.test:runner:1.4.0"
@@ -116,8 +121,8 @@ dependencies {
 
     androidTestImplementation 'com.sudoplatform:sudoidentityverification:7.0.0'
     androidTestImplementation 'com.sudoplatform:sudoentitlements:3.0.0'
-    androidTestImplementation 'com.sudoplatform:sudoentitlementsadmin:2.0.2'
-    androidTestImplementation 'com.sudoplatform:sudovirtualcardssimulator:3.0.0'
+    androidTestImplementation 'com.sudoplatform:sudoentitlementsadmin:2.1.0'
+    androidTestImplementation 'com.sudoplatform:sudovirtualcardssimulator:3.0.1'
 }
 
 // Returns a list of `configurations` which should not be scanned for vulnerabilities
