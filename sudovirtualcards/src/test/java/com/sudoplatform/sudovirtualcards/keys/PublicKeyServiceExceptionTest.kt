@@ -12,9 +12,10 @@ import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.stub
 import com.sudoplatform.sudologging.Logger
+import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.BaseTests
 import com.sudoplatform.sudovirtualcards.graphql.CreatePublicKeyForVirtualCardsMutation
-import com.sudoplatform.sudovirtualcards.graphql.GetKeyRingForVirtualCardsQuery
+import com.sudoplatform.sudovirtualcards.graphql.GetPublicKeyForVirtualCardsQuery
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
 import io.kotlintest.shouldThrow
 import kotlinx.coroutines.runBlocking
@@ -22,6 +23,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.doReturn
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import timber.log.Timber
@@ -34,6 +36,14 @@ import java.lang.RuntimeException
 @Config(manifest = Config.NONE)
 class PublicKeyServiceExceptionTest : BaseTests() {
 
+    private val keyRingServiceName = "sudo-virtual-cards"
+
+    private val mockUserClient by before {
+        mock<SudoUserClient>().stub {
+            on { getSubject() } doReturn "mockSubject"
+        }
+    }
+
     private val mockDeviceKeyManager by before {
         mock<DeviceKeyManager>()
     }
@@ -44,6 +54,8 @@ class PublicKeyServiceExceptionTest : BaseTests() {
 
     private val publicKeyService by before {
         DefaultPublicKeyService(
+            keyRingServiceName = keyRingServiceName,
+            userClient = mockUserClient,
             deviceKeyManager = mockDeviceKeyManager,
             appSyncClient = mockAppSyncClient,
             logger = mock<Logger>()
@@ -61,12 +73,24 @@ class PublicKeyServiceExceptionTest : BaseTests() {
     }
 
     @Test
+    fun shouldThrowIfNotRegistered() = runBlocking<Unit> {
+        // given
+        mockUserClient.stub {
+            on { getSubject() } doReturn null
+        }
+
+        shouldThrow<PublicKeyService.PublicKeyServiceException.UserIdNotFoundException> {
+            publicKeyService.getCurrentRegisteredKey()
+        }
+    }
+
+    @Test
     fun shouldThrowIfDeviceKeyManagerThrows1() = runBlocking<Unit> {
         mockDeviceKeyManager.stub {
-            on { getCurrentKeyPair() } doThrow DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException("mock")
+            on { getCurrentKey() } doThrow DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException("mock")
         }
         shouldThrow<PublicKeyService.PublicKeyServiceException.KeyCreateException> {
-            publicKeyService.getCurrentKeyPair(PublicKeyService.MissingKeyPolicy.GENERATE_IF_MISSING)
+            publicKeyService.getCurrentKey()
         }
     }
 
@@ -76,17 +100,17 @@ class PublicKeyServiceExceptionTest : BaseTests() {
             on { generateNewCurrentKeyPair() } doThrow DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException("mock")
         }
         shouldThrow<PublicKeyService.PublicKeyServiceException.KeyCreateException> {
-            publicKeyService.getCurrentKeyPair(PublicKeyService.MissingKeyPolicy.GENERATE_IF_MISSING)
+            publicKeyService.getCurrentRegisteredKey()
         }
     }
 
     @Test
     fun shouldThrowIfAppSyncThrows1() = runBlocking<Unit> {
         mockAppSyncClient.stub {
-            on { query(any<GetKeyRingForVirtualCardsQuery>()) } doThrow RuntimeException("mock")
+            on { query(any<GetPublicKeyForVirtualCardsQuery>()) } doThrow RuntimeException("mock")
         }
         shouldThrow<PublicKeyService.PublicKeyServiceException.UnknownException> {
-            publicKeyService.getKeyRing("id", CachePolicy.REMOTE_ONLY)
+            publicKeyService.get("id", CachePolicy.REMOTE_ONLY)
         }
     }
 

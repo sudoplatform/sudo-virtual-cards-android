@@ -7,13 +7,11 @@
 package com.sudoplatform.sudovirtualcards.keys
 
 import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.stub
 import com.sudoplatform.sudokeymanager.KeyManagerException
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
-import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.BaseTests
 import io.kotlintest.shouldThrow
 import org.junit.Test
@@ -29,22 +27,12 @@ import org.robolectric.annotation.Config
 @Config(manifest = Config.NONE)
 class DeviceKeyManagerExceptionTest : BaseTests() {
 
-    private val keyRingServiceName = "sudo-virtual-cards"
-
-    private val mockUserClient by before {
-        mock<SudoUserClient>().stub {
-            on { getSubject() } doReturn "mockSubject"
-        }
-    }
-
     private val mockKeyManager by before {
         mock<KeyManagerInterface>()
     }
 
     private val deviceKeyManager by before {
         DefaultDeviceKeyManager(
-            userClient = mockUserClient,
-            keyRingServiceName = keyRingServiceName,
             keyManager = mockKeyManager,
             logger = mockLogger
         )
@@ -56,7 +44,7 @@ class DeviceKeyManagerExceptionTest : BaseTests() {
             on { getPassword(anyString()) } doThrow KeyManagerException("mock")
         }
         shouldThrow<DeviceKeyManager.DeviceKeyManagerException.KeyOperationFailedException> {
-            deviceKeyManager.getCurrentKeyPair()
+            deviceKeyManager.getCurrentKey()
         }
     }
 
@@ -66,18 +54,7 @@ class DeviceKeyManagerExceptionTest : BaseTests() {
             on { getPublicKeyData(anyString()) } doThrow KeyManagerException("mock")
         }
         shouldThrow<DeviceKeyManager.DeviceKeyManagerException.KeyOperationFailedException> {
-            deviceKeyManager.getKeyPairWithId("42")
-        }
-    }
-
-    @Test
-    fun getKeyPairWithIdShouldThrowIfKeyManagerThrows2() {
-        mockKeyManager.stub {
-            on { getPublicKeyData(anyString()) } doReturn ByteArray(42)
-            on { getPrivateKeyData(anyString()) } doThrow KeyManagerException("mock")
-        }
-        shouldThrow<DeviceKeyManager.DeviceKeyManagerException.KeyOperationFailedException> {
-            deviceKeyManager.getKeyPairWithId("42")
+            deviceKeyManager.getKeyWithId("42")
         }
     }
 
@@ -171,16 +148,6 @@ class DeviceKeyManagerExceptionTest : BaseTests() {
         }
         shouldThrow<DeviceKeyManager.DeviceKeyManagerException.UnknownException> {
             deviceKeyManager.removeAllKeys()
-        }
-    }
-
-    @Test
-    fun getKeyRingIdShouldThrowIfUserClientThrows() {
-        mockUserClient.stub {
-            on { getSubject() } doThrow RuntimeException("mock")
-        }
-        shouldThrow<DeviceKeyManager.DeviceKeyManagerException.UserIdNotFoundException> {
-            deviceKeyManager.getKeyRingId()
         }
     }
 }

@@ -32,14 +32,11 @@ import java.util.UUID
 class AndroidUnsealerTest : BaseIntegrationTest() {
 
     companion object {
-        private const val keyRingServiceName = "sudo-virtual-cards"
         private const val clearText = "The owl and the pussy cat went to sea in a beautiful pea green boat."
     }
 
     private val deviceKeyManager by lazy {
         DefaultDeviceKeyManager(
-            userClient = userClient,
-            keyRingServiceName = keyRingServiceName,
             keyManager = keyManager
         )
     }
@@ -52,11 +49,6 @@ class AndroidUnsealerTest : BaseIntegrationTest() {
 
     @After
     fun fini() = runBlocking {
-        if (userClient.isRegistered()) {
-            deregister()
-        }
-        userClient.reset()
-        sudoClient.reset()
         Timber.uprootAll()
     }
 

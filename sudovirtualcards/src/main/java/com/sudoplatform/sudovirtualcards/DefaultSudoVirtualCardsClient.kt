@@ -371,13 +371,12 @@ internal class DefaultSudoVirtualCardsClient(
     @Throws(SudoVirtualCardsClient.VirtualCardException::class)
     override suspend fun provisionVirtualCard(input: ProvisionVirtualCardInput): ProvisionalVirtualCard {
         try {
-            // Ensure there is a current key in the key ring so the card can be sealed
-            ensurePublicKeyIsRegistered()
+            val key = publicKeyService.getCurrentRegisteredKey()
 
             val mutationInput = CardProvisionRequest.builder()
                 .clientRefId(input.clientRefId)
                 .ownerProofs(input.ownershipProofs)
-                .keyRingId(deviceKeyManager.getKeyRingId())
+                .keyRingId(key.keyRingId)
                 .fundingSourceId(input.fundingSourceId)
                 .cardHolder(input.cardHolder)
                 .alias(input.alias)
@@ -441,13 +440,12 @@ internal class DefaultSudoVirtualCardsClient(
     @Throws(SudoVirtualCardsClient.VirtualCardException::class)
     override suspend fun getVirtualCard(id: String, cachePolicy: CachePolicy): VirtualCard? {
         try {
-            val keyPairResult = publicKeyService.getCurrentKeyPair(PublicKeyService.MissingKeyPolicy.GENERATE_IF_MISSING)
+            val key = publicKeyService.getCurrentKey()
                 ?: throw SudoVirtualCardsClient.VirtualCardException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
-            val keyId = keyPairResult.keyId
 
             val query = GetCardQuery.builder()
                 .id(id)
-                .keyId(keyId)
+                .keyId(key.keyId)
                 .build()
 
             val queryResponse = appSyncClient.query(query)
@@ -525,7 +523,7 @@ internal class DefaultSudoVirtualCardsClient(
     @Throws(SudoVirtualCardsClient.VirtualCardException::class)
     override suspend fun updateVirtualCard(input: UpdateVirtualCardInput): SingleAPIResult<VirtualCard, PartialVirtualCard> {
         try {
-            val keyPairResult = publicKeyService.getCurrentKeyPair()
+            val keyPairResult = publicKeyService.getCurrentKey()
                 ?: throw SudoVirtualCardsClient.VirtualCardException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
             val keyId = keyPairResult.keyId
 
@@ -574,9 +572,9 @@ internal class DefaultSudoVirtualCardsClient(
 
     override suspend fun cancelVirtualCard(id: String): SingleAPIResult<VirtualCard, PartialVirtualCard> {
         try {
-            val keyPairResult = publicKeyService.getCurrentKeyPair()
+            val key = publicKeyService.getCurrentKey()
                 ?: throw SudoVirtualCardsClient.VirtualCardException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
-            val keyId = keyPairResult.keyId
+            val keyId = key.keyId
 
             val mutationInput = CardCancelRequest.builder()
                 .id(id)
@@ -618,7 +616,7 @@ internal class DefaultSudoVirtualCardsClient(
     @Throws(SudoVirtualCardsClient.TransactionException::class)
     override suspend fun getTransaction(id: String, cachePolicy: CachePolicy): Transaction? {
         try {
-            val keyPairResult = publicKeyService.getCurrentKeyPair()
+            val keyPairResult = publicKeyService.getCurrentKey()
                 ?: throw SudoVirtualCardsClient.TransactionException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
             val keyId = keyPairResult.keyId
 
@@ -747,48 +745,20 @@ internal class DefaultSudoVirtualCardsClient(
 
     private suspend fun createAndRegisterKeyPairIfAbsent(): KeyResult {
         try {
-            val registerRequired: Boolean
-            var created = false
-            var keyPair = deviceKeyManager.getCurrentKeyPair()
-            if (keyPair == null) {
-                keyPair = deviceKeyManager.generateNewCurrentKeyPair()
-                registerRequired = true
+            val created: Boolean
+            var key = publicKeyService.getCurrentKey()
+            val keyWithKeyRingId = publicKeyService.getCurrentRegisteredKey()
+            if (key == null) {
+                key = keyWithKeyRingId.publicKey
                 created = true
             } else {
-                var nextToken: String?
-                var alreadyRegistered: Boolean
-                do {
-                    val keyRing = publicKeyService.getKeyRing(keyPair.keyRingId, CachePolicy.REMOTE_ONLY)
-                    alreadyRegistered = keyRing?.keys?.find { it.keyId == keyPair.keyId } != null
-                    nextToken = keyRing?.nextToken
-                } while (!alreadyRegistered && nextToken != null)
-                registerRequired = !alreadyRegistered
+                created = false
             }
-            if (registerRequired) {
-                publicKeyService.create(keyPair.keyId, keyPair.keyRingId, keyPair.publicKey)
-            }
-            return KeyResult(created, keyPair.keyId)
+            return KeyResult(created, key.keyId)
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
             throw e
         }
-    }
-
-    // Ensure there is a current key in the key ring registered with the backend so the card can be sealed
-    private suspend fun ensurePublicKeyIsRegistered() {
-
-        val keyPair = publicKeyService.getCurrentKeyPair()
-            ?: throw SudoVirtualCardsClient.VirtualCardException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
-
-        // Get the key ring for the current key pair from the backend and check that it contains the current key pair
-        val keyRing = publicKeyService.getKeyRing(keyPair.keyRingId, CachePolicy.REMOTE_ONLY)
-        if (keyRing?.keys?.find { it.keyId == keyPair.keyId } != null) {
-            // Key ring on the backend contains the current key pair
-            return
-        }
-
-        // Register the current key pair with the backend
-        publicKeyService.create(keyPair.keyId, keyPair.keyRingId, keyPair.publicKey)
     }
 
     private fun interpretFundingSourceException(e: Throwable): Throwable {

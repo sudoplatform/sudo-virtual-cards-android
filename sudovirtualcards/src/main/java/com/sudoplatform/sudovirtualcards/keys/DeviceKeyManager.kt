@@ -20,8 +20,6 @@ internal interface DeviceKeyManager {
      * @property cause The cause for the exception.
      */
     sealed class DeviceKeyManagerException(message: String? = null, cause: Throwable? = null) : RuntimeException(message, cause) {
-        class UserIdNotFoundException(message: String? = null, cause: Throwable? = null) :
-            DeviceKeyManagerException(message = message, cause = cause)
         class KeyGenerationException(message: String? = null, cause: Throwable? = null) :
             DeviceKeyManagerException(message = message, cause = cause)
         class KeyOperationFailedException(message: String? = null, cause: Throwable? = null) :
@@ -30,45 +28,39 @@ internal interface DeviceKeyManager {
             DeviceKeyManagerException(message = message, cause = cause)
         class EncryptionException(message: String? = null, cause: Throwable? = null) :
             DeviceKeyManagerException(message = message, cause = cause)
+        class KeyRingIdUnknownException(message: String? = null, cause: Throwable? = null) :
+            DeviceKeyManagerException(message = message, cause = cause)
         class UnknownException(message: String? = null, cause: Throwable? = null) :
             DeviceKeyManagerException(message = message, cause = cause)
     }
 
     /**
-     * Returns the key ring id associated with the owner's service.
-     *
-     * @return the identifier of the key ring associated with the owner's service
-     * @throws [DeviceKeyManager.DeviceKeyManagerException.UserIdNotFoundException] if the user Id cannot be found.
-     */
-    @Throws(DeviceKeyManagerException::class)
-    fun getKeyRingId(): String
-
-    /**
-     * Returns the key pair that is currently being used by this service.
+     * Returns the public key of the key pair that is currently being used by this service.
      * If no key pair has been previously generated, will return null and require the caller
      * to call [generateNewCurrentKeyPair] if a current key pair is required.
      *
-     * @return the current key pair in use or null.
+     * @return The public key of the current key pair in use or null.
      */
     @Throws(DeviceKeyManagerException::class)
-    fun getCurrentKeyPair(): KeyPair?
+    fun getCurrentKey(): DeviceKey?
 
     /**
-     * Returns the [KeyPair] with the identifier [id] if it exists.
+     * Returns the [DeviceKey] of the key pair with the identifier [id] if it exists.
      *
-     * @return the [KeyPair] with the identifier [id] if it exists, null if it does not.
+     * @return The [DeviceKey] of the key pair with the identifier [id] if it exists, null if it does not.
      */
     @Throws(DeviceKeyManagerException::class)
-    fun getKeyPairWithId(id: String): KeyPair?
+    fun getKeyWithId(id: String): DeviceKey?
 
     /**
-     * Generate a new [KeyPair] and make it the current [KeyPair].
+     * Generate a new key pair and make it the current. Return the public key for the new
+     * key pair.
      *
-     * @return the generated [KeyPair]
-     * @throws [DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException] if unable to generate the [KeyPair]
+     * @return The generated key pair's [DeviceKey]
+     * @throws [DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException] if unable to generate the [DeviceKey]
      */
     @Throws(DeviceKeyManagerException::class)
-    fun generateNewCurrentKeyPair(): KeyPair
+    fun generateNewCurrentKeyPair(): DeviceKey
 
     /**
      * Generate a new symmetric key.

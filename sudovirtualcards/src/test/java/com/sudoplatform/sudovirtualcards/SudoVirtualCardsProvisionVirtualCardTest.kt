@@ -10,21 +10,18 @@ import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
-import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudoprofiles.Sudo
 import com.sudoplatform.sudoprofiles.SudoProfilesClient
+import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.CardProvisionMutation
-import com.sudoplatform.sudovirtualcards.graphql.CreatePublicKeyForVirtualCardsMutation
-import com.sudoplatform.sudovirtualcards.graphql.GetKeyRingForVirtualCardsQuery
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.graphql.type.AddressInput
 import com.sudoplatform.sudovirtualcards.graphql.type.CardProvisionRequest
-import com.sudoplatform.sudovirtualcards.graphql.type.CreatePublicKeyInput
 import com.sudoplatform.sudovirtualcards.graphql.type.DeltaAction
-import com.sudoplatform.sudovirtualcards.graphql.type.KeyFormat
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisioningState
+import com.sudoplatform.sudovirtualcards.keys.PublicKeyWithKeyRingId
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import io.kotlintest.shouldBe
@@ -35,18 +32,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import org.bouncycastle.util.encoders.Base64
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
-import org.mockito.kotlin.check
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.stub
-import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 
@@ -113,79 +107,13 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         )
     }
 
-    private val keyRingQueryRequest by before {
-        GetKeyRingForVirtualCardsQuery.builder()
-            .keyRingId("keyRingId")
-            .build()
-    }
-
-    private val keyRingQueryResult by before {
-        val item = GetKeyRingForVirtualCardsQuery.Item(
-            "typename",
-            "id",
-            "keyId",
-            "keyRingId",
-            "algorithm",
-            KeyFormat.RSA_PUBLIC_KEY,
-            String(Base64.encode("publicKey".toByteArray()), Charsets.UTF_8),
-            "owner",
-            1,
-            1.0,
-            1.0
-        )
-        GetKeyRingForVirtualCardsQuery.GetKeyRingForVirtualCards(
-            "typename",
-            listOf(item),
-            "nextToken"
-        )
-    }
-
-    private val publicKeyRequest by before {
-        CreatePublicKeyInput.builder()
-            .keyId("keyId")
-            .keyRingId("keyRingId")
-            .algorithm("algorithm")
-            .publicKey(String(Base64.encode("publicKey".toByteArray()), Charsets.UTF_8))
-            .build()
-    }
-
-    private val publicKeyResult by before {
-        CreatePublicKeyForVirtualCardsMutation.CreatePublicKeyForVirtualCards(
-            "typename",
-            "id",
-            "keyId",
-            "keyRingId",
-            "algorithm",
-            KeyFormat.RSA_PUBLIC_KEY,
-            String(Base64.encode("publicKey".toByteArray()), Charsets.UTF_8),
-            "owner",
-            1,
-            1.0,
-            1.0
-        )
-    }
-
     private val cardProvisionResponse by before {
         Response.builder<CardProvisionMutation.Data>(CardProvisionMutation(cardProvisionRequest))
             .data(CardProvisionMutation.Data(cardProvisionMutationResult))
             .build()
     }
 
-    private val keyRingResponse by before {
-        Response.builder<GetKeyRingForVirtualCardsQuery.Data>(keyRingQueryRequest)
-            .data(GetKeyRingForVirtualCardsQuery.Data(keyRingQueryResult))
-            .build()
-    }
-
-    private val publicKeyResponse by before {
-        Response.builder<CreatePublicKeyForVirtualCardsMutation.Data>(CreatePublicKeyForVirtualCardsMutation(publicKeyRequest))
-            .data(CreatePublicKeyForVirtualCardsMutation.Data(publicKeyResult))
-            .build()
-    }
-
     private val provisionHolder = CallbackHolder<CardProvisionMutation.Data>()
-    private val keyRingHolder = CallbackHolder<GetKeyRingForVirtualCardsQuery.Data>()
-    private val publicKeyHolder = CallbackHolder<CreatePublicKeyForVirtualCardsMutation.Data>()
 
     private val mockContext by before {
         mock<Context>()
@@ -206,8 +134,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
     private val mockAppSyncClient by before {
         mock<AWSAppSyncClient>().stub {
             on { mutate(any<CardProvisionMutation>()) } doReturn provisionHolder.mutationOperation
-            on { mutate(any<CreatePublicKeyForVirtualCardsMutation>()) } doReturn publicKeyHolder.mutationOperation
-            on { query(any<GetKeyRingForVirtualCardsQuery>()) } doReturn keyRingHolder.queryOperation
         }
     }
 
@@ -219,6 +145,23 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         }
     }
 
+    private val currentKey = PublicKey(
+        keyId = "keyId",
+        publicKey = "publicKey".toByteArray(),
+    )
+
+    private val currentKeyWithKeyRingId = PublicKeyWithKeyRingId(
+        publicKey = currentKey,
+        keyRingId = "keyRingId"
+    )
+
+    private val mockPublicKeyService by before {
+        mock<PublicKeyService>().stub {
+            onBlocking { getCurrentKey() } doReturn currentKey
+            onBlocking { getCurrentRegisteredKey() } doReturn currentKeyWithKeyRingId
+        }
+    }
+
     private val client by before {
         SudoVirtualCardsClient.builder()
             .setContext(mockContext)
@@ -226,14 +169,13 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             .setSudoProfilesClient(mockSudoClient)
             .setAppSyncClient(mockAppSyncClient)
             .setKeyManager(mockKeyManager)
-            .setLogger(mock<Logger>())
+            .setLogger(mock())
+            .setPublicKeyService(mockPublicKeyService)
             .build()
     }
 
     private fun resetCallbacks() {
         provisionHolder.callback = null
-        keyRingHolder.callback = null
-        publicKeyHolder.callback = null
     }
 
     @Before
@@ -243,28 +185,25 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     @After
     fun fini() {
-        verifyNoMoreInteractions(mockContext, mockUserClient, mockSudoClient, mockKeyManager, mockAppSyncClient)
+        verifyNoMoreInteractions(
+            mockContext,
+            mockUserClient,
+            mockSudoClient,
+            mockKeyManager,
+            mockPublicKeyService,
+            mockAppSyncClient
+        )
     }
 
     @Test
     fun `provisionVirtualCard() should return results when no error present`() = runBlocking<Unit> {
 
         provisionHolder.callback shouldBe null
-        keyRingHolder.callback shouldBe null
-        publicKeyHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
             client.provisionVirtualCard(input)
         }
         deferredResult.start()
-
-        delay(100L)
-        keyRingHolder.callback shouldNotBe null
-        keyRingHolder.callback?.onResponse(keyRingResponse)
-
-        delay(100L)
-        publicKeyHolder.callback shouldNotBe null
-        publicKeyHolder.callback?.onResponse(publicKeyResponse)
 
         delay(100L)
         provisionHolder.callback shouldNotBe null
@@ -284,75 +223,30 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             updatedAt shouldNotBe null
         }
 
-        verify(mockAppSyncClient).query<
-            GetKeyRingForVirtualCardsQuery.Data,
-            GetKeyRingForVirtualCardsQuery,
-            GetKeyRingForVirtualCardsQuery.Variables>(
-            check {
-                it.variables().keyRingId() shouldBe "sudo-virtual-cards.subject"
-                it.variables().limit() shouldBe null
-                it.variables().nextToken() shouldBe null
-            }
-        )
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
         verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
-        verify(mockAppSyncClient).mutate(any<CreatePublicKeyForVirtualCardsMutation>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient, times(2)).getSubject()
     }
 
     @Test
-    fun `provisionVirtualCard() should throw when public key response is null`() = runBlocking<Unit> {
+    fun `provisionVirtualCard() should throw when registered public key retrieval fails`() = runBlocking<Unit> {
 
         provisionHolder.callback shouldBe null
-        keyRingHolder.callback shouldBe null
-        publicKeyHolder.callback shouldBe null
 
-        val nullPublicKeyResponse by before {
-            Response.builder<CreatePublicKeyForVirtualCardsMutation.Data>(CreatePublicKeyForVirtualCardsMutation(publicKeyRequest))
-                .data(null)
-                .build()
+        mockPublicKeyService.stub {
+            onBlocking { getCurrentRegisteredKey() } doThrow PublicKeyService.PublicKeyServiceException.KeyCreateException()
         }
 
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.PublicKeyException> {
-                client.provisionVirtualCard(input)
-            }
+        shouldThrow<SudoVirtualCardsClient.VirtualCardException.PublicKeyException> {
+            client.provisionVirtualCard(input)
         }
-        deferredResult.start()
-        delay(100L)
 
-        keyRingHolder.callback shouldNotBe null
-        keyRingHolder.callback?.onResponse(keyRingResponse)
-
-        delay(100L)
-        publicKeyHolder.callback shouldNotBe null
-        publicKeyHolder.callback?.onResponse(nullPublicKeyResponse)
-
-        verify(mockAppSyncClient).query<
-            GetKeyRingForVirtualCardsQuery.Data,
-            GetKeyRingForVirtualCardsQuery,
-            GetKeyRingForVirtualCardsQuery.Variables>(
-            check {
-                it.variables().keyRingId() shouldBe "sudo-virtual-cards.subject"
-                it.variables().limit() shouldBe null
-                it.variables().nextToken() shouldBe null
-            }
-        )
-        verify(mockAppSyncClient).mutate(any<CreatePublicKeyForVirtualCardsMutation>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
     }
 
     @Test
     fun `provisionVirtualCard() should throw when card mutation response is null`() = runBlocking<Unit> {
 
         provisionHolder.callback shouldBe null
-        keyRingHolder.callback shouldBe null
-        publicKeyHolder.callback shouldBe null
 
         val nullProvisionResponse by before {
             Response.builder<CardProvisionMutation.Data>(CardProvisionMutation(cardProvisionRequest))
@@ -366,43 +260,21 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             }
         }
         deferredResult.start()
-        delay(100L)
-
-        keyRingHolder.callback shouldNotBe null
-        keyRingHolder.callback?.onResponse(keyRingResponse)
-
-        delay(100L)
-        publicKeyHolder.callback shouldNotBe null
-        publicKeyHolder.callback?.onResponse(publicKeyResponse)
 
         delay(100L)
         provisionHolder.callback shouldNotBe null
         provisionHolder.callback?.onResponse(nullProvisionResponse)
 
-        verify(mockAppSyncClient).query<
-            GetKeyRingForVirtualCardsQuery.Data,
-            GetKeyRingForVirtualCardsQuery,
-            GetKeyRingForVirtualCardsQuery.Variables>(
-            check {
-                it.variables().keyRingId() shouldBe "sudo-virtual-cards.subject"
-                it.variables().limit() shouldBe null
-                it.variables().nextToken() shouldBe null
-            }
-        )
-        verify(mockAppSyncClient).mutate(any<CreatePublicKeyForVirtualCardsMutation>())
+        deferredResult.await()
+
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
         verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient, times(2)).getSubject()
     }
 
     @Test
     fun `provisionVirtualCard() should throw when response has an identity verification not verified error`() = runBlocking<Unit> {
 
         provisionHolder.callback shouldBe null
-        keyRingHolder.callback shouldBe null
-        publicKeyHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
             val error = com.apollographql.apollo.api.Error(
@@ -422,43 +294,21 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             }
         }
         deferredResult.start()
-        delay(100L)
-
-        keyRingHolder.callback shouldNotBe null
-        keyRingHolder.callback?.onResponse(keyRingResponse)
-
-        delay(100L)
-        publicKeyHolder.callback shouldNotBe null
-        publicKeyHolder.callback?.onResponse(publicKeyResponse)
 
         delay(100L)
         provisionHolder.callback shouldNotBe null
         provisionHolder.callback?.onResponse(errorProvisionResponse)
 
-        verify(mockAppSyncClient).query<
-            GetKeyRingForVirtualCardsQuery.Data,
-            GetKeyRingForVirtualCardsQuery,
-            GetKeyRingForVirtualCardsQuery.Variables>(
-            check {
-                it.variables().keyRingId() shouldBe "sudo-virtual-cards.subject"
-                it.variables().limit() shouldBe null
-                it.variables().nextToken() shouldBe null
-            }
-        )
-        verify(mockAppSyncClient).mutate(any<CreatePublicKeyForVirtualCardsMutation>())
+        deferredResult.await()
+
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
         verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient, times(2)).getSubject()
     }
 
     @Test
     fun `provisionVirtualCard() should throw when response has an identity verification insufficient error`() = runBlocking<Unit> {
 
         provisionHolder.callback shouldBe null
-        keyRingHolder.callback shouldBe null
-        publicKeyHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
             val error = com.apollographql.apollo.api.Error(
@@ -478,43 +328,21 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             }
         }
         deferredResult.start()
-        delay(100L)
-
-        keyRingHolder.callback shouldNotBe null
-        keyRingHolder.callback?.onResponse(keyRingResponse)
-
-        delay(100L)
-        publicKeyHolder.callback shouldNotBe null
-        publicKeyHolder.callback?.onResponse(publicKeyResponse)
 
         delay(100L)
         provisionHolder.callback shouldNotBe null
         provisionHolder.callback?.onResponse(errorProvisionResponse)
 
-        verify(mockAppSyncClient).query<
-            GetKeyRingForVirtualCardsQuery.Data,
-            GetKeyRingForVirtualCardsQuery,
-            GetKeyRingForVirtualCardsQuery.Variables>(
-            check {
-                it.variables().keyRingId() shouldBe "sudo-virtual-cards.subject"
-                it.variables().limit() shouldBe null
-                it.variables().nextToken() shouldBe null
-            }
-        )
-        verify(mockAppSyncClient).mutate(any<CreatePublicKeyForVirtualCardsMutation>())
+        deferredResult.await()
+
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
         verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient, times(2)).getSubject()
     }
 
     @Test
     fun `provisionVirtualCard() should throw when response has a funding source not found error`() = runBlocking<Unit> {
 
         provisionHolder.callback shouldBe null
-        keyRingHolder.callback shouldBe null
-        publicKeyHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
             val error = com.apollographql.apollo.api.Error(
@@ -534,43 +362,21 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             }
         }
         deferredResult.start()
-        delay(100L)
-
-        keyRingHolder.callback shouldNotBe null
-        keyRingHolder.callback?.onResponse(keyRingResponse)
-
-        delay(100L)
-        publicKeyHolder.callback shouldNotBe null
-        publicKeyHolder.callback?.onResponse(publicKeyResponse)
 
         delay(100L)
         provisionHolder.callback shouldNotBe null
         provisionHolder.callback?.onResponse(errorProvisionResponse)
 
-        verify(mockAppSyncClient).query<
-            GetKeyRingForVirtualCardsQuery.Data,
-            GetKeyRingForVirtualCardsQuery,
-            GetKeyRingForVirtualCardsQuery.Variables>(
-            check {
-                it.variables().keyRingId() shouldBe "sudo-virtual-cards.subject"
-                it.variables().limit() shouldBe null
-                it.variables().nextToken() shouldBe null
-            }
-        )
-        verify(mockAppSyncClient).mutate(any<CreatePublicKeyForVirtualCardsMutation>())
+        deferredResult.await()
+
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
         verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient, times(2)).getSubject()
     }
 
     @Test
     fun `provisionVirtualCard() should throw when response has a funding source not active error`() = runBlocking<Unit> {
 
         provisionHolder.callback shouldBe null
-        keyRingHolder.callback shouldBe null
-        publicKeyHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
             val error = com.apollographql.apollo.api.Error(
@@ -590,43 +396,21 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             }
         }
         deferredResult.start()
-        delay(100L)
-
-        keyRingHolder.callback shouldNotBe null
-        keyRingHolder.callback?.onResponse(keyRingResponse)
-
-        delay(100L)
-        publicKeyHolder.callback shouldNotBe null
-        publicKeyHolder.callback?.onResponse(publicKeyResponse)
 
         delay(100L)
         provisionHolder.callback shouldNotBe null
         provisionHolder.callback?.onResponse(errorProvisionResponse)
 
-        verify(mockAppSyncClient).query<
-            GetKeyRingForVirtualCardsQuery.Data,
-            GetKeyRingForVirtualCardsQuery,
-            GetKeyRingForVirtualCardsQuery.Variables>(
-            check {
-                it.variables().keyRingId() shouldBe "sudo-virtual-cards.subject"
-                it.variables().limit() shouldBe null
-                it.variables().nextToken() shouldBe null
-            }
-        )
-        verify(mockAppSyncClient).mutate(any<CreatePublicKeyForVirtualCardsMutation>())
+        deferredResult.await()
+
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
         verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient, times(2)).getSubject()
     }
 
     @Test
     fun `provisionVirtualCard() should throw when response has a velocity exceeded error`() = runBlocking<Unit> {
 
         provisionHolder.callback shouldBe null
-        keyRingHolder.callback shouldBe null
-        publicKeyHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
             val error = com.apollographql.apollo.api.Error(
@@ -646,43 +430,21 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             }
         }
         deferredResult.start()
-        delay(100L)
-
-        keyRingHolder.callback shouldNotBe null
-        keyRingHolder.callback?.onResponse(keyRingResponse)
-
-        delay(100L)
-        publicKeyHolder.callback shouldNotBe null
-        publicKeyHolder.callback?.onResponse(publicKeyResponse)
 
         delay(100L)
         provisionHolder.callback shouldNotBe null
         provisionHolder.callback?.onResponse(errorProvisionResponse)
 
-        verify(mockAppSyncClient).query<
-            GetKeyRingForVirtualCardsQuery.Data,
-            GetKeyRingForVirtualCardsQuery,
-            GetKeyRingForVirtualCardsQuery.Variables>(
-            check {
-                it.variables().keyRingId() shouldBe "sudo-virtual-cards.subject"
-                it.variables().limit() shouldBe null
-                it.variables().nextToken() shouldBe null
-            }
-        )
-        verify(mockAppSyncClient).mutate(any<CreatePublicKeyForVirtualCardsMutation>())
+        deferredResult.await()
+
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
         verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient, times(2)).getSubject()
     }
 
     @Test
     fun `provisionVirtualCard() should throw when response has an entitlement exceeded error`() = runBlocking<Unit> {
 
         provisionHolder.callback shouldBe null
-        keyRingHolder.callback shouldBe null
-        publicKeyHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
             val error = com.apollographql.apollo.api.Error(
@@ -701,44 +463,23 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
                 client.provisionVirtualCard(input)
             }
         }
+
         deferredResult.start()
-        delay(100L)
-
-        keyRingHolder.callback shouldNotBe null
-        keyRingHolder.callback?.onResponse(keyRingResponse)
-
-        delay(100L)
-        publicKeyHolder.callback shouldNotBe null
-        publicKeyHolder.callback?.onResponse(publicKeyResponse)
 
         delay(100L)
         provisionHolder.callback shouldNotBe null
         provisionHolder.callback?.onResponse(errorProvisionResponse)
 
-        verify(mockAppSyncClient).query<
-            GetKeyRingForVirtualCardsQuery.Data,
-            GetKeyRingForVirtualCardsQuery,
-            GetKeyRingForVirtualCardsQuery.Variables>(
-            check {
-                it.variables().keyRingId() shouldBe "sudo-virtual-cards.subject"
-                it.variables().limit() shouldBe null
-                it.variables().nextToken() shouldBe null
-            }
-        )
-        verify(mockAppSyncClient).mutate(any<CreatePublicKeyForVirtualCardsMutation>())
+        deferredResult.await()
+
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
         verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient, times(2)).getSubject()
     }
 
     @Test
     fun `provisionVirtualCard() should throw when response has an unsupported currency error`() = runBlocking<Unit> {
 
         provisionHolder.callback shouldBe null
-        keyRingHolder.callback shouldBe null
-        publicKeyHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
             val error = com.apollographql.apollo.api.Error(
@@ -758,43 +499,21 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             }
         }
         deferredResult.start()
-        delay(100L)
-
-        keyRingHolder.callback shouldNotBe null
-        keyRingHolder.callback?.onResponse(keyRingResponse)
-
-        delay(100L)
-        publicKeyHolder.callback shouldNotBe null
-        publicKeyHolder.callback?.onResponse(publicKeyResponse)
 
         delay(100L)
         provisionHolder.callback shouldNotBe null
         provisionHolder.callback?.onResponse(errorProvisionResponse)
 
-        verify(mockAppSyncClient).query<
-            GetKeyRingForVirtualCardsQuery.Data,
-            GetKeyRingForVirtualCardsQuery,
-            GetKeyRingForVirtualCardsQuery.Variables>(
-            check {
-                it.variables().keyRingId() shouldBe "sudo-virtual-cards.subject"
-                it.variables().limit() shouldBe null
-                it.variables().nextToken() shouldBe null
-            }
-        )
-        verify(mockAppSyncClient).mutate(any<CreatePublicKeyForVirtualCardsMutation>())
+        deferredResult.await()
+
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
         verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient, times(2)).getSubject()
     }
 
     @Test
     fun `provisionVirtualCard() should throw when response has an invalid token error`() = runBlocking<Unit> {
 
         provisionHolder.callback shouldBe null
-        keyRingHolder.callback shouldBe null
-        publicKeyHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
             val error = com.apollographql.apollo.api.Error(
@@ -814,43 +533,21 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             }
         }
         deferredResult.start()
-        delay(100L)
-
-        keyRingHolder.callback shouldNotBe null
-        keyRingHolder.callback?.onResponse(keyRingResponse)
-
-        delay(100L)
-        publicKeyHolder.callback shouldNotBe null
-        publicKeyHolder.callback?.onResponse(publicKeyResponse)
 
         delay(100L)
         provisionHolder.callback shouldNotBe null
         provisionHolder.callback?.onResponse(errorProvisionResponse)
 
-        verify(mockAppSyncClient).query<
-            GetKeyRingForVirtualCardsQuery.Data,
-            GetKeyRingForVirtualCardsQuery,
-            GetKeyRingForVirtualCardsQuery.Variables>(
-            check {
-                it.variables().keyRingId() shouldBe "sudo-virtual-cards.subject"
-                it.variables().limit() shouldBe null
-                it.variables().nextToken() shouldBe null
-            }
-        )
-        verify(mockAppSyncClient).mutate(any<CreatePublicKeyForVirtualCardsMutation>())
+        deferredResult.await()
+
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
         verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient, times(2)).getSubject()
     }
 
     @Test
     fun `provisionVirtualCard() should throw when response has an account locked error`() = runBlocking<Unit> {
 
         provisionHolder.callback shouldBe null
-        keyRingHolder.callback shouldBe null
-        publicKeyHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
             val error = com.apollographql.apollo.api.Error(
@@ -870,60 +567,42 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             }
         }
         deferredResult.start()
-        delay(100L)
-
-        keyRingHolder.callback shouldNotBe null
-        keyRingHolder.callback?.onResponse(keyRingResponse)
-
-        delay(100L)
-        publicKeyHolder.callback shouldNotBe null
-        publicKeyHolder.callback?.onResponse(publicKeyResponse)
 
         delay(100L)
         provisionHolder.callback shouldNotBe null
         provisionHolder.callback?.onResponse(errorProvisionResponse)
 
-        verify(mockAppSyncClient).query<
-            GetKeyRingForVirtualCardsQuery.Data,
-            GetKeyRingForVirtualCardsQuery,
-            GetKeyRingForVirtualCardsQuery.Variables>(
-            check {
-                it.variables().keyRingId() shouldBe "sudo-virtual-cards.subject"
-                it.variables().limit() shouldBe null
-                it.variables().nextToken() shouldBe null
-            }
-        )
-        verify(mockAppSyncClient).mutate(any<CreatePublicKeyForVirtualCardsMutation>())
+        deferredResult.await()
+
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
         verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient, times(2)).getSubject()
     }
 
     @Test
     fun `provisionVirtualCard() should not block coroutine cancellation exception`() = runBlocking<Unit> {
 
-        mockKeyManager.stub {
-            on { getPassword(anyString()) } doThrow CancellationException("mock")
+        mockPublicKeyService.stub {
+            onBlocking { getCurrentRegisteredKey() } doThrow CancellationException("mock")
         }
 
         shouldThrow<CancellationException> {
             client.provisionVirtualCard(input)
         }
-        verify(mockKeyManager).getPassword(anyString())
+
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
     }
 
     @Test
     fun `provisionVirtualCard() should throw when key registration fails`() = runBlocking<Unit> {
 
-        mockKeyManager.stub {
-            on { getPassword(anyString()) } doThrow PublicKeyService.PublicKeyServiceException.KeyCreateException("mock")
+        mockPublicKeyService.stub {
+            onBlocking { getCurrentRegisteredKey() } doThrow PublicKeyService.PublicKeyServiceException.KeyCreateException("mock")
         }
 
         shouldThrow<SudoVirtualCardsClient.VirtualCardException.PublicKeyException> {
             client.provisionVirtualCard(input)
         }
-        verify(mockKeyManager).getPassword(anyString())
+
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
     }
 }

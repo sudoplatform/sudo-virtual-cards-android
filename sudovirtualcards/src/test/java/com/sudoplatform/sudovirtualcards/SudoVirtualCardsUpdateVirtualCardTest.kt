@@ -21,8 +21,8 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
-import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudoprofiles.SudoProfilesClient
+import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.UpdateCardMutation
@@ -176,6 +176,17 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         mock<SudoProfilesClient>()
     }
 
+    private val currentKey = PublicKey(
+        keyId = "keyId",
+        publicKey = "publicKey".toByteArray(),
+    )
+
+    private val mockPublicKeyService by before {
+        mock<PublicKeyService>().stub {
+            onBlocking { getCurrentKey() } doReturn currentKey
+        }
+    }
+
     private val mockAppSyncClient by before {
         mock<AWSAppSyncClient>().stub {
             on { mutate(any<UpdateCardMutation>()) } doReturn mutationHolder.mutationOperation
@@ -199,7 +210,8 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             .setSudoProfilesClient(mockSudoClient)
             .setAppSyncClient(mockAppSyncClient)
             .setKeyManager(mockKeyManager)
-            .setLogger(mock<Logger>())
+            .setLogger(mock())
+            .setPublicKeyService(mockPublicKeyService)
             .build()
     }
 
@@ -210,7 +222,14 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
     @After
     fun fini() {
-        verifyNoMoreInteractions(mockContext, mockUserClient, mockSudoClient, mockKeyManager, mockAppSyncClient)
+        verifyNoMoreInteractions(
+            mockContext,
+            mockUserClient,
+            mockSudoClient,
+            mockKeyManager,
+            mockPublicKeyService,
+            mockAppSyncClient
+        )
     }
 
     @Test
@@ -269,12 +288,9 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.country() shouldBe "country"
             }
         )
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
+        verify(mockPublicKeyService).getCurrentKey()
         verify(mockKeyManager, times(12)).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockKeyManager, times(12)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
-        verify(mockUserClient).getSubject()
     }
 
     @Test
@@ -331,10 +347,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             }
         )
         verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
@@ -373,10 +386,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.country() shouldBe "country"
             }
         )
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
@@ -421,10 +431,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.country() shouldBe "country"
             }
         )
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
@@ -469,10 +476,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.country() shouldBe "country"
             }
         )
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
@@ -517,61 +521,21 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.country() shouldBe "country"
             }
         )
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
-    fun `updateVirtualCard() should throw when password retrieval fails`() = runBlocking<Unit> {
+    fun `updateVirtualCard() should throw when current key pair retrieval returns null`() = runBlocking<Unit> {
 
-        mockKeyManager.stub {
-            on { getPassword(anyString()) } doThrow PublicKeyService.PublicKeyServiceException.KeyCreateException(
-                "Mock PublicKey Service Exception"
-            )
+        mockPublicKeyService.stub {
+            onBlocking { getCurrentKey() } doReturn null
         }
 
         shouldThrow<SudoVirtualCardsClient.VirtualCardException.PublicKeyException> {
             client.updateVirtualCard(input)
         }
 
-        verify(mockKeyManager).getPassword(anyString())
-    }
-
-    @Test
-    fun `updateVirtualCard() should throw when public key data retrieval fails`() = runBlocking<Unit> {
-
-        mockKeyManager.stub {
-            on { getPublicKeyData(anyString()) } doThrow PublicKeyService.PublicKeyServiceException.KeyCreateException(
-                "Mock PublicKey Service Exception"
-            )
-        }
-
-        shouldThrow<SudoVirtualCardsClient.VirtualCardException.PublicKeyException> {
-            client.updateVirtualCard(input)
-        }
-
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-    }
-
-    @Test
-    fun `updateVirtualCard() should throw when private key data retrieval fails`() = runBlocking<Unit> {
-
-        mockKeyManager.stub {
-            on { getPrivateKeyData(anyString()) } doThrow PublicKeyService.PublicKeyServiceException.KeyCreateException(
-                "Mock PublicKey Service Exception"
-            )
-        }
-
-        shouldThrow<SudoVirtualCardsClient.VirtualCardException.PublicKeyException> {
-            client.updateVirtualCard(input)
-        }
-
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
+        verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
@@ -601,10 +565,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.country() shouldBe "country"
             }
         )
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
@@ -652,10 +613,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.country() shouldBe "country"
             }
         )
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
@@ -691,10 +649,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.country() shouldBe "country"
             }
         )
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
@@ -722,9 +677,6 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.country() shouldBe "country"
             }
         )
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentKey()
     }
 }

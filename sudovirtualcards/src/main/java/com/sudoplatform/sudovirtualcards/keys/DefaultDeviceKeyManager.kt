@@ -11,7 +11,6 @@ import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudologging.AndroidUtilsLogDriver
 import com.sudoplatform.sudologging.LogLevel
 import com.sudoplatform.sudologging.Logger
-import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.logging.LogConstants
 import java.util.UUID
 
@@ -19,8 +18,6 @@ import java.util.UUID
  * Responsible for Managing the lifecycle of key pairs associated with the virtual cards service.
  */
 internal class DefaultDeviceKeyManager(
-    private val keyRingServiceName: String,
-    private val userClient: SudoUserClient,
     private val keyManager: KeyManagerInterface,
     private val logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO))
 ) : DeviceKeyManager {
@@ -31,43 +28,27 @@ internal class DefaultDeviceKeyManager(
     }
 
     /**
-     * Returns the key ring id associated with the owner's service.
-     *
-     * @return The identifier of the key ring associated with the owner's service
-     * @throws [DeviceKeyManager.DeviceKeyManagerException.UserIdNotFoundException] if the user Id cannot be found.
-     */
-    @Throws(DeviceKeyManager.DeviceKeyManagerException.UserIdNotFoundException::class)
-    override fun getKeyRingId(): String {
-        try {
-            val userId = userClient.getSubject()
-                ?: throw DeviceKeyManager.DeviceKeyManagerException.UserIdNotFoundException("UserId not found")
-            return "$keyRingServiceName.$userId"
-        } catch (e: Exception) {
-            throw DeviceKeyManager.DeviceKeyManagerException.UserIdNotFoundException("UserId could not be accessed", e)
-        }
-    }
-
-    /**
-     * Returns the key pair that is currently being used by this service.
+     * Returns the public key of the key pair that is currently being used by this service.
      * If no key pair has been previously generated, will return null and require the caller
      * to call [generateNewCurrentKeyPair] if a current key pair is required.
      *
-     * @return The current key pair in use or null.
+     * @return The public key of the current key pair in use or null.
      */
-    override fun getCurrentKeyPair(): KeyPair? {
+    override fun getCurrentKey(): DeviceKey? {
         try {
             val currentKeyData = keyManager.getPassword(CURRENT_KEY_ID_NAME)
                 ?: return null
             val currentKeyId = currentKeyData.toString(Charsets.UTF_8)
+
+            // Currently, Android key store cannot have only a public key or
+            // only a private key - exsitence of public key implies existence
+            // of private key so we don't need to test explicitly for private
+            // key existence.
             val publicKey = keyManager.getPublicKeyData(currentKeyId)
                 ?: return null
-            val privateKey = keyManager.getPrivateKeyData(currentKeyId)
-                ?: return null
-            return KeyPair(
+            return DeviceKey(
                 keyId = currentKeyId,
-                keyRingId = getKeyRingId(),
                 publicKey = publicKey,
-                privateKey = privateKey
             )
         } catch (e: KeyManagerException) {
             throw DeviceKeyManager.DeviceKeyManagerException.KeyOperationFailedException("KeyManager exception", e)
@@ -75,21 +56,21 @@ internal class DefaultDeviceKeyManager(
     }
 
     /**
-     * Returns the [KeyPair] with the identifier [id] if it exists.
+     * Returns the [DeviceKey] of the key pair with the identifier [id] if it exists.
      *
-     * @return The [KeyPair] with the identifier [id] if it exists, null if it does not.
+     * @return The [DeviceKey] of the key pair with the identifier [id] if it exists, null if it does not.
      */
-    override fun getKeyPairWithId(id: String): KeyPair? {
+    override fun getKeyWithId(id: String): DeviceKey? {
         try {
+            // Currently, Android key store cannot have only a public key or
+            // only a private key - exsitence of public key implies existence
+            // of private key so we don't need to test explicitly for private
+            // key existence.
             val publicKey = keyManager.getPublicKeyData(id)
                 ?: return null
-            val privateKey = keyManager.getPrivateKeyData(id)
-                ?: return null
-            return KeyPair(
+            return DeviceKey(
                 keyId = id,
-                keyRingId = getKeyRingId(),
                 publicKey = publicKey,
-                privateKey = privateKey
             )
         } catch (e: KeyManagerException) {
             throw DeviceKeyManager.DeviceKeyManagerException.KeyOperationFailedException("KeyManager exception", e)
@@ -97,15 +78,17 @@ internal class DefaultDeviceKeyManager(
     }
 
     /**
-     * Generate a new [KeyPair] and make it the current [KeyPair].
+     * Generate a new key pair and make it the current. Return the public key for the new
+     * key pair.
      *
-     * @return The generated [KeyPair]
-     * @throws [DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException] if unable to generate the [KeyPair]
+     * @return The generated key pair's [DeviceKey]
+     * @throws [DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException] if unable to generate the [DeviceKey]
      */
     @Throws(DeviceKeyManager.DeviceKeyManagerException::class)
-    override fun generateNewCurrentKeyPair(): KeyPair {
+    override fun generateNewCurrentKeyPair(): DeviceKey {
 
         val keyId = UUID.randomUUID().toString()
+
         try {
             // Replace the old current key identifier with a new one
             keyManager.deletePassword(CURRENT_KEY_ID_NAME)
@@ -115,12 +98,9 @@ internal class DefaultDeviceKeyManager(
             keyManager.generateKeyPair(keyId, true)
 
             val publicKey = keyManager.getPublicKeyData(keyId)
-            val privateKey = keyManager.getPrivateKeyData(keyId)
-            return KeyPair(
+            return DeviceKey(
                 keyId = keyId,
-                keyRingId = getKeyRingId(),
                 publicKey = publicKey,
-                privateKey = privateKey
             )
         } catch (e: Exception) {
             logger.error("error $e")

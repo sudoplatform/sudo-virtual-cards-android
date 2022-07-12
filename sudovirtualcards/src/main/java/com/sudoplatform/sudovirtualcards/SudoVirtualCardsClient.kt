@@ -18,6 +18,7 @@ import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.keys.DefaultDeviceKeyManager
 import com.sudoplatform.sudovirtualcards.keys.DefaultPublicKeyService
+import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.logging.LogConstants
 import com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
@@ -69,6 +70,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
         private var sudoProfilesClient: SudoProfilesClient? = null
         private var appSyncClient: AWSAppSyncClient? = null
         private var keyManager: KeyManagerInterface? = null
+        private var publicKeyService: PublicKeyService? = null
         private var logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO))
 
         /**
@@ -121,6 +123,15 @@ interface SudoVirtualCardsClient : AutoCloseable {
         }
 
         /**
+         * Provider the implementation of the [PublicKeyService] used for public
+         * key operations (optional).
+         * If a value is not supplied a default implementation will be used.
+         */
+        internal fun setPublicKeyService(publicKeyService: PublicKeyService) = also {
+            this.publicKeyService = publicKeyService
+        }
+
+        /**
          * Construct the [SudoVirtualCardsClient]. Will throw a [NullPointerException] if
          * the [context], [sudoUserClient] and [sudoProfilesClient] has not been provided.
          */
@@ -132,12 +143,12 @@ interface SudoVirtualCardsClient : AutoCloseable {
             val appSyncClient = appSyncClient ?: ApiClientManager.getClient(this@Builder.context!!, this@Builder.sudoUserClient!!)
 
             val deviceKeyManager = DefaultDeviceKeyManager(
-                keyRingServiceName = "sudo-virtual-cards",
-                userClient = sudoUserClient!!,
                 keyManager = keyManager ?: KeyManagerFactory(context!!).createAndroidKeyManager(DEFAULT_KEY_NAMESPACE)
             )
 
-            val publicKeyService = DefaultPublicKeyService(
+            val publicKeyService = publicKeyService ?: DefaultPublicKeyService(
+                keyRingServiceName = "sudo-virtual-cards",
+                userClient = sudoUserClient!!,
                 deviceKeyManager = deviceKeyManager,
                 appSyncClient = appSyncClient,
                 logger = logger

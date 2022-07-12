@@ -907,6 +907,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
     @Test
     fun getVirtualCardShouldReturnNullForNonExistentId() = runBlocking {
         registerSignInAndEntitle()
+        vcClient.createKeysIfAbsent()
 
         val retrievedCard = vcClient.getVirtualCard("NonExistentId")
         retrievedCard shouldBe null

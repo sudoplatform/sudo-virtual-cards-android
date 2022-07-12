@@ -8,19 +8,13 @@ package com.sudoplatform.sudovirtualcards.keys
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
 import com.sudoplatform.sudokeymanager.AndroidSQLiteStore
 import com.sudoplatform.sudokeymanager.KeyManager
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
-import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.BaseTests
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
-import io.kotlintest.matchers.string.shouldStartWith
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
-import io.kotlintest.shouldThrow
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -37,15 +31,7 @@ import timber.log.Timber
 @Config(manifest = Config.NONE)
 class DeviceKeyManagerRoboTest : BaseTests() {
 
-    private val keyRingServiceName = "sudo-virtual-cards"
-
     private val context = ApplicationProvider.getApplicationContext<Context>()
-
-    private val mockUserClient by before {
-        mock<SudoUserClient>().stub {
-            on { getSubject() } doReturn "mockSubject"
-        }
-    }
 
     private val keyManager by before {
         KeyManager(AndroidSQLiteStore(context))
@@ -53,8 +39,6 @@ class DeviceKeyManagerRoboTest : BaseTests() {
 
     private val deviceKeyManager by before {
         DefaultDeviceKeyManager(
-            userClient = mockUserClient,
-            keyRingServiceName = keyRingServiceName,
             keyManager = keyManager,
             logger = mockLogger
         )
@@ -72,49 +56,27 @@ class DeviceKeyManagerRoboTest : BaseTests() {
     }
 
     @Test
-    fun shouldThrowIfNotRegistered() {
-        // given
-        mockUserClient.stub {
-            on { getSubject() } doReturn null
-        }
+    fun shouldBeAbleToPerformOperations() = runBlocking {
 
-        shouldThrow<DeviceKeyManager.DeviceKeyManagerException.UserIdNotFoundException> {
-            deviceKeyManager.getKeyRingId()
-        }
-    }
-
-    @Test
-    fun shouldNotThrowIfRegistered() {
-        deviceKeyManager.getKeyRingId() shouldNotBe null
-    }
-
-    @Test
-    fun shouldBeAbleToPerformOperationsAfterSignIn() = runBlocking {
-
-        deviceKeyManager.getCurrentKeyPair() shouldBe null
-        deviceKeyManager.getKeyPairWithId("bogusValue") shouldBe null
+        deviceKeyManager.getCurrentKey() shouldBe null
+        deviceKeyManager.getKeyWithId("bogusValue") shouldBe null
 
         val keyPair = deviceKeyManager.generateNewCurrentKeyPair()
         with(keyPair) {
             this shouldNotBe null
-            keyRingId shouldStartWith keyRingServiceName
             keyId.isBlank() shouldBe false
             publicKey shouldNotBe null
             publicKey.size shouldBeGreaterThan 0
-            privateKey shouldNotBe null
-            privateKey.size shouldBeGreaterThan 0
         }
 
-        val currentKeyPair = deviceKeyManager.getCurrentKeyPair()
+        val currentKeyPair = deviceKeyManager.getCurrentKey()
         currentKeyPair shouldNotBe null
         currentKeyPair shouldBe keyPair
 
-        val fetchedKeyPair = deviceKeyManager.getKeyPairWithId(currentKeyPair!!.keyId)
+        val fetchedKeyPair = deviceKeyManager.getKeyWithId(currentKeyPair!!.keyId)
         fetchedKeyPair shouldNotBe null
         fetchedKeyPair shouldBe keyPair
         fetchedKeyPair shouldBe currentKeyPair
-
-        deviceKeyManager.getKeyRingId() shouldStartWith keyRingServiceName
 
         val clearData = "hello world".toByteArray()
         var secretData = keyManager.encryptWithPublicKey(

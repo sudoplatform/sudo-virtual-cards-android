@@ -15,11 +15,6 @@ import java.lang.RuntimeException
  */
 internal interface PublicKeyService {
 
-    enum class MissingKeyPolicy {
-        GENERATE_IF_MISSING,
-        DO_NOT_GENERATE
-    }
-
     /**
      * Defines the exceptions for the [PublicKeyService] methods.
      *
@@ -31,27 +26,42 @@ internal interface PublicKeyService {
             PublicKeyServiceException(message = message, cause = cause)
         class FailedException(message: String? = null, cause: Throwable? = null) :
             PublicKeyServiceException(message = message, cause = cause)
+        class UserIdNotFoundException(message: String? = null, cause: Throwable? = null) :
+            PublicKeyServiceException(message = message, cause = cause)
         class UnknownException(message: String? = null, cause: Throwable? = null) :
             PublicKeyServiceException(message = message, cause = cause)
     }
 
     /**
-     * Get the current key pair. Optionally generate a new key pair if one does not exist.
+     * Get the current public key of the current key pair, if any.
      *
-     * @param missingKeyPolicy Controls if the key pair is generated if it is absent.
-     * @return The current key pair or null if they are missing and [missingKeyPolicy] is set to [MissingKeyPolicy.DO_NOT_GENERATE]
+     * @return The current key pair's public key or null if there is no
+     * current key pair.
      */
     @Throws(PublicKeyServiceException::class)
-    suspend fun getCurrentKeyPair(missingKeyPolicy: MissingKeyPolicy = MissingKeyPolicy.DO_NOT_GENERATE): KeyPair?
+    fun getCurrentKey(): PublicKey?
 
     /**
-     * Get the [KeyRing] by ID
+     * Return the current key pair's public key with key ring ID.
      *
-     * @param id The key ring identifier
+     * A new key pair will be created if one does not already exist.
+     *
+     * An existing but unregistered current key pair will have its public
+     * key registered with the service using the default key ring ID.
+     *
+     * @returns Current key pair's public key with key ring ID
+     */
+    @Throws(PublicKeyServiceException::class)
+    suspend fun getCurrentRegisteredKey(): PublicKeyWithKeyRingId
+
+    /**
+     * Get the [PublicKey] by ID
+     *
+     * @param id The key identifier
      * @param cachePolicy Controls if the results come from cache or server
      */
     @Throws(PublicKeyServiceException::class)
-    suspend fun getKeyRing(id: String, cachePolicy: CachePolicy): KeyRing?
+    suspend fun get(id: String, cachePolicy: CachePolicy): PublicKeyWithKeyRingId?
 
     /**
      * Create/Register a new public key. Although a key pair is passed in, only the public key is
@@ -62,5 +72,5 @@ internal interface PublicKeyService {
      * @param publicKey [ByteArray] Bytes of the public key (PEM format) to register/create.
      */
     @Throws(PublicKeyServiceException::class)
-    suspend fun create(keyId: String, keyRingId: String, publicKey: ByteArray): PublicKey
+    suspend fun create(keyId: String, keyRingId: String, publicKey: ByteArray): PublicKeyWithKeyRingId
 }

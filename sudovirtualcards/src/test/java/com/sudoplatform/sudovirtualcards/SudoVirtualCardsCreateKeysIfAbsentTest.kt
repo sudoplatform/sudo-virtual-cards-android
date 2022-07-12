@@ -12,10 +12,9 @@ import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
-import com.sudoplatform.sudovirtualcards.keys.KeyPair
-import com.sudoplatform.sudovirtualcards.keys.KeyRing
+import com.sudoplatform.sudovirtualcards.keys.DeviceKey
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
-import com.sudoplatform.sudovirtualcards.types.CachePolicy
+import com.sudoplatform.sudovirtualcards.keys.PublicKeyWithKeyRingId
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
@@ -44,19 +43,25 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
     private val symmetricKeyId = "symmetric-key-id"
     private val keyId = "key-pair-id"
     private val keyRingId = "key-ring-id"
-    private val keyPairResult by before {
-        KeyPair(
+    private val deviceKeyResult by before {
+        DeviceKey(
             keyId = keyId,
-            keyRingId = "key-ring-id",
             publicKey = ByteArray(42),
-            privateKey = ByteArray(42)
         )
     }
+
+    private val publicKeyWithKeyRingIdResult by before {
+        PublicKeyWithKeyRingId(
+            publicKey = PublicKey(
+                keyId = keyId,
+                publicKey = ByteArray(42)
+            ),
+            keyRingId = keyRingId
+        )
+    }
+
     private val publicKey by before {
         PublicKey(keyId, ByteArray(42), "algorithm")
-    }
-    private val keyRing by before {
-        KeyRing(keyRingId, listOf(publicKey), null)
     }
 
     private val mockContext by before {
@@ -78,15 +83,20 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
     private val mockDeviceKeyManager by before {
         mock<DeviceKeyManager>().stub {
             on { getCurrentSymmetricKeyId() } doReturn symmetricKeyId
-            on { getCurrentKeyPair() } doReturn keyPairResult
+            on { getCurrentKey() } doReturn deviceKeyResult
             on { generateNewCurrentSymmetricKey() } doReturn symmetricKeyId
-            on { generateNewCurrentKeyPair() } doReturn keyPairResult
+            on { generateNewCurrentKeyPair() } doReturn deviceKeyResult
         }
     }
 
     private val mockPublicKeyService by before {
         mock<PublicKeyService>().stub {
-            onBlocking { getKeyRing(anyString(), any()) } doReturn keyRing
+            onBlocking { get(anyString(), any()) } doReturn PublicKeyWithKeyRingId(
+                publicKey = publicKey,
+                keyRingId = keyRingId
+            )
+            onBlocking { getCurrentKey() } doReturn publicKey
+            onBlocking { getCurrentRegisteredKey() } doReturn publicKeyWithKeyRingIdResult
         }
     }
 
@@ -134,8 +144,8 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
         }
 
         verify(mockDeviceKeyManager).getCurrentSymmetricKeyId()
-        verify(mockDeviceKeyManager).getCurrentKeyPair()
-        verify(mockPublicKeyService).getKeyRing(keyRingId, CachePolicy.REMOTE_ONLY)
+        verify(mockPublicKeyService).getCurrentKey()
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
     }
 
     @Test
@@ -163,44 +173,15 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
 
         verify(mockDeviceKeyManager).getCurrentSymmetricKeyId()
         verify(mockDeviceKeyManager).generateNewCurrentSymmetricKey()
-        verify(mockDeviceKeyManager).getCurrentKeyPair()
-        verify(mockPublicKeyService).getKeyRing(keyRingId, CachePolicy.REMOTE_ONLY)
-    }
-
-    @Test
-    fun `createKeysIfAbsent() should register key pair if current key pair is present but not registered`() = runBlocking<Unit> {
-
-        mockPublicKeyService.stub {
-            onBlocking { getKeyRing(anyString(), any()) } doReturn KeyRing("", emptyList(), null)
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.createKeysIfAbsent()
-        }
-        deferredResult.start()
-        delay(100L)
-
-        val result = deferredResult.await()
-        result shouldNotBe null
-
-        with(result) {
-            symmetricKey.created shouldBe false
-            symmetricKey.keyId shouldBe symmetricKeyId
-            keyPair.created shouldBe false
-            keyPair.keyId shouldBe keyId
-        }
-
-        verify(mockDeviceKeyManager).getCurrentSymmetricKeyId()
-        verify(mockDeviceKeyManager).getCurrentKeyPair()
-        verify(mockPublicKeyService).create(keyPairResult.keyId, keyPairResult.keyRingId, keyPairResult.publicKey)
-        verify(mockPublicKeyService).getKeyRing(keyRingId, CachePolicy.REMOTE_ONLY)
+        verify(mockPublicKeyService).getCurrentKey()
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
     }
 
     @Test
     fun `createKeysIfAbsent() should create and register key pair if current key pair is not present`() = runBlocking<Unit> {
 
-        mockDeviceKeyManager.stub {
-            on { getCurrentKeyPair() } doReturn null
+        mockPublicKeyService.stub {
+            onBlocking { getCurrentKey() } doReturn null
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -220,9 +201,8 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
         }
 
         verify(mockDeviceKeyManager).getCurrentSymmetricKeyId()
-        verify(mockDeviceKeyManager).getCurrentKeyPair()
-        verify(mockDeviceKeyManager).generateNewCurrentKeyPair()
-        verify(mockPublicKeyService).create(keyPairResult.keyId, keyPairResult.keyRingId, keyPairResult.publicKey)
+        verify(mockPublicKeyService).getCurrentKey()
+        verify(mockPublicKeyService).getCurrentRegisteredKey()
     }
 
     @Test
@@ -249,7 +229,7 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
     fun `createKeysIfAbsent() should not block coroutine cancellation exception`() = runBlocking<Unit> {
 
         mockPublicKeyService.stub {
-            onBlocking { getKeyRing(anyString(), any()) } doThrow CancellationException("Mock Cancellation Exception")
+            onBlocking { getCurrentKey() } doThrow CancellationException("Mock Cancellation Exception")
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -263,7 +243,6 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
         deferredResult.await()
 
         verify(mockDeviceKeyManager).getCurrentSymmetricKeyId()
-        verify(mockDeviceKeyManager).getCurrentKeyPair()
-        verify(mockPublicKeyService).getKeyRing(keyRingId, CachePolicy.REMOTE_ONLY)
+        verify(mockPublicKeyService).getCurrentKey()
     }
 }

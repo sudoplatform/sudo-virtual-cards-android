@@ -19,8 +19,8 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
-import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudoprofiles.SudoProfilesClient
+import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.GetTransactionQuery
@@ -62,7 +62,7 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
 
     private val queryResult by before {
         GetTransactionQuery.GetTransaction(
-            "typename",
+            "Transaction",
             "id",
             "owner",
             1,
@@ -107,12 +107,23 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
 
     private val mockUserClient by before {
         mock<SudoUserClient>().stub {
-            on { getSubject() } doReturn "subject"
+            on { getSubject() } doReturn "owner"
         }
     }
 
     private val mockSudoClient by before {
         mock<SudoProfilesClient>()
+    }
+
+    private val currentKey = PublicKey(
+        keyId = "keyId",
+        publicKey = "publicKey".toByteArray(),
+    )
+
+    private val mockPublicKeyService by before {
+        mock<PublicKeyService>().stub {
+            onBlocking { getCurrentKey() } doReturn currentKey
+        }
     }
 
     private val mockAppSyncClient by before {
@@ -138,7 +149,8 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
             .setSudoProfilesClient(mockSudoClient)
             .setAppSyncClient(mockAppSyncClient)
             .setKeyManager(mockKeyManager)
-            .setLogger(mock<Logger>())
+            .setLogger(mock())
+            .setPublicKeyService(mockPublicKeyService)
             .build()
     }
 
@@ -149,7 +161,7 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
 
     @After
     fun fini() {
-        verifyNoMoreInteractions(mockContext, mockUserClient, mockSudoClient, mockKeyManager, mockAppSyncClient)
+        verifyNoMoreInteractions(mockContext, mockUserClient, mockSudoClient, mockKeyManager, mockPublicKeyService, mockAppSyncClient)
     }
 
     @Test
@@ -172,12 +184,9 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
         checkTransaction(result!!)
 
         verify(mockAppSyncClient).query(any<GetTransactionQuery>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
+        verify(mockPublicKeyService).getCurrentKey()
         verify(mockKeyManager, times(16)).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockKeyManager, times(16)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
-        verify(mockUserClient).getSubject()
     }
 
     private fun checkTransaction(transaction: Transaction) {
@@ -225,10 +234,7 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
         result shouldBe null
 
         verify(mockAppSyncClient).query(any<GetTransactionQuery>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
@@ -255,10 +261,7 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
         result shouldBe null
 
         verify(mockAppSyncClient).query(any<GetTransactionQuery>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
@@ -276,69 +279,29 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
             client.getTransaction("id")
         }
         deferredResult.start()
-        delay(100L)
 
+        delay(100L)
         queryHolder.callback shouldNotBe null
         queryHolder.callback?.onResponse(errorQueryResponse)
 
         deferredResult.await() shouldBe null
 
         verify(mockAppSyncClient).query(any<GetTransactionQuery>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
-    fun `getTransaction() should throw when password retrieval fails`() = runBlocking<Unit> {
+    fun `getTransaction() should throw current key pair retrieval returns null`() = runBlocking<Unit> {
 
-        mockKeyManager.stub {
-            on { getPassword(anyString()) } doThrow PublicKeyService.PublicKeyServiceException.KeyCreateException(
-                "Mock PublicKey Service Exception"
-            )
+        mockPublicKeyService.stub {
+            onBlocking { getCurrentKey() } doReturn null
         }
 
         shouldThrow<SudoVirtualCardsClient.TransactionException.PublicKeyException> {
             client.getTransaction("id")
         }
 
-        verify(mockKeyManager).getPassword(anyString())
-    }
-
-    @Test
-    fun `getTransaction() should throw when public key data retrieval fails`() = runBlocking<Unit> {
-
-        mockKeyManager.stub {
-            on { getPublicKeyData(anyString()) } doThrow PublicKeyService.PublicKeyServiceException.KeyCreateException(
-                "Mock PublicKey Service Exception"
-            )
-        }
-
-        shouldThrow<SudoVirtualCardsClient.TransactionException.PublicKeyException> {
-            client.getTransaction("id")
-        }
-
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-    }
-
-    @Test
-    fun `getTransaction() should throw when private key data retrieval fails`() = runBlocking<Unit> {
-
-        mockKeyManager.stub {
-            on { getPrivateKeyData(anyString()) } doThrow PublicKeyService.PublicKeyServiceException.KeyCreateException(
-                "Mock PublicKey Service Exception"
-            )
-        }
-
-        shouldThrow<SudoVirtualCardsClient.TransactionException.PublicKeyException> {
-            client.getTransaction("id")
-        }
-
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
+        verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
@@ -354,10 +317,7 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
         }
 
         verify(mockAppSyncClient).query(any<GetTransactionQuery>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
@@ -371,8 +331,8 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
             }
         }
         deferredResult.start()
-        delay(100L)
 
+        delay(100L)
         val request = okhttp3.Request.Builder()
             .get()
             .url("http://www.smh.com.au")
@@ -392,14 +352,11 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
         deferredResult.await()
 
         verify(mockAppSyncClient).query(any<GetTransactionQuery>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
-    fun `getTransaction() should throw when unknown error occurs()`() = runBlocking<Unit> {
+    fun `getTransaction() should throw when unknown error occurs`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
@@ -407,21 +364,12 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
             on { query(any<GetTransactionQuery>()) } doThrow RuntimeException("Mock Runtime Exception")
         }
 
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.TransactionException.UnknownException> {
-                client.getTransaction("id")
-            }
+        shouldThrow<SudoVirtualCardsClient.TransactionException.UnknownException> {
+            client.getTransaction("id")
         }
-        deferredResult.start()
-        delay(100L)
-
-        deferredResult.await()
 
         verify(mockAppSyncClient).query(any<GetTransactionQuery>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
@@ -436,9 +384,6 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
         }
 
         verify(mockAppSyncClient).query(any<GetTransactionQuery>())
-        verify(mockKeyManager).getPassword(anyString())
-        verify(mockKeyManager).getPublicKeyData(anyString())
-        verify(mockKeyManager).getPrivateKeyData(anyString())
-        verify(mockUserClient).getSubject()
+        verify(mockPublicKeyService).getCurrentKey()
     }
 }

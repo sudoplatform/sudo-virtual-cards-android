@@ -10,17 +10,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudovirtualcards.BaseIntegrationTest
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
-import io.kotlintest.matchers.string.shouldStartWith
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
-import io.kotlintest.shouldThrow
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import timber.log.Timber
-import java.util.logging.Logger
 
 /**
  * Test the operation of [DefaultDeviceKeyManager] on Android.
@@ -28,12 +25,8 @@ import java.util.logging.Logger
 @RunWith(AndroidJUnit4::class)
 class DeviceKeyManagerTest : BaseIntegrationTest() {
 
-    private val keyRingServiceName = "sudo-virtual-cards"
-
     private val deviceKeyManager by lazy {
         DefaultDeviceKeyManager(
-            userClient = userClient,
-            keyRingServiceName = keyRingServiceName,
             keyManager = keyManager
         )
     }
@@ -42,69 +35,44 @@ class DeviceKeyManagerTest : BaseIntegrationTest() {
     fun init() {
         Timber.plant(Timber.DebugTree())
 
-        Logger.getLogger("com.amazonaws").level = java.util.logging.Level.FINEST
-        Logger.getLogger("org.apache.http").level = java.util.logging.Level.FINEST
-
         keyManager.removeAllKeys()
     }
 
     @After
     fun fini() = runBlocking {
-        if (userClient.isRegistered()) {
-            deregister()
-        }
-        userClient.reset()
-        sudoClient.reset()
-
         Timber.uprootAll()
     }
 
     @Test
-    fun shouldThrowIfNotRegistered() {
-        shouldThrow<DeviceKeyManager.DeviceKeyManagerException.UserIdNotFoundException> {
-            deviceKeyManager.getKeyRingId()
-        }
+    fun shouldReturnNullIfNoCurrentKey() {
+        deviceKeyManager.getCurrentKey() shouldBe null
     }
 
     @Test
-    fun shouldBeAbleToPerformOperationsAfterSignIn() = runBlocking {
-
-        registerSignInAndEntitle()
-
-        deviceKeyManager.getCurrentKeyPair() shouldBe null
-        deviceKeyManager.getKeyPairWithId("bogusValue") shouldBe null
-
-        val keyPair = deviceKeyManager.generateNewCurrentKeyPair()
-        with(keyPair) {
+    fun shouldReturnCurrentKeyAfterGeneratingNewKey() = runBlocking {
+        deviceKeyManager.getCurrentKey() shouldBe null
+        val generated = deviceKeyManager.generateNewCurrentKeyPair()
+        with(generated) {
             this shouldNotBe null
-            keyRingId shouldStartWith keyRingServiceName
             keyId.isBlank() shouldBe false
             publicKey shouldNotBe null
             publicKey.size shouldBeGreaterThan 0
-            privateKey shouldNotBe null
-            privateKey.size shouldBeGreaterThan 0
         }
+        deviceKeyManager.getCurrentKey() shouldBe generated
 
-        val currentKeyPair = deviceKeyManager.getCurrentKeyPair()
-        currentKeyPair shouldNotBe null
-        currentKeyPair shouldBe keyPair
-
-        val fetchedKeyPair = deviceKeyManager.getKeyPairWithId(currentKeyPair!!.keyId)
+        val fetchedKeyPair = deviceKeyManager.getKeyWithId(generated.keyId)
         fetchedKeyPair shouldNotBe null
-        fetchedKeyPair shouldBe keyPair
-        fetchedKeyPair shouldBe currentKeyPair
-
-        deviceKeyManager.getKeyRingId() shouldStartWith keyRingServiceName
+        fetchedKeyPair shouldBe generated
 
         val clearData = "hello world".toByteArray()
         var secretData = keyManager.encryptWithPublicKey(
-            currentKeyPair.keyId,
+            generated.keyId,
             clearData,
             KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1
         )
         var decryptedData = deviceKeyManager.decryptWithPrivateKey(
             secretData,
-            currentKeyPair.keyId,
+            generated.keyId,
             KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1
         )
         decryptedData shouldBe clearData
