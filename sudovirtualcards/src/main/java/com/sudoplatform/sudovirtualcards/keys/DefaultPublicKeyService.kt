@@ -16,8 +16,8 @@ import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.extensions.enqueue
 import com.sudoplatform.sudovirtualcards.extensions.enqueueFirst
-import com.sudoplatform.sudovirtualcards.graphql.CreatePublicKeyForVirtualCardsMutation
-import com.sudoplatform.sudovirtualcards.graphql.GetPublicKeyForVirtualCardsQuery
+import com.sudoplatform.sudovirtualcards.graphql.CreatePublicKeyMutation
+import com.sudoplatform.sudovirtualcards.graphql.GetPublicKeyQuery
 import com.sudoplatform.sudovirtualcards.graphql.type.CreatePublicKeyInput
 import com.sudoplatform.sudovirtualcards.logging.LogConstants
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
@@ -146,7 +146,7 @@ internal class DefaultPublicKeyService(
 
     override suspend fun get(id: String, cachePolicy: CachePolicy): PublicKeyWithKeyRingId? {
         try {
-            val query = GetPublicKeyForVirtualCardsQuery.builder()
+            val query = GetPublicKeyQuery.builder()
                 .keyId(id)
                 .build()
 
@@ -182,7 +182,7 @@ internal class DefaultPublicKeyService(
                 .keyId(keyId)
                 .keyRingId(keyRingId)
                 .build()
-            val mutation = CreatePublicKeyForVirtualCardsMutation.builder()
+            val mutation = CreatePublicKeyMutation.builder()
                 .input(mutationInput)
                 .build()
 

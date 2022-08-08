@@ -8,8 +8,8 @@ package com.sudoplatform.sudovirtualcards.types.transformers
 
 import com.amazonaws.util.Base64
 import com.sudoplatform.sudouser.PublicKey
-import com.sudoplatform.sudovirtualcards.graphql.CreatePublicKeyForVirtualCardsMutation
-import com.sudoplatform.sudovirtualcards.graphql.GetPublicKeyForVirtualCardsQuery
+import com.sudoplatform.sudovirtualcards.graphql.CreatePublicKeyMutation
+import com.sudoplatform.sudovirtualcards.graphql.GetPublicKeyQuery
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyWithKeyRingId
 
 /**
@@ -24,14 +24,15 @@ internal object KeyTransformer {
      * @param result [CreatePublicKeyForVirtualCardsMutation.CreatePublicKeyForVirtualCards] The GraphQL mutation results.
      * @return The [PublicKey] entity type.
      */
-    fun toPublicKeyWithKeyRingId(result: CreatePublicKeyForVirtualCardsMutation.CreatePublicKeyForVirtualCards): PublicKeyWithKeyRingId {
+    fun toPublicKeyWithKeyRingId(result: CreatePublicKeyMutation.CreatePublicKeyForVirtualCards): PublicKeyWithKeyRingId {
+        val publicKeyWithKeyRingId = result.fragments().publicKey()
         return PublicKeyWithKeyRingId(
             publicKey = PublicKey(
-                keyId = result.keyId(),
-                publicKey = Base64.decode(result.publicKey()),
-                algorithm = result.algorithm()
+                keyId = publicKeyWithKeyRingId.keyId(),
+                publicKey = Base64.decode(publicKeyWithKeyRingId.publicKey()),
+                algorithm = publicKeyWithKeyRingId.algorithm()
             ),
-            keyRingId = result.keyRingId()
+            keyRingId = publicKeyWithKeyRingId.keyRingId()
         )
     }
 
@@ -41,14 +42,15 @@ internal object KeyTransformer {
      * @param result [GetPublicKeyForVirtualCardsQuery.GetPublicKeyForVirtualCards] The GraphQL query results.
      * @return The [PublicKey] entity type.
      */
-    fun toPublicKeyWithKeyRingId(result: GetPublicKeyForVirtualCardsQuery.GetPublicKeyForVirtualCards): PublicKeyWithKeyRingId {
+    fun toPublicKeyWithKeyRingId(result: GetPublicKeyQuery.GetPublicKeyForVirtualCards): PublicKeyWithKeyRingId {
+        val publicKeyWithKeyRingId = result.fragments().publicKey()
         return PublicKeyWithKeyRingId(
             publicKey = PublicKey(
-                keyId = result.keyId(),
-                publicKey = Base64.decode(result.publicKey()),
-                algorithm = result.algorithm()
+                keyId = publicKeyWithKeyRingId.keyId(),
+                publicKey = Base64.decode(publicKeyWithKeyRingId.publicKey()),
+                algorithm = publicKeyWithKeyRingId.algorithm()
             ),
-            keyRingId = result.keyRingId()
+            keyRingId = publicKeyWithKeyRingId.keyRingId()
         )
     }
 }

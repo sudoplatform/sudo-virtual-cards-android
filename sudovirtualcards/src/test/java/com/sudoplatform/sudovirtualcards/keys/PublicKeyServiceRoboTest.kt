@@ -15,8 +15,9 @@ import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.BaseTests
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
-import com.sudoplatform.sudovirtualcards.graphql.CreatePublicKeyForVirtualCardsMutation
-import com.sudoplatform.sudovirtualcards.graphql.GetPublicKeyForVirtualCardsQuery
+import com.sudoplatform.sudovirtualcards.graphql.CreatePublicKeyMutation
+import com.sudoplatform.sudovirtualcards.graphql.GetPublicKeyQuery
+import com.sudoplatform.sudovirtualcards.graphql.fragment.PublicKey as PublicKeyFragment
 import com.sudoplatform.sudovirtualcards.graphql.type.CreatePublicKeyInput
 import com.sudoplatform.sudovirtualcards.graphql.type.KeyFormat
 import kotlinx.coroutines.runBlocking
@@ -81,54 +82,64 @@ class PublicKeyServiceRoboTest : BaseTests() {
     )
 
     private val queryResult by before {
-        GetPublicKeyForVirtualCardsQuery.GetPublicKeyForVirtualCards(
-            "typename",
-            "owner-keyId",
-            "keyId",
-            "keyRingId",
-            "algoirithm",
-            KeyFormat.RSA_PUBLIC_KEY,
-            Base64.toBase64String(publicKey),
-            "owner",
-            1,
-            1.0,
-            1.0
+        GetPublicKeyQuery.GetPublicKeyForVirtualCards(
+            "GetPublicKey",
+            GetPublicKeyQuery.GetPublicKeyForVirtualCards.Fragments(
+                PublicKeyFragment(
+                    "PublicKey",
+                    "owner-keyId",
+                    "keyId",
+                    "keyRingId",
+                    "algoirithm",
+                    KeyFormat.RSA_PUBLIC_KEY,
+                    Base64.toBase64String(publicKey),
+                    "owner",
+                    1,
+                    1.0,
+                    1.0
+                )
+            )
         )
     }
 
     private val queryResponse by before {
-        Response.builder<GetPublicKeyForVirtualCardsQuery.Data>(GetPublicKeyForVirtualCardsQuery("id", null))
-            .data(GetPublicKeyForVirtualCardsQuery.Data(queryResult))
+        Response.builder<GetPublicKeyQuery.Data>(GetPublicKeyQuery("id"))
+            .data(GetPublicKeyQuery.Data(queryResult))
             .build()
     }
 
     private val nullQueryResponse by before {
-        Response.builder<GetPublicKeyForVirtualCardsQuery.Data>(GetPublicKeyForVirtualCardsQuery("id", null))
-            .data(GetPublicKeyForVirtualCardsQuery.Data(null))
+        Response.builder<GetPublicKeyQuery.Data>(GetPublicKeyQuery("id"))
+            .data(GetPublicKeyQuery.Data(null))
             .build()
     }
 
-    private val queryHolder = CallbackHolder<GetPublicKeyForVirtualCardsQuery.Data>()
+    private val queryHolder = CallbackHolder<GetPublicKeyQuery.Data>()
 
     private val mutationResult by before {
-        CreatePublicKeyForVirtualCardsMutation.CreatePublicKeyForVirtualCards(
-            "typename",
-            "owner-keyId",
-            "keyId",
-            "$keyRingServiceName.$owner",
-            "algoirithm",
-            KeyFormat.RSA_PUBLIC_KEY,
-            Base64.toBase64String(publicKey),
-            "owner",
-            1,
-            1.0,
-            1.0
+        CreatePublicKeyMutation.CreatePublicKeyForVirtualCards(
+            "CreatePublicKeyForVirtualCards",
+            CreatePublicKeyMutation.CreatePublicKeyForVirtualCards.Fragments(
+                PublicKeyFragment(
+                    "PublicKey",
+                    "owner-keyId",
+                    "keyId",
+                    "$keyRingServiceName.$owner",
+                    "algoirithm",
+                    KeyFormat.RSA_PUBLIC_KEY,
+                    Base64.toBase64String(publicKey),
+                    "owner",
+                    1,
+                    1.0,
+                    1.0
+                )
+            )
         )
     }
 
     private val mutationResponse by before {
-        Response.builder<CreatePublicKeyForVirtualCardsMutation.Data>(
-            CreatePublicKeyForVirtualCardsMutation(
+        Response.builder<CreatePublicKeyMutation.Data>(
+            CreatePublicKeyMutation(
                 CreatePublicKeyInput.builder()
                     .keyId("keyId")
                     .keyRingId("$keyRingServiceName.$owner")
@@ -138,11 +149,11 @@ class PublicKeyServiceRoboTest : BaseTests() {
 
             )
         )
-            .data(CreatePublicKeyForVirtualCardsMutation.Data(mutationResult))
+            .data(CreatePublicKeyMutation.Data(mutationResult))
             .build()
     }
 
-    private val mutationHolder = CallbackHolder<CreatePublicKeyForVirtualCardsMutation.Data>()
+    private val mutationHolder = CallbackHolder<CreatePublicKeyMutation.Data>()
 
     @Before
     fun init() {
@@ -191,7 +202,7 @@ class PublicKeyServiceRoboTest : BaseTests() {
             on { getCurrentKey() } doReturn deviceKeyPair
         }
         mockAppSyncClient.stub {
-            on { query(any<GetPublicKeyForVirtualCardsQuery>()) } doReturn queryHolder.queryOperation
+            on { query(any<GetPublicKeyQuery>()) } doReturn queryHolder.queryOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -212,7 +223,7 @@ class PublicKeyServiceRoboTest : BaseTests() {
         }
 
         verify(mockDeviceKeyManager).getCurrentKey()
-        verify(mockAppSyncClient).query(any<GetPublicKeyForVirtualCardsQuery>())
+        verify(mockAppSyncClient).query(any<GetPublicKeyQuery>())
     }
 
     @Test
@@ -223,7 +234,7 @@ class PublicKeyServiceRoboTest : BaseTests() {
             on { getCurrentKey() } doReturn deviceKeyPair
         }
         mockAppSyncClient.stub {
-            on { query(any<GetPublicKeyForVirtualCardsQuery>()) } doReturn queryHolder.queryOperation
+            on { query(any<GetPublicKeyQuery>()) } doReturn queryHolder.queryOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -245,7 +256,7 @@ class PublicKeyServiceRoboTest : BaseTests() {
         }
 
         verify(mockDeviceKeyManager, times(2)).getCurrentKey()
-        verify(mockAppSyncClient, times(1)).query(any<GetPublicKeyForVirtualCardsQuery>())
+        verify(mockAppSyncClient, times(1)).query(any<GetPublicKeyQuery>())
     }
 
     @Test
@@ -258,7 +269,7 @@ class PublicKeyServiceRoboTest : BaseTests() {
             on { generateNewCurrentKeyPair() } doReturn deviceKeyPair
         }
         mockAppSyncClient.stub {
-            on { mutate(any<CreatePublicKeyForVirtualCardsMutation>()) } doReturn mutationHolder.mutationOperation
+            on { mutate(any<CreatePublicKeyMutation>()) } doReturn mutationHolder.mutationOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -281,7 +292,7 @@ class PublicKeyServiceRoboTest : BaseTests() {
         verify(mockDeviceKeyManager).getCurrentKey()
         verify(mockDeviceKeyManager).generateNewCurrentKeyPair()
 
-        val mutationCaptor = argumentCaptor<CreatePublicKeyForVirtualCardsMutation>()
+        val mutationCaptor = argumentCaptor<CreatePublicKeyMutation>()
         verify(mockAppSyncClient).mutate(mutationCaptor.capture())
         mutationCaptor.firstValue.variables().input().keyRingId() shouldBe "$keyRingServiceName.$owner"
 
@@ -297,8 +308,8 @@ class PublicKeyServiceRoboTest : BaseTests() {
             on { getCurrentKey() } doReturn deviceKeyPair
         }
         mockAppSyncClient.stub {
-            on { query(any<GetPublicKeyForVirtualCardsQuery>()) } doReturn queryHolder.queryOperation
-            on { mutate(any<CreatePublicKeyForVirtualCardsMutation>()) } doReturn mutationHolder.mutationOperation
+            on { query(any<GetPublicKeyQuery>()) } doReturn queryHolder.queryOperation
+            on { mutate(any<CreatePublicKeyMutation>()) } doReturn mutationHolder.mutationOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -322,9 +333,9 @@ class PublicKeyServiceRoboTest : BaseTests() {
         }
 
         verify(mockDeviceKeyManager).getCurrentKey()
-        verify(mockAppSyncClient).query(any<GetPublicKeyForVirtualCardsQuery>())
+        verify(mockAppSyncClient).query(any<GetPublicKeyQuery>())
 
-        val mutationCaptor = argumentCaptor<CreatePublicKeyForVirtualCardsMutation>()
+        val mutationCaptor = argumentCaptor<CreatePublicKeyMutation>()
         verify(mockAppSyncClient).mutate(mutationCaptor.capture())
         mutationCaptor.firstValue.variables().input().keyRingId() shouldBe "$keyRingServiceName.$owner"
 

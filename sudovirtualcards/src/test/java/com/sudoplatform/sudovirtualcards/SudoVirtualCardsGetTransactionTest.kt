@@ -24,6 +24,10 @@ import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.GetTransactionQuery
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCurrencyAmountAttribute
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedMarkupAttribute
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedTransaction
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedTransactionDetailChargeAttribute
 import com.sudoplatform.sudovirtualcards.graphql.type.TransactionType
 import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
@@ -62,32 +66,98 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
 
     private val queryResult by before {
         GetTransactionQuery.GetTransaction(
-            "Transaction",
-            "id",
-            "owner",
-            1,
-            1.0,
-            1.0,
-            1.0,
-            "algorithm",
-            "keyId",
-            mockSeal("cardId"),
-            "sequenceId",
-            TransactionType.COMPLETE,
-            mockSeal("sealedTime"),
-            GetTransactionQuery.BilledAmount("typename", mockSeal("USD"), mockSeal("billedAmount")),
-            GetTransactionQuery.TransactedAmount("typename", mockSeal("USD"), mockSeal("transactedAmount")),
-            mockSeal("description"),
-            null,
-            listOf(
-                GetTransactionQuery.Detail(
-                    "typename",
-                    GetTransactionQuery.VirtualCardAmount("typename", mockSeal("USD"), mockSeal("cardAmount")),
-                    GetTransactionQuery.Markup("typename", mockSeal("1"), mockSeal("2"), mockSeal("3")),
-                    GetTransactionQuery.MarkupAmount("typename", mockSeal("USD"), mockSeal("markupAmount")),
-                    GetTransactionQuery.FundingSourceAmount("typename", mockSeal("USD"), mockSeal("funds")),
-                    "fundingSourceId",
-                    mockSeal("description")
+            "GetTransaction",
+            GetTransactionQuery.GetTransaction.Fragments(
+                SealedTransaction(
+                    "SealedTransaction",
+                    "id",
+                    "owner",
+                    1,
+                    1.0,
+                    1.0,
+                    1.0,
+                    "algorithm",
+                    "keyId",
+                    "cardId",
+                    "sequenceId",
+                    TransactionType.COMPLETE,
+                    mockSeal("transactedAt"),
+                    mockSeal("settledAt"),
+                    SealedTransaction.BilledAmount(
+                        "BilledAmount",
+                        SealedTransaction.BilledAmount.Fragments(
+                            SealedCurrencyAmountAttribute(
+                                "CurrencyAmount",
+                                mockSeal("USD"),
+                                mockSeal("billedAmount")
+                            )
+                        )
+                    ),
+                    SealedTransaction.TransactedAmount(
+                        "TransactedAmount",
+                        SealedTransaction.TransactedAmount.Fragments(
+                            SealedCurrencyAmountAttribute(
+                                "CurrencyAmount",
+                                mockSeal("USD"),
+                                mockSeal("transactedAmount")
+                            )
+                        )
+                    ),
+                    mockSeal("description"),
+                    null,
+                    listOf(
+                        SealedTransaction.Detail(
+                            "typename",
+                            SealedTransaction.Detail.Fragments(
+                                SealedTransactionDetailChargeAttribute(
+                                    "SealedTransactionDetailChargeAttribute",
+                                    SealedTransactionDetailChargeAttribute.VirtualCardAmount(
+                                        "VirtualCardAmount",
+                                        SealedTransactionDetailChargeAttribute.VirtualCardAmount.Fragments(
+                                            SealedCurrencyAmountAttribute(
+                                                "CurrencyAmount",
+                                                mockSeal("USD"),
+                                                mockSeal("virtualCardAmount")
+                                            )
+                                        )
+                                    ),
+                                    SealedTransactionDetailChargeAttribute.Markup(
+                                        "Markup",
+                                        SealedTransactionDetailChargeAttribute.Markup.Fragments(
+                                            SealedMarkupAttribute(
+                                                "SealedMarkupAttribute",
+                                                mockSeal("1"),
+                                                mockSeal("2"),
+                                                mockSeal("3")
+                                            )
+                                        )
+                                    ),
+                                    SealedTransactionDetailChargeAttribute.MarkupAmount(
+                                        "MarkupAmount",
+                                        SealedTransactionDetailChargeAttribute.MarkupAmount.Fragments(
+                                            SealedCurrencyAmountAttribute(
+                                                "CurrencyAmount",
+                                                mockSeal("USD"),
+                                                mockSeal("markupAmount")
+                                            )
+                                        )
+                                    ),
+                                    SealedTransactionDetailChargeAttribute.FundingSourceAmount(
+                                        "FundingSourceAmount",
+                                        SealedTransactionDetailChargeAttribute.FundingSourceAmount.Fragments(
+                                            SealedCurrencyAmountAttribute(
+                                                "CurrencyAmount",
+                                                mockSeal("USD"),
+                                                mockSeal("fundingSourceAmount")
+                                            )
+                                        )
+                                    ),
+                                    "fundingSourceId",
+                                    mockSeal("description")
+                                )
+                            )
+                        )
+                    )
                 )
             )
         )

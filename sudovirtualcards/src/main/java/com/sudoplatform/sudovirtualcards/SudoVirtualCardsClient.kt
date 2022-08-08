@@ -517,7 +517,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * @param nextToken [String] A token generated from previous calls to [listTransactionsByCardId].
      *  This is to allow for pagination. This value should be generated from a
      *  previous pagination call, otherwise it will throw an exception. You should call
-     *  this method with the same argument if you using a previously generated [nextToken].
+     *  this method with the same argument if you are using a previously generated [nextToken].
      * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
      *  be aware that this will only return cached results of identical API calls.
      * @param dateRange [DateRange] The date range of transactions to return.
@@ -530,6 +530,45 @@ interface SudoVirtualCardsClient : AutoCloseable {
     @Throws(TransactionException::class)
     suspend fun listTransactionsByCardId(
         cardId: String,
+        limit: Int = DEFAULT_TRANSACTION_LIMIT,
+        nextToken: String? = null,
+        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,
+        dateRange: DateRange? = null,
+        sortOrder: SortOrder = SortOrder.DESC
+    ): ListAPIResult<Transaction, PartialTransaction>
+
+    /**
+     * Get a list of all [Transaction]s across all virtual cards.
+     *
+     * This API returns a [ListAPIResult]:
+     * - On [ListAPIResult.Success] result, contains the list of requested [Transaction]s.
+     * - On [ListAPIResult.Partial] result, contains the list of [PartialTransaction]s representing
+     *    transactions that could not be unsealed successfully and the exception indicating why
+     *    the unsealing failed. A transaction may fail to unseal if the client version is not up to
+     *    date or the required cryptographic key is missing from the client device.
+     *
+     * If no [Transaction]s can be found, the result will contain null for the [nextToken] field and
+     * contain an empty item list.
+     *
+     * To ensure you obtain all the transactions that match, you should continue to call this method
+     * whenever the [nextToken] field is not null, even if the items list is empty.
+     *
+     * @param limit [Int] Number of [Transaction]s to return. If omitted the limit defaults to 100.
+     * @param nextToken [String] A token generated from previous calls to [listTransactionsByCardId].
+     *  This is to allow for pagination. This value should be generated from a
+     *  previous pagination call, otherwise it will throw an exception. You should call
+     *  this method with the same argument if you are using a previously generated [nextToken].
+     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
+     *  be aware that this will only return cached results of identical API calls.
+     * @param dateRange [DateRange] The date range of transactions to return.
+     * @param sortOrder [SortOrder] The order in which the transactions are returned. Defaults to descending.
+     * @return A [ListAPIResult.Success] or a [ListAPIResult.Partial] result containing either a list of
+     *  [Transaction]s or [PartialTransaction]s respectively. Returns an empty list if no transactions can be found.
+     *
+     * @throws [TransactionException].
+     */
+    @Throws(TransactionException::class)
+    suspend fun listTransactions(
         limit: Int = DEFAULT_TRANSACTION_LIMIT,
         nextToken: String? = null,
         cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,

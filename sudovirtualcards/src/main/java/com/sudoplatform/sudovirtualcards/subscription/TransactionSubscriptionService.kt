@@ -101,7 +101,7 @@ internal class TransactionSubscriptionService(
                 val transactionUpdate = response.data()?.onTransactionUpdate()
                     ?: return@launch
                 updateSubscriptionManager.transactionChanged(
-                    TransactionTransformer.toEntityFromUpdateSubscription(deviceKeyManager, transactionUpdate)
+                    TransactionTransformer.toEntity(deviceKeyManager, transactionUpdate.fragments().sealedTransaction())
                 )
             }
         }
@@ -122,7 +122,7 @@ internal class TransactionSubscriptionService(
                 val transactionDelete = response.data()?.onTransactionDelete()
                     ?: return@launch
                 deleteSubscriptionManager.transactionChanged(
-                    TransactionTransformer.toEntityFromDeleteSubscription(deviceKeyManager, transactionDelete)
+                    TransactionTransformer.toEntity(deviceKeyManager, transactionDelete.fragments().sealedTransaction())
                 )
             }
         }

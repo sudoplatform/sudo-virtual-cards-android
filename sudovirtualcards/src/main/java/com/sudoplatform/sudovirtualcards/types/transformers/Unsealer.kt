@@ -12,12 +12,9 @@ import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
-import com.sudoplatform.sudovirtualcards.graphql.CancelCardMutation
-import com.sudoplatform.sudovirtualcards.graphql.CardProvisionMutation
-import com.sudoplatform.sudovirtualcards.graphql.GetCardQuery
 import com.sudoplatform.sudovirtualcards.graphql.GetProvisionalCardQuery
-import com.sudoplatform.sudovirtualcards.graphql.ListCardsQuery
-import com.sudoplatform.sudovirtualcards.graphql.UpdateCardMutation
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCard
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCurrencyAmountAttribute
 import com.sudoplatform.sudovirtualcards.keys.DefaultPublicKeyService
 import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
 import com.sudoplatform.sudovirtualcards.types.BillingAddress
@@ -85,54 +82,20 @@ internal class Unsealer(
      * Unseal the fields of a GraphQL [CardProvisionMutation.BillingAddress] and convert them to
      * a [BillingAddress].
      */
-    fun unseal(value: CardProvisionMutation.BillingAddress?): BillingAddress? {
+    fun unseal(value: SealedCard.BillingAddress?): BillingAddress? {
         if (value == null) {
             return null
         }
+
+        val billingAddress = value.fragments().sealedAddressAttribute()
+
         return BillingAddress(
-            addressLine1 = unseal(value.addressLine1()),
-            addressLine2 = value.addressLine2()?.let { unseal(it) },
-            city = unseal(value.city()),
-            state = unseal(value.state()),
-            postalCode = unseal(value.postalCode()),
-            country = unseal(value.country())
-        )
-    }
-
-    /**
-     * Unseal the fields of the GraphQL [CardProvisionMutation.Expiry] and convert them
-     * to an [Expiry].
-     */
-    fun unseal(value: CardProvisionMutation.Expiry): Expiry {
-        return Expiry(
-            mm = unseal(value.mm()),
-            yyyy = unseal(value.yyyy())
-        )
-    }
-
-    /**
-     * Unseal the fields of the GraphQL [CardProvisionMutation.Metadata] and convert them
-     * to a [Metadata] type.
-     */
-    fun unseal(value: CardProvisionMutation.Metadata): JsonValue<Any> {
-        return unsealJsonValue(value.algorithm(), value.base64EncodedSealedData())
-    }
-
-    /**
-     * Unseal the fields of the GraphQL [GetProvisionalCardQuery.BillingAddress] and convert them
-     * to a [BillingAddress].
-     */
-    fun unseal(value: GetProvisionalCardQuery.BillingAddress?): BillingAddress? {
-        if (value == null) {
-            return null
-        }
-        return BillingAddress(
-            addressLine1 = unseal(value.addressLine1()),
-            addressLine2 = value.addressLine2()?.let { unseal(it) },
-            city = unseal(value.city()),
-            state = unseal(value.state()),
-            postalCode = unseal(value.postalCode()),
-            country = unseal(value.country())
+            addressLine1 = unseal(billingAddress.addressLine1()),
+            addressLine2 = billingAddress.addressLine2()?.let { unseal(it) },
+            city = unseal(billingAddress.city()),
+            state = unseal(billingAddress.state()),
+            postalCode = unseal(billingAddress.postalCode()),
+            country = unseal(billingAddress.country())
         )
     }
 
@@ -140,10 +103,11 @@ internal class Unsealer(
      * Unseal the fields of the GraphQL [GetProvisionalCardQuery.Expiry] and convert them
      * to an [Expiry].
      */
-    fun unseal(value: GetProvisionalCardQuery.Expiry): Expiry {
+    fun unseal(value: SealedCard.Expiry): Expiry {
+        val expiry = value.fragments().sealedExpiryAttribute()
         return Expiry(
-            mm = unseal(value.mm()),
-            yyyy = unseal(value.yyyy())
+            mm = unseal(expiry.mm()),
+            yyyy = unseal(expiry.yyyy())
         )
     }
 
@@ -151,166 +115,19 @@ internal class Unsealer(
      * Unseal the fields of the GraphQL [GetProvisionalCardQuery.Metadata] and convert them
      * to a [Metadata] type.
      */
-    fun unseal(value: GetProvisionalCardQuery.Metadata): JsonValue<Any> {
-        return unsealJsonValue(value.algorithm(), value.base64EncodedSealedData())
-    }
-
-    /**
-     * Unseal the fields of the GraphQL [GetCardQuery.BillingAddress] and convert them to a
-     * [BillingAddress].
-     */
-    fun unseal(value: GetCardQuery.BillingAddress?): BillingAddress? {
-        if (value == null) {
-            return null
-        }
-        return BillingAddress(
-            addressLine1 = unseal(value.addressLine1()),
-            addressLine2 = value.addressLine2()?.let { unseal(it) },
-            city = unseal(value.city()),
-            state = unseal(value.state()),
-            postalCode = unseal(value.postalCode()),
-            country = unseal(value.country())
-        )
-    }
-
-    /**
-     * Unseal the fields of the GraphQL [GetCardQuery.Expiry] and convert them
-     * to an [Expiry].
-     */
-    fun unseal(value: GetCardQuery.Expiry): Expiry {
-        return Expiry(
-            mm = unseal(value.mm()),
-            yyyy = unseal(value.yyyy())
-        )
-    }
-
-    /**
-     * Unseal the fields of the GraphQL [GetCardQuery.Metadata] and convert them
-     * to a [Metadata] type.
-     */
-    fun unseal(value: GetCardQuery.Metadata): JsonValue<Any> {
-        return unsealJsonValue(value.algorithm(), value.base64EncodedSealedData())
-    }
-
-    /**
-     * Unseal the fields of the GraphQL [ListCardsQuery.BillingAddress] and convert them
-     * to a [BillingAddress].
-     */
-    fun unseal(value: ListCardsQuery.BillingAddress?): BillingAddress? {
-        if (value == null) {
-            return null
-        }
-        return BillingAddress(
-            addressLine1 = unseal(value.addressLine1()),
-            addressLine2 = value.addressLine2()?.let { unseal(it) },
-            city = unseal(value.city()),
-            state = unseal(value.state()),
-            postalCode = unseal(value.postalCode()),
-            country = unseal(value.country())
-        )
-    }
-
-    /**
-     * Unseal the fields of the GraphQL [ListCardsQuery.Expiry] and convert them
-     * to an [Expiry].
-     */
-    fun unseal(value: ListCardsQuery.Expiry): Expiry {
-        return Expiry(
-            mm = unseal(value.mm()),
-            yyyy = unseal(value.yyyy())
-        )
-    }
-
-    /**
-     * Unseal the fields of the GraphQL [ListCardsQuery.Metadata] and convert them
-     * to a [Metadata] type.
-     */
-    fun unseal(value: ListCardsQuery.Metadata): JsonValue<Any> {
-        return unsealJsonValue(value.algorithm(), value.base64EncodedSealedData())
-    }
-
-    /**
-     * Unseal the fields of the GraphQL [UpdateCardMutation.BillingAddress] and convert them to a
-     * [BillingAddress].
-     */
-    fun unseal(value: UpdateCardMutation.BillingAddress?): BillingAddress? {
-        if (value == null) {
-            return null
-        }
-        return BillingAddress(
-            addressLine1 = unseal(value.addressLine1()),
-            addressLine2 = value.addressLine2()?.let { unseal(it) },
-            city = unseal(value.city()),
-            state = unseal(value.state()),
-            postalCode = unseal(value.postalCode()),
-            country = unseal(value.country())
-        )
-    }
-
-    /**
-     * Unseal the fields of the GraphQL [UpdateCardMutation.Expiry] and convert them
-     * to an [Expiry].
-     */
-    fun unseal(value: UpdateCardMutation.Expiry): Expiry {
-        return Expiry(
-            mm = unseal(value.mm()),
-            yyyy = unseal(value.yyyy())
-        )
-    }
-
-    /**
-     * Unseal the fields of the GraphQL [UpdateCardMutation.Metadata] and convert them
-     * to a [Metadata] type.
-     */
-    fun unseal(value: UpdateCardMutation.Metadata): JsonValue<Any> {
-        return unsealJsonValue(value.algorithm(), value.base64EncodedSealedData())
-    }
-
-    /**
-     * Unseal the fields of the GraphQL [CancelCardMutation.BillingAddress] and convert them to a
-     * [BillingAddress].
-     */
-    fun unseal(value: CancelCardMutation.BillingAddress?): BillingAddress? {
-        if (value == null) {
-            return null
-        }
-        return BillingAddress(
-            addressLine1 = unseal(value.addressLine1()),
-            addressLine2 = value.addressLine2()?.let { unseal(it) },
-            city = unseal(value.city()),
-            state = unseal(value.state()),
-            postalCode = unseal(value.postalCode()),
-            country = unseal(value.country())
-        )
-    }
-
-    /**
-     * Unseal the fields of the GraphQL [CancelCardMutation.Expiry] and convert them
-     * to an [Expiry].
-     */
-    fun unseal(value: CancelCardMutation.Expiry): Expiry {
-        return Expiry(
-            mm = unseal(value.mm()),
-            yyyy = unseal(value.yyyy())
-        )
-    }
-
-    /**
-     * Unseal the fields of the GraphQL [CancelCardMutation.Metadata] and convert them
-     * to a [Metadata] type.
-     */
-    fun unseal(value: CancelCardMutation.Metadata): JsonValue<Any> {
-        return unsealJsonValue(value.algorithm(), value.base64EncodedSealedData())
+    fun unseal(value: SealedCard.Metadata): JsonValue<Any> {
+        val metadata = value.fragments().sealedAttribute()
+        return unsealJsonValue(metadata.algorithm(), metadata.base64EncodedSealedData())
     }
 
     /**
      * Unseal the fields that make up a sealed currency amount and convert them to a
      * [CurrencyAmount].
      */
-    fun unsealAmount(sealedCurrency: String, sealedAmount: String): CurrencyAmount {
+    fun unsealAmount(sealedAmount: SealedCurrencyAmountAttribute): CurrencyAmount {
         return CurrencyAmount(
-            currency = unseal(sealedCurrency),
-            amount = unseal(sealedAmount).toInt()
+            currency = unseal(sealedAmount.currency()),
+            amount = unseal(sealedAmount.amount()).toInt()
         )
     }
 

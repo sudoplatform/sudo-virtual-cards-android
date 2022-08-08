@@ -1,0 +1,47 @@
+mutation CreatePublicKey($input: CreatePublicKeyInput!) {
+  createPublicKeyForVirtualCards(input: $input) {
+    ...PublicKey
+  }
+}
+
+mutation DeletePublicKey($input: DeletePublicKeyInput!) {
+  deletePublicKeyForVirtualCards(input: $input) {
+    ...PublicKey
+  }
+}
+
+mutation SetupFundingSource($input: SetupFundingSourceRequest!) {
+  setupFundingSource(input: $input) {
+    ...ProvisionalFundingSource
+  }
+}
+
+mutation CompleteFundingSource($input: CompleteFundingSourceRequest!) {
+  completeFundingSource(input: $input) {
+    ...FundingSource
+  }
+}
+
+mutation CancelFundingSource($input: IdInput!) {
+  cancelFundingSource(input: $input) {
+    ...FundingSource
+  }
+}
+
+mutation ProvisionVirtualCard($input: CardProvisionRequest!) {
+  cardProvision(input: $input) {
+    ...ProvisionalCard
+  }
+}
+
+mutation UpdateVirtualCard($input: CardUpdateRequest!) {
+  updateCard(input: $input) {
+    ...SealedCardWithLastTransaction
+  }
+}
+
+mutation CancelVirtualCard($input: CardCancelRequest!) {
+  cancelCard(input: $input) {
+    ...SealedCardWithLastTransaction
+  }
+}

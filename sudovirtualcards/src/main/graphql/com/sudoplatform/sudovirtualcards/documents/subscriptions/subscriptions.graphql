@@ -1,0 +1,16 @@
+subscription OnTransactionUpdate($owner: ID!) {
+  onTransactionUpdate(owner: $owner) {
+    ...SealedTransaction
+  }
+}
+subscription OnTransactionDelete($owner: ID!) {
+  onTransactionDelete(owner: $owner) {
+    ...SealedTransaction
+  }
+}
+
+subscription OnUpdateCardProvisionState($owner: ID!, $clientRefId: String) {
+  onUpdateCardProvisionState(owner: $owner, clientRefId: $clientRefId) {
+    ...ProvisionalCard
+  }
+}

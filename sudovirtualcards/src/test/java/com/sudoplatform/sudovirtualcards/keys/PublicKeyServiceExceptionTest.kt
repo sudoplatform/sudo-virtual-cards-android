@@ -14,8 +14,8 @@ import org.mockito.kotlin.stub
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.BaseTests
-import com.sudoplatform.sudovirtualcards.graphql.CreatePublicKeyForVirtualCardsMutation
-import com.sudoplatform.sudovirtualcards.graphql.GetPublicKeyForVirtualCardsQuery
+import com.sudoplatform.sudovirtualcards.graphql.CreatePublicKeyMutation
+import com.sudoplatform.sudovirtualcards.graphql.GetPublicKeyQuery
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
 import io.kotlintest.shouldThrow
 import kotlinx.coroutines.runBlocking
@@ -107,7 +107,7 @@ class PublicKeyServiceExceptionTest : BaseTests() {
     @Test
     fun shouldThrowIfAppSyncThrows1() = runBlocking<Unit> {
         mockAppSyncClient.stub {
-            on { query(any<GetPublicKeyForVirtualCardsQuery>()) } doThrow RuntimeException("mock")
+            on { query(any<GetPublicKeyQuery>()) } doThrow RuntimeException("mock")
         }
         shouldThrow<PublicKeyService.PublicKeyServiceException.UnknownException> {
             publicKeyService.get("id", CachePolicy.REMOTE_ONLY)
@@ -117,7 +117,7 @@ class PublicKeyServiceExceptionTest : BaseTests() {
     @Test
     fun shouldThrowIfAppSyncThrows2() = runBlocking<Unit> {
         mockAppSyncClient.stub {
-            on { mutate(any<CreatePublicKeyForVirtualCardsMutation>()) } doThrow RuntimeException("mock")
+            on { mutate(any<CreatePublicKeyMutation>()) } doThrow RuntimeException("mock")
         }
         shouldThrow<PublicKeyService.PublicKeyServiceException.UnknownException> {
             publicKeyService.create("id", "ringId", ByteArray(42))

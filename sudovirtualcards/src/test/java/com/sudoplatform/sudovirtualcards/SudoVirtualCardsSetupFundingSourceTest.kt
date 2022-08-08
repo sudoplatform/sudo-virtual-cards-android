@@ -17,10 +17,10 @@ import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.SetupFundingSourceMutation
+import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalFundingSource as ProvisionalFundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceState
 import com.sudoplatform.sudovirtualcards.graphql.type.SetupFundingSourceRequest
-import com.sudoplatform.sudovirtualcards.graphql.type.StateReason
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisioningData
 import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceType as FundingSourceTypeEntity
@@ -73,15 +73,19 @@ class SudoVirtualCardsSetupFundingSourceTest : BaseTests() {
         val setupDataStr = Gson().toJson(setupData)
         val encodedSetupData = Base64.encodeBase64String(setupDataStr.toByteArray())
         SetupFundingSourceMutation.SetupFundingSource(
-            "typename",
-            "id",
-            "owner",
-            1,
-            1.0,
-            10.0,
-            ProvisionalFundingSourceState.PROVISIONING,
-            StateReason.PROCESSING,
-            encodedSetupData
+            "SetupFundingSource",
+            SetupFundingSourceMutation.SetupFundingSource.Fragments(
+                ProvisionalFundingSourceFragment(
+                    "ProvisionalFundingSource",
+                    "id",
+                    "owner",
+                    1,
+                    1.0,
+                    10.0,
+                    encodedSetupData,
+                    ProvisionalFundingSourceState.PROVISIONING,
+                )
+            )
         )
     }
 
@@ -166,7 +170,6 @@ class SudoVirtualCardsSetupFundingSourceTest : BaseTests() {
             createdAt shouldNotBe null
             updatedAt shouldNotBe null
             state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
-            stateReason shouldBe ProvisionalFundingSource.StateReason.PROCESSING
             provisioningData shouldBe ProvisioningData("provider", 1, "intent", "clientSecret")
         }
 

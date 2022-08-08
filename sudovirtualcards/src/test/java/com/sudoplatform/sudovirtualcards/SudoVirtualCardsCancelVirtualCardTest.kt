@@ -24,7 +24,11 @@ import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
-import com.sudoplatform.sudovirtualcards.graphql.CancelCardMutation
+import com.sudoplatform.sudovirtualcards.graphql.CancelVirtualCardMutation
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAddressAttribute
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCard
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCardWithLastTransaction
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedExpiryAttribute
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.graphql.type.CardCancelRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
@@ -65,22 +69,32 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
     }
 
     private val billingAddress by before {
-        CancelCardMutation.BillingAddress(
-            "typename",
-            mockSeal("addressLine1"),
-            mockSeal("addressLine2"),
-            mockSeal("city"),
-            mockSeal("state"),
-            mockSeal("postalCode"),
-            mockSeal("country")
+        SealedCard.BillingAddress(
+            "BillingAddress",
+            SealedCard.BillingAddress.Fragments(
+                SealedAddressAttribute(
+                    "SealedAddressAttribute",
+                    mockSeal("addressLine1"),
+                    mockSeal("addressLine2"),
+                    mockSeal("city"),
+                    mockSeal("state"),
+                    mockSeal("postalCode"),
+                    mockSeal("country")
+                )
+            )
         )
     }
 
     private val expiry by before {
-        CancelCardMutation.Expiry(
-            "typename",
-            mockSeal("01"),
-            mockSeal("2021")
+        SealedCard.Expiry(
+            "Expiry",
+            SealedCard.Expiry.Fragments(
+                SealedExpiryAttribute(
+                    "SealedExpiryAttribute",
+                    mockSeal("01"),
+                    mockSeal("2021")
+                )
+            )
         )
     }
 
@@ -92,41 +106,51 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
     }
 
     private val mutationResult by before {
-        CancelCardMutation.CancelCard(
-            "typename",
-            "id",
-            "owner",
-            1,
-            1.0,
-            1.0,
-            "algorithm",
-            "keyId",
-            "keyRingId",
-            emptyList(),
-            "fundingSourceId",
-            "currency",
-            CardState.CLOSED,
-            1.0,
-            1.0,
-            "last4",
-            mockSeal("newCardHolder"),
-            mockSeal("newAlias"),
-            mockSeal("pan"),
-            mockSeal("csc"),
-            billingAddress,
-            expiry,
-            null,
-            null
+        CancelVirtualCardMutation.CancelCard(
+            "CancelCard",
+            CancelVirtualCardMutation.CancelCard.Fragments(
+                SealedCardWithLastTransaction(
+                    "SealedCardWithLastTransaction",
+                    null,
+                    SealedCardWithLastTransaction.Fragments(
+                        SealedCard(
+                            "SealedCard",
+                            "id",
+                            "owner",
+                            1,
+                            1.0,
+                            1.0,
+                            "algorithm",
+                            "keyId",
+                            "keyRingId",
+                            emptyList(),
+                            "fundingSourceId",
+                            "currency",
+                            CardState.CLOSED,
+                            1.0,
+                            1.0,
+                            "last4",
+                            mockSeal("newCardHolder"),
+                            mockSeal("newAlias"),
+                            mockSeal("pan"),
+                            mockSeal("csc"),
+                            billingAddress,
+                            expiry,
+                            null,
+                        )
+                    )
+                )
+            )
         )
     }
 
     private val mutationResponse by before {
-        Response.builder<CancelCardMutation.Data>(CancelCardMutation(mutationRequest))
-            .data(CancelCardMutation.Data(mutationResult))
+        Response.builder<CancelVirtualCardMutation.Data>(CancelVirtualCardMutation(mutationRequest))
+            .data(CancelVirtualCardMutation.Data(mutationResult))
             .build()
     }
 
-    private val mutationHolder = CallbackHolder<CancelCardMutation.Data>()
+    private val mutationHolder = CallbackHolder<CancelVirtualCardMutation.Data>()
 
     private val mockContext by before {
         mock<Context>()
@@ -144,7 +168,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
     private val mockAppSyncClient by before {
         mock<AWSAppSyncClient>().stub {
-            on { mutate(any<CancelCardMutation>()) } doReturn mutationHolder.mutationOperation
+            on { mutate(any<CancelVirtualCardMutation>()) } doReturn mutationHolder.mutationOperation
         }
     }
 
@@ -235,7 +259,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         }
 
         verify(mockPublicKeyService).getCurrentKey()
-        verify(mockAppSyncClient).mutate(any<CancelCardMutation>())
+        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
         verify(mockKeyManager, times(12)).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockKeyManager, times(12)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
     }
@@ -280,7 +304,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         }
 
         verify(mockPublicKeyService).getCurrentKey()
-        verify(mockAppSyncClient).mutate(any<CancelCardMutation>())
+        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
         verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
     }
 
@@ -290,7 +314,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         mutationHolder.callback shouldBe null
 
         val nullMutationResponse by before {
-            Response.builder<CancelCardMutation.Data>(CancelCardMutation(mutationRequest))
+            Response.builder<CancelVirtualCardMutation.Data>(CancelVirtualCardMutation(mutationRequest))
                 .data(null)
                 .build()
         }
@@ -307,7 +331,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         mutationHolder.callback?.onResponse(nullMutationResponse)
 
         verify(mockPublicKeyService).getCurrentKey()
-        verify(mockAppSyncClient).mutate(any<CancelCardMutation>())
+        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
     }
 
     @Test
@@ -321,7 +345,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
                 emptyList(),
                 mapOf("errorType" to "IdentityVerificationNotVerifiedError")
             )
-            Response.builder<CancelCardMutation.Data>(CancelCardMutation(mutationRequest))
+            Response.builder<CancelVirtualCardMutation.Data>(CancelVirtualCardMutation(mutationRequest))
                 .errors(listOf(error))
                 .data(null)
                 .build()
@@ -339,7 +363,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         mutationHolder.callback?.onResponse(errorMutationResponse)
 
         verify(mockPublicKeyService).getCurrentKey()
-        verify(mockAppSyncClient).mutate(any<CancelCardMutation>())
+        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
     }
 
     @Test
@@ -353,7 +377,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
                 emptyList(),
                 mapOf("errorType" to "CardNotFoundError")
             )
-            Response.builder<CancelCardMutation.Data>(CancelCardMutation(mutationRequest))
+            Response.builder<CancelVirtualCardMutation.Data>(CancelVirtualCardMutation(mutationRequest))
                 .errors(listOf(error))
                 .data(null)
                 .build()
@@ -371,7 +395,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         mutationHolder.callback?.onResponse(errorMutationResponse)
 
         verify(mockPublicKeyService).getCurrentKey()
-        verify(mockAppSyncClient).mutate(any<CancelCardMutation>())
+        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
     }
 
     @Test
@@ -385,7 +409,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
                 emptyList(),
                 mapOf("errorType" to "AccountLockedError")
             )
-            Response.builder<CancelCardMutation.Data>(CancelCardMutation(mutationRequest))
+            Response.builder<CancelVirtualCardMutation.Data>(CancelVirtualCardMutation(mutationRequest))
                 .errors(listOf(error))
                 .data(null)
                 .build()
@@ -403,7 +427,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         mutationHolder.callback?.onResponse(errorMutationResponse)
 
         verify(mockPublicKeyService).getCurrentKey()
-        verify(mockAppSyncClient).mutate(any<CancelCardMutation>())
+        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
     }
 
     @Test
@@ -426,7 +450,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
     fun `cancelVirtualCard() should throw when unsealing fails`() = runBlocking<Unit> {
 
         mockAppSyncClient.stub {
-            on { mutate(any<CancelCardMutation>()) } doThrow Unsealer.UnsealerException.SealedDataTooShortException(
+            on { mutate(any<CancelVirtualCardMutation>()) } doThrow Unsealer.UnsealerException.SealedDataTooShortException(
                 "Mock Unsealer Exception"
             )
         }
@@ -435,7 +459,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
             client.cancelVirtualCard("id")
         }
 
-        verify(mockAppSyncClient).mutate(any<CancelCardMutation>())
+        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
         verify(mockPublicKeyService).getCurrentKey()
     }
 
@@ -470,7 +494,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
         deferredResult.await()
 
-        verify(mockAppSyncClient).mutate(any<CancelCardMutation>())
+        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
         verify(mockPublicKeyService).getCurrentKey()
     }
 
@@ -480,7 +504,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         mutationHolder.callback shouldBe null
 
         mockAppSyncClient.stub {
-            on { mutate(any<CancelCardMutation>()) } doThrow RuntimeException("Mock Runtime Exception")
+            on { mutate(any<CancelVirtualCardMutation>()) } doThrow RuntimeException("Mock Runtime Exception")
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -493,7 +517,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
         deferredResult.await()
 
-        verify(mockAppSyncClient).mutate(any<CancelCardMutation>())
+        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
         verify(mockPublicKeyService).getCurrentKey()
     }
 
@@ -501,14 +525,14 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
     fun `cancelVirtualCard() should not block coroutine cancellation exception`() = runBlocking<Unit> {
 
         mockAppSyncClient.stub {
-            on { mutate(any<CancelCardMutation>()) } doThrow CancellationException("Mock Cancellation Exception")
+            on { mutate(any<CancelVirtualCardMutation>()) } doThrow CancellationException("Mock Cancellation Exception")
         }
 
         shouldThrow<CancellationException> {
             client.cancelVirtualCard("id")
         }
 
-        verify(mockAppSyncClient).mutate(any<CancelCardMutation>())
+        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
         verify(mockPublicKeyService).getCurrentKey()
     }
 }

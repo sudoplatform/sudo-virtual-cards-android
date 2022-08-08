@@ -61,7 +61,7 @@ android {
 }
 
 ext {
-    coroutine_version = "1.6.0-native-mt"
+    coroutine_version = '1.6.4'
     kotlintest_version = "3.4.2"
 }
 
@@ -81,6 +81,9 @@ dependencies {
     constraints {
         implementation("com.squareup.okhttp3:okhttp:4.9.3") {
             because("Versions < 4.9.3 has CVE-2021-0341")
+        }
+        implementation("com.google.android.gms:play-services-basement:18.1.0") {
+            because("Versions < 18.1.0 have CVE-2022-1799")
         }
     }
 

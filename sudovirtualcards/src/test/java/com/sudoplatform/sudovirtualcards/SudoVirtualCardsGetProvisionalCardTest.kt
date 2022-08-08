@@ -22,7 +22,7 @@ import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.GetProvisionalCardQuery
-import com.sudoplatform.sudovirtualcards.graphql.type.DeltaAction
+import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalCard
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisioningState
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
@@ -48,15 +48,19 @@ class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
     private val queryResult by before {
         GetProvisionalCardQuery.GetProvisionalCard(
             "typename",
-            "id",
-            "owner",
-            1,
-            1.0,
-            1.0,
-            "clientRefId",
-            ProvisioningState.PROVISIONING,
-            null,
-            DeltaAction.DELETE
+            GetProvisionalCardQuery.GetProvisionalCard.Fragments(
+                ProvisionalCard(
+                    "ProvisionalCard",
+                    "id",
+                    "owner",
+                    1,
+                    1.0,
+                    1.0,
+                    "clientRefId",
+                    ProvisioningState.PROVISIONING,
+                    null,
+                )
+            )
         )
     }
 

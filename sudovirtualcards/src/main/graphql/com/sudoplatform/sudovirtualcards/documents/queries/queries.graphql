@@ -1,0 +1,134 @@
+query GetVirtualCardsConfig {
+  getVirtualCardsConfig {
+    ...VirtualCardsConfig
+  }
+}
+
+query GetPublicKey($keyId: String!) {
+  getPublicKeyForVirtualCards(keyId: $keyId) {
+    ...PublicKey
+  }
+}
+
+query GetPublicKeys($limit: Int, $nextToken: String) {
+  getPublicKeysForVirtualCards(limit: $limit, nextToken: $nextToken) {
+    ...PaginatedPublicKey
+  }
+}
+
+query GetKeyRing(
+  $keyRingId: String!
+  $limit: Int
+  $nextToken: String
+  $keyFormats: [KeyFormat!]
+) {
+  getKeyRingForVirtualCards(
+    keyRingId: $keyRingId
+    limit: $limit
+    nextToken: $nextToken
+    keyFormats: $keyFormats
+  ) {
+    ...PaginatedPublicKey
+  }
+}
+
+query GetFundingSourceClientConfiguration {
+  getFundingSourceClientConfiguration {
+    data
+  }
+}
+
+query GetFundingSource($id: ID!) {
+  getFundingSource(id: $id) {
+    ...FundingSource
+  }
+}
+
+query ListFundingSources($limit: Int, $nextToken: String) {
+  listFundingSources(limit: $limit, nextToken: $nextToken) {
+    items {
+      ...FundingSource
+    }
+    nextToken
+  }
+}
+
+query GetProvisionalCard($id: ID!) {
+  getProvisionalCard(id: $id) {
+    ...ProvisionalCard
+  }
+}
+
+query ListProvisionalCards(
+  $filter: ProvisionalCardFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listProvisionalCards(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      ...ProvisionalCard
+    }
+    nextToken
+  }
+}
+
+query GetCard($id: ID!, $keyId: String) {
+  getCard(id: $id, keyId: $keyId) {
+    ...SealedCardWithLastTransaction
+  }
+}
+
+query ListCards($limit: Int, $nextToken: String) {
+  listCards(limit: $limit, nextToken: $nextToken) {
+    items {
+      ...SealedCardWithLastTransaction
+    }
+    nextToken
+  }
+}
+
+query GetTransaction($id: ID!, $keyId: String) {
+  getTransaction(id: $id, keyId: $keyId) {
+    ...SealedTransaction
+  }
+}
+
+query ListTransactions(
+  $limit: Int,
+  $nextToken: String
+  $dateRange: DateRangeInput
+  $sortOrder: SortOrder
+) {
+  listTransactions2(
+    limit: $limit,
+    nextToken: $nextToken
+    dateRange: $dateRange
+    sortOrder: $sortOrder
+  ) {
+    items {
+      ...SealedTransaction
+    }
+    nextToken
+  }
+}
+
+query ListTransactionsByCardId(
+  $cardId: ID!
+  $limit: Int
+  $nextToken: String
+  $dateRange: DateRangeInput
+  $sortOrder: SortOrder
+) {
+  listTransactionsByCardId2(
+    cardId: $cardId
+    limit: $limit
+    nextToken: $nextToken
+    dateRange: $dateRange
+    sortOrder: $sortOrder
+  ) {
+    items {
+      ...SealedTransaction
+    }
+    nextToken
+  }
+}

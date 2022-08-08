@@ -23,6 +23,7 @@ import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
+import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource as FundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
@@ -55,15 +56,20 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
             listOf(
                 ListFundingSourcesQuery.Item(
                     "typename",
-                    "id",
-                    "owner",
-                    1,
-                    1.0,
-                    10.0,
-                    FundingSourceState.ACTIVE,
-                    "USD",
-                    "last4",
-                    CreditCardNetwork.VISA
+                    ListFundingSourcesQuery.Item.Fragments(
+                        FundingSourceFragment(
+                            "FundingSource",
+                            "id",
+                            "owner",
+                            1,
+                            1.0,
+                            10.0,
+                            FundingSourceState.ACTIVE,
+                            "USD",
+                            "last4",
+                            CreditCardNetwork.VISA
+                        )
+                    )
                 )
             ),
             null
@@ -71,7 +77,7 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
     }
 
     private val response by before {
-        Response.builder<ListFundingSourcesQuery.Data>(ListFundingSourcesQuery(null, null, null))
+        Response.builder<ListFundingSourcesQuery.Data>(ListFundingSourcesQuery(null, null))
             .data(ListFundingSourcesQuery.Data(queryResult))
             .build()
     }
@@ -161,19 +167,24 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
 
         val queryResultWithNextToken by before {
             ListFundingSourcesQuery.ListFundingSources(
-                "typename",
+                "ListFundingSources",
                 listOf(
                     ListFundingSourcesQuery.Item(
-                        "typename",
-                        "id",
-                        "owner",
-                        1,
-                        1.0,
-                        10.0,
-                        FundingSourceState.ACTIVE,
-                        "USD",
-                        "last4",
-                        CreditCardNetwork.VISA
+                        "Item",
+                        ListFundingSourcesQuery.Item.Fragments(
+                            FundingSourceFragment(
+                                "FundingSource",
+                                "id",
+                                "owner",
+                                1,
+                                1.0,
+                                10.0,
+                                FundingSourceState.ACTIVE,
+                                "USD",
+                                "last4",
+                                CreditCardNetwork.VISA
+                            )
+                        )
                     )
                 ),
                 "dummyNextToken"
@@ -181,7 +192,7 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
         }
 
         val responseWithNextToken by before {
-            Response.builder<ListFundingSourcesQuery.Data>(ListFundingSourcesQuery(null, 1, "dummyNextToken"))
+            Response.builder<ListFundingSourcesQuery.Data>(ListFundingSourcesQuery(1, "dummyNextToken"))
                 .data(ListFundingSourcesQuery.Data(queryResultWithNextToken))
                 .build()
         }
@@ -228,7 +239,7 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
         }
 
         val responseWithEmptyList by before {
-            Response.builder<ListFundingSourcesQuery.Data>(ListFundingSourcesQuery(null, null, null))
+            Response.builder<ListFundingSourcesQuery.Data>(ListFundingSourcesQuery(null, null))
                 .data(ListFundingSourcesQuery.Data(queryResultWithEmptyList))
                 .build()
         }
@@ -252,40 +263,11 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
     }
 
     @Test
-    fun `listFundingSources() should return empty list output when query result data is null`() = runBlocking<Unit> {
-
-        holder.callback shouldBe null
-
-        val responseWithNullData by before {
-            Response.builder<ListFundingSourcesQuery.Data>(ListFundingSourcesQuery(null, null, null))
-                .data(ListFundingSourcesQuery.Data(null))
-                .build()
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.listFundingSources()
-        }
-        deferredResult.start()
-        delay(100L)
-
-        holder.callback shouldNotBe null
-        holder.callback?.onResponse(responseWithNullData)
-
-        val result = deferredResult.await()
-        result shouldNotBe null
-        result.items.isEmpty() shouldBe true
-        result.items.size shouldBe 0
-        result.nextToken shouldBe null
-
-        verify(mockAppSyncClient).query(any<ListFundingSourcesQuery>())
-    }
-
-    @Test
     fun `listFundingSources() should return empty list output when query response is null`() = runBlocking<Unit> {
         holder.callback shouldBe null
 
         val nullResponse by before {
-            Response.builder<ListFundingSourcesQuery.Data>(ListFundingSourcesQuery(null, null, null))
+            Response.builder<ListFundingSourcesQuery.Data>(ListFundingSourcesQuery(null, null))
                 .data(null)
                 .build()
         }

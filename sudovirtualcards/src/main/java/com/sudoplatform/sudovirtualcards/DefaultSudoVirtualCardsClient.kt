@@ -21,7 +21,6 @@ import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.extensions.enqueue
 import com.sudoplatform.sudovirtualcards.extensions.enqueueFirst
 import com.sudoplatform.sudovirtualcards.graphql.CancelFundingSourceMutation
-import com.sudoplatform.sudovirtualcards.graphql.CardProvisionMutation
 import com.sudoplatform.sudovirtualcards.graphql.GetCardQuery
 import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceQuery
 import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceClientConfigurationQuery
@@ -30,10 +29,12 @@ import com.sudoplatform.sudovirtualcards.graphql.GetTransactionQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListCardsQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsByCardIdQuery
-import com.sudoplatform.sudovirtualcards.graphql.CancelCardMutation
-import com.sudoplatform.sudovirtualcards.graphql.UpdateCardMutation
+import com.sudoplatform.sudovirtualcards.graphql.CancelVirtualCardMutation
 import com.sudoplatform.sudovirtualcards.graphql.CompleteFundingSourceMutation
+import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsQuery
+import com.sudoplatform.sudovirtualcards.graphql.ProvisionVirtualCardMutation
 import com.sudoplatform.sudovirtualcards.graphql.SetupFundingSourceMutation
+import com.sudoplatform.sudovirtualcards.graphql.UpdateVirtualCardMutation
 import com.sudoplatform.sudovirtualcards.graphql.type.CardCancelRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.CardProvisionRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.CardUpdateRequest
@@ -195,7 +196,7 @@ internal class DefaultSudoVirtualCardsClient(
 
             val result = mutationResponse.data()?.setupFundingSource()
             result?.let {
-                return FundingSourceTransformer.toEntityFromSetupFundingSourceMutationResult(result)
+                return FundingSourceTransformer.toEntity(result.fragments().provisionalFundingSource())
             }
             throw SudoVirtualCardsClient.FundingSourceException.SetupFailedException(FUNDING_SOURCE_NOT_SETUP_MSG)
         } catch (e: Throwable) {
@@ -232,7 +233,9 @@ internal class DefaultSudoVirtualCardsClient(
 
             val result = mutationResponse.data()?.completeFundingSource()
             result?.let {
-                return FundingSourceTransformer.toEntityFromCreateFundingSourceMutationResult(result)
+                val fundingSource = result.fragments().fundingSource()
+                    ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException("unexpected null funding source")
+                return FundingSourceTransformer.toEntity(fundingSource)
             }
             throw SudoVirtualCardsClient.FundingSourceException.CompletionFailedException(FUNDING_SOURCE_NOT_COMPLETE_MSG)
         } catch (e: Throwable) {
@@ -293,7 +296,9 @@ internal class DefaultSudoVirtualCardsClient(
             }
 
             val result = queryResponse.data()?.fundingSource ?: return null
-            return FundingSourceTransformer.toEntityFromGetFundingSourceQueryResult(result)
+            val fundingSource = result.fragments().fundingSource()
+                ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException("unexpected null funding source")
+            return FundingSourceTransformer.toEntity(fundingSource)
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
             when (e) {
@@ -325,7 +330,7 @@ internal class DefaultSudoVirtualCardsClient(
             }
 
             val result = queryResponse.data()?.listFundingSources() ?: return ListOutput(emptyList(), null)
-            val fundingSources = FundingSourceTransformer.toEntityFromListFundingSourcesQueryResult(result.items())
+            val fundingSources = FundingSourceTransformer.toEntity(result.items())
             return ListOutput(fundingSources, result.nextToken())
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
@@ -356,7 +361,9 @@ internal class DefaultSudoVirtualCardsClient(
 
             val result = mutationResponse.data()?.cancelFundingSource()
             result?.let {
-                return FundingSourceTransformer.toEntityFromCancelFundingSourceMutationResult(result)
+                val fundingSource = result.fragments().fundingSource()
+                    ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException("unexpected null funding source")
+                return FundingSourceTransformer.toEntity(fundingSource)
             }
             throw SudoVirtualCardsClient.FundingSourceException.CancelFailedException(NO_RESULT_ERROR_MSG)
         } catch (e: Throwable) {
@@ -384,7 +391,7 @@ internal class DefaultSudoVirtualCardsClient(
                 .billingAddress(input.billingAddress.toAddressInput())
                 .currency(input.currency)
                 .build()
-            val mutation = CardProvisionMutation.builder()
+            val mutation = ProvisionVirtualCardMutation.builder()
                 .input(mutationInput)
                 .build()
 
@@ -398,7 +405,7 @@ internal class DefaultSudoVirtualCardsClient(
 
             val result = mutationResponse.data()?.cardProvision()
             result?.let {
-                return VirtualCardTransformer.toEntityFromCardProvisionMutationResult(deviceKeyManager, result)
+                return VirtualCardTransformer.toEntity(deviceKeyManager, result.fragments().provisionalCard())
             }
             throw SudoVirtualCardsClient.VirtualCardException.ProvisionFailedException(NO_RESULT_ERROR_MSG)
         } catch (e: Throwable) {
@@ -427,7 +434,7 @@ internal class DefaultSudoVirtualCardsClient(
             }
 
             val result = queryResponse.data()?.provisionalCard ?: return null
-            return VirtualCardTransformer.toEntityFromGetProvisionalCardQueryResult(deviceKeyManager, result)
+            return VirtualCardTransformer.toEntity(deviceKeyManager, result.fragments().provisionalCard())
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
             when (e) {
@@ -458,7 +465,7 @@ internal class DefaultSudoVirtualCardsClient(
             }
 
             val result = queryResponse.data()?.card ?: return null
-            return VirtualCardTransformer.toEntityFromGetCardQueryResult(deviceKeyManager, result)
+            return VirtualCardTransformer.toEntity(deviceKeyManager, result.fragments().sealedCardWithLastTransaction())
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
             when (e) {
@@ -497,10 +504,13 @@ internal class DefaultSudoVirtualCardsClient(
             val partials: MutableList<PartialResult<PartialVirtualCard>> = mutableListOf()
             for (sealedCard in sealedCards) {
                 try {
-                    val unsealedCard = VirtualCardTransformer.toEntityFromListCardsQueryResult(deviceKeyManager, sealedCard)
+                    val unsealedCard = VirtualCardTransformer.toEntity(
+                        deviceKeyManager,
+                        sealedCard.fragments().sealedCardWithLastTransaction()
+                    )
                     success.add(unsealedCard)
                 } catch (e: Exception) {
-                    val partialCard = VirtualCardTransformer.toPartialVirtualCardFromListCardsQueryResult(sealedCard)
+                    val partialCard = VirtualCardTransformer.toPartialEntity(sealedCard.fragments().sealedCardWithLastTransaction())
                     val partialResult = PartialResult(partialCard, e)
                     partials.add(partialResult)
                 }
@@ -537,7 +547,7 @@ internal class DefaultSudoVirtualCardsClient(
                 .billingAddress(input.billingAddress.toAddressInput())
                 .build()
 
-            val mutation = UpdateCardMutation.builder()
+            val mutation = UpdateVirtualCardMutation.builder()
                 .input(mutationInput)
                 .build()
 
@@ -552,10 +562,13 @@ internal class DefaultSudoVirtualCardsClient(
             val updatedCard = mutationResponse.data()?.updateCard()
             updatedCard?.let {
                 try {
-                    val unsealedUpdatedCard = VirtualCardTransformer.toEntityFromUpdateCardMutationResult(deviceKeyManager, updatedCard)
+                    val unsealedUpdatedCard = VirtualCardTransformer.toEntity(
+                        deviceKeyManager,
+                        updatedCard.fragments().sealedCardWithLastTransaction()
+                    )
                     return SingleAPIResult.Success(unsealedUpdatedCard)
                 } catch (e: Exception) {
-                    val partialUpdatedCard = VirtualCardTransformer.toPartialEntityFromUpdateCardMutationResult(updatedCard)
+                    val partialUpdatedCard = VirtualCardTransformer.toPartialEntity(updatedCard.fragments().sealedCardWithLastTransaction())
                     val partialResult = PartialResult(partialUpdatedCard, e)
                     return SingleAPIResult.Partial(partialResult)
                 }
@@ -580,7 +593,7 @@ internal class DefaultSudoVirtualCardsClient(
                 .id(id)
                 .keyId(keyId)
                 .build()
-            val mutation = CancelCardMutation.builder()
+            val mutation = CancelVirtualCardMutation.builder()
                 .input(mutationInput)
                 .build()
 
@@ -595,10 +608,15 @@ internal class DefaultSudoVirtualCardsClient(
             val cancelledCard = mutationResponse.data()?.cancelCard()
             cancelledCard?.let {
                 try {
-                    val unsealedCancelledCard = VirtualCardTransformer.toEntityFromCancelCardMutationResult(deviceKeyManager, cancelledCard)
+                    val unsealedCancelledCard = VirtualCardTransformer.toEntity(
+                        deviceKeyManager,
+                        cancelledCard.fragments().sealedCardWithLastTransaction()
+                    )
                     return SingleAPIResult.Success(unsealedCancelledCard)
                 } catch (e: Exception) {
-                    val partialCancelledCard = VirtualCardTransformer.toPartialVirtualCardFromCancelCardMutationResult(cancelledCard)
+                    val partialCancelledCard = VirtualCardTransformer.toPartialEntity(
+                        cancelledCard.fragments().sealedCardWithLastTransaction()
+                    )
                     val partialResult = PartialResult(partialCancelledCard, e)
                     return SingleAPIResult.Partial(partialResult)
                 }
@@ -635,7 +653,7 @@ internal class DefaultSudoVirtualCardsClient(
             }
 
             val result = queryResponse.data()?.transaction ?: return null
-            return TransactionTransformer.toEntityFromGetTransactionQueryResult(deviceKeyManager, result)
+            return TransactionTransformer.toEntity(deviceKeyManager, result.fragments().sealedTransaction())
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
             when (e) {
@@ -672,7 +690,7 @@ internal class DefaultSudoVirtualCardsClient(
                 throw interpretTransactionError(queryResponse.errors().first())
             }
 
-            val queryResult = queryResponse.data()?.listTransactionsByCardId()
+            val queryResult = queryResponse.data()?.listTransactionsByCardId2()
             val sealedTransactions = queryResult?.items() ?: emptyList()
             val newNextToken = queryResult?.nextToken()
 
@@ -681,11 +699,69 @@ internal class DefaultSudoVirtualCardsClient(
             for (sealedTransaction in sealedTransactions) {
                 try {
                     val unsealerTransaction =
-                        TransactionTransformer.toEntityFromListTransactionsByCardIdQueryResult(deviceKeyManager, sealedTransaction)
+                        TransactionTransformer.toEntity(deviceKeyManager, sealedTransaction.fragments().sealedTransaction())
                     success.add(unsealerTransaction)
                 } catch (e: Exception) {
                     val partialTransaction =
-                        TransactionTransformer.toPartialEntityFromListTransactionsByCardIdQueryResult(sealedTransaction)
+                        TransactionTransformer.toPartialEntity(sealedTransaction.fragments().sealedTransaction())
+                    val partialResult = PartialResult(partialTransaction, e)
+                    partials.add(partialResult)
+                }
+            }
+            if (partials.isNotEmpty()) {
+                val listPartialResult = ListAPIResult.ListPartialResult(success, partials, newNextToken)
+                return ListAPIResult.Partial(listPartialResult)
+            }
+            val listSuccessResult = ListAPIResult.ListSuccessResult(success, newNextToken)
+            return ListAPIResult.Success(listSuccessResult)
+        } catch (e: Throwable) {
+            logger.error("unexpected error $e")
+            when (e) {
+                is ApolloException -> throw SudoVirtualCardsClient.TransactionException.FailedException(cause = e)
+                else -> throw interpretTransactionException(e)
+            }
+        }
+    }
+
+    @Throws(SudoVirtualCardsClient.TransactionException::class)
+    override suspend fun listTransactions(
+        limit: Int,
+        nextToken: String?,
+        cachePolicy: CachePolicy,
+        dateRange: DateRange?,
+        sortOrder: SortOrder
+    ): ListAPIResult<Transaction, PartialTransaction> {
+        try {
+            val query = ListTransactionsQuery.builder()
+                .limit(limit)
+                .nextToken(nextToken)
+                .dateRange(dateRange.toDateRangeInput())
+                .sortOrder(sortOrder.toSortOrderInput(sortOrder))
+                .build()
+
+            val queryResponse = appSyncClient.query(query)
+                .responseFetcher(cachePolicy.toResponseFetcher(cachePolicy))
+                .enqueueFirst()
+
+            if (queryResponse.hasErrors()) {
+                logger.error("errors = ${queryResponse.errors()}")
+                throw interpretTransactionError(queryResponse.errors().first())
+            }
+
+            val queryResult = queryResponse.data()?.listTransactions2()
+            val sealedTransactions = queryResult?.items() ?: emptyList()
+            val newNextToken = queryResult?.nextToken()
+
+            val success: MutableList<Transaction> = mutableListOf()
+            val partials: MutableList<PartialResult<PartialTransaction>> = mutableListOf()
+            for (sealedTransaction in sealedTransactions) {
+                try {
+                    val unsealerTransaction =
+                        TransactionTransformer.toEntity(deviceKeyManager, sealedTransaction.fragments().sealedTransaction())
+                    success.add(unsealerTransaction)
+                } catch (e: Exception) {
+                    val partialTransaction =
+                        TransactionTransformer.toPartialEntity(sealedTransaction.fragments().sealedTransaction())
                     val partialResult = PartialResult(partialTransaction, e)
                     partials.add(partialResult)
                 }

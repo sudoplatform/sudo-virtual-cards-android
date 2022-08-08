@@ -23,6 +23,7 @@ import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.CancelFundingSourceMutation
+import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource as FundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState
 import com.sudoplatform.sudovirtualcards.graphql.type.IdInput
@@ -55,16 +56,21 @@ class SudoVirtualCardsCancelFundingSourceTest : BaseTests() {
 
     private val mutationResult by before {
         CancelFundingSourceMutation.CancelFundingSource(
-            "typename",
-            "id",
-            "owner",
-            1,
-            1.0,
-            10.0,
-            FundingSourceState.INACTIVE,
-            "USD",
-            "last4",
-            CreditCardNetwork.VISA
+            "CancelFundingSource",
+            CancelFundingSourceMutation.CancelFundingSource.Fragments(
+                FundingSourceFragment(
+                    "FundingSource",
+                    "id",
+                    "owner",
+                    1,
+                    1.0,
+                    10.0,
+                    FundingSourceState.INACTIVE,
+                    "USD",
+                    "last4",
+                    CreditCardNetwork.VISA
+                )
+            )
         )
     }
 

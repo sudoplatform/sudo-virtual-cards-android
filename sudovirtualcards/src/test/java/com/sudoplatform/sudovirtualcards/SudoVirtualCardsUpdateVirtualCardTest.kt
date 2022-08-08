@@ -25,7 +25,11 @@ import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
-import com.sudoplatform.sudovirtualcards.graphql.UpdateCardMutation
+import com.sudoplatform.sudovirtualcards.graphql.UpdateVirtualCardMutation
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAddressAttribute
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCard
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCardWithLastTransaction
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedExpiryAttribute
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.graphql.type.AddressInput
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
@@ -79,22 +83,32 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
     }
 
     private val billingAddress by before {
-        UpdateCardMutation.BillingAddress(
-            "typename",
-            mockSeal("addressLine1"),
-            mockSeal("addressLine2"),
-            mockSeal("city"),
-            mockSeal("state"),
-            mockSeal("postalCode"),
-            mockSeal("country")
+        SealedCard.BillingAddress(
+            "BillingAddress",
+            SealedCard.BillingAddress.Fragments(
+                SealedAddressAttribute(
+                    "SealedAddressAttribute",
+                    mockSeal("addressLine1"),
+                    mockSeal("addressLine2"),
+                    mockSeal("city"),
+                    mockSeal("state"),
+                    mockSeal("postalCode"),
+                    mockSeal("country")
+                )
+            )
         )
     }
 
     private val expiry by before {
-        UpdateCardMutation.Expiry(
-            "typename",
-            mockSeal("01"),
-            mockSeal("2021")
+        SealedCard.Expiry(
+            "Expiry",
+            SealedCard.Expiry.Fragments(
+                SealedExpiryAttribute(
+                    "SealedExpiryAttribute",
+                    mockSeal("01"),
+                    mockSeal("2021")
+                )
+            )
         )
     }
 
@@ -126,41 +140,51 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
     }
 
     private val mutationResult by before {
-        UpdateCardMutation.UpdateCard(
-            "typename",
-            "id",
-            "owner",
-            2,
-            1.0,
-            1.0,
-            "algorithm",
-            "keyId",
-            "keyRingId",
-            emptyList(),
-            "fundingSourceId",
-            "currency",
-            CardState.ISSUED,
-            1.0,
-            null,
-            "last4",
-            mockSeal("newCardHolder"),
-            mockSeal("newAlias"),
-            mockSeal("pan"),
-            mockSeal("csc"),
-            billingAddress,
-            expiry,
-            null,
-            null
+        UpdateVirtualCardMutation.UpdateCard(
+            "UpdateCard",
+            UpdateVirtualCardMutation.UpdateCard.Fragments(
+                SealedCardWithLastTransaction(
+                    "SealedCardWithLastTransaction",
+                    null,
+                    SealedCardWithLastTransaction.Fragments(
+                        SealedCard(
+                            "SealedCard",
+                            "id",
+                            "owner",
+                            2,
+                            1.0,
+                            1.0,
+                            "algorithm",
+                            "keyId",
+                            "keyRingId",
+                            emptyList(),
+                            "fundingSourceId",
+                            "currency",
+                            CardState.ISSUED,
+                            1.0,
+                            null,
+                            "last4",
+                            mockSeal("newCardHolder"),
+                            mockSeal("newAlias"),
+                            mockSeal("pan"),
+                            mockSeal("csc"),
+                            billingAddress,
+                            expiry,
+                            null,
+                        )
+                    )
+                )
+            )
         )
     }
 
     private val mutationResponse by before {
-        Response.builder<UpdateCardMutation.Data>(UpdateCardMutation(mutationRequest))
-            .data(UpdateCardMutation.Data(mutationResult))
+        Response.builder<UpdateVirtualCardMutation.Data>(UpdateVirtualCardMutation(mutationRequest))
+            .data(UpdateVirtualCardMutation.Data(mutationResult))
             .build()
     }
 
-    private val mutationHolder = CallbackHolder<UpdateCardMutation.Data>()
+    private val mutationHolder = CallbackHolder<UpdateVirtualCardMutation.Data>()
 
     private val mockContext by before {
         mock<Context>()
@@ -189,7 +213,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
     private val mockAppSyncClient by before {
         mock<AWSAppSyncClient>().stub {
-            on { mutate(any<UpdateCardMutation>()) } doReturn mutationHolder.mutationOperation
+            on { mutate(any<UpdateVirtualCardMutation>()) } doReturn mutationHolder.mutationOperation
         }
     }
 
@@ -274,7 +298,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             }
         }
 
-        verify(mockAppSyncClient).mutate<UpdateCardMutation.Data, UpdateCardMutation, UpdateCardMutation.Variables>(
+        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
             check {
                 it.variables().input().id() shouldBe "id"
                 it.variables().input().expectedVersion() shouldBe 10
@@ -332,7 +356,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             }
         }
 
-        verify(mockAppSyncClient).mutate<UpdateCardMutation.Data, UpdateCardMutation, UpdateCardMutation.Variables>(
+        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
             check {
                 it.variables().input().id() shouldBe "id"
                 it.variables().input().expectedVersion() shouldBe 10
@@ -356,7 +380,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         mutationHolder.callback shouldBe null
 
         val nullMutationResponse by before {
-            Response.builder<UpdateCardMutation.Data>(UpdateCardMutation(mutationRequest))
+            Response.builder<UpdateVirtualCardMutation.Data>(UpdateVirtualCardMutation(mutationRequest))
                 .data(null)
                 .build()
         }
@@ -372,7 +396,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         mutationHolder.callback shouldNotBe null
         mutationHolder.callback?.onResponse(nullMutationResponse)
 
-        verify(mockAppSyncClient).mutate<UpdateCardMutation.Data, UpdateCardMutation, UpdateCardMutation.Variables>(
+        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
             check {
                 it.variables().input().id() shouldBe "id"
                 it.variables().input().expectedVersion() shouldBe 10
@@ -400,7 +424,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 emptyList(),
                 mapOf("errorType" to "IdentityVerificationNotVerifiedError")
             )
-            Response.builder<UpdateCardMutation.Data>(UpdateCardMutation(mutationRequest))
+            Response.builder<UpdateVirtualCardMutation.Data>(UpdateVirtualCardMutation(mutationRequest))
                 .errors(listOf(error))
                 .data(null)
                 .build()
@@ -417,7 +441,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         mutationHolder.callback shouldNotBe null
         mutationHolder.callback?.onResponse(errorMutationResponse)
 
-        verify(mockAppSyncClient).mutate<UpdateCardMutation.Data, UpdateCardMutation, UpdateCardMutation.Variables>(
+        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
             check {
                 it.variables().input().id() shouldBe "id"
                 it.variables().input().expectedVersion() shouldBe 10
@@ -445,7 +469,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 emptyList(),
                 mapOf("errorType" to "CardNotFoundError")
             )
-            Response.builder<UpdateCardMutation.Data>(UpdateCardMutation(mutationRequest))
+            Response.builder<UpdateVirtualCardMutation.Data>(UpdateVirtualCardMutation(mutationRequest))
                 .errors(listOf(error))
                 .data(null)
                 .build()
@@ -462,7 +486,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         mutationHolder.callback shouldNotBe null
         mutationHolder.callback?.onResponse(errorMutationResponse)
 
-        verify(mockAppSyncClient).mutate<UpdateCardMutation.Data, UpdateCardMutation, UpdateCardMutation.Variables>(
+        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
             check {
                 it.variables().input().id() shouldBe "id"
                 it.variables().input().expectedVersion() shouldBe 10
@@ -490,7 +514,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 emptyList(),
                 mapOf("errorType" to "CardStateError")
             )
-            Response.builder<UpdateCardMutation.Data>(UpdateCardMutation(mutationRequest))
+            Response.builder<UpdateVirtualCardMutation.Data>(UpdateVirtualCardMutation(mutationRequest))
                 .errors(listOf(error))
                 .data(null)
                 .build()
@@ -507,7 +531,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         mutationHolder.callback shouldNotBe null
         mutationHolder.callback?.onResponse(errorMutationResponse)
 
-        verify(mockAppSyncClient).mutate<UpdateCardMutation.Data, UpdateCardMutation, UpdateCardMutation.Variables>(
+        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
             check {
                 it.variables().input().id() shouldBe "id"
                 it.variables().input().expectedVersion() shouldBe 10
@@ -542,7 +566,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
     fun `updateVirtualCard() should throw when unsealing fails`() = runBlocking<Unit> {
 
         mockAppSyncClient.stub {
-            on { mutate(any<UpdateCardMutation>()) } doThrow Unsealer.UnsealerException.SealedDataTooShortException(
+            on { mutate(any<UpdateVirtualCardMutation>()) } doThrow Unsealer.UnsealerException.SealedDataTooShortException(
                 "Mock Unsealer Exception"
             )
         }
@@ -551,7 +575,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             client.updateVirtualCard(input)
         }
 
-        verify(mockAppSyncClient).mutate<UpdateCardMutation.Data, UpdateCardMutation, UpdateCardMutation.Variables>(
+        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
             check {
                 it.variables().input().id() shouldBe "id"
                 it.variables().input().expectedVersion() shouldBe 10
@@ -599,7 +623,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
         deferredResult.await()
 
-        verify(mockAppSyncClient).mutate<UpdateCardMutation.Data, UpdateCardMutation, UpdateCardMutation.Variables>(
+        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
             check {
                 it.variables().input().id() shouldBe "id"
                 it.variables().input().expectedVersion() shouldBe 10
@@ -622,7 +646,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         mutationHolder.callback shouldBe null
 
         mockAppSyncClient.stub {
-            on { mutate(any<UpdateCardMutation>()) } doThrow RuntimeException("Mock Runtime Exception")
+            on { mutate(any<UpdateVirtualCardMutation>()) } doThrow RuntimeException("Mock Runtime Exception")
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -635,7 +659,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
         deferredResult.await()
 
-        verify(mockAppSyncClient).mutate<UpdateCardMutation.Data, UpdateCardMutation, UpdateCardMutation.Variables>(
+        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
             check {
                 it.variables().input().id() shouldBe "id"
                 it.variables().input().expectedVersion() shouldBe 10
@@ -656,14 +680,14 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
     fun `updateVirtualCard() should not block coroutine cancellation exception`() = runBlocking<Unit> {
 
         mockAppSyncClient.stub {
-            on { mutate(any<UpdateCardMutation>()) } doThrow CancellationException("Mock Cancellation Exception")
+            on { mutate(any<UpdateVirtualCardMutation>()) } doThrow CancellationException("Mock Cancellation Exception")
         }
 
         shouldThrow<CancellationException> {
             client.updateVirtualCard(input)
         }
 
-        verify(mockAppSyncClient).mutate<UpdateCardMutation.Data, UpdateCardMutation, UpdateCardMutation.Variables>(
+        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
             check {
                 it.variables().input().id() shouldBe "id"
                 it.variables().input().expectedVersion() shouldBe 10

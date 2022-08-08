@@ -1,0 +1,667 @@
+package com.sudoplatform.sudovirtualcards
+
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.sudoplatform.sudokeymanager.KeyManagerFactory
+import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateAuthorizationInput
+import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
+import com.sudoplatform.sudovirtualcards.types.ListAPIResult
+import com.sudoplatform.sudovirtualcards.types.Transaction
+import com.sudoplatform.sudovirtualcards.types.TransactionType
+import com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInput
+import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
+import io.kotlintest.matchers.collections.shouldHaveSize
+import io.kotlintest.matchers.numerics.shouldBeGreaterThan
+import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotBe
+import kotlinx.coroutines.runBlocking
+import org.awaitility.Duration
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.has
+import org.awaitility.kotlin.untilCallTo
+import org.awaitility.kotlin.withPollInterval
+import org.junit.After
+import org.junit.Assert
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import timber.log.Timber
+import java.util.logging.Logger
+
+@RunWith(AndroidJUnit4::class)
+class ListTransactionsIntegrationTest : BaseIntegrationTest() {
+    private val verbose = false
+
+    private lateinit var vcClient: SudoVirtualCardsClient
+
+    @Before
+    fun init() {
+        Timber.plant(Timber.DebugTree())
+
+        if (verbose) {
+            Logger.getLogger("com.amazonaws").level = java.util.logging.Level.FINEST
+            Logger.getLogger("org.apache.http").level = java.util.logging.Level.FINEST
+        }
+
+        // Remove all keys from the Android Keystore so we can start with a clean slate.
+        KeyManagerFactory(context).createAndroidKeyManager().removeAllKeys()
+        sudoClient.generateEncryptionKey()
+        vcClient = SudoVirtualCardsClient.builder()
+            .setContext(context)
+            .setSudoUserClient(userClient)
+            .setSudoProfilesClient(sudoClient)
+            .build()
+    }
+
+    @After
+    fun fini() = runBlocking {
+        if (userClient.isRegistered()) {
+            deregister()
+        }
+        vcClient.reset()
+        sudoClient.reset()
+        userClient.reset()
+
+        Timber.uprootAll()
+    }
+
+    @Test
+    fun listTransactionsByCardIdShouldReturnSingleTransactionListOutputResult() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        val input = CreditCardFundingSourceInput(
+            TestData.Visa.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            TestData.Visa.securityCode,
+            TestData.VerifiedUser.addressLine1,
+            TestData.VerifiedUser.addressLine2,
+            TestData.VerifiedUser.city,
+            TestData.VerifiedUser.state,
+            TestData.VerifiedUser.postalCode,
+            TestData.VerifiedUser.country
+        )
+        val fundingSource = createFundingSource(vcClient, input)
+        fundingSource shouldNotBe null
+
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
+        card shouldNotBe null
+
+        val merchant = vcSimulatorClient.getSimulatorMerchants().first()
+        val originalAmount = 75
+        val authInput = SimulateAuthorizationInput(
+            cardNumber = card.cardNumber,
+            amount = originalAmount,
+            merchantId = merchant.id,
+            securityCode = card.securityCode,
+            expirationMonth = card.expiry.mm.toInt(),
+            expirationYear = card.expiry.yyyy.toInt(),
+        )
+        val authResponse = vcSimulatorClient.simulateAuthorization(authInput)
+        with(authResponse) {
+            isApproved shouldBe true
+            amount shouldBe authInput.amount
+            currency shouldBe merchant.currency
+            createdAt.time shouldBeGreaterThan 0L
+            updatedAt.time shouldBeGreaterThan 0L
+            declineReason shouldBe null
+        }
+
+        val transactions = await.atMost(Duration.TEN_SECONDS.multiply(4)) withPollInterval Duration.TWO_HUNDRED_MILLISECONDS untilCallTo {
+            runBlocking {
+                vcClient.listTransactionsByCardId(card.id)
+            }
+        } has { (this as ListAPIResult.Success<Transaction>).result.items.size == 1 }
+
+        when (transactions) {
+            is ListAPIResult.Success -> {
+                transactions.result.items shouldHaveSize 1
+
+                with(transactions.result.items[0]) {
+                    id.isBlank() shouldBe false
+                    owner shouldBe card.owner
+                    version shouldBe 1
+                    cardId shouldBe card.id
+                    sequenceId.isBlank() shouldBe false
+                    type shouldBe TransactionType.PENDING
+                    billedAmount shouldBe CurrencyAmount("USD", originalAmount)
+                    transactedAmount shouldBe CurrencyAmount("USD", originalAmount)
+                    description shouldBe merchant.name
+                    declineReason shouldBe null
+                }
+            }
+            else -> {
+                Assert.fail("Unexpected ListAPIResult")
+            }
+        }
+    }
+
+    @Test
+    fun listTransactionsByCardIdShouldReturnMultipleTransactionListOutputResult() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        val input = CreditCardFundingSourceInput(
+            TestData.Visa.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            TestData.Visa.securityCode,
+            TestData.VerifiedUser.addressLine1,
+            TestData.VerifiedUser.addressLine2,
+            TestData.VerifiedUser.city,
+            TestData.VerifiedUser.state,
+            TestData.VerifiedUser.postalCode,
+            TestData.VerifiedUser.country
+        )
+        val fundingSource = createFundingSource(vcClient, input)
+        fundingSource shouldNotBe null
+
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
+        card shouldNotBe null
+
+        simulateTransactions(card)
+
+        // List the transactions and wait until there are no PENDING transactions
+        val transactions = await.atMost(Duration.TEN_SECONDS.multiply(4)) withPollInterval Duration.TWO_HUNDRED_MILLISECONDS untilCallTo {
+            runBlocking {
+                vcClient.listTransactionsByCardId(card.id)
+            }
+        } has { (this as ListAPIResult.Success<Transaction>).result.items.size == 2 }
+
+        when (transactions) {
+            is ListAPIResult.Success -> {
+                transactions.result.items shouldHaveSize 2
+            }
+            else -> {
+                Assert.fail("Unexpected ListAPIResult")
+            }
+        }
+    }
+
+    @Test
+    fun listTransactionsByCardIdShouldRespectLimit() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        val input = CreditCardFundingSourceInput(
+            TestData.Visa.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            TestData.Visa.securityCode,
+            TestData.VerifiedUser.addressLine1,
+            TestData.VerifiedUser.addressLine2,
+            TestData.VerifiedUser.city,
+            TestData.VerifiedUser.state,
+            TestData.VerifiedUser.postalCode,
+            TestData.VerifiedUser.country
+        )
+        val fundingSource = createFundingSource(vcClient, input)
+        fundingSource shouldNotBe null
+
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
+        card shouldNotBe null
+
+        simulateTransactions(card)
+
+        val transactionsWithLimit = await.atMost(Duration.TEN_SECONDS) withPollInterval Duration.ONE_HUNDRED_MILLISECONDS untilCallTo {
+            runBlocking {
+                vcClient.listTransactionsByCardId(
+                    cardId = card.id,
+                    limit = 1
+                )
+            }
+        } has { (this as ListAPIResult.Success<Transaction>).result.items.size == 1 }
+
+        when (transactionsWithLimit) {
+            is ListAPIResult.Success -> {
+                transactionsWithLimit.result.items shouldHaveSize 1
+                transactionsWithLimit.result.nextToken shouldBe null
+            }
+            else -> {
+                Assert.fail("Unexpected ListAPIResult")
+            }
+        }
+    }
+
+    @Test
+    fun listTransactionsByCardIdShouldReturnEmptyList() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        val input = CreditCardFundingSourceInput(
+            TestData.Visa.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            TestData.Visa.securityCode,
+            TestData.VerifiedUser.addressLine1,
+            TestData.VerifiedUser.addressLine2,
+            TestData.VerifiedUser.city,
+            TestData.VerifiedUser.state,
+            TestData.VerifiedUser.postalCode,
+            TestData.VerifiedUser.country
+        )
+        val fundingSource = createFundingSource(vcClient, input)
+        fundingSource shouldNotBe null
+
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
+        card shouldNotBe null
+
+        when (val initialTransactions = vcClient.listTransactionsByCardId(card.id)) {
+            is ListAPIResult.Success -> {
+                initialTransactions.result.items.isEmpty() shouldBe true
+                initialTransactions.result.nextToken shouldBe null
+            }
+            else -> {
+                Assert.fail("Unexpected ListAPIResult")
+            }
+        }
+
+        var transactions = vcClient.listTransactionsByCardId(
+            cardId = card.id
+        )
+        when (transactions) {
+            is ListAPIResult.Success -> {
+                transactions.result.items.isEmpty() shouldBe true
+                transactions.result.nextToken shouldBe null
+            }
+            else -> {
+                Assert.fail("Unexpected ListAPIResult")
+            }
+        }
+
+        transactions = vcClient.listTransactionsByCardId(
+            cardId = card.id
+        )
+        when (transactions) {
+            is ListAPIResult.Success -> {
+                transactions.result.items.isEmpty() shouldBe true
+                transactions.result.nextToken shouldBe null
+            }
+            else -> {
+                Assert.fail("Unexpected ListAPIResult")
+            }
+        }
+    }
+
+    @Test
+    fun listTransactionsShouldReturnSingleTransactionListOutputResult() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        val input = CreditCardFundingSourceInput(
+            TestData.Visa.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            TestData.Visa.securityCode,
+            TestData.VerifiedUser.addressLine1,
+            TestData.VerifiedUser.addressLine2,
+            TestData.VerifiedUser.city,
+            TestData.VerifiedUser.state,
+            TestData.VerifiedUser.postalCode,
+            TestData.VerifiedUser.country
+        )
+        val fundingSource = createFundingSource(vcClient, input)
+        fundingSource shouldNotBe null
+
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
+        card shouldNotBe null
+
+        val merchant = vcSimulatorClient.getSimulatorMerchants().first()
+        val originalAmount = 75
+        val authInput = SimulateAuthorizationInput(
+            cardNumber = card.cardNumber,
+            amount = originalAmount,
+            merchantId = merchant.id,
+            securityCode = card.securityCode,
+            expirationMonth = card.expiry.mm.toInt(),
+            expirationYear = card.expiry.yyyy.toInt(),
+        )
+        val authResponse = vcSimulatorClient.simulateAuthorization(authInput)
+        with(authResponse) {
+            isApproved shouldBe true
+            amount shouldBe authInput.amount
+            currency shouldBe merchant.currency
+            createdAt.time shouldBeGreaterThan 0L
+            updatedAt.time shouldBeGreaterThan 0L
+            declineReason shouldBe null
+        }
+
+        val transactions = await.atMost(Duration.TEN_SECONDS.multiply(4)) withPollInterval Duration.TWO_HUNDRED_MILLISECONDS untilCallTo {
+            runBlocking {
+                vcClient.listTransactions()
+            }
+        } has { (this as ListAPIResult.Success<Transaction>).result.items.size == 1 }
+
+        when (transactions) {
+            is ListAPIResult.Success -> {
+                transactions.result.items shouldHaveSize 1
+
+                with(transactions.result.items[0]) {
+                    id.isBlank() shouldBe false
+                    owner shouldBe card.owner
+                    version shouldBe 1
+                    cardId shouldBe card.id
+                    sequenceId.isBlank() shouldBe false
+                    type shouldBe TransactionType.PENDING
+                    billedAmount shouldBe CurrencyAmount("USD", originalAmount)
+                    transactedAmount shouldBe CurrencyAmount("USD", originalAmount)
+                    description shouldBe merchant.name
+                    declineReason shouldBe null
+                }
+            }
+            else -> {
+                Assert.fail("Unexpected ListAPIResult")
+            }
+        }
+    }
+
+    @Test
+    fun listTransactionsShouldReturnMultipleTransactionListOutputResult() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        val input = CreditCardFundingSourceInput(
+            TestData.Visa.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            TestData.Visa.securityCode,
+            TestData.VerifiedUser.addressLine1,
+            TestData.VerifiedUser.addressLine2,
+            TestData.VerifiedUser.city,
+            TestData.VerifiedUser.state,
+            TestData.VerifiedUser.postalCode,
+            TestData.VerifiedUser.country
+        )
+        val fundingSource = createFundingSource(vcClient, input)
+        fundingSource shouldNotBe null
+
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
+        card shouldNotBe null
+
+        simulateTransactions(card)
+
+        // List the transactions and wait until there are no PENDING transactions
+        val transactions = await.atMost(Duration.TEN_SECONDS.multiply(4)) withPollInterval Duration.TWO_HUNDRED_MILLISECONDS untilCallTo {
+            runBlocking {
+                vcClient.listTransactions()
+            }
+        } has { (this as ListAPIResult.Success<Transaction>).result.items.size == 2 }
+
+        when (transactions) {
+            is ListAPIResult.Success -> {
+                transactions.result.items shouldHaveSize 2
+            }
+            else -> {
+                Assert.fail("Unexpected ListAPIResult")
+            }
+        }
+    }
+
+    @Test
+    fun listTransactionsShouldRespectLimit() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        val input = CreditCardFundingSourceInput(
+            TestData.Visa.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            TestData.Visa.securityCode,
+            TestData.VerifiedUser.addressLine1,
+            TestData.VerifiedUser.addressLine2,
+            TestData.VerifiedUser.city,
+            TestData.VerifiedUser.state,
+            TestData.VerifiedUser.postalCode,
+            TestData.VerifiedUser.country
+        )
+        val fundingSource = createFundingSource(vcClient, input)
+        fundingSource shouldNotBe null
+
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
+        card shouldNotBe null
+
+        simulateTransactions(card)
+
+        val transactionsWithLimit = await.atMost(Duration.TEN_SECONDS) withPollInterval Duration.ONE_HUNDRED_MILLISECONDS untilCallTo {
+            runBlocking {
+                vcClient.listTransactions(
+                    limit = 1
+                )
+            }
+        } has { (this as ListAPIResult.Success<Transaction>).result.items.size == 1 }
+
+        when (transactionsWithLimit) {
+            is ListAPIResult.Success -> {
+                transactionsWithLimit.result.items shouldHaveSize 1
+                transactionsWithLimit.result.nextToken shouldBe null
+            }
+            else -> {
+                Assert.fail("Unexpected ListAPIResult")
+            }
+        }
+    }
+
+    @Test
+    fun listTransactionsShouldReturnEmptyList() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        val input = CreditCardFundingSourceInput(
+            TestData.Visa.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            TestData.Visa.securityCode,
+            TestData.VerifiedUser.addressLine1,
+            TestData.VerifiedUser.addressLine2,
+            TestData.VerifiedUser.city,
+            TestData.VerifiedUser.state,
+            TestData.VerifiedUser.postalCode,
+            TestData.VerifiedUser.country
+        )
+        val fundingSource = createFundingSource(vcClient, input)
+        fundingSource shouldNotBe null
+
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
+        card shouldNotBe null
+
+        when (val initialTransactions = vcClient.listTransactions()) {
+            is ListAPIResult.Success -> {
+                initialTransactions.result.items.isEmpty() shouldBe true
+                initialTransactions.result.nextToken shouldBe null
+            }
+            else -> {
+                Assert.fail("Unexpected ListAPIResult")
+            }
+        }
+
+        var transactions = vcClient.listTransactions()
+        when (transactions) {
+            is ListAPIResult.Success -> {
+                transactions.result.items.isEmpty() shouldBe true
+                transactions.result.nextToken shouldBe null
+            }
+            else -> {
+                Assert.fail("Unexpected ListAPIResult")
+            }
+        }
+
+        transactions = vcClient.listTransactions()
+        when (transactions) {
+            is ListAPIResult.Success -> {
+                transactions.result.items.isEmpty() shouldBe true
+                transactions.result.nextToken shouldBe null
+            }
+            else -> {
+                Assert.fail("Unexpected ListAPIResult")
+            }
+        }
+    }
+}

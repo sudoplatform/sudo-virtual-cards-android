@@ -25,6 +25,10 @@ import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.ListCardsQuery
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAddressAttribute
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCard
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCardWithLastTransaction
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedExpiryAttribute
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
 import com.sudoplatform.sudovirtualcards.types.ListAPIResult
@@ -66,62 +70,82 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
     }
 
     private val billingAddress by before {
-        ListCardsQuery.BillingAddress(
-            "typename",
-            mockSeal("addressLine1"),
-            mockSeal("addressLine2"),
-            mockSeal("city"),
-            mockSeal("state"),
-            mockSeal("postalCode"),
-            mockSeal("country")
+        SealedCard.BillingAddress(
+            "BillingAddress",
+            SealedCard.BillingAddress.Fragments(
+                SealedAddressAttribute(
+                    "SealedAddressAttribute",
+                    mockSeal("addressLine1"),
+                    mockSeal("addressLine2"),
+                    mockSeal("city"),
+                    mockSeal("state"),
+                    mockSeal("postalCode"),
+                    mockSeal("country")
+                )
+            )
         )
     }
 
     private val expiry by before {
-        ListCardsQuery.Expiry(
-            "typename",
-            mockSeal("01"),
-            mockSeal("2020")
+        SealedCard.Expiry(
+            "Expiry",
+            SealedCard.Expiry.Fragments(
+                SealedExpiryAttribute(
+                    "SealedExpiryAttribute",
+                    mockSeal("01"),
+                    mockSeal("2020")
+                )
+            )
         )
     }
 
     private val queryResult by before {
         ListCardsQuery.ListCards(
-            "typename",
+            "ListCards",
             listOf(
                 ListCardsQuery.Item(
-                    "typename",
-                    "id",
-                    "owner",
-                    1,
-                    1.0,
-                    1.0,
-                    "algorithm",
-                    "keyId",
-                    "keyRingId",
-                    emptyList(),
-                    "fundingSourceId",
-                    "currency",
-                    CardState.ISSUED,
-                    1.0,
-                    null,
-                    "last4",
-                    mockSeal("cardHolder"),
-                    mockSeal("alias"),
-                    mockSeal("pan"),
-                    mockSeal("csc"),
-                    billingAddress,
-                    expiry,
-                    null,
-                    null
-                ),
+                    "Item",
+                    ListCardsQuery.Item.Fragments(
+                        SealedCardWithLastTransaction(
+                            "SealedCardWithLastTransaction",
+                            null,
+                            SealedCardWithLastTransaction.Fragments(
+                                SealedCard(
+                                    "SealedCard",
+                                    "id",
+                                    "owner",
+                                    1,
+                                    1.0,
+                                    1.0,
+                                    "algorithm",
+                                    "keyId",
+                                    "keyRingId",
+                                    emptyList(),
+                                    "fundingSourceId",
+                                    "currency",
+                                    CardState.ISSUED,
+                                    1.0,
+                                    null,
+                                    "last4",
+                                    mockSeal("cardHolder"),
+                                    mockSeal("alias"),
+                                    mockSeal("pan"),
+                                    mockSeal("csc"),
+                                    billingAddress,
+                                    expiry,
+                                    null,
+                                )
+                            )
+                        )
+                    )
+                )
             ),
             null
         )
     }
 
     private val queryResponse by before {
-        Response.builder<ListCardsQuery.Data>(ListCardsQuery(null, null, null))
+        Response.builder<ListCardsQuery.Data>(ListCardsQuery(null, null))
             .data(ListCardsQuery.Data(queryResult))
             .build()
     }
@@ -238,33 +262,43 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
 
         val queryResultWithNextToken by before {
             ListCardsQuery.ListCards(
-                "typename",
+                "ListCards",
                 listOf(
                     ListCardsQuery.Item(
-                        "typename",
-                        "id",
-                        "owner",
-                        1,
-                        1.0,
-                        1.0,
-                        "algorithm",
-                        "keyId",
-                        "keyRingId",
-                        emptyList(),
-                        "fundingSourceId",
-                        "currency",
-                        CardState.ISSUED,
-                        1.0,
-                        null,
-                        "last4",
-                        mockSeal("cardHolder"),
-                        mockSeal("alias"),
-                        mockSeal("pan"),
-                        mockSeal("csc"),
-                        billingAddress,
-                        expiry,
-                        null,
-                        null
+                        "Item",
+                        ListCardsQuery.Item.Fragments(
+                            SealedCardWithLastTransaction(
+                                "SealedCardWithLastTransaction",
+                                null,
+                                SealedCardWithLastTransaction.Fragments(
+                                    SealedCard(
+                                        "SealedCard",
+                                        "id",
+                                        "owner",
+                                        1,
+                                        1.0,
+                                        1.0,
+                                        "algorithm",
+                                        "keyId",
+                                        "keyRingId",
+                                        emptyList(),
+                                        "fundingSourceId",
+                                        "currency",
+                                        CardState.ISSUED,
+                                        1.0,
+                                        null,
+                                        "last4",
+                                        mockSeal("cardHolder"),
+                                        mockSeal("alias"),
+                                        mockSeal("pan"),
+                                        mockSeal("csc"),
+                                        billingAddress,
+                                        expiry,
+                                        null,
+                                    )
+                                )
+                            )
+                        )
                     )
                 ),
                 "dummyNextToken"
@@ -272,7 +306,7 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
         }
 
         val responseWithNextToken by before {
-            Response.builder<ListCardsQuery.Data>(ListCardsQuery(null, 1, "dummyNextToken"))
+            Response.builder<ListCardsQuery.Data>(ListCardsQuery(1, "dummyNextToken"))
                 .data(ListCardsQuery.Data(queryResultWithNextToken))
                 .build()
         }
@@ -338,7 +372,7 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
         }
 
         val responseWithEmptyList by before {
-            Response.builder<ListCardsQuery.Data>(ListCardsQuery(null, null, null))
+            Response.builder<ListCardsQuery.Data>(ListCardsQuery(null, null))
                 .data(ListCardsQuery.Data(queryResultWithEmptyList))
                 .build()
         }
@@ -368,47 +402,12 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
     }
 
     @Test
-    fun `listVirtualCards() should return success empty list result when query result data is null`() = runBlocking<Unit> {
-
-        queryHolder.callback shouldBe null
-
-        val responseWithNullData by before {
-            Response.builder<ListCardsQuery.Data>(ListCardsQuery(null, null, null))
-                .data(ListCardsQuery.Data(null))
-                .build()
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.listVirtualCards()
-        }
-        deferredResult.start()
-
-        delay(100L)
-        queryHolder.callback shouldNotBe null
-        queryHolder.callback?.onResponse(responseWithNullData)
-
-        val result = deferredResult.await()
-        result shouldNotBe null
-
-        when (result) {
-            is ListAPIResult.Success -> {
-                result.result.items.isEmpty() shouldBe true
-                result.result.items.size shouldBe 0
-                result.result.nextToken shouldBe null
-            }
-            else -> { fail("Unexpected ListAPIResult") }
-        }
-
-        verify(mockAppSyncClient).query(any<ListCardsQuery>())
-    }
-
-    @Test
     fun `listVirtualCards() should return success empty list result when query response is null`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
         val nullQueryResponse by before {
-            Response.builder<ListCardsQuery.Data>(ListCardsQuery(null, null, null))
+            Response.builder<ListCardsQuery.Data>(ListCardsQuery(null, null))
                 .data(null)
                 .build()
         }

@@ -24,7 +24,7 @@ import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
-import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsByCardIdQuery
+import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsQuery
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCurrencyAmountAttribute
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedMarkupAttribute
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedTransaction
@@ -61,10 +61,10 @@ import java.util.Date
 import java.util.concurrent.CancellationException
 
 /**
- * Test the correct operation of [SudoVirtualCardsClient.listTransactionsByCardId] using mocks
+ * Test the correct operation of [SudoVirtualCardsClient.listTransactions] using mocks
  * and spies.
  */
-class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
+class SudoVirtualCardsListTransactionsTest : BaseTests() {
 
     private fun mockSeal(value: String): String {
         val valueBytes = value.toByteArray()
@@ -74,9 +74,9 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     private val queryResultItem by before {
-        ListTransactionsByCardIdQuery.Item(
+        ListTransactionsQuery.Item(
             "typename",
-            ListTransactionsByCardIdQuery.Item.Fragments(
+            ListTransactionsQuery.Item.Fragments(
                 SealedTransaction(
                     "SealedTransaction",
                     "id",
@@ -173,16 +173,16 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     private val queryResult by before {
-        ListTransactionsByCardIdQuery.ListTransactionsByCardId2("ListTransactionsByCardId2", listOf(queryResultItem), null)
+        ListTransactionsQuery.ListTransactions2("ListTransactions2", listOf(queryResultItem), null)
     }
 
     private val queryResponse by before {
-        Response.builder<ListTransactionsByCardIdQuery.Data>(ListTransactionsByCardIdQuery("cardId", null, null, null, null))
-            .data(ListTransactionsByCardIdQuery.Data(queryResult))
+        Response.builder<ListTransactionsQuery.Data>(ListTransactionsQuery(null, null, null, null))
+            .data(ListTransactionsQuery.Data(queryResult))
             .build()
     }
 
-    private val queryHolder = CallbackHolder<ListTransactionsByCardIdQuery.Data>()
+    private val queryHolder = CallbackHolder<ListTransactionsQuery.Data>()
 
     private val mockContext by before {
         mock<Context>()
@@ -200,7 +200,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
 
     private val mockAppSyncClient by before {
         mock<AWSAppSyncClient>().stub {
-            on { query(any<ListTransactionsByCardIdQuery>()) } doReturn queryHolder.queryOperation
+            on { query(any<ListTransactionsQuery>()) } doReturn queryHolder.queryOperation
         }
     }
 
@@ -236,13 +236,12 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     @Test
-    fun `listTransactionsByCardId() should return success result when no error present`() = runBlocking<Unit> {
+    fun `listTransactions() should return success result when no error present`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
-            client.listTransactionsByCardId(
-                cardId = "cardId",
+            client.listTransactions(
                 limit = 1,
                 nextToken = null,
                 dateRange = DateRange(Date(), Date()),
@@ -272,9 +271,8 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
         }
 
         verify(mockAppSyncClient)
-            .query<ListTransactionsByCardIdQuery.Data, ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Variables>(
+            .query<ListTransactionsQuery.Data, ListTransactionsQuery, ListTransactionsQuery.Variables>(
                 check {
-                    it.variables().cardId() shouldBe "cardId"
                     it.variables().limit() shouldBe 1
                     it.variables().nextToken() shouldBe null
                     it.variables().dateRange()?.startDateEpochMs()?.shouldBeLessThan(Date().time.toDouble())
@@ -287,12 +285,12 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     @Test
-    fun `listTransactionsByCardId() should return success result using default inputs when no error present`() = runBlocking<Unit> {
+    fun `listTransactions() should return success result using default inputs when no error present`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
-            client.listTransactionsByCardId("cardId")
+            client.listTransactions()
         }
         deferredResult.start()
 
@@ -317,9 +315,8 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
         }
 
         verify(mockAppSyncClient)
-            .query<ListTransactionsByCardIdQuery.Data, ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Variables>(
+            .query<ListTransactionsQuery.Data, ListTransactionsQuery, ListTransactionsQuery.Variables>(
                 check {
-                    it.variables().cardId() shouldBe "cardId"
                     it.variables().limit() shouldBe 100
                     it.variables().nextToken() shouldBe null
                     it.variables().dateRange() shouldBe null
@@ -331,30 +328,29 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     @Test
-    fun `listTransactionsByCardId() should return success result when populating nextToken`() = runBlocking<Unit> {
+    fun `listTransactions() should return success result when populating nextToken`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
         val queryResultWithNextToken by before {
-            ListTransactionsByCardIdQuery.ListTransactionsByCardId2("ListTransactionsByCardId2", listOf(queryResultItem), "dummyNextToken")
+            ListTransactionsQuery.ListTransactions2("ListTransactions2", listOf(queryResultItem), "dummyNextToken")
         }
 
         val responseWithNextToken by before {
-            Response.builder<ListTransactionsByCardIdQuery.Data>(
-                ListTransactionsByCardIdQuery(
-                    "cardId",
+            Response.builder<ListTransactionsQuery.Data>(
+                ListTransactionsQuery(
                     1,
                     "dummyNextToken",
                     null,
                     null,
                 )
             )
-                .data(ListTransactionsByCardIdQuery.Data(queryResultWithNextToken))
+                .data(ListTransactionsQuery.Data(queryResultWithNextToken))
                 .build()
         }
 
         val deferredResult = async(Dispatchers.IO) {
-            client.listTransactionsByCardId("cardId", 1, "dummyNextToken", CachePolicy.REMOTE_ONLY)
+            client.listTransactions(1, "dummyNextToken", CachePolicy.REMOTE_ONLY)
         }
         deferredResult.start()
 
@@ -379,9 +375,8 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
         }
 
         verify(mockAppSyncClient)
-            .query<ListTransactionsByCardIdQuery.Data, ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Variables>(
+            .query<ListTransactionsQuery.Data, ListTransactionsQuery, ListTransactionsQuery.Variables>(
                 check {
-                    it.variables().cardId() shouldBe "cardId"
                     it.variables().limit() shouldBe 1
                     it.variables().nextToken() shouldBe "dummyNextToken"
                     it.variables().dateRange() shouldBe null
@@ -393,26 +388,26 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     @Test
-    fun `listTransactionsByCardId() should return success empty list result when query result data is empty`() = runBlocking<Unit> {
+    fun `listTransactions() should return success empty list result when query result data is empty`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
         val queryResultWithEmptyList by before {
-            ListTransactionsByCardIdQuery.ListTransactionsByCardId2(
-                "ListTransactionsByCardId2",
+            ListTransactionsQuery.ListTransactions2(
+                "ListTransactions2",
                 emptyList(),
                 null
             )
         }
 
         val responseWithEmptyList by before {
-            Response.builder<ListTransactionsByCardIdQuery.Data>(ListTransactionsByCardIdQuery("cardId", null, null, null, null))
-                .data(ListTransactionsByCardIdQuery.Data(queryResultWithEmptyList))
+            Response.builder<ListTransactionsQuery.Data>(ListTransactionsQuery(null, null, null, null))
+                .data(ListTransactionsQuery.Data(queryResultWithEmptyList))
                 .build()
         }
 
         val deferredResult = async(Dispatchers.IO) {
-            client.listTransactionsByCardId("cardId")
+            client.listTransactions()
         }
         deferredResult.start()
 
@@ -435,9 +430,8 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
         }
 
         verify(mockAppSyncClient)
-            .query<ListTransactionsByCardIdQuery.Data, ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Variables>(
+            .query<ListTransactionsQuery.Data, ListTransactionsQuery, ListTransactionsQuery.Variables>(
                 check {
-                    it.variables().cardId() shouldBe "cardId"
                     it.variables().limit() shouldBe 100
                     it.variables().nextToken() shouldBe null
                     it.variables().dateRange() shouldBe null
@@ -447,18 +441,18 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     @Test
-    fun `listTransactionsByCardId() should return success empty list result when query response is null`() = runBlocking<Unit> {
+    fun `listTransactions() should return success empty list result when query response is null`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
         val nullQueryResponse by before {
-            Response.builder<ListTransactionsByCardIdQuery.Data>(ListTransactionsByCardIdQuery("cardId", null, null, null, null))
+            Response.builder<ListTransactionsQuery.Data>(ListTransactionsQuery(null, null, null, null))
                 .data(null)
                 .build()
         }
 
         val deferredResult = async(Dispatchers.IO) {
-            client.listTransactionsByCardId("cardId")
+            client.listTransactions()
         }
         deferredResult.start()
 
@@ -481,9 +475,8 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
         }
 
         verify(mockAppSyncClient)
-            .query<ListTransactionsByCardIdQuery.Data, ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Variables>(
+            .query<ListTransactionsQuery.Data, ListTransactionsQuery, ListTransactionsQuery.Variables>(
                 check {
-                    it.variables().cardId() shouldBe "cardId"
                     it.variables().limit() shouldBe 100
                     it.variables().nextToken() shouldBe null
                     it.variables().dateRange() shouldBe null
@@ -493,14 +486,14 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     @Test
-    fun `listTransactionsByCardId() should return partial results when unsealing fails`() = runBlocking<Unit> {
+    fun `listTransactions() should return partial results when unsealing fails`() = runBlocking<Unit> {
 
         mockKeyManager.stub {
             on { decryptWithPrivateKey(anyString(), any(), any()) } doThrow KeyManagerException("KeyManagerException")
         }
 
         val deferredResult = async(Dispatchers.IO) {
-            client.listTransactionsByCardId("cardId")
+            client.listTransactions()
         }
         deferredResult.start()
 
@@ -535,26 +528,25 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
             }
         }
 
-        verify(mockAppSyncClient).query(any<ListTransactionsByCardIdQuery>())
+        verify(mockAppSyncClient).query(any<ListTransactionsQuery>())
         verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
     }
 
     @Test
-    fun `listTransactionsByCardId() should throw when unsealing fails`() = runBlocking<Unit> {
+    fun `listTransactions() should throw when unsealing fails`() = runBlocking<Unit> {
 
         mockAppSyncClient.stub {
-            on { query(any<ListTransactionsByCardIdQuery>()) } doThrow
+            on { query(any<ListTransactionsQuery>()) } doThrow
                 Unsealer.UnsealerException.SealedDataTooShortException("Mock Unsealer Exception")
         }
 
         shouldThrow<SudoVirtualCardsClient.TransactionException.UnsealingException> {
-            client.listTransactionsByCardId("cardId")
+            client.listTransactions()
         }
 
         verify(mockAppSyncClient)
-            .query<ListTransactionsByCardIdQuery.Data, ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Variables>(
+            .query<ListTransactionsQuery.Data, ListTransactionsQuery, ListTransactionsQuery.Variables>(
                 check {
-                    it.variables().cardId() shouldBe "cardId"
                     it.variables().limit() shouldBe 100
                     it.variables().nextToken() shouldBe null
                     it.variables().dateRange() shouldBe null
@@ -564,13 +556,13 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     @Test
-    fun `listTransactionsByCardId() should throw when http error occurs`() = runBlocking<Unit> {
+    fun `listTransactions() should throw when http error occurs`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<SudoVirtualCardsClient.TransactionException.FailedException> {
-                client.listTransactionsByCardId("cardId")
+                client.listTransactions()
             }
         }
         deferredResult.start()
@@ -595,9 +587,8 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
         deferredResult.await()
 
         verify(mockAppSyncClient)
-            .query<ListTransactionsByCardIdQuery.Data, ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Variables>(
+            .query<ListTransactionsQuery.Data, ListTransactionsQuery, ListTransactionsQuery.Variables>(
                 check {
-                    it.variables().cardId() shouldBe "cardId"
                     it.variables().limit() shouldBe 100
                     it.variables().nextToken() shouldBe null
                     it.variables().dateRange() shouldBe null
@@ -607,17 +598,17 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     @Test
-    fun `listTransactionsByCardId() should throw when unknown error occurs()`() = runBlocking<Unit> {
+    fun `listTransactions() should throw when unknown error occurs()`() = runBlocking<Unit> {
 
         queryHolder.callback shouldBe null
 
         mockAppSyncClient.stub {
-            on { query(any<ListTransactionsByCardIdQuery>()) } doThrow RuntimeException("Mock Runtime Exception")
+            on { query(any<ListTransactionsQuery>()) } doThrow RuntimeException("Mock Runtime Exception")
         }
 
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<SudoVirtualCardsClient.TransactionException.UnknownException> {
-                client.listTransactionsByCardId("cardId")
+                client.listTransactions()
             }
         }
         deferredResult.start()
@@ -626,9 +617,8 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
         deferredResult.await()
 
         verify(mockAppSyncClient)
-            .query<ListTransactionsByCardIdQuery.Data, ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Variables>(
+            .query<ListTransactionsQuery.Data, ListTransactionsQuery, ListTransactionsQuery.Variables>(
                 check {
-                    it.variables().cardId() shouldBe "cardId"
                     it.variables().limit() shouldBe 100
                     it.variables().nextToken() shouldBe null
                     it.variables().dateRange() shouldBe null
@@ -638,20 +628,19 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     @Test
-    fun `listTransactionsByCardId() should not block coroutine cancellation exception`() = runBlocking<Unit> {
+    fun `listTransactions() should not block coroutine cancellation exception`() = runBlocking<Unit> {
 
         mockAppSyncClient.stub {
-            on { query(any<ListTransactionsByCardIdQuery>()) } doThrow CancellationException("Mock Cancellation Exception")
+            on { query(any<ListTransactionsQuery>()) } doThrow CancellationException("Mock Cancellation Exception")
         }
 
         shouldThrow<CancellationException> {
-            client.listTransactionsByCardId("cardId")
+            client.listTransactions()
         }
 
         verify(mockAppSyncClient)
-            .query<ListTransactionsByCardIdQuery.Data, ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Variables>(
+            .query<ListTransactionsQuery.Data, ListTransactionsQuery, ListTransactionsQuery.Variables>(
                 check {
-                    it.variables().cardId() shouldBe "cardId"
                     it.variables().limit() shouldBe 100
                     it.variables().nextToken() shouldBe null
                     it.variables().dateRange() shouldBe null

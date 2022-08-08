@@ -8,15 +8,13 @@ package com.sudoplatform.sudovirtualcards.types.transformers
 
 import com.amazonaws.util.Base64
 import com.google.gson.Gson
-import com.sudoplatform.sudovirtualcards.graphql.CancelFundingSourceMutation
-import com.sudoplatform.sudovirtualcards.graphql.CompleteFundingSourceMutation
-import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceQuery
+import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
 import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
-import com.sudoplatform.sudovirtualcards.graphql.SetupFundingSourceMutation
+import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource as FundingSourceFragment
+import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalFundingSource as ProvisionalFundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceState
-import com.sudoplatform.sudovirtualcards.graphql.type.StateReason
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisioningData
@@ -30,83 +28,42 @@ internal object FundingSourceTransformer {
     /**
      * Transform the results of the complete funding source mutation.
      *
-     * @param result [CompleteFundingSourceMutation.CompleteFundingSource] The GraphQL mutation results.
+     * @param fundingSource [FundingSourceFragment] The GraphQL mutation results.
      * @return The [FundingSource] entity type.
      */
-    fun toEntityFromCreateFundingSourceMutationResult(result: CompleteFundingSourceMutation.CompleteFundingSource): FundingSource {
+    fun toEntity(fundingSource: FundingSourceFragment): FundingSource {
         return FundingSource(
-            id = result.id(),
-            owner = result.owner(),
-            version = result.version(),
-            createdAt = result.createdAtEpochMs().toDate(),
-            updatedAt = result.updatedAtEpochMs().toDate(),
-            state = result.state().toEntityState(),
-            currency = result.currency(),
-            last4 = result.last4(),
-            network = result.network().toEntityNetwork()
+            id = fundingSource.id(),
+            owner = fundingSource.owner(),
+            version = fundingSource.version(),
+            createdAt = fundingSource.createdAtEpochMs().toDate(),
+            updatedAt = fundingSource.updatedAtEpochMs().toDate(),
+            state = fundingSource.state().toEntityState(),
+            currency = fundingSource.currency(),
+            last4 = fundingSource.last4(),
+            network = fundingSource.network().toEntityNetwork()
         )
     }
 
     /**
      * Transform the results of the setup funding source mutation.
      *
-     * @param result [SetupFundingSourceMutation.SetupFundingSource] The GraphQL mutation results.
+     * @param provisionalFundingSource [ProvisionalFundingSourceFragment] The GraphQL mutation results.
      * @return The [ProvisionalFundingSource] entity type.
      */
-    fun toEntityFromSetupFundingSourceMutationResult(
-        result: SetupFundingSourceMutation.SetupFundingSource,
+    fun toEntity(
+        provisionalFundingSource: ProvisionalFundingSourceFragment,
     ): ProvisionalFundingSource {
-        val provisioningDataBytes = Base64.decode(result.provisioningData())
+        val provisioningDataBytes = Base64.decode(provisionalFundingSource.provisioningData())
         val provisioningData = Gson().fromJson(String(provisioningDataBytes, Charsets.UTF_8), ProvisioningData::class.java)
         return ProvisionalFundingSource(
-            id = result.id(),
-            owner = result.owner(),
-            version = result.version(),
-            createdAt = result.createdAtEpochMs().toDate(),
-            updatedAt = result.updatedAtEpochMs().toDate(),
-            state = result.state().toEntityProvisioningState(),
-            stateReason = result.stateReason().toEntityStateReason(),
+            id = provisionalFundingSource.id(),
+            owner = provisionalFundingSource.owner(),
+            version = provisionalFundingSource.version(),
+            createdAt = provisionalFundingSource.createdAtEpochMs().toDate(),
+            updatedAt = provisionalFundingSource.updatedAtEpochMs().toDate(),
+            state = provisionalFundingSource.state().toEntityProvisioningState(),
             provisioningData = provisioningData
-        )
-    }
-
-    /**
-     * Transform the results of the cancel funding source mutation.
-     *
-     * @param result [CancelFundingSourceMutation.CancelFundingSource] The GraphQL mutation results.
-     * @return The [FundingSource] entity type.
-     */
-    fun toEntityFromCancelFundingSourceMutationResult(result: CancelFundingSourceMutation.CancelFundingSource): FundingSource {
-        return FundingSource(
-            id = result.id(),
-            owner = result.owner(),
-            version = result.version(),
-            createdAt = result.createdAtEpochMs().toDate(),
-            updatedAt = result.updatedAtEpochMs().toDate(),
-            state = result.state().toEntityState(),
-            currency = result.currency(),
-            last4 = result.last4(),
-            network = result.network().toEntityNetwork()
-        )
-    }
-
-    /**
-     * Transform the results of the get funding source query.
-     *
-     * @param result [GetFundingSourceQuery.GetFundingSource] The GraphQL query results.
-     * @return The [FundingSource] entity type.
-     */
-    fun toEntityFromGetFundingSourceQueryResult(result: GetFundingSourceQuery.GetFundingSource): FundingSource {
-        return FundingSource(
-            id = result.id(),
-            owner = result.owner(),
-            version = result.version(),
-            createdAt = result.createdAtEpochMs().toDate(),
-            updatedAt = result.updatedAtEpochMs().toDate(),
-            state = result.state().toEntityState(),
-            currency = result.currency(),
-            last4 = result.last4(),
-            network = result.network().toEntityNetwork()
         )
     }
 
@@ -116,19 +73,11 @@ internal object FundingSourceTransformer {
      * @param result [List<ListFundingSourcesQuery.Item>] The GraphQL query results.
      * @return The list of [FundingSource]s entity type.
      */
-    fun toEntityFromListFundingSourcesQueryResult(result: List<ListFundingSourcesQuery.Item>): List<FundingSource> {
-        return result.map { fundingSource ->
-            FundingSource(
-                id = fundingSource.id(),
-                owner = fundingSource.owner(),
-                version = fundingSource.version(),
-                createdAt = fundingSource.createdAtEpochMs().toDate(),
-                updatedAt = fundingSource.updatedAtEpochMs().toDate(),
-                state = fundingSource.state().toEntityState(),
-                currency = fundingSource.currency(),
-                last4 = fundingSource.last4(),
-                network = fundingSource.network().toEntityNetwork()
-            )
+    fun toEntity(result: List<ListFundingSourcesQuery.Item>): List<FundingSource> {
+        return result.map {
+            val fundingSource = it.fragments().fundingSource()
+                ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException("unexpected null funding source")
+            toEntity(fundingSource)
         }.toList()
     }
 }
@@ -140,15 +89,6 @@ private fun ProvisionalFundingSourceState.toEntityProvisioningState(): Provision
         }
     }
     return ProvisionalFundingSource.ProvisioningState.UNKNOWN
-}
-
-private fun StateReason.toEntityStateReason(): ProvisionalFundingSource.StateReason {
-    for (value in ProvisionalFundingSource.StateReason.values()) {
-        if (value.name == this.name) {
-            return value
-        }
-    }
-    return ProvisionalFundingSource.StateReason.UNKNOWN
 }
 
 private fun FundingSourceState.toEntityState(): FundingSource.State {

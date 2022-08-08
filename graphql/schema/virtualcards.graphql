@@ -1,0 +1,431 @@
+interface CommonObject {
+  id: ID!
+  owner: ID!
+  version: Int!
+  createdAtEpochMs: Float!
+  updatedAtEpochMs: Float!
+}
+
+enum KeyFormat {
+  # PKCS#1 RSA Public Key
+  RSA_PUBLIC_KEY
+
+  # X.509 SubjectPublicKeyInfo
+  SPKI
+}
+
+input CreatePublicKeyInput {
+  keyId: String!
+  keyRingId: String!
+  algorithm: String!
+  keyFormat: KeyFormat
+  publicKey: String!
+}
+
+input DeletePublicKeyInput {
+  keyId: String!
+}
+
+type PaginatedPublicKey {
+  items: [PublicKey!]!
+  nextToken: String
+}
+
+enum CardType {
+  CREDIT
+  DEBIT
+  PREPAID
+}
+
+type FundingSourceSupportDetail {
+  cardType: CardType!
+}
+
+type FundingSourceSupportInfo {
+  providerType: String!
+  fundingSourceType: String!
+  network: String!
+  detail: [FundingSourceSupportDetail!]!
+}
+
+type CurrencyVelocity {
+  currency: String!
+  velocity: [String!]!
+}
+
+type CurrencyAmount {
+  currency: String!
+  amount: String!
+}
+
+type VirtualCardsConfig {
+  maxFundingSourceVelocity: [String!]!
+  maxFundingSourceFailureVelocity: [String!]!
+  maxCardCreationVelocity: [String!]!
+  maxTransactionVelocity: [CurrencyVelocity!]!
+  maxTransactionAmount: [CurrencyAmount!]!
+  virtualCardCurrencies: [String!]!
+  fundingSourceSupportInfo: [FundingSourceSupportInfo!]!
+}
+
+type PublicKey {
+  id: ID!
+  keyId: String!
+  keyRingId: String!
+  algorithm: String!
+  keyFormat: KeyFormat
+  publicKey: String!
+  owner: ID!
+  version: Int!
+  createdAtEpochMs: Float!
+  updatedAtEpochMs: Float!
+}
+
+type SealedAddressAttribute {
+  addressLine1: String!
+  addressLine2: String
+  city: String!
+  state: String!
+  postalCode: String!
+  country: String!
+}
+
+type SealedExpiryAttribute {
+  mm: String!
+  yyyy: String!
+}
+
+type FundingSourceClientConfiguration {
+  data: ID!
+}
+
+type SealedCardConnection {
+  items: [SealedCard!]!
+  nextToken: String
+}
+
+type CreditCardFundingSource implements CommonObject {
+  id: ID!
+  owner: ID!
+  version: Int!
+  createdAtEpochMs: Float!
+  updatedAtEpochMs: Float!
+  state: FundingSourceState!
+  currency: String!
+  last4: String!
+  network: CreditCardNetwork!
+}
+
+union FundingSource = CreditCardFundingSource
+
+type ProvisionalFundingSource implements CommonObject {
+  id: ID!
+  owner: ID!
+  version: Int!
+  createdAtEpochMs: Float!
+  updatedAtEpochMs: Float!
+  state: ProvisionalFundingSourceState!
+  provisioningData: ID!
+}
+
+type ProvisionalCard {
+  id: ID!
+  owner: ID!
+  version: Int!
+  createdAtEpochMs: Float!
+  updatedAtEpochMs: Float!
+  clientRefId: String!
+  provisioningState: ProvisioningState!
+  card: [SealedCard!]
+}
+
+type SealedCard {
+  id: ID!
+  owner: ID!
+  version: Int!
+  createdAtEpochMs: Float!
+  updatedAtEpochMs: Float!
+  algorithm: String!
+  keyId: String!
+  keyRingId: ID!
+  owners: [Owner!]!
+  fundingSourceId: ID!
+  currency: String!
+  state: CardState!
+  activeToEpochMs: Float!
+  cancelledAtEpochMs: Float
+  last4: String!
+  cardHolder: String! # SealedStringAttribute
+  pan: String! # SealedStringAttribute
+  csc: String! # SealedStringAttribute
+  billingAddress: SealedAddressAttribute
+  expiry: SealedExpiryAttribute!
+  lastTransaction: SealedTransaction
+  metadata: SealedAttribute
+
+  # deprecated - set a property in metadata instead
+  alias: String # SealedStringAttribute
+}
+
+type Owner {
+  id: String!
+  issuer: String!
+}
+
+type ProvisionalCardConnection {
+  items: [ProvisionalCard!]!
+  nextToken: String
+}
+
+type SealedTransaction {
+  id: ID!
+  owner: ID!
+  version: Int!
+  createdAtEpochMs: Float!
+  updatedAtEpochMs: Float!
+  sortDateEpochMs: Float!
+  algorithm: String!
+  keyId: String!
+  cardId: ID!
+  sequenceId: ID!
+  type: TransactionType!
+  transactedAtEpochMs: String!
+  settledAtEpochMs: String
+  billedAmount: SealedCurrencyAmountAttribute!
+  transactedAmount: SealedCurrencyAmountAttribute!
+  description: String!
+  declineReason: String
+  detail: [SealedTransactionDetailChargeAttribute!]
+}
+
+type SealedTransactionDetailChargeAttribute {
+  virtualCardAmount: SealedCurrencyAmountAttribute!
+  markup: SealedMarkupAttribute!
+  markupAmount: SealedCurrencyAmountAttribute!
+  fundingSourceAmount: SealedCurrencyAmountAttribute!
+  fundingSourceId: ID!
+  description: String!
+}
+
+type SealedMarkupAttribute {
+  percent: String!
+  flat: String!
+  minCharge: String
+}
+
+type SealedCurrencyAmountAttribute {
+  currency: String!
+  amount: String!
+}
+
+type SealedTransactionConnection {
+  items: [SealedTransaction!]!
+  nextToken: String
+}
+
+enum TransactionType {
+  PENDING
+  COMPLETE
+  REFUND
+  DECLINE
+}
+
+enum CardState {
+  ISSUED
+  FAILED
+  CLOSED
+  SUSPENDED
+}
+
+enum CreditCardNetwork {
+  AMEX
+  DINERS
+  DISCOVER
+  JCB
+  MASTERCARD
+  UNIONPAY
+  VISA
+  OTHER
+}
+
+enum ProvisionalFundingSourceState {
+  PROVISIONING
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum FundingSourceState {
+  ACTIVE
+  INACTIVE
+}
+
+enum StateReason {
+  USER
+  ADMIN
+  ENTITLEMENT
+  LOCKED
+  UNLOCKED
+  SUSPICIOUS
+  PROCESSING
+  DELETION
+}
+
+enum FundingSourceType {
+  CREDIT_CARD
+}
+
+enum ProvisioningState {
+  PROVISIONING
+  COMPLETED
+  FAILED
+}
+
+input SetupFundingSourceRequest {
+  type: FundingSourceType!
+  currency: String!
+}
+
+input CompleteFundingSourceRequest {
+  id: ID!
+  completionData: ID!
+  updateCardFundingSource: Boolean
+}
+
+input IdInput {
+  id: ID!
+}
+
+input AddressInput {
+  addressLine1: String!
+  addressLine2: String
+  city: String!
+  state: String!
+  postalCode: String!
+  country: String!
+}
+
+input CardProvisionRequest {
+  clientRefId: String!
+  ownerProofs: [ID!]!
+  keyRingId: ID!
+  fundingSourceId: ID!
+  currency: String!
+
+  cardHolder: String!
+  billingAddress: AddressInput
+  metadata: SealedAttributeInput
+
+  # deprecated - set a property in metadata instead
+  alias: String
+}
+
+input CardUpdateRequest {
+  id: ID!
+  keyId: String
+  expectedVersion: Int
+  cardHolder: String
+  billingAddress: AddressInput
+  metadata: SealedAttributeInput
+
+  # deprecated - set a property in metadata instead
+  alias: String
+}
+
+input CardCancelRequest {
+  id: ID!
+  keyId: String
+}
+
+type FundingSourceConnection {
+  items: [FundingSource!]!
+  nextToken: String
+}
+
+input ProvisionalCardFilterInput {
+  id: IDFilterInput
+  owner: IDFilterInput
+  clientRefId: IDFilterInput
+}
+
+input IDFilterInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+}
+
+input DateRangeInput {
+  startDateEpochMs: Float!
+  endDateEpochMs: Float!
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+type Query {
+  getVirtualCardsConfig: VirtualCardsConfig!
+  getPublicKeyForVirtualCards(keyId: String!): PublicKey
+  getPublicKeysForVirtualCards(
+    limit: Int
+    nextToken: String
+  ): PaginatedPublicKey!
+  getKeyRingForVirtualCards(
+    keyRingId: String!
+    limit: Int
+    nextToken: String
+    keyFormats: [KeyFormat!]
+  ): PaginatedPublicKey!
+  getFundingSourceClientConfiguration: FundingSourceClientConfiguration!
+  getFundingSource(id: ID!): FundingSource
+  listFundingSources(limit: Int, nextToken: String): FundingSourceConnection!
+  getProvisionalCard(id: ID!): ProvisionalCard
+  listProvisionalCards(
+    filter: ProvisionalCardFilterInput
+    limit: Int
+    nextToken: String
+  ): ProvisionalCardConnection!
+  getCard(id: ID!, keyId: String): SealedCard
+  listCards(limit: Int, nextToken: String): SealedCardConnection!
+  getTransaction(id: ID!, keyId: String): SealedTransaction
+  listTransactions2(
+    limit: Int,
+    nextToken: String
+    dateRange: DateRangeInput
+    sortOrder: SortOrder
+  ): SealedTransactionConnection!
+  listTransactionsByCardId2(
+    cardId: ID!
+    limit: Int
+    nextToken: String
+    dateRange: DateRangeInput
+    sortOrder: SortOrder
+  ): SealedTransactionConnection!
+}
+
+type Mutation {
+  createPublicKeyForVirtualCards(input: CreatePublicKeyInput!): PublicKey!
+  deletePublicKeyForVirtualCards(input: DeletePublicKeyInput!): PublicKey
+  setupFundingSource(
+    input: SetupFundingSourceRequest!
+  ): ProvisionalFundingSource!
+  completeFundingSource(input: CompleteFundingSourceRequest!): FundingSource!
+  cancelFundingSource(input: IdInput!): FundingSource!
+  cardProvision(input: CardProvisionRequest!): ProvisionalCard!
+  updateCard(input: CardUpdateRequest): SealedCard!
+  cancelCard(input: CardCancelRequest!): SealedCard!
+}
+
+type Subscription {
+  onUpdateCardProvisionState(owner: ID!, clientRefId: String): ProvisionalCard
+  onTransactionUpdate(owner: ID!): SealedTransaction
+  onTransactionDelete(owner: ID!): SealedTransaction
+}

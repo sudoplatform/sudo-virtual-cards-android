@@ -20,7 +20,6 @@ import java.util.Date
  * @property createdAt [Date] Date when the provisional funding source was created.
  * @property updatedAt [Date] Date when the provisional funding source was last updated.
  * @property state [ProvisioningState] Current state of the provisional funding source.
- * @property stateReason [StateReason] The provisional funding source state reason.
  * @property provisioningData [ProvisioningData] Provisioning data used to complete the provisioning
  *  of the funding source.
  */
@@ -32,7 +31,6 @@ data class ProvisionalFundingSource(
     val createdAt: Date,
     val updatedAt: Date,
     val state: ProvisioningState,
-    val stateReason: StateReason,
     val provisioningData: ProvisioningData
 ) : Parcelable {
     enum class ProvisioningState {
@@ -45,19 +43,6 @@ data class ProvisionalFundingSource(
         /** Provisional funding source is in the middle of being provisioned */
         PROVISIONING,
         /** Unknown state. Please check you have the correct (latest) version of this SDK. */
-        UNKNOWN
-    }
-
-    enum class StateReason {
-        ADMIN,
-        DELETION,
-        ENTITLEMENT,
-        LOCKED,
-        PROCESSING,
-        SUSPICIOUS,
-        UNLOCKED,
-        USER,
-        /** Unknown state reason. Please check you have the correct (latest) version of this SDK. */
         UNKNOWN
     }
 }

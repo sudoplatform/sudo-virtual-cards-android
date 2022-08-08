@@ -22,6 +22,7 @@ import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState
 import com.sudoplatform.sudovirtualcards.types.ProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
+import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource as FundingSourceFragment
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import io.kotlintest.shouldBe
@@ -74,16 +75,21 @@ class SudoVirtualCardsCompleteFundingSourceTest : BaseTests() {
 
     private val mutationResult by before {
         CompleteFundingSourceMutation.CompleteFundingSource(
-            "typename",
-            "id",
-            "owner",
-            1,
-            1.0,
-            10.0,
-            FundingSourceState.ACTIVE,
-            "USD",
-            "last4",
-            CreditCardNetwork.VISA
+            "CompleteFundingSource",
+            CompleteFundingSourceMutation.CompleteFundingSource.Fragments(
+                FundingSourceFragment(
+                    "FundingSource",
+                    "id",
+                    "owner",
+                    1,
+                    1.0,
+                    10.0,
+                    FundingSourceState.ACTIVE,
+                    "USD",
+                    "last4",
+                    CreditCardNetwork.VISA
+                )
+            )
         )
     }
 

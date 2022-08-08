@@ -1,0 +1,206 @@
+fragment PublicKey on PublicKey {
+  id
+  keyId
+  keyRingId
+  algorithm
+  keyFormat
+  publicKey
+  owner
+  version
+  createdAtEpochMs
+  updatedAtEpochMs
+}
+
+fragment PaginatedPublicKey on PaginatedPublicKey {
+  items {
+    ...PublicKey
+  }
+  nextToken
+}
+
+fragment Owner on Owner {
+  id
+  issuer
+}
+
+fragment ProvisionalFundingSource on ProvisionalFundingSource {
+  id
+  owner
+  version
+  createdAtEpochMs
+  updatedAtEpochMs
+  provisioningData
+  state
+}
+
+fragment FundingSource on CreditCardFundingSource {
+  id
+  owner
+  version
+  createdAtEpochMs
+  updatedAtEpochMs
+  state
+  currency
+  last4
+  network
+}
+
+fragment SealedAttribute on SealedAttribute {
+  keyId
+  algorithm
+  plainTextType
+  base64EncodedSealedData
+}
+
+fragment ProvisionalCard on ProvisionalCard {
+  id
+  owner
+  version
+  createdAtEpochMs
+  updatedAtEpochMs
+  clientRefId
+  provisioningState
+  card {
+    ...SealedCard
+  }
+}
+
+fragment SealedAddressAttribute on SealedAddressAttribute {
+  addressLine1
+  addressLine2
+  city
+  state
+  postalCode
+  country
+}
+
+fragment SealedExpiryAttribute on SealedExpiryAttribute {
+  mm
+  yyyy
+}
+
+fragment SealedCard on SealedCard {
+  id
+  owner
+  version
+  createdAtEpochMs
+  updatedAtEpochMs
+  algorithm
+  keyId
+  keyRingId
+  owners {
+    ...Owner
+  }
+  fundingSourceId
+  currency
+  state
+  activeToEpochMs
+  cancelledAtEpochMs
+  last4
+  cardHolder
+  alias
+  pan
+  csc
+  billingAddress {
+    ...SealedAddressAttribute
+  }
+  expiry {
+    ...SealedExpiryAttribute
+  }
+  metadata {
+    ...SealedAttribute
+  }
+}
+
+fragment SealedCardWithLastTransaction on SealedCard {
+  ...SealedCard
+  lastTransaction {
+    ...SealedTransaction
+  }
+}
+
+fragment SealedCurrencyAmountAttribute on SealedCurrencyAmountAttribute {
+  currency
+  amount
+}
+
+fragment SealedMarkupAttribute on SealedMarkupAttribute {
+  percent
+  flat
+  minCharge
+}
+
+fragment SealedTransactionDetailChargeAttribute on SealedTransactionDetailChargeAttribute {
+  virtualCardAmount {
+    ...SealedCurrencyAmountAttribute
+  }
+  markup {
+    ...SealedMarkupAttribute
+  }
+  markupAmount {
+    ...SealedCurrencyAmountAttribute
+  }
+  fundingSourceAmount {
+    ...SealedCurrencyAmountAttribute
+  }
+  fundingSourceId
+  description
+}
+
+fragment SealedTransaction on SealedTransaction {
+  id
+  owner
+  version
+  createdAtEpochMs
+  updatedAtEpochMs
+  sortDateEpochMs
+  algorithm
+  keyId
+  cardId
+  sequenceId
+  type
+  transactedAtEpochMs
+  settledAtEpochMs
+  billedAmount {
+    ...SealedCurrencyAmountAttribute
+  }
+  transactedAmount {
+    ...SealedCurrencyAmountAttribute
+  }
+  description
+  declineReason
+  detail {
+    ...SealedTransactionDetailChargeAttribute
+  }
+}
+
+fragment FundingSourceSupportDetail on FundingSourceSupportDetail {
+  cardType
+}
+
+fragment FundingSourceSupportInfo on FundingSourceSupportInfo {
+  providerType
+  fundingSourceType
+  network
+  detail {
+    ...FundingSourceSupportDetail
+  }
+}
+
+fragment VirtualCardsConfig on VirtualCardsConfig {
+  maxFundingSourceVelocity
+  maxFundingSourceFailureVelocity
+  maxCardCreationVelocity
+  maxTransactionVelocity {
+    currency
+    velocity
+  }
+  maxTransactionAmount {
+    currency
+    amount
+  }
+  virtualCardCurrencies
+  fundingSourceSupportInfo {
+    ...FundingSourceSupportInfo
+  }
+}

@@ -15,11 +15,11 @@ import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
-import com.sudoplatform.sudovirtualcards.graphql.CardProvisionMutation
+import com.sudoplatform.sudovirtualcards.graphql.ProvisionVirtualCardMutation
+import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalCard
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.graphql.type.AddressInput
 import com.sudoplatform.sudovirtualcards.graphql.type.CardProvisionRequest
-import com.sudoplatform.sudovirtualcards.graphql.type.DeltaAction
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisioningState
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyWithKeyRingId
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
@@ -92,28 +92,32 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             .build()
     }
 
-    private val cardProvisionMutationResult by before {
-        CardProvisionMutation.CardProvision(
-            "cardProvision",
-            "id",
-            "owner",
-            1,
-            1.0,
-            1.0,
-            "clientRefId",
-            ProvisioningState.PROVISIONING,
-            emptyList(),
-            DeltaAction.DELETE
+    private val provisionVirtualCardMutationResult by before {
+        ProvisionVirtualCardMutation.CardProvision(
+            "CardProvision",
+            ProvisionVirtualCardMutation.CardProvision.Fragments(
+                ProvisionalCard(
+                    "ProvisionalCard",
+                    "id",
+                    "owner",
+                    1,
+                    1.0,
+                    1.0,
+                    "clientRefId",
+                    ProvisioningState.PROVISIONING,
+                    emptyList()
+                )
+            )
         )
     }
 
     private val cardProvisionResponse by before {
-        Response.builder<CardProvisionMutation.Data>(CardProvisionMutation(cardProvisionRequest))
-            .data(CardProvisionMutation.Data(cardProvisionMutationResult))
+        Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
+            .data(ProvisionVirtualCardMutation.Data(provisionVirtualCardMutationResult))
             .build()
     }
 
-    private val provisionHolder = CallbackHolder<CardProvisionMutation.Data>()
+    private val provisionHolder = CallbackHolder<ProvisionVirtualCardMutation.Data>()
 
     private val mockContext by before {
         mock<Context>()
@@ -133,7 +137,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     private val mockAppSyncClient by before {
         mock<AWSAppSyncClient>().stub {
-            on { mutate(any<CardProvisionMutation>()) } doReturn provisionHolder.mutationOperation
+            on { mutate(any<ProvisionVirtualCardMutation>()) } doReturn provisionHolder.mutationOperation
         }
     }
 
@@ -224,7 +228,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         }
 
         verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
+        verify(mockAppSyncClient).mutate(any<ProvisionVirtualCardMutation>())
     }
 
     @Test
@@ -249,7 +253,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         provisionHolder.callback shouldBe null
 
         val nullProvisionResponse by before {
-            Response.builder<CardProvisionMutation.Data>(CardProvisionMutation(cardProvisionRequest))
+            Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .data(null)
                 .build()
         }
@@ -268,7 +272,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         deferredResult.await()
 
         verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
+        verify(mockAppSyncClient).mutate(any<ProvisionVirtualCardMutation>())
     }
 
     @Test
@@ -282,7 +286,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
                 emptyList(),
                 mapOf("errorType" to "IdentityVerificationNotVerifiedError")
             )
-            Response.builder<CardProvisionMutation.Data>(CardProvisionMutation(cardProvisionRequest))
+            Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
                 .data(null)
                 .build()
@@ -302,7 +306,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         deferredResult.await()
 
         verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
+        verify(mockAppSyncClient).mutate(any<ProvisionVirtualCardMutation>())
     }
 
     @Test
@@ -316,7 +320,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
                 emptyList(),
                 mapOf("errorType" to "IdentityVerificationInsufficientError")
             )
-            Response.builder<CardProvisionMutation.Data>(CardProvisionMutation(cardProvisionRequest))
+            Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
                 .data(null)
                 .build()
@@ -336,7 +340,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         deferredResult.await()
 
         verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
+        verify(mockAppSyncClient).mutate(any<ProvisionVirtualCardMutation>())
     }
 
     @Test
@@ -350,7 +354,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
                 emptyList(),
                 mapOf("errorType" to "FundingSourceNotFoundError")
             )
-            Response.builder<CardProvisionMutation.Data>(CardProvisionMutation(cardProvisionRequest))
+            Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
                 .data(null)
                 .build()
@@ -370,7 +374,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         deferredResult.await()
 
         verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
+        verify(mockAppSyncClient).mutate(any<ProvisionVirtualCardMutation>())
     }
 
     @Test
@@ -384,7 +388,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
                 emptyList(),
                 mapOf("errorType" to "FundingSourceNotActiveError")
             )
-            Response.builder<CardProvisionMutation.Data>(CardProvisionMutation(cardProvisionRequest))
+            Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
                 .data(null)
                 .build()
@@ -404,7 +408,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         deferredResult.await()
 
         verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
+        verify(mockAppSyncClient).mutate(any<ProvisionVirtualCardMutation>())
     }
 
     @Test
@@ -418,7 +422,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
                 emptyList(),
                 mapOf("errorType" to "VelocityExceededError")
             )
-            Response.builder<CardProvisionMutation.Data>(CardProvisionMutation(cardProvisionRequest))
+            Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
                 .data(null)
                 .build()
@@ -438,7 +442,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         deferredResult.await()
 
         verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
+        verify(mockAppSyncClient).mutate(any<ProvisionVirtualCardMutation>())
     }
 
     @Test
@@ -452,7 +456,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
                 emptyList(),
                 mapOf("errorType" to "EntitlementExceededError")
             )
-            Response.builder<CardProvisionMutation.Data>(CardProvisionMutation(cardProvisionRequest))
+            Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
                 .data(null)
                 .build()
@@ -473,7 +477,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         deferredResult.await()
 
         verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
+        verify(mockAppSyncClient).mutate(any<ProvisionVirtualCardMutation>())
     }
 
     @Test
@@ -487,7 +491,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
                 emptyList(),
                 mapOf("errorType" to "UnsupportedCurrencyError")
             )
-            Response.builder<CardProvisionMutation.Data>(CardProvisionMutation(cardProvisionRequest))
+            Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
                 .data(null)
                 .build()
@@ -507,7 +511,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         deferredResult.await()
 
         verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
+        verify(mockAppSyncClient).mutate(any<ProvisionVirtualCardMutation>())
     }
 
     @Test
@@ -521,7 +525,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
                 emptyList(),
                 mapOf("errorType" to "InvalidTokenError")
             )
-            Response.builder<CardProvisionMutation.Data>(CardProvisionMutation(cardProvisionRequest))
+            Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
                 .data(null)
                 .build()
@@ -541,7 +545,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         deferredResult.await()
 
         verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
+        verify(mockAppSyncClient).mutate(any<ProvisionVirtualCardMutation>())
     }
 
     @Test
@@ -555,7 +559,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
                 emptyList(),
                 mapOf("errorType" to "AccountLockedError")
             )
-            Response.builder<CardProvisionMutation.Data>(CardProvisionMutation(cardProvisionRequest))
+            Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
                 .data(null)
                 .build()
@@ -575,7 +579,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         deferredResult.await()
 
         verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockAppSyncClient).mutate(any<CardProvisionMutation>())
+        verify(mockAppSyncClient).mutate(any<ProvisionVirtualCardMutation>())
     }
 
     @Test

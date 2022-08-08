@@ -24,6 +24,10 @@ import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.GetCardQuery
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAddressAttribute
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCard
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCardWithLastTransaction
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedExpiryAttribute
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
 import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
@@ -61,51 +65,71 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
     }
 
     private val billingAddress by before {
-        GetCardQuery.BillingAddress(
-            "typename",
-            mockSeal("addressLine1"),
-            mockSeal("addressLine2"),
-            mockSeal("city"),
-            mockSeal("state"),
-            mockSeal("postalCode"),
-            mockSeal("country")
+        SealedCard.BillingAddress(
+            "BillingAddress",
+            SealedCard.BillingAddress.Fragments(
+                SealedAddressAttribute(
+                    "SealedAddressAttribute",
+                    mockSeal("addressLine1"),
+                    mockSeal("addressLine2"),
+                    mockSeal("city"),
+                    mockSeal("state"),
+                    mockSeal("postalCode"),
+                    mockSeal("country")
+                )
+            )
         )
     }
 
     private val expiry by before {
-        GetCardQuery.Expiry(
-            "typename",
-            mockSeal("01"),
-            mockSeal("2021")
+        SealedCard.Expiry(
+            "Expiry",
+            SealedCard.Expiry.Fragments(
+                SealedExpiryAttribute(
+                    "SealedExpiryAttribute",
+                    mockSeal("01"),
+                    mockSeal("2021")
+                )
+            )
         )
     }
 
     private val queryResult by before {
         GetCardQuery.GetCard(
             "typename",
-            "id",
-            "owner",
-            1,
-            1.0,
-            1.0,
-            "algorithm",
-            "keyId",
-            "keyRingId",
-            emptyList(),
-            "fundingSourceId",
-            "currency",
-            CardState.ISSUED,
-            1.0,
-            null,
-            "last4",
-            mockSeal("cardHolder"),
-            mockSeal("alias"),
-            mockSeal("pan"),
-            mockSeal("csc"),
-            billingAddress,
-            expiry,
-            null,
-            null
+            GetCardQuery.GetCard.Fragments(
+                SealedCardWithLastTransaction(
+                    "SealedCardWithLastTransaction",
+                    null,
+                    SealedCardWithLastTransaction.Fragments(
+                        SealedCard(
+                            "SealedCard",
+                            "id",
+                            "owner",
+                            1,
+                            1.0,
+                            1.0,
+                            "algorithm",
+                            "keyId",
+                            "keyRingId",
+                            emptyList(),
+                            "fundingSourceId",
+                            "currency",
+                            CardState.ISSUED,
+                            1.0,
+                            null,
+                            "last4",
+                            mockSeal("cardHolder"),
+                            mockSeal("alias"),
+                            mockSeal("pan"),
+                            mockSeal("csc"),
+                            billingAddress,
+                            expiry,
+                            null,
+                        )
+                    )
+                )
+            )
         )
     }
 
