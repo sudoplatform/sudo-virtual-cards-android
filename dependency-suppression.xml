@@ -27,6 +27,7 @@
         ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.jsoup/jsoup@.*$</packageUrl>
         <cve>CVE-2021-37714</cve>
+        <cve>CVE-2022-36033</cve>
     </suppress>
     <suppress until="2022-12-13">
         <notes><![CDATA[
