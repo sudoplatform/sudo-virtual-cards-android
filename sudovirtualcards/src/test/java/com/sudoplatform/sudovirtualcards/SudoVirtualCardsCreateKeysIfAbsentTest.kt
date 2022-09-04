@@ -8,7 +8,6 @@ package com.sudoplatform.sudovirtualcards
 
 import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
-import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
@@ -72,10 +71,6 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
         mock<SudoUserClient>()
     }
 
-    private val mockSudoClient by before {
-        mock<SudoProfilesClient>()
-    }
-
     private val mockAppSyncClient by before {
         mock<AWSAppSyncClient>()
     }
@@ -105,7 +100,6 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
             mockContext,
             mockAppSyncClient,
             mockUserClient,
-            mockSudoClient,
             mockLogger,
             mockDeviceKeyManager,
             mockPublicKeyService
@@ -117,7 +111,6 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
         verifyNoMoreInteractions(
             mockContext,
             mockUserClient,
-            mockSudoClient,
             mockAppSyncClient,
             mockDeviceKeyManager,
             mockPublicKeyService

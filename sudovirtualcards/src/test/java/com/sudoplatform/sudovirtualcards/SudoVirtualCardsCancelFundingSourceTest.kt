@@ -19,7 +19,6 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudologging.Logger
-import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.CancelFundingSourceMutation
@@ -90,10 +89,6 @@ class SudoVirtualCardsCancelFundingSourceTest : BaseTests() {
         mock<SudoUserClient>()
     }
 
-    private val mockSudoClient by before {
-        mock<SudoProfilesClient>()
-    }
-
     private val mockAppSyncClient by before {
         mock<AWSAppSyncClient>().stub {
             on { mutate(any<CancelFundingSourceMutation>()) } doReturn holder.mutationOperation
@@ -108,7 +103,6 @@ class SudoVirtualCardsCancelFundingSourceTest : BaseTests() {
         SudoVirtualCardsClient.builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
-            .setSudoProfilesClient(mockSudoClient)
             .setAppSyncClient(mockAppSyncClient)
             .setKeyManager(mockKeyManager)
             .setLogger(mock<Logger>())
@@ -122,7 +116,7 @@ class SudoVirtualCardsCancelFundingSourceTest : BaseTests() {
 
     @After
     fun fini() {
-        verifyNoMoreInteractions(mockContext, mockUserClient, mockSudoClient, mockKeyManager, mockAppSyncClient)
+        verifyNoMoreInteractions(mockContext, mockUserClient, mockKeyManager, mockAppSyncClient)
     }
 
     @Test

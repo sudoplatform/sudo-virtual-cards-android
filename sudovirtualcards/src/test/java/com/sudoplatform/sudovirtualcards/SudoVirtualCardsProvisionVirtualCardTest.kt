@@ -10,8 +10,6 @@ import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
-import com.sudoplatform.sudoprofiles.Sudo
-import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
@@ -129,12 +127,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         }
     }
 
-    private val mockSudoClient by before {
-        mock<SudoProfilesClient>().stub {
-            onBlocking { getOwnershipProof(any<Sudo>(), anyString()) } doReturn "jwt"
-        }
-    }
-
     private val mockAppSyncClient by before {
         mock<AWSAppSyncClient>().stub {
             on { mutate(any<ProvisionVirtualCardMutation>()) } doReturn provisionHolder.mutationOperation
@@ -170,7 +162,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         SudoVirtualCardsClient.builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
-            .setSudoProfilesClient(mockSudoClient)
             .setAppSyncClient(mockAppSyncClient)
             .setKeyManager(mockKeyManager)
             .setLogger(mock())
@@ -192,7 +183,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         verifyNoMoreInteractions(
             mockContext,
             mockUserClient,
-            mockSudoClient,
             mockKeyManager,
             mockPublicKeyService,
             mockAppSyncClient

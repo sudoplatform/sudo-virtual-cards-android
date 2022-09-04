@@ -16,7 +16,6 @@ import com.google.gson.Gson
 import com.sudoplatform.sudologging.AndroidUtilsLogDriver
 import com.sudoplatform.sudologging.LogLevel
 import com.sudoplatform.sudologging.Logger
-import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.extensions.enqueue
 import com.sudoplatform.sudovirtualcards.extensions.enqueueFirst
@@ -83,7 +82,6 @@ import java.util.concurrent.CancellationException
  * @property context [Context] Application context.
  * @property appSyncClient [AWSAppSyncClient] GraphQL client used to make requests to AWS and call sudo virtual cards service API.
  * @property sudoUserClient [SudoUserClient] Used to determine if a user is signed in and gain access to the user owner ID.
- * @property sudoProfilesClient [SudoProfilesClient] Used to perform ownership proof lifecycle operations.
  * @property logger [Logger] Errors and warnings will be logged here.
  * @property deviceKeyManager [DeviceKeyManager] Used for device management of key storage.
  * @property publicKeyService [PublicKeyService] Service that handles registering public keys with the backend.
@@ -92,7 +90,6 @@ internal class DefaultSudoVirtualCardsClient(
     private val context: Context,
     private val appSyncClient: AWSAppSyncClient,
     private val sudoUserClient: SudoUserClient,
-    private val sudoProfilesClient: SudoProfilesClient,
     private val logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO)),
     private val deviceKeyManager: DeviceKeyManager,
     private val publicKeyService: PublicKeyService

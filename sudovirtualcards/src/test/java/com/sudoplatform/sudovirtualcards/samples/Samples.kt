@@ -8,7 +8,6 @@ package com.sudoplatform.sudovirtualcards.samples
 
 import android.content.Context
 import org.mockito.kotlin.mock
-import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.BaseTests
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
@@ -31,11 +30,10 @@ class Samples : BaseTests() {
         // Just to keep junit happy
     }
 
-    fun sudoVirtualCardsClient(sudoUserClient: SudoUserClient, sudoProfilesClient: SudoProfilesClient) {
+    fun sudoVirtualCardsClient(sudoUserClient: SudoUserClient) {
         val virtualCardsClient = SudoVirtualCardsClient.builder()
             .setContext(context)
             .setSudoUserClient(sudoUserClient)
-            .setSudoProfilesClient(sudoProfilesClient)
             .build()
     }
 }

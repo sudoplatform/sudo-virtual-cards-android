@@ -68,7 +68,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         vcClient = SudoVirtualCardsClient.builder()
             .setContext(context)
             .setSudoUserClient(userClient)
-            .setSudoProfilesClient(sudoClient)
             .build()
     }
 
@@ -80,6 +79,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         vcClient.reset()
         sudoClient.reset()
         userClient.reset()
+        sudoClient.generateEncryptionKey()
 
         Timber.uprootAll()
     }
@@ -96,7 +96,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         shouldThrow<NullPointerException> {
             SudoVirtualCardsClient.builder()
                 .setSudoUserClient(userClient)
-                .setSudoProfilesClient(sudoClient)
                 .build()
         }
 
@@ -104,15 +103,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         shouldThrow<NullPointerException> {
             SudoVirtualCardsClient.builder()
                 .setContext(context)
-                .setSudoProfilesClient(sudoClient)
-                .build()
-        }
-
-        // SudoProfilesClient not provided
-        shouldThrow<NullPointerException> {
-            SudoVirtualCardsClient.builder()
-                .setContext(context)
-                .setSudoUserClient(userClient)
                 .build()
         }
     }
@@ -122,7 +112,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         SudoVirtualCardsClient.builder()
             .setContext(context)
             .setSudoUserClient(userClient)
-            .setSudoProfilesClient(sudoClient)
             .build()
     }
 
@@ -1474,7 +1463,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val vcClient = SudoVirtualCardsClient.builder()
             .setContext(context)
             .setSudoUserClient(userClient)
-            .setSudoProfilesClient(sudoClient)
             .setKeyManager(keyManager)
             .build()
 

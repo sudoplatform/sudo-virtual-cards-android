@@ -9,12 +9,12 @@ package com.sudoplatform.sudovirtualcards
 import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.sudoplatform.sudoapiclient.ApiClientManager
+import com.sudoplatform.sudokeymanager.AndroidSQLiteStore
 import com.sudoplatform.sudokeymanager.KeyManagerFactory
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudologging.AndroidUtilsLogDriver
 import com.sudoplatform.sudologging.LogLevel
 import com.sudoplatform.sudologging.Logger
-import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.keys.DefaultDeviceKeyManager
 import com.sudoplatform.sudovirtualcards.keys.DefaultPublicKeyService
@@ -67,11 +67,12 @@ interface SudoVirtualCardsClient : AutoCloseable {
     class Builder internal constructor() {
         private var context: Context? = null
         private var sudoUserClient: SudoUserClient? = null
-        private var sudoProfilesClient: SudoProfilesClient? = null
         private var appSyncClient: AWSAppSyncClient? = null
         private var keyManager: KeyManagerInterface? = null
         private var publicKeyService: PublicKeyService? = null
         private var logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO))
+        private var namespace: String = DEFAULT_KEY_NAMESPACE
+        private var databaseName: String = AndroidSQLiteStore.DEFAULT_DATABASE_NAME
 
         /**
          * Provide the application context (required input).
@@ -86,14 +87,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
          */
         fun setSudoUserClient(sudoUserClient: SudoUserClient) = also {
             this.sudoUserClient = sudoUserClient
-        }
-
-        /**
-         * Provide the implementation of the [SudoProfilesClient] used to perform
-         * ownership proof lifecycle operations (required input).
-         */
-        fun setSudoProfilesClient(sudoProfilesClient: SudoProfilesClient) = also {
-            this.sudoProfilesClient = sudoProfilesClient
         }
 
         /**
@@ -123,6 +116,22 @@ interface SudoVirtualCardsClient : AutoCloseable {
         }
 
         /**
+         * Provide the namespace to use for internal data and cryptographic keys. This should be unique
+         * per client per app to avoid name conflicts between multiple clients. If a value is not supplied
+         * a default value will be used.
+         */
+        fun setNamespace(namespace: String) = also {
+            this.namespace = namespace
+        }
+
+        /**
+         * Provide the database name to use for exportable key store database.
+         */
+        fun setDatabaseName(databaseName: String) = also {
+            this.databaseName = databaseName
+        }
+
+        /**
          * Provider the implementation of the [PublicKeyService] used for public
          * key operations (optional).
          * If a value is not supplied a default implementation will be used.
@@ -133,17 +142,16 @@ interface SudoVirtualCardsClient : AutoCloseable {
 
         /**
          * Construct the [SudoVirtualCardsClient]. Will throw a [NullPointerException] if
-         * the [context], [sudoUserClient] and [sudoProfilesClient] has not been provided.
+         * the [context] and [sudoUserClient] has not been provided.
          */
         fun build(): SudoVirtualCardsClient {
             Objects.requireNonNull(context, "Context must be provided.")
             Objects.requireNonNull(sudoUserClient, "SudoUserClient must be provided.")
-            Objects.requireNonNull(sudoProfilesClient, "SudoProfilesClient must be provided.")
 
             val appSyncClient = appSyncClient ?: ApiClientManager.getClient(this@Builder.context!!, this@Builder.sudoUserClient!!)
 
             val deviceKeyManager = DefaultDeviceKeyManager(
-                keyManager = keyManager ?: KeyManagerFactory(context!!).createAndroidKeyManager(DEFAULT_KEY_NAMESPACE)
+                keyManager = keyManager ?: KeyManagerFactory(context!!).createAndroidKeyManager(this.namespace, this.databaseName)
             )
 
             val publicKeyService = publicKeyService ?: DefaultPublicKeyService(
@@ -158,7 +166,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
                 context = context!!,
                 appSyncClient = appSyncClient,
                 sudoUserClient = sudoUserClient!!,
-                sudoProfilesClient = sudoProfilesClient!!,
                 logger = logger,
                 deviceKeyManager = deviceKeyManager,
                 publicKeyService = publicKeyService

@@ -34,7 +34,6 @@ if(savedDarkMode === true){
               <h2 class="">Samples</h2>
               <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Samples"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="sample-container"><pre><code class="runnablesample monospace block lang-kotlin" theme="idea">import android.content.Context
 import org.mockito.kotlin.mock
-import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.BaseTests
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
@@ -46,7 +45,6 @@ fun main() {
    val virtualCardsClient = SudoVirtualCardsClient.builder()
     .setContext(context)
     .setSudoUserClient(sudoUserClient)
-    .setSudoProfilesClient(sudoProfilesClient)
     .build() 
    //sampleEnd
 }</code></pre></div></div></div>

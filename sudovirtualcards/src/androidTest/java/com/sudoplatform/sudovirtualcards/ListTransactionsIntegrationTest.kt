@@ -48,7 +48,6 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
         vcClient = SudoVirtualCardsClient.builder()
             .setContext(context)
             .setSudoUserClient(userClient)
-            .setSudoProfilesClient(sudoClient)
             .build()
     }
 
@@ -60,6 +59,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
         vcClient.reset()
         sudoClient.reset()
         userClient.reset()
+        sudoClient.generateEncryptionKey()
 
         Timber.uprootAll()
     }

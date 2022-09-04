@@ -13,7 +13,6 @@ import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
 import com.google.gson.Gson
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
-import com.sudoplatform.sudoprofiles.SudoProfilesClient
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.CompleteFundingSourceMutation
@@ -109,10 +108,6 @@ class SudoVirtualCardsCompleteFundingSourceTest : BaseTests() {
         mock<SudoUserClient>()
     }
 
-    private val mockSudoClient by before {
-        mock<SudoProfilesClient>()
-    }
-
     private val mockAppSyncClient by before {
         mock<AWSAppSyncClient>().stub {
             on { mutate(any<CompleteFundingSourceMutation>()) } doReturn mutationHolder.mutationOperation
@@ -127,7 +122,6 @@ class SudoVirtualCardsCompleteFundingSourceTest : BaseTests() {
         SudoVirtualCardsClient.builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
-            .setSudoProfilesClient(mockSudoClient)
             .setAppSyncClient(mockAppSyncClient)
             .setKeyManager(mockKeyManager)
             .setLogger(mock<Logger>())
@@ -144,7 +138,6 @@ class SudoVirtualCardsCompleteFundingSourceTest : BaseTests() {
         verifyNoMoreInteractions(
             mockContext,
             mockUserClient,
-            mockSudoClient,
             mockKeyManager,
             mockAppSyncClient,
         )
