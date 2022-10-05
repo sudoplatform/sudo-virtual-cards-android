@@ -17,5 +17,5 @@ The code generation will automatically generate the file to its destination, jus
 
 Whenever the schema is updated, the schema documents in the `schema` sub-directory of this directory should be updated and the introspection schema updated.
 
-Whenever the set or definition of queries, mutations, or subscriptions need to be updated, they should be updated in place under `ssudovirtualcards/src/main/graphql/com/sudoplatform/sudovirtualcards/documents` and the introspection schema updated.
+Whenever the set or definition of queries, mutations, or subscriptions need to be updated, they should be updated in place under `sudovirtualcards/src/main/graphql/com/sudoplatform/sudovirtualcards/documents` and the introspection schema updated.
 

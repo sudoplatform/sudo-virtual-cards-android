@@ -7,6 +7,8 @@
 package com.sudoplatform.sudovirtualcards.types
 
 import android.os.Parcelable
+import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource.ProvisioningState
+import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceType
 import kotlinx.parcelize.Parcelize
 import java.util.Date
 
@@ -19,9 +21,9 @@ import java.util.Date
  * @property version [Int] Current version of the provisional funding source.
  * @property createdAt [Date] Date when the provisional funding source was created.
  * @property updatedAt [Date] Date when the provisional funding source was last updated.
+ * @property type [FundingSourceType] Type of the provisional funding source
  * @property state [ProvisioningState] Current state of the provisional funding source.
- * @property provisioningData [ProvisioningData] Provisioning data used to complete the provisioning
- *  of the funding source.
+ * @property provisioningData [ProviderProvisioningData] Provisioning data provided by the provisional funding source provider.
  */
 @Parcelize
 data class ProvisionalFundingSource(
@@ -30,8 +32,9 @@ data class ProvisionalFundingSource(
     val version: Int,
     val createdAt: Date,
     val updatedAt: Date,
+    val type: FundingSourceType,
     val state: ProvisioningState,
-    val provisioningData: ProvisioningData
+    val provisioningData: ProviderProvisioningData
 ) : Parcelable {
     enum class ProvisioningState {
         /** Provisional funding source has completed provisioning */

@@ -21,6 +21,7 @@ import com.sudoplatform.sudovirtualcards.extensions.enqueue
 import com.sudoplatform.sudovirtualcards.extensions.enqueueFirst
 import com.sudoplatform.sudovirtualcards.graphql.CancelFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.GetCardQuery
+import com.sudoplatform.sudovirtualcards.graphql.GetVirtualCardsConfigQuery
 import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceQuery
 import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceClientConfigurationQuery
 import com.sudoplatform.sudovirtualcards.graphql.GetProvisionalCardQuery
@@ -63,17 +64,20 @@ import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
 import com.sudoplatform.sudovirtualcards.types.SortOrder
 import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.VirtualCard
+import com.sudoplatform.sudovirtualcards.types.VirtualCardsConfig
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.transformers.DateRangeTransformer.toDateRangeInput
 import com.sudoplatform.sudovirtualcards.types.transformers.FundingSourceTransformer
+import com.sudoplatform.sudovirtualcards.types.transformers.ProviderDataTransformer
 import com.sudoplatform.sudovirtualcards.types.transformers.TransactionTransformer
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
 import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer
 import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer.toAddressInput
 import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer.toMetadataInput
+import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardsConfigTransformer
 import java.util.concurrent.CancellationException
 
 /**
@@ -109,6 +113,7 @@ internal class DefaultSudoVirtualCardsClient(
         private const val FUNDING_SOURCE_NOT_SETUP_MSG = "Failed to setup funding source creation"
         private const val FUNDING_SOURCE_NOT_COMPLETE_MSG = "Failed to complete funding source creation"
         private const val FUNDING_SOURCE_COMPLETION_DATA_INVALID_MSG = "Invalid completion data to perform funding source creation"
+        private const val FUNDING_SOURCE_REQUIRES_USER_INTERACTION_MSG = "Funding source requires user interaction"
         private const val DUPLICATE_FUNDING_SOURCE_MSG = "Duplicate funding source"
         private const val UNACCEPTABLE_FUNDING_SOURCE_MSG = "Funding source is not acceptable to be created"
         private const val UNSUPPORTED_CURRENCY_MSG = "Currency is not supported"
@@ -130,6 +135,7 @@ internal class DefaultSudoVirtualCardsClient(
         private const val ERROR_FUNDING_SOURCE_STATE = "FundingSourceStateError"
         private const val ERROR_FUNDING_SOURCE_COMPLETION_DATA_INVALID = "FundingSourceCompletionDataInvalidError"
         private const val ERROR_PROVISIONAL_FUNDING_SOURCE_NOT_FOUND = "ProvisionalFundingSourceNotFoundError"
+        private const val ERROR_FUNDING_SOURCE_REQUIRES_USER_INTERACTION = "FundingSourceRequiresUserInteractionError"
         private const val ERROR_DUPLICATE_FUNDING_SOURCE = "DuplicateFundingSourceError"
         private const val ERROR_UNACCEPTABLE_FUNDING_SOURCE = "UnacceptableFundingSourceError"
         private const val ERROR_UNSUPPORTED_CURRENCY = "UnsupportedCurrencyError"
@@ -178,6 +184,7 @@ internal class DefaultSudoVirtualCardsClient(
             val mutationInput = SetupFundingSourceRequest.builder()
                 .type(input.type.toFundingSourceTypeInput(input.type))
                 .currency(input.currency)
+                .supportedProviders(input.supportedProviders)
                 .build()
             val mutation = SetupFundingSourceMutation.builder()
                 .input(mutationInput)
@@ -463,6 +470,31 @@ internal class DefaultSudoVirtualCardsClient(
 
             val result = queryResponse.data()?.card ?: return null
             return VirtualCardTransformer.toEntity(deviceKeyManager, result.fragments().sealedCardWithLastTransaction())
+        } catch (e: Throwable) {
+            logger.error("unexpected error $e")
+            when (e) {
+                is ApolloException -> throw SudoVirtualCardsClient.VirtualCardException.FailedException(cause = e)
+                else -> throw interpretVirtualCardException(e)
+            }
+        }
+    }
+
+    @Throws(SudoVirtualCardsClient.VirtualCardException::class)
+    override suspend fun getVirtualCardsConfig(cachePolicy: CachePolicy): VirtualCardsConfig? {
+        try {
+            val query = GetVirtualCardsConfigQuery.builder().build()
+
+            val queryResponse = appSyncClient.query(query)
+                .responseFetcher(cachePolicy.toResponseFetcher(cachePolicy))
+                .enqueueFirst()
+
+            if (queryResponse.hasErrors()) {
+                logger.error("errors = ${queryResponse.errors()}")
+                throw interpretVirtualCardError(queryResponse.errors().first())
+            }
+
+            val result = queryResponse.data()?.virtualCardsConfig ?: return null
+            return VirtualCardsConfigTransformer.toEntityFromGetVirtualCardsConfigQueryResult(result.fragments().virtualCardsConfig())
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
             when (e) {
@@ -867,7 +899,6 @@ internal class DefaultSudoVirtualCardsClient(
     }
 
     /** Apollo Errors */
-
     private fun interpretFundingSourceError(e: Error): SudoVirtualCardsClient.FundingSourceException {
         val error = e.customAttributes()[ERROR_TYPE]?.toString() ?: ""
         if (error.contains(ERROR_PROVISIONAL_FUNDING_SOURCE_NOT_FOUND)) {
@@ -886,6 +917,21 @@ internal class DefaultSudoVirtualCardsClient(
         }
         if (error.contains(ERROR_FUNDING_SOURCE_NOT_SETUP)) {
             return SudoVirtualCardsClient.FundingSourceException.SetupFailedException(FUNDING_SOURCE_NOT_SETUP_MSG)
+        }
+        if (error.contains(ERROR_FUNDING_SOURCE_REQUIRES_USER_INTERACTION)) {
+            val errorInfo = e.customAttributes()["errorInfo"]
+            return try {
+                val interactionData = SudoVirtualCardsClient.FundingSourceInteractionData.decode(errorInfo)
+                SudoVirtualCardsClient.FundingSourceException.FundingSourceRequiresUserInteractionException(
+                    FUNDING_SOURCE_REQUIRES_USER_INTERACTION_MSG,
+                    ProviderDataTransformer.toUserInteractionData(interactionData.provisioningData)
+                )
+            } catch (e: Throwable) {
+                SudoVirtualCardsClient.FundingSourceException.FailedException(
+                    message = "Invalid user interaction data during funding source setup",
+                    cause = e
+                )
+            }
         }
         if (error.contains(ERROR_FUNDING_SOURCE_COMPLETION_DATA_INVALID)) {
             return SudoVirtualCardsClient.FundingSourceException.CompletionDataInvalidException(FUNDING_SOURCE_COMPLETION_DATA_INVALID_MSG)

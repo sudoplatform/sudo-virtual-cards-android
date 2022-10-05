@@ -16,6 +16,7 @@ import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceClientConfigurationQuery
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.FundingSourceClientConfiguration
 import com.sudoplatform.sudovirtualcards.types.FundingSourceTypes
 import io.kotlintest.shouldBe
@@ -49,7 +50,14 @@ import java.util.concurrent.CancellationException
 class SudoVirtualCardsGetFundingSourceConfigurationTest : BaseTests() {
 
     private val queryResult by before {
-        val config = FundingSourceTypes(listOf(FundingSourceClientConfiguration(apiKey = "test-key")))
+        val config = FundingSourceTypes(
+            listOf(
+                FundingSourceClientConfiguration(
+                    apiKey = "test-key",
+                    fundingSourceType = FundingSourceType.CREDIT_CARD,
+                )
+            )
+        )
         val configStr = Gson().toJson(config)
         val encodedConfigData = Base64.encodeBase64String(configStr.toByteArray())
         GetFundingSourceClientConfigurationQuery.GetFundingSourceClientConfiguration(

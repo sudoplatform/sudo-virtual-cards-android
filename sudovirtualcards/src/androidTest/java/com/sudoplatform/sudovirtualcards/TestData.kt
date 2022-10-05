@@ -8,6 +8,8 @@ package com.sudoplatform.sudovirtualcards
 
 import com.sudoplatform.sudoprofiles.Sudo
 
+data class TestCard(val creditCardNumber: String, val securityCode: String, val last4: String)
+
 /**
  * Data used in tests.
  */
@@ -45,16 +47,28 @@ object TestData {
     /** Test sudo to use for integration tests */
     val sudo = Sudo("Mr", "Theodore", "Bear", "Shopping", null, null)
 
-    /** Funding source test data.
+    /** Stripe Funding source test data.
      *
      * Note: All test data taken from https://stripe.com/docs/testing
      */
-    object Visa {
-        const val securityCode = "123"
-        const val creditCardNumber = "4242424242424242"
-    }
-    object Mastercard {
-        const val securityCode = "123"
-        const val creditCardNumber = "5555555555554444"
-    }
+    val TestCards = mapOf(
+        "stripe" to mapOf(
+            "Visa-3DS2-1" to TestCard("4000000000003220", "123", "3220"),
+            "Visa-3DS2-2" to null,
+            "Visa-No3DS-1" to TestCard("4242424242424242", "123", "4242"),
+            "MC-No3DS-1" to TestCard("5555555555554444", "123", "4444")
+        ),
+        /** Checkout Funding source test data.
+         *
+         * Note: All test data taken from https://www.checkout.com/docs/testing/test-cards
+         */
+        "checkout" to mapOf(
+            "Visa-3DS2-1" to TestCard("4242424242424242", "123", "4242"),
+            "Visa-3DS2-2" to TestCard("4543474002249996", "956", "9996"),
+            "Visa-No3DS-1" to TestCard("4532432452900131", "257", "0131"),
+            "MC-No3DS-1" to TestCard("5183683001544411", "100", "4411")
+        )
+    )
+    @Deprecated("use TestCards[\"providerName\"]")
+    val StripeTestCards = (TestCards["stripe"] ?: throw AssertionError("Missing test data"))
 }

@@ -6,18 +6,17 @@
 
 package com.sudoplatform.sudovirtualcards.types.transformers
 
-import com.amazonaws.util.Base64
-import com.google.gson.Gson
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
 import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
-import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource as FundingSourceFragment
-import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalFundingSource as ProvisionalFundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceState
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType as GraphqlTypeFundingSourceType
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
-import com.sudoplatform.sudovirtualcards.types.ProvisioningData
+import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceType
+import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource as FundingSourceFragment
+import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalFundingSource as ProvisionalFundingSourceFragment
 
 /**
  * Transformer responsible for transforming the [FundingSource] GraphQL data types to the
@@ -54,14 +53,14 @@ internal object FundingSourceTransformer {
     fun toEntity(
         provisionalFundingSource: ProvisionalFundingSourceFragment,
     ): ProvisionalFundingSource {
-        val provisioningDataBytes = Base64.decode(provisionalFundingSource.provisioningData())
-        val provisioningData = Gson().fromJson(String(provisioningDataBytes, Charsets.UTF_8), ProvisioningData::class.java)
+        val provisioningData = ProviderDataTransformer.toProvisioningData(provisionalFundingSource.provisioningData())
         return ProvisionalFundingSource(
             id = provisionalFundingSource.id(),
             owner = provisionalFundingSource.owner(),
             version = provisionalFundingSource.version(),
             createdAt = provisionalFundingSource.createdAtEpochMs().toDate(),
             updatedAt = provisionalFundingSource.updatedAtEpochMs().toDate(),
+            type = provisionalFundingSource.type().toEntityFundingSourceType(),
             state = provisionalFundingSource.state().toEntityProvisioningState(),
             provisioningData = provisioningData
         )
@@ -107,4 +106,13 @@ private fun CreditCardNetwork.toEntityNetwork(): FundingSource.CreditCardNetwork
         }
     }
     return FundingSource.CreditCardNetwork.UNKNOWN
+}
+
+private fun GraphqlTypeFundingSourceType.toEntityFundingSourceType(): FundingSourceType {
+    for (value in FundingSourceType.values()) {
+        if (value.name == this.name) {
+            return value
+        }
+    }
+    return FundingSourceType.CREDIT_CARD
 }

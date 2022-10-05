@@ -10,7 +10,6 @@ import android.content.Context
 import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
-import com.stripe.android.Stripe
 import com.sudoplatform.sudoentitlements.SudoEntitlementsClient
 import com.sudoplatform.sudoentitlementsadmin.SudoEntitlementsAdminClient
 import com.sudoplatform.sudoentitlementsadmin.types.Entitlement
@@ -27,14 +26,19 @@ import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateDebitInp
 import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateRefundInput
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
+import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
 import com.sudoplatform.sudovirtualcards.types.VirtualCard
+import com.sudoplatform.sudovirtualcards.types.ProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
+import com.sudoplatform.sudovirtualcards.util.CardProviderAPIs
+import com.sudoplatform.sudovirtualcards.util.CheckoutTokenWorker
 import com.sudoplatform.sudovirtualcards.util.LocaleUtil
 import com.sudoplatform.sudovirtualcards.util.StripeIntentWorker
+import com.sudoplatform.sudovirtualcards.util.CreateCardFundingSourceOptions
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.shouldBe
 import kotlinx.coroutines.delay
@@ -84,6 +88,8 @@ abstract class BaseIntegrationTest {
     protected val keyManager by lazy {
         KeyManagerFactory(context).createAndroidKeyManager("vc-client-test")
     }
+
+    private var fundingSourceAPIs: CardProviderAPIs? = null
 
     private fun readTextFile(fileName: String): String {
         return context.assets.open(fileName).bufferedReader().use {
@@ -191,28 +197,48 @@ abstract class BaseIntegrationTest {
         return sudoClient.getOwnershipProof(sudo, "sudoplatform.virtual-cards.virtual-card")
     }
 
-    protected suspend fun createFundingSource(client: SudoVirtualCardsClient, input: CreditCardFundingSourceInput): FundingSource {
+    protected suspend fun createCardFundingSource(
+        client: SudoVirtualCardsClient,
+        input: CreditCardFundingSourceInput,
+        options: CreateCardFundingSourceOptions
+    ): FundingSource {
 
-        // Retrieve the funding source client configuration
-        val configuration = client.getFundingSourceClientConfiguration()
-
+        val cardProviderAPIs = fundingSourceAPIs ?: determineCardFundingSourceProviderAPIs(client)
         // Perform the funding source setup operation
-        val setupInput = SetupFundingSourceInput("USD", FundingSourceType.CREDIT_CARD)
+        val setupInput = SetupFundingSourceInput(options.currency, FundingSourceType.CREDIT_CARD, options.supportedProviders)
         val provisionalFundingSource = client.setupFundingSource(setupInput)
 
-        // Process stripe data
-        val stripeClient = Stripe(context, configuration.first().apiKey)
-        val stripeIntentWorker = StripeIntentWorker(context, stripeClient)
-        val completionData = stripeIntentWorker.confirmSetupIntent(
-            input,
-            provisionalFundingSource.provisioningData.clientSecret
-        )
+        val provisionalData = provisionalFundingSource.provisioningData
+        val completionData: ProviderCompletionData
+
+        when (provisionalData.provider) {
+            "stripe" -> {
+                // Process stripe data
+                cardProviderAPIs.stripe ?: throw AssertionError("No stripe API but provisioning data is for stripe")
+                val stripeIntentWorker = StripeIntentWorker(context, cardProviderAPIs.stripe)
+                completionData = stripeIntentWorker.confirmSetupIntent(
+                    input,
+                    (provisionalFundingSource.provisioningData as StripeCardProvisioningData).clientSecret
+                )
+            }
+            "checkout" -> {
+                // Process checkout data
+                cardProviderAPIs.checkout ?: throw AssertionError("No checkout API but provisioning data is for checkout")
+                input.name ?: throw java.lang.AssertionError("Checkout requires cardholder name")
+
+                val checkoutTokenWorker = CheckoutTokenWorker(cardProviderAPIs.checkout)
+                completionData = checkoutTokenWorker.generatePaymentToken(input)
+            }
+            else -> {
+                throw AssertionError("Unsupported funding source type")
+            }
+        }
 
         // Perform the funding source completion operation
         val completeInput = CompleteFundingSourceInput(
             provisionalFundingSource.id,
             completionData,
-            null
+            options.updateCardFundingSource
         )
         return client.completeFundingSource(completeInput)
     }
@@ -287,5 +313,39 @@ abstract class BaseIntegrationTest {
             createdAt.time shouldBeGreaterThan 0L
             updatedAt.time shouldBeGreaterThan 0L
         }
+    }
+
+    protected suspend fun getProvidersList(client: SudoVirtualCardsClient): List<String> {
+        val apis = determineCardFundingSourceProviderAPIs(client)
+        val providers = mutableListOf<String>()
+        if (apis.checkout != null) {
+            providers.add("checkout")
+        }
+        if (apis.stripe != null) {
+            providers.add("stripe")
+        }
+        return providers
+    }
+
+    protected suspend fun isStripeEnabled(client: SudoVirtualCardsClient): Boolean {
+        return (determineCardFundingSourceProviderAPIs(client).stripe != null)
+    }
+
+    protected suspend fun isCheckoutEnabled(client: SudoVirtualCardsClient): Boolean {
+        return (determineCardFundingSourceProviderAPIs(client).checkout != null)
+    }
+    protected suspend fun getProviderToUse(client: SudoVirtualCardsClient): String {
+        if (isStripeEnabled(client)) {
+            return "stripe"
+        }
+        if (isCheckoutEnabled(client)) {
+            return "checkout"
+        }
+        throw AssertionError("No card funding source providers available")
+    }
+
+    private suspend fun determineCardFundingSourceProviderAPIs(client: SudoVirtualCardsClient): CardProviderAPIs {
+        fundingSourceAPIs = fundingSourceAPIs ?: CardProviderAPIs.getCardProviderAPIs(client, context)
+        return fundingSourceAPIs ?: throw AssertionError("CardFundingSourceProviders not set")
     }
 }

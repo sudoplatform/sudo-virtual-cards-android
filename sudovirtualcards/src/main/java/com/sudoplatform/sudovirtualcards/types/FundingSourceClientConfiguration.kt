@@ -14,12 +14,14 @@ import kotlinx.parcelize.Parcelize
  * A representation of the funding source client configuration in the Sudo Platform Virtual Cards SDK.
  *
  * @property type [String] Type of the configuration provider.
+ * @property fundingSourceType [FundingSourceType] Type of the funding source
  * @property version [Int] Configuration version.
  * @property apiKey [String] API key for configuring calls to the provider.
  */
 @Parcelize
 data class FundingSourceClientConfiguration(
     val type: String = ProviderDefaults.configurationType,
+    val fundingSourceType: FundingSourceType,
     val version: Int = ProviderDefaults.version,
     val apiKey: String
 ) : Parcelable

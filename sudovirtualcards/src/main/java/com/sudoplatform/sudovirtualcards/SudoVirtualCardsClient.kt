@@ -8,6 +8,7 @@ package com.sudoplatform.sudovirtualcards
 
 import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
+import com.google.gson.Gson
 import com.sudoplatform.sudoapiclient.ApiClientManager
 import com.sudoplatform.sudokeymanager.AndroidSQLiteStore
 import com.sudoplatform.sudokeymanager.KeyManagerFactory
@@ -30,12 +31,14 @@ import com.sudoplatform.sudovirtualcards.types.ListAPIResult
 import com.sudoplatform.sudovirtualcards.types.ListOutput
 import com.sudoplatform.sudovirtualcards.types.PartialTransaction
 import com.sudoplatform.sudovirtualcards.types.PartialVirtualCard
+import com.sudoplatform.sudovirtualcards.types.ProviderUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
 import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
 import com.sudoplatform.sudovirtualcards.types.SortOrder
 import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.VirtualCard
+import com.sudoplatform.sudovirtualcards.types.VirtualCardsConfig
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
@@ -174,6 +177,18 @@ interface SudoVirtualCardsClient : AutoCloseable {
     }
 
     /**
+     * Returned with a FundingSourceRequiresUserInteraction error to provide feedback to the client.
+     */
+    data class FundingSourceInteractionData(val provisioningData: String) {
+        companion object {
+            fun decode(errorInfo: Any?): FundingSourceInteractionData {
+                val jsonErrorInfo = Gson().toJson(errorInfo)
+                return Gson().fromJson(jsonErrorInfo, FundingSourceInteractionData::class.java)
+            }
+        }
+    }
+
+    /**
      * Defines the exceptions for the funding source based methods.
      *
      * @property message [String] Accompanying message for the exception.
@@ -210,6 +225,10 @@ interface SudoVirtualCardsClient : AutoCloseable {
             FundingSourceException(message = message, cause = cause)
         class VelocityExceededException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
+        class FundingSourceRequiresUserInteractionException(
+            message: String? = null,
+            val interactionData: ProviderUserInteractionData
+        ) : FundingSourceException(message = message)
         class UnknownException(cause: Throwable) :
             FundingSourceException(cause = cause)
     }
@@ -413,6 +432,18 @@ interface SudoVirtualCardsClient : AutoCloseable {
      */
     @Throws(VirtualCardException::class)
     suspend fun getVirtualCard(id: String, cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY): VirtualCard?
+
+    /**
+     * Get the current [VirtualCardsConfig].
+     *
+     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
+     *  be aware that this will only return cached results of identical API calls.
+     * @returns The [VirtualCardsConfig] or null if it cannot be found.
+     *
+     * @throws [VirtualCardException].
+     */
+    @Throws(VirtualCardException::class)
+    suspend fun getVirtualCardsConfig(cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY): VirtualCardsConfig?
 
     /**
      * Get a list of [VirtualCard]s.

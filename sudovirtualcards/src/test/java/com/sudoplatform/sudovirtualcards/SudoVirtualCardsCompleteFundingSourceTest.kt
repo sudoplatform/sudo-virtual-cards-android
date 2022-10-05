@@ -19,11 +19,14 @@ import com.sudoplatform.sudovirtualcards.graphql.CompleteFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.type.CompleteFundingSourceRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState
-import com.sudoplatform.sudovirtualcards.types.ProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
+import com.sudoplatform.sudovirtualcards.types.StripeCardProviderCompletionData
+import com.sudoplatform.sudovirtualcards.types.CheckoutCardProviderCompletionData
+import com.sudoplatform.sudovirtualcards.types.FundingSource
+import com.sudoplatform.sudovirtualcards.types.CheckoutCardUserInteractionData
 import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource as FundingSourceFragment
 import com.sudoplatform.sudologging.Logger
-import com.sudoplatform.sudovirtualcards.types.FundingSource
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
@@ -37,6 +40,8 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import org.mockito.kotlin.any
 import org.mockito.kotlin.check
 import org.mockito.kotlin.doReturn
@@ -52,13 +57,39 @@ import java.util.concurrent.CancellationException
  * Test the correct operation of [SudoVirtualCardsClient.completeFundingSource]
  * using mocks and spies.
  */
-class SudoVirtualCardsCompleteFundingSourceTest : BaseTests() {
+@RunWith(Parameterized::class)
+class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : BaseTests() {
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun data(): Collection<String> {
+            return listOf(
+                "stripe",
+                "checkout"
+            )
+        }
+    }
 
-    private val providerCompletionData = ProviderCompletionData("stripe", 1, "paymentMethod")
+    private val providerCompletionData =
+        mapOf(
+            "stripe" to StripeCardProviderCompletionData(
+                "stripe",
+                1,
+                "paymentMethod",
+                FundingSourceType.CREDIT_CARD
+            ),
+            "checkout" to CheckoutCardProviderCompletionData(
+                "checkout",
+                1,
+                FundingSourceType.CREDIT_CARD,
+                "payment_token"
+            )
+        )
+
     private val input by before {
         CompleteFundingSourceInput(
             "id",
-            providerCompletionData,
+            providerCompletionData[provider] ?: throw missingProvider(),
             null
         )
     }
@@ -419,6 +450,53 @@ class SudoVirtualCardsCompleteFundingSourceTest : BaseTests() {
     }
 
     @Test
+    fun `completeFundingSource() should throw when a user interaction required funding source error occurs`() = runBlocking<Unit> {
+        mutationHolder.callback shouldBe null
+        val providerInteractionData = CheckoutCardUserInteractionData(redirectUrl = "https://some.url.com/session")
+        val interactionData = SudoVirtualCardsClient.FundingSourceInteractionData(
+            Base64.encode(Gson().toJson(providerInteractionData).toByteArray()).toString(Charsets.UTF_8)
+        )
+
+        val errorResponse by before {
+            val error = com.apollographql.apollo.api.Error(
+                "mock",
+                emptyList(),
+                mapOf(
+                    "errorType" to "FundingSourceRequiresUserInteractionError",
+                    "errorInfo" to interactionData
+                )
+            )
+            Response.builder<CompleteFundingSourceMutation.Data>(CompleteFundingSourceMutation(mutationRequest))
+                .errors(listOf(error))
+                .data(null)
+                .build()
+        }
+
+        val deferredResult = async(Dispatchers.IO) {
+            val exception = shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceRequiresUserInteractionException> {
+                client.completeFundingSource(input)
+            }
+            exception.interactionData shouldBe providerInteractionData
+        }
+        deferredResult.start()
+
+        delay(100L)
+        mutationHolder.callback shouldNotBe null
+        mutationHolder.callback?.onResponse(errorResponse)
+
+        verify(mockAppSyncClient).mutate<
+            CompleteFundingSourceMutation.Data,
+            CompleteFundingSourceMutation,
+            CompleteFundingSourceMutation.Variables>(
+            check {
+                it.variables().input().id() shouldBe "id"
+                it.variables().input().completionData() shouldBe encodedCompletionData
+                it.variables().input().updateCardFundingSource() shouldBe null
+            }
+        )
+    }
+
+    @Test
     fun `completeFundingSource() should throw when http error occurs`() = runBlocking<Unit> {
 
         mutationHolder.callback shouldBe null
@@ -521,5 +599,8 @@ class SudoVirtualCardsCompleteFundingSourceTest : BaseTests() {
                 it.variables().input().updateCardFundingSource() shouldBe null
             }
         )
+    }
+    private fun missingProvider(): java.lang.AssertionError {
+        return AssertionError("Missing provider $provider")
     }
 }

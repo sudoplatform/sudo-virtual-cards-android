@@ -78,6 +78,7 @@ allprojects {
                 }
             }
         }
+        maven { url 'https://jitpack.io' }
     }
     gradle.projectsEvaluated {
         tasks.withType(Test) {

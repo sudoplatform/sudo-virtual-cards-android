@@ -896,3 +896,15 @@
   license: The Apache Software License, Version 2.0
   licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.txt
   url: https://developer.android.com/jetpack/androidx/releases/navigation#2.4.2
+- artifact: com.github.checkout:frames-android:+
+  name: Checkout.com Frames Android SDK
+  copyrightHolder: Checkout.com
+  license: MIT License
+  licenseUrl: https://raw.githubusercontent.com/checkout/frames-android/master/LICENSE
+  url: https://github.com/checkout/frames-android
+- artifact: com.squareup.okhttp3:logging-interceptor:+
+  name: okhttp-logging-interceptor
+  copyrightHolder: Square, Inc
+  license: The Apache Software License, Version 2.0
+  licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.txt
+  url: https://square.github.io/okhttp/

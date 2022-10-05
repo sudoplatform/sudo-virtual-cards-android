@@ -13,10 +13,12 @@ import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType as Fundi
  *
  * @property currency [String] The ISO 4217 currency code that is being used for the setup.
  * @property type [FundingSourceType] The type of funding source being setup.
+ * @property supportedProviders [List<String>] the set of providers supported by this client
  */
 data class SetupFundingSourceInput(
     val currency: String,
-    val type: FundingSourceType
+    val type: FundingSourceType,
+    val supportedProviders: List<String>? = null
 )
 
 /**

@@ -29,6 +29,7 @@ fragment ProvisionalFundingSource on ProvisionalFundingSource {
   version
   createdAtEpochMs
   updatedAtEpochMs
+  type
   provisioningData
   state
 }
