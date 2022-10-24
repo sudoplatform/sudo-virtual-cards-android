@@ -20,10 +20,11 @@ import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalFundingSour
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceState
 import com.sudoplatform.sudovirtualcards.graphql.type.SetupFundingSourceRequest
+import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardProvisioningData
+import com.sudoplatform.sudovirtualcards.types.ProvisioningData
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
-import com.sudoplatform.sudovirtualcards.types.ProvisioningData
 import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceType as FundingSourceTypeEntity
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import io.kotlintest.shouldBe
@@ -65,7 +66,8 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
         fun data(): Collection<String> {
             return listOf(
                 "stripe",
-                "checkout"
+                "checkoutCard",
+                "checkoutBankAccount"
             )
         }
     }
@@ -77,9 +79,14 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                 FundingSourceTypeEntity.CREDIT_CARD,
                 listOf("stripe")
             ),
-            "checkout" to SetupFundingSourceInput(
+            "checkoutCard" to SetupFundingSourceInput(
                 "USD",
                 FundingSourceTypeEntity.CREDIT_CARD,
+                listOf("checkout")
+            ),
+            "checkoutBankAccount" to SetupFundingSourceInput(
+                "USD",
+                FundingSourceTypeEntity.BANK_ACCOUNT,
                 listOf("checkout")
             )
         )
@@ -91,11 +98,16 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             .currency("USD")
             .supportedProviders(listOf("stripe"))
             .build(),
-        "checkout" to SetupFundingSourceRequest.builder()
+        "checkoutCard" to SetupFundingSourceRequest.builder()
             .type(FundingSourceType.CREDIT_CARD)
             .currency("USD")
             .supportedProviders(listOf("checkout"))
-            .build()
+            .build(),
+        "checkoutBankAccount" to SetupFundingSourceRequest.builder()
+            .type(FundingSourceType.BANK_ACCOUNT)
+            .currency("USD")
+            .supportedProviders(listOf("checkout"))
+            .build(),
     )
 
     // Compile-time test of backwards compatibility.
@@ -103,12 +115,14 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
     private val expectedProvisioningData = mapOf(
         "stripe" to StripeCardProvisioningData("stripe", 1, "intent", "clientSecret", FundingSourceType.CREDIT_CARD),
-        "checkout" to CheckoutCardProvisioningData("checkout", 1, FundingSourceType.CREDIT_CARD)
+        "checkoutCard" to CheckoutCardProvisioningData("checkout", 1, FundingSourceType.CREDIT_CARD),
+        "checkoutBankAccount" to CheckoutBankAccountProvisioningData("checkout", 1, FundingSourceType.BANK_ACCOUNT, "linkToken")
     )
 
     private val mutationResult by before {
         val stripeSetupData = StripeCardProvisioningData("stripe", 1, "intent", "clientSecret", FundingSourceType.CREDIT_CARD)
-        val checkoutSetupData = CheckoutCardProvisioningData("checkout", 1, FundingSourceType.CREDIT_CARD)
+        val checkoutCardSetupData = CheckoutCardProvisioningData("checkout", 1, FundingSourceType.CREDIT_CARD)
+        val checkoutBankAccountSetupData = CheckoutBankAccountProvisioningData("checkout", 1, FundingSourceType.BANK_ACCOUNT, "linkToken")
 
         mapOf(
             "stripe" to
@@ -128,7 +142,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                         )
                     )
                 ),
-            "checkout" to
+            "checkoutCard" to
                 SetupFundingSourceMutation.SetupFundingSource(
                     "SetupFundingSource",
                     SetupFundingSourceMutation.SetupFundingSource.Fragments(
@@ -140,7 +154,24 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                             1.0,
                             10.0,
                             FundingSourceType.CREDIT_CARD,
-                            Base64.encodeBase64String(Gson().toJson(checkoutSetupData).toByteArray()),
+                            Base64.encodeBase64String(Gson().toJson(checkoutCardSetupData).toByteArray()),
+                            ProvisionalFundingSourceState.PROVISIONING,
+                        )
+                    )
+                ),
+            "checkoutBankAccount" to
+                SetupFundingSourceMutation.SetupFundingSource(
+                    "SetupFundingSource",
+                    SetupFundingSourceMutation.SetupFundingSource.Fragments(
+                        ProvisionalFundingSourceFragment(
+                            "ProvisionalFundingSource",
+                            "id",
+                            "owner",
+                            1,
+                            1.0,
+                            10.0,
+                            FundingSourceType.BANK_ACCOUNT,
+                            Base64.encodeBase64String(Gson().toJson(checkoutBankAccountSetupData).toByteArray()),
                             ProvisionalFundingSourceState.PROVISIONING,
                         )
                     )
@@ -151,17 +182,23 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
     private val mutationResponse by before {
         val stripeRequest = mutationRequest["stripe"] ?: throw AssertionError("Invalid stripe setup")
         val stripeResult = mutationResult["stripe"] ?: throw AssertionError("Invalid stripe setup")
-        val checkoutRequest = mutationRequest["checkout"] ?: throw AssertionError("Invalid checkout setup")
-        val checkoutResult = mutationResult["checkout"] ?: throw AssertionError("Invalid checkout setup")
+        val checkoutCardRequest = mutationRequest["checkoutCard"] ?: throw AssertionError("Invalid checkout setup")
+        val checkoutCardResult = mutationResult["checkoutCard"] ?: throw AssertionError("Invalid checkout setup")
+        val checkoutBankAccountRequest = mutationRequest["checkoutBankAccount"] ?: throw AssertionError("Invalid checkout setup")
+        val checkoutBankAccountResult = mutationResult["checkoutBankAccount"] ?: throw AssertionError("Invalid checkout setup")
 
         mapOf(
             "stripe" to
                 Response.builder<SetupFundingSourceMutation.Data>(SetupFundingSourceMutation(stripeRequest))
                     .data(SetupFundingSourceMutation.Data(stripeResult))
                     .build(),
-            "checkout" to
-                Response.builder<SetupFundingSourceMutation.Data>(SetupFundingSourceMutation(checkoutRequest))
-                    .data(SetupFundingSourceMutation.Data(checkoutResult))
+            "checkoutCard" to
+                Response.builder<SetupFundingSourceMutation.Data>(SetupFundingSourceMutation(checkoutCardRequest))
+                    .data(SetupFundingSourceMutation.Data(checkoutCardResult))
+                    .build(),
+            "checkoutBankAccount" to
+                Response.builder<SetupFundingSourceMutation.Data>(SetupFundingSourceMutation(checkoutBankAccountRequest))
+                    .data(SetupFundingSourceMutation.Data(checkoutBankAccountResult))
                     .build(),
         )
     }
@@ -243,7 +280,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             SetupFundingSourceMutation.Variables>(
             check {
                 it.variables().input().currency() shouldBe "USD"
-                it.variables().input().type() shouldBe FundingSourceType.CREDIT_CARD
+                it.variables().input().type() shouldBe mutationRequest[provider]?.type()
             }
         )
     }
@@ -279,7 +316,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             SetupFundingSourceMutation.Variables>(
             check {
                 it.variables().input().currency() shouldBe "USD"
-                it.variables().input().type() shouldBe FundingSourceType.CREDIT_CARD
+                it.variables().input().type() shouldBe mutationRequest[provider]?.type()
             }
         )
     }
@@ -370,7 +407,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             SetupFundingSourceMutation.Variables>(
             check {
                 it.variables().input().currency() shouldBe "USD"
-                it.variables().input().type() shouldBe FundingSourceType.CREDIT_CARD
+                it.variables().input().type() shouldBe mutationRequest[provider]?.type()
             }
         )
     }
@@ -412,7 +449,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             SetupFundingSourceMutation.Variables>(
             check {
                 it.variables().input().currency() shouldBe "USD"
-                it.variables().input().type() shouldBe FundingSourceType.CREDIT_CARD
+                it.variables().input().type() shouldBe mutationRequest[provider]?.type()
             }
         )
     }
@@ -454,7 +491,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             SetupFundingSourceMutation.Variables>(
             check {
                 it.variables().input().currency() shouldBe "USD"
-                it.variables().input().type() shouldBe FundingSourceType.CREDIT_CARD
+                it.variables().input().type() shouldBe mutationRequest[provider]?.type()
             }
         )
     }
@@ -496,7 +533,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             SetupFundingSourceMutation.Variables>(
             check {
                 it.variables().input().currency() shouldBe "USD"
-                it.variables().input().type() shouldBe FundingSourceType.CREDIT_CARD
+                it.variables().input().type() shouldBe mutationRequest[provider]?.type()
             }
         )
     }
@@ -526,7 +563,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             SetupFundingSourceMutation.Variables>(
             check {
                 it.variables().input().currency() shouldBe "USD"
-                it.variables().input().type() shouldBe FundingSourceType.CREDIT_CARD
+                it.variables().input().type() shouldBe mutationRequest[provider]?.type()
             }
         )
     }
@@ -556,7 +593,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             SetupFundingSourceMutation.Variables>(
             check {
                 it.variables().input().currency() shouldBe "USD"
-                it.variables().input().type() shouldBe FundingSourceType.CREDIT_CARD
+                it.variables().input().type() shouldBe mutationRequest[provider]?.type()
             }
         )
     }

@@ -77,12 +77,12 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -177,12 +177,12 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -247,12 +247,12 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -320,12 +320,12 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -408,12 +408,12 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -508,12 +508,12 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -578,12 +578,12 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -650,12 +650,12 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(

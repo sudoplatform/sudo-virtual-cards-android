@@ -14,12 +14,13 @@ import com.google.gson.JsonDeserializer
 import com.google.gson.JsonParseException
 import com.google.gson.JsonDeserializationContext
 import com.sudoplatform.sudovirtualcards.types.BaseProvisioningData
-import com.sudoplatform.sudovirtualcards.types.CheckoutCardProvisioningData
-import com.sudoplatform.sudovirtualcards.types.ProviderProvisioningData
-import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
 import com.sudoplatform.sudovirtualcards.types.BaseUserInteractionData
+import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
+import com.sudoplatform.sudovirtualcards.types.CheckoutCardProvisioningData
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardUserInteractionData
+import com.sudoplatform.sudovirtualcards.types.ProviderProvisioningData
 import com.sudoplatform.sudovirtualcards.types.ProviderUserInteractionData
+import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
 import java.lang.reflect.Type
 
 /**
@@ -77,7 +78,12 @@ class ProvisioningDataDeserializer : JsonDeserializer<ProviderProvisioningData> 
         val type = ProviderDataTransformer.extractAsStringOrThrow(jObject, "type")
         return when (provider) {
             "stripe" -> context!!.deserialize(jElement, StripeCardProvisioningData::class.java)
-            "checkout" -> context!!.deserialize(jElement, CheckoutCardProvisioningData::class.java)
+            "checkout" ->
+                return when (type) {
+                    "CREDIT_CARD" -> context!!.deserialize(jElement, CheckoutCardProvisioningData::class.java)
+                    "BANK_ACCOUNT" -> context!!.deserialize(jElement, CheckoutBankAccountProvisioningData::class.java)
+                    else -> context!!.deserialize(jElement, BaseProvisioningData::class.java)
+                }
             else -> context!!.deserialize(jElement, BaseProvisioningData::class.java)
         }
     }

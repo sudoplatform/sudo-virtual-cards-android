@@ -55,6 +55,10 @@ class SudoVirtualCardsGetFundingSourceConfigurationTest : BaseTests() {
                 FundingSourceClientConfiguration(
                     apiKey = "test-key",
                     fundingSourceType = FundingSourceType.CREDIT_CARD,
+                ),
+                FundingSourceClientConfiguration(
+                    apiKey = "test-key",
+                    fundingSourceType = FundingSourceType.BANK_ACCOUNT,
                 )
             )
         )
@@ -134,10 +138,12 @@ class SudoVirtualCardsGetFundingSourceConfigurationTest : BaseTests() {
         val result = deferredResult.await()
         result shouldNotBe null
 
-        with(result.first()) {
-            type shouldBe "string"
-            version shouldBe 1
-            apiKey shouldBe "test-key"
+        val fundingSourceTypes = listOf(FundingSourceType.CREDIT_CARD, FundingSourceType.BANK_ACCOUNT)
+        for (i in result.indices) {
+            result[i].fundingSourceType shouldBe fundingSourceTypes[i]
+            result[i].type shouldBe "string"
+            result[i].version shouldBe 1
+            result[i].apiKey shouldBe "test-key"
         }
 
         verify(mockAppSyncClient).query(any<GetFundingSourceClientConfigurationQuery>())

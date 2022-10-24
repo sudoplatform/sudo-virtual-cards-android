@@ -34,7 +34,7 @@ import com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInp
 import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
-import com.sudoplatform.sudovirtualcards.util.CardProviderAPIs
+import com.sudoplatform.sudovirtualcards.util.ProviderAPIs
 import com.sudoplatform.sudovirtualcards.util.CheckoutTokenWorker
 import com.sudoplatform.sudovirtualcards.util.LocaleUtil
 import com.sudoplatform.sudovirtualcards.util.StripeIntentWorker
@@ -50,10 +50,21 @@ import java.util.Calendar
  */
 abstract class BaseIntegrationTest {
 
-    protected val context: Context = ApplicationProvider.getApplicationContext<Context>()
+    // We cache our SudoUserClient instance because it has an
+    // embedded AWSAppSync instance of its own. Each AWSAppSync
+    // instance registers a connectivity watcher call back but
+    // never unregisters it. This quickly hits the limit of
+    // such registered callbacks and thus limits the number of
+    // tests we can have. A singleton user client that we reset
+    // between tests resolves this issue.
+    protected companion object {
+        val context: Context = ApplicationProvider.getApplicationContext<Context>()
+        val userClientInstance = DefaultSudoUserClient(context, "vc-client-test")
+    }
 
     protected val userClient by lazy {
-        DefaultSudoUserClient(context, "vc-client-test")
+        userClientInstance.reset()
+        userClientInstance
     }
 
     protected val sudoClient by lazy {
@@ -89,7 +100,7 @@ abstract class BaseIntegrationTest {
         KeyManagerFactory(context).createAndroidKeyManager("vc-client-test")
     }
 
-    private var fundingSourceAPIs: CardProviderAPIs? = null
+    private var fundingSourceAPIs: ProviderAPIs? = null
 
     private fun readTextFile(fileName: String): String {
         return context.assets.open(fileName).bufferedReader().use {
@@ -203,7 +214,7 @@ abstract class BaseIntegrationTest {
         options: CreateCardFundingSourceOptions
     ): FundingSource {
 
-        val cardProviderAPIs = fundingSourceAPIs ?: determineCardFundingSourceProviderAPIs(client)
+        val cardProviderAPIs = fundingSourceAPIs ?: determineFundingSourceProviderAPIs(client)
         // Perform the funding source setup operation
         val setupInput = SetupFundingSourceInput(options.currency, FundingSourceType.CREDIT_CARD, options.supportedProviders)
         val provisionalFundingSource = client.setupFundingSource(setupInput)
@@ -316,7 +327,7 @@ abstract class BaseIntegrationTest {
     }
 
     protected suspend fun getProvidersList(client: SudoVirtualCardsClient): List<String> {
-        val apis = determineCardFundingSourceProviderAPIs(client)
+        val apis = determineFundingSourceProviderAPIs(client)
         val providers = mutableListOf<String>()
         if (apis.checkout != null) {
             providers.add("checkout")
@@ -328,11 +339,11 @@ abstract class BaseIntegrationTest {
     }
 
     protected suspend fun isStripeEnabled(client: SudoVirtualCardsClient): Boolean {
-        return (determineCardFundingSourceProviderAPIs(client).stripe != null)
+        return (determineFundingSourceProviderAPIs(client).stripe != null)
     }
 
     protected suspend fun isCheckoutEnabled(client: SudoVirtualCardsClient): Boolean {
-        return (determineCardFundingSourceProviderAPIs(client).checkout != null)
+        return (determineFundingSourceProviderAPIs(client).checkout != null)
     }
     protected suspend fun getProviderToUse(client: SudoVirtualCardsClient): String {
         if (isStripeEnabled(client)) {
@@ -344,8 +355,8 @@ abstract class BaseIntegrationTest {
         throw AssertionError("No card funding source providers available")
     }
 
-    private suspend fun determineCardFundingSourceProviderAPIs(client: SudoVirtualCardsClient): CardProviderAPIs {
-        fundingSourceAPIs = fundingSourceAPIs ?: CardProviderAPIs.getCardProviderAPIs(client, context)
+    private suspend fun determineFundingSourceProviderAPIs(client: SudoVirtualCardsClient): ProviderAPIs {
+        fundingSourceAPIs = fundingSourceAPIs ?: ProviderAPIs.getProviderAPIs(client, context)
         return fundingSourceAPIs ?: throw AssertionError("CardFundingSourceProviders not set")
     }
 }

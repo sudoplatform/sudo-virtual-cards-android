@@ -30,9 +30,9 @@ object ProviderDefaults {
  * Representation of [ProviderCommonData] which provides common data
  * for all funding source provider based data.
  *
- * @property provider Funding source provider.
- * @property version Associated supported version.
- * @property type Funding Source Type
+ * @property provider [String] Funding source provider.
+ * @property version [Int] Associated supported version.
+ * @property type [FundingSourceType] Funding source type.
  */
 abstract class ProviderCommonData {
     abstract val provider: String
@@ -48,7 +48,7 @@ sealed class ProviderProvisioningData : ProviderCommonData(), Parcelable
  *
  * @property provider See [ProviderCommonData.provider].
  * @property version See [ProviderCommonData.version].
- * @property type See [ProviderCommonData.type]
+ * @property type See [ProviderCommonData.type].
  */
 @Keep
 @Parcelize
@@ -63,9 +63,9 @@ data class BaseProvisioningData(
  *
  * @property provider See [ProviderCommonData.provider].
  * @property version See [ProviderCommonData.version].
- * @property type See [ProviderCommonData.type]
- * @property intent Intent of setup data.
- * @property clientSecret Provider setup intent client secret
+ * @property type See [ProviderCommonData.type].
+ * @property intent [String] Intent of setup data.
+ * @property clientSecret [String] Provider setup intent client secret.
  */
 @Keep
 @Parcelize
@@ -79,11 +79,11 @@ data class StripeCardProvisioningData(
 ) : ProviderProvisioningData()
 
 /**
- * Representation of [CheckoutCardProvisioningData] used to provision a checkout funding source.
+ * Representation of [CheckoutCardProvisioningData] used to provision a checkout card funding source.
  *
  * @property provider See [ProviderCommonData.provider].
  * @property version See [ProviderCommonData.version].
- * @property type See [ProviderCommonData.type]
+ * @property type See [ProviderCommonData.type].
  */
 @Keep
 @Parcelize
@@ -91,6 +91,23 @@ data class CheckoutCardProvisioningData(
     override val provider: String = ProviderDefaults.checkoutProvider,
     override val version: Int = ProviderDefaults.version,
     override val type: FundingSourceType = FundingSourceType.CREDIT_CARD,
+) : ProviderProvisioningData()
+
+/**
+ * Representation of [CheckoutBankAccountProvisioningData] used to provision a checkout bank account funding source.
+ *
+ * @property provider See [ProviderCommonData.provider].
+ * @property version See [ProviderCommonData.version].
+ * @property type See [ProviderCommonData.type].
+ * @property linkToken [String] Provider setup link token.
+ */
+@Keep
+@Parcelize
+data class CheckoutBankAccountProvisioningData(
+    override val provider: String = ProviderDefaults.checkoutProvider,
+    override val version: Int = ProviderDefaults.version,
+    override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
+    val linkToken: String
 ) : ProviderProvisioningData()
 
 /**
@@ -107,8 +124,8 @@ sealed class ProviderCompletionData : ProviderCommonData(), Parcelable
  *
  * @property provider See [ProviderCommonData.provider].
  * @property version See [ProviderCommonData.version].
- * @property type See [ProviderCommonData.type]
- * @property paymentMethod Specifies payment method bound to confirmed setup intent.
+ * @property type See [ProviderCommonData.type].
+ * @property paymentMethod [String] Specifies payment method bound to confirmed setup intent.
  */
 @Keep
 @Parcelize
@@ -128,7 +145,7 @@ data class StripeCardProviderCompletionData(
  * @property provider See [ProviderCommonData.provider].
  * @property version See [ProviderCommonData.version].
  * @property type See [ProviderCommonData.type]
- * @property paymentToken Specifies payment token associated with the funding source credit card.
+ * @property paymentToken [String] Specifies payment token associated with the funding source credit card.
  */
 @Keep
 @Parcelize
@@ -165,7 +182,7 @@ data class BaseUserInteractionData(
  * @property provider See [ProviderCommonData.provider].
  * @property version See [ProviderCommonData.version].
  * @property type See [ProviderCommonData.type]
- * @property redirectUrl Mandatory URL which indicates where the user should go for additional interaction
+ * @property redirectUrl [String] Mandatory URL which indicates where the user should go for additional interaction.
  */
 @Keep
 @Parcelize

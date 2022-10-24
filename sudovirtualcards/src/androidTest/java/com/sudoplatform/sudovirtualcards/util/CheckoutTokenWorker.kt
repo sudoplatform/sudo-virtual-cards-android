@@ -8,6 +8,8 @@ package com.sudoplatform.sudovirtualcards.util
 
 import com.checkout.android_sdk.CheckoutAPIClient
 import com.checkout.android_sdk.CheckoutAPIClient.OnTokenGenerated
+import com.checkout.android_sdk.Models.BillingModel
+import com.checkout.android_sdk.Models.PhoneModel
 import com.checkout.android_sdk.Request.CardTokenisationRequest
 import com.checkout.android_sdk.Response.CardTokenisationFail
 import com.checkout.android_sdk.Response.CardTokenisationResponse
@@ -41,7 +43,16 @@ internal class CheckoutTokenWorker(
             input.name,
             input.expirationMonth.toString(),
             input.expirationYear.toString(),
-            input.securityCode
+            input.securityCode,
+            BillingModel(
+                address_line1 = input.addressLine1,
+                address_line2 = input.addressLine2 ?: "",
+                city = input.city,
+                state = input.state,
+                zip = input.postalCode,
+                country = input.country
+            ),
+            PhoneModel(country_code = "1", number = "1111111111"),
         )
         val tokenisationResponse = waitForTokenResponse(checkoutClient, tokenisationRequest)
 

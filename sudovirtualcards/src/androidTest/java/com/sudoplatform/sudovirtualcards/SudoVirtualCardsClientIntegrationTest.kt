@@ -25,6 +25,8 @@ import org.junit.runner.RunWith
 import timber.log.Timber
 import java.util.logging.Logger
 import com.sudoplatform.sudokeymanager.KeyManagerFactory
+import com.sudoplatform.sudovirtualcards.logging.LogConstants
+import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.StripeCardProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
@@ -66,6 +68,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             Logger.getLogger("com.amazonaws").level = java.util.logging.Level.FINEST
             Logger.getLogger("org.apache.http").level = java.util.logging.Level.FINEST
         }
+        Logger.getLogger(LogConstants.SUDOLOG_TAG).level = java.util.logging.Level.FINEST
 
         // Remove all keys from the Android Keystore so we can start with a clean slate.
         KeyManagerFactory(context).createAndroidKeyManager().removeAllKeys()
@@ -154,17 +157,33 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         }
 
         if (isCheckoutEnabled(vcClient)) {
-            val setupCheckoutInput = SetupFundingSourceInput("USD", FundingSourceType.CREDIT_CARD, listOf("checkout"))
-            val checkoutProvisionalFundingSource = vcClient.setupFundingSource(setupCheckoutInput)
+            val setupCheckoutCardInput = SetupFundingSourceInput("USD", FundingSourceType.CREDIT_CARD, listOf("checkout"))
+            val checkoutCardProvisionalFundingSource = vcClient.setupFundingSource(setupCheckoutCardInput)
 
-            with(checkoutProvisionalFundingSource) {
+            with(checkoutCardProvisionalFundingSource) {
                 id shouldNotBe null
                 owner shouldBe userClient.getSubject()
                 version shouldBe 1
+                type shouldBe FundingSourceType.CREDIT_CARD
                 state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
                 provisioningData.provider shouldBe "checkout"
                 provisioningData.version shouldBe 1
                 val checkoutProvisioningData = provisioningData as CheckoutCardProvisioningData
+                checkoutProvisioningData shouldNotBe null
+            }
+
+            val setupCheckoutBankAccountInput = SetupFundingSourceInput("USD", FundingSourceType.BANK_ACCOUNT, listOf("checkout"))
+            val checkoutBankAccountProvisionalFundingSource = vcClient.setupFundingSource(setupCheckoutBankAccountInput)
+
+            with(checkoutBankAccountProvisionalFundingSource) {
+                id shouldNotBe null
+                owner shouldBe userClient.getSubject()
+                version shouldBe 1
+                type shouldBe FundingSourceType.BANK_ACCOUNT
+                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
+                provisioningData.provider shouldBe "checkout"
+                provisioningData.version shouldBe 1
+                val checkoutProvisioningData = provisioningData as CheckoutBankAccountProvisioningData
                 checkoutProvisioningData shouldNotBe null
             }
         }
@@ -175,17 +194,20 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
+        val fundingSourceTypes = listOf(FundingSourceType.CREDIT_CARD, FundingSourceType.BANK_ACCOUNT)
         if (isStripeEnabled(vcClient)) {
-            val stripeSetupInput = SetupFundingSourceInput("AUD", FundingSourceType.CREDIT_CARD, listOf("stripe"))
+            val stripeSetupInput = SetupFundingSourceInput("AUD", fundingSourceTypes.first(), listOf("stripe"))
             shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnsupportedCurrencyException> {
                 vcClient.setupFundingSource(stripeSetupInput)
             }
         }
 
         if (isCheckoutEnabled(vcClient)) {
-            val checkoutSetupInput = SetupFundingSourceInput("AUD", FundingSourceType.CREDIT_CARD, listOf("checkout"))
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnsupportedCurrencyException> {
-                vcClient.setupFundingSource(checkoutSetupInput)
+            fundingSourceTypes.forEach {
+                val checkoutSetupInput = SetupFundingSourceInput("AUD", it, listOf("checkout"))
+                shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnsupportedCurrencyException> {
+                    vcClient.setupFundingSource(checkoutSetupInput)
+                }
             }
         }
     }
@@ -203,12 +225,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 expirationMonth(),
                 expirationYear(),
                 testCard.securityCode,
-                TestData.VerifiedUser.addressLine1,
-                TestData.VerifiedUser.addressLine2,
-                TestData.VerifiedUser.city,
-                TestData.VerifiedUser.state,
-                TestData.VerifiedUser.postalCode,
-                TestData.VerifiedUser.country,
+                testCard.address.addressLine1,
+                testCard.address.addressLine2,
+                testCard.address.city,
+                testCard.address.state,
+                testCard.address.postalCode,
+                testCard.address.country,
                 TestData.VerifiedUser.fullName
             )
 
@@ -337,16 +359,82 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 expirationMonth(),
                 expirationYear(),
                 testCard.securityCode,
-                TestData.VerifiedUser.addressLine1,
-                TestData.VerifiedUser.addressLine2,
-                TestData.VerifiedUser.city,
-                TestData.VerifiedUser.state,
-                TestData.VerifiedUser.postalCode,
-                TestData.VerifiedUser.country,
+                testCard.address.addressLine1,
+                testCard.address.addressLine2,
+                testCard.address.city,
+                testCard.address.state,
+                testCard.address.postalCode,
+                testCard.address.country,
                 TestData.VerifiedUser.fullName
             )
 
             shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceRequiresUserInteractionException> {
+                createCardFundingSource(
+                    vcClient,
+                    input,
+                    CreateCardFundingSourceOptions(supportedProviders = listOf(provider))
+                )
+            }
+        }
+    }
+
+    @Test
+    fun completeCheckoutFundingSourceShouldThrowWithUnacceptableForBadAVSCheck() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        if (isCheckoutEnabled(vcClient)) {
+            val provider = "checkout"
+            val testCard = TestData.TestCards[provider]?.get("BadAddress") ?: throw AssertionError("Unable to locate test card")
+
+            val input = CreditCardFundingSourceInput(
+                testCard.creditCardNumber,
+                expirationMonth(),
+                expirationYear(),
+                testCard.securityCode,
+                testCard.address.addressLine1,
+                testCard.address.addressLine2,
+                testCard.address.city,
+                testCard.address.state,
+                testCard.address.postalCode,
+                testCard.address.country,
+                TestData.VerifiedUser.fullName
+            )
+
+            shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnacceptableFundingSourceException> {
+                createCardFundingSource(
+                    vcClient,
+                    input,
+                    CreateCardFundingSourceOptions(supportedProviders = listOf(provider))
+                )
+            }
+        }
+    }
+
+    @Test
+    fun completeCheckoutFundingSourceShouldThrowWithUnacceptableForBadCVVCheck() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        if (isCheckoutEnabled(vcClient)) {
+            val provider = "checkout"
+            val testCard = TestData.TestCards[provider]?.get("BadCVV") ?: throw AssertionError("Unable to locate test card")
+
+            val input = CreditCardFundingSourceInput(
+                testCard.creditCardNumber,
+                expirationMonth(),
+                expirationYear(),
+                testCard.securityCode,
+                testCard.address.addressLine1,
+                testCard.address.addressLine2,
+                testCard.address.city,
+                testCard.address.state,
+                testCard.address.postalCode,
+                testCard.address.country,
+                TestData.VerifiedUser.fullName
+            )
+
+            shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnacceptableFundingSourceException> {
                 createCardFundingSource(
                     vcClient,
                     input,
@@ -368,12 +456,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 expirationMonth(),
                 expirationYear(),
                 testCard.securityCode,
-                TestData.VerifiedUser.addressLine1,
-                TestData.VerifiedUser.addressLine2,
-                TestData.VerifiedUser.city,
-                TestData.VerifiedUser.state,
-                TestData.VerifiedUser.postalCode,
-                TestData.VerifiedUser.country,
+                testCard.address.addressLine1,
+                testCard.address.addressLine2,
+                testCard.address.city,
+                testCard.address.state,
+                testCard.address.postalCode,
+                testCard.address.country,
                 TestData.VerifiedUser.fullName
             )
             val fundingSource = createCardFundingSource(
@@ -416,12 +504,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -461,12 +549,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 expirationMonth(),
                 expirationYear(),
                 vTestCard.securityCode,
-                TestData.VerifiedUser.addressLine1,
-                TestData.VerifiedUser.addressLine2,
-                TestData.VerifiedUser.city,
-                TestData.VerifiedUser.state,
-                TestData.VerifiedUser.postalCode,
-                TestData.VerifiedUser.country,
+                vTestCard.address.addressLine1,
+                vTestCard.address.addressLine2,
+                vTestCard.address.city,
+                vTestCard.address.state,
+                vTestCard.address.postalCode,
+                vTestCard.address.country,
                 TestData.VerifiedUser.fullName
             )
             val fundingSource1 = createCardFundingSource(
@@ -486,12 +574,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                     expirationMonth(),
                     expirationYear(),
                     mcTestCard.securityCode,
-                    TestData.VerifiedUser.addressLine1,
-                    TestData.VerifiedUser.addressLine2,
-                    TestData.VerifiedUser.city,
-                    TestData.VerifiedUser.state,
-                    TestData.VerifiedUser.postalCode,
-                    TestData.VerifiedUser.country,
+                    mcTestCard.address.addressLine1,
+                    mcTestCard.address.addressLine2,
+                    mcTestCard.address.city,
+                    mcTestCard.address.state,
+                    mcTestCard.address.postalCode,
+                    mcTestCard.address.country,
                     TestData.VerifiedUser.fullName
                 )
                 val fundingSource2 = createCardFundingSource(
@@ -534,12 +622,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 expirationMonth(),
                 expirationYear(),
                 testCard.securityCode,
-                TestData.VerifiedUser.addressLine1,
-                TestData.VerifiedUser.addressLine2,
-                TestData.VerifiedUser.city,
-                TestData.VerifiedUser.state,
-                TestData.VerifiedUser.postalCode,
-                TestData.VerifiedUser.country,
+                testCard.address.addressLine1,
+                testCard.address.addressLine2,
+                testCard.address.city,
+                testCard.address.state,
+                testCard.address.postalCode,
+                testCard.address.country,
                 TestData.VerifiedUser.fullName
             )
             val fundingSource = createCardFundingSource(
@@ -581,12 +669,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -693,12 +781,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -750,12 +838,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -807,12 +895,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -864,12 +952,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -921,12 +1009,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -978,12 +1066,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -1048,12 +1136,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -1161,12 +1249,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -1250,12 +1338,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -1349,12 +1437,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -1426,12 +1514,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -1504,12 +1592,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -1596,12 +1684,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(
@@ -1774,12 +1862,12 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             expirationMonth(),
             expirationYear(),
             testCard.securityCode,
-            TestData.VerifiedUser.addressLine1,
-            TestData.VerifiedUser.addressLine2,
-            TestData.VerifiedUser.city,
-            TestData.VerifiedUser.state,
-            TestData.VerifiedUser.postalCode,
-            TestData.VerifiedUser.country,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
             TestData.VerifiedUser.fullName
         )
         val fundingSource = createCardFundingSource(

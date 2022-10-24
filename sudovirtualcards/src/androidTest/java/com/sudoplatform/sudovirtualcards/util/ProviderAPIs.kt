@@ -13,23 +13,23 @@ import com.stripe.android.Stripe
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
 
 /**
- * Helper class to manage optional credit card funding source providers
+ * Helper class to manage optional funding source providers.
  */
-class CardProviderAPIs(
+class ProviderAPIs(
     val stripe: Stripe?,
     val checkout: CheckoutAPIClient?
 ) {
     companion object {
         /**
-         * Returns card funding source providers supported by the connected Virtual Cards service.
+         * Returns funding source providers supported by the connected Virtual Cards service.
          *
-         * @param client The Virtual Cards Client for which the funding source provider apis will be returned
-         * @param context Application context
+         * @param client The Virtual Cards Client for which the funding source provider apis will be returned.
+         * @param context Application context.
          */
-        suspend fun getCardProviderAPIs(
+        suspend fun getProviderAPIs(
             client: SudoVirtualCardsClient,
             context: Context
-        ): CardProviderAPIs {
+        ): ProviderAPIs {
             var stripe: Stripe? = null
             var checkout: CheckoutAPIClient? = null
 
@@ -43,7 +43,7 @@ class CardProviderAPIs(
                 }
             }
             stripe ?: throw AssertionError("stripe is mandatory provider, but no client configuration found")
-            return CardProviderAPIs(stripe, checkout)
+            return ProviderAPIs(stripe, checkout)
         }
     }
 }

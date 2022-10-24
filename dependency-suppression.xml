@@ -22,6 +22,7 @@
         file name: kotlin-analysis-intellij-1.6.10.jar (shaded: com.google.protobuf:protobuf-java:2.6.1)
         ]]></notes>
         <cve>CVE-2021-22569</cve>
+        <cve>CVE-2022-3171</cve>
     </suppress>
     <suppress until="2022-12-13">
         <notes><![CDATA[

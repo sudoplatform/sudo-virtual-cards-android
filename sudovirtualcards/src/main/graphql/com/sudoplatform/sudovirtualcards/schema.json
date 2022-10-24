@@ -1346,6 +1346,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "BANK_ACCOUNT",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "CREDIT_CARD",
             "description": null,
             "isDeprecated": false,
