@@ -37,7 +37,6 @@ import kotlinx.coroutines.delay
 import org.bouncycastle.util.encoders.Base64
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 
@@ -220,43 +219,12 @@ class PublicKeyServiceRoboTest : BaseTests() {
         with(result) {
             publicKey shouldBe publicKey
             keyRingId shouldBe "keyRingId"
+            created shouldBe false
         }
 
+        verify(mockUserClient).getSubject()
         verify(mockDeviceKeyManager).getCurrentKey()
         verify(mockAppSyncClient).query(any<GetPublicKeyQuery>())
-    }
-
-    @Test
-    fun `getCurrentRegisteredKey() should return key if present in key manager with cached key ring id`() = runBlocking<Unit> {
-        queryHolder.callback shouldBe null
-
-        mockDeviceKeyManager.stub {
-            on { getCurrentKey() } doReturn deviceKeyPair
-        }
-        mockAppSyncClient.stub {
-            on { query(any<GetPublicKeyQuery>()) } doReturn queryHolder.queryOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            publicKeyService.getCurrentRegisteredKey()
-            publicKeyService.getCurrentRegisteredKey()
-        }
-
-        deferredResult.start()
-
-        delay(100)
-
-        queryHolder.callback shouldNotBe null
-        queryHolder.callback?.onResponse(queryResponse)
-
-        val result = deferredResult.await()
-        with(result) {
-            publicKey shouldBe publicKey
-            keyRingId shouldBe "keyRingId"
-        }
-
-        verify(mockDeviceKeyManager, times(2)).getCurrentKey()
-        verify(mockAppSyncClient, times(1)).query(any<GetPublicKeyQuery>())
     }
 
     @Test
@@ -287,6 +255,7 @@ class PublicKeyServiceRoboTest : BaseTests() {
         with(result) {
             publicKey shouldBe publicKey
             keyRingId shouldBe "$keyRingServiceName.$owner"
+            created shouldBe true
         }
 
         verify(mockDeviceKeyManager).getCurrentKey()
@@ -330,6 +299,7 @@ class PublicKeyServiceRoboTest : BaseTests() {
         with(result) {
             publicKey shouldBe publicKey
             keyRingId shouldBe "$keyRingServiceName.$owner"
+            created shouldBe false
         }
 
         verify(mockDeviceKeyManager).getCurrentKey()

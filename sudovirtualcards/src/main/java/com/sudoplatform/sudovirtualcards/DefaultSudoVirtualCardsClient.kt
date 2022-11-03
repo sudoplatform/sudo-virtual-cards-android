@@ -850,16 +850,8 @@ internal class DefaultSudoVirtualCardsClient(
 
     private suspend fun createAndRegisterKeyPairIfAbsent(): KeyResult {
         try {
-            val created: Boolean
-            var key = publicKeyService.getCurrentKey()
             val keyWithKeyRingId = publicKeyService.getCurrentRegisteredKey()
-            if (key == null) {
-                key = keyWithKeyRingId.publicKey
-                created = true
-            } else {
-                created = false
-            }
-            return KeyResult(created, key.keyId)
+            return KeyResult(keyWithKeyRingId.created, keyWithKeyRingId.publicKey.keyId)
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
             throw e

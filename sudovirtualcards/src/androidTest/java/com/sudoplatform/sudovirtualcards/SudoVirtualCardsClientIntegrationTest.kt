@@ -690,7 +690,11 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val ownershipProof = getOwnershipProof(sudo)
         ownershipProof shouldNotBe null
 
-        vcClient.createKeysIfAbsent()
+        var result = vcClient.createKeysIfAbsent()
+        result.keyPair.created shouldBe true
+
+        result = vcClient.createKeysIfAbsent()
+        result.keyPair.created shouldBe false
 
         val provisionCardInput = ProvisionVirtualCardInput(
             ownershipProofs = listOf(ownershipProof),

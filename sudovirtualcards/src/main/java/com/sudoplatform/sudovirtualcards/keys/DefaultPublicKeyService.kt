@@ -42,8 +42,6 @@ internal class DefaultPublicKeyService(
         const val DEFAULT_ALGORITHM = "RSAEncryptionOAEPAESCBC"
     }
 
-    private val keyRingIdForKey: MutableMap<String, String> = HashMap()
-
     /**
      * Get the current public key of the current key pair, if any.
      *
@@ -52,10 +50,7 @@ internal class DefaultPublicKeyService(
      */
     override fun getCurrentKey(): PublicKey? {
         try {
-            var currentDeviceKeyPair = deviceKeyManager.getCurrentKey()
-            if (currentDeviceKeyPair == null) {
-                return null
-            }
+            val currentDeviceKeyPair = deviceKeyManager.getCurrentKey() ?: return null
 
             return PublicKey(
                 keyId = currentDeviceKeyPair.keyId,
@@ -86,42 +81,30 @@ internal class DefaultPublicKeyService(
      * @returns Current public key with key ring ID
      */
     override suspend fun getCurrentRegisteredKey(): PublicKeyWithKeyRingId {
+        val userId = userClient.getSubject()
+            ?: throw PublicKeyService.PublicKeyServiceException.UserIdNotFoundException("UserId not found")
+        var keyRingId = "$keyRingServiceName.$userId"
+        var created = false
         try {
             var currentDeviceKeyPair = deviceKeyManager.getCurrentKey()
-            val keyRingId: String
             if (currentDeviceKeyPair == null) {
                 currentDeviceKeyPair = deviceKeyManager.generateNewCurrentKeyPair()
-
-                val userId = userClient.getSubject()
-                    ?: throw PublicKeyService.PublicKeyServiceException.UserIdNotFoundException("UserId not found")
-
-                keyRingId = "$keyRingServiceName.$userId"
+                created = true
                 create(
                     keyId = currentDeviceKeyPair.keyId,
                     keyRingId = keyRingId,
                     publicKey = currentDeviceKeyPair.publicKey
                 )
-                keyRingIdForKey[currentDeviceKeyPair.keyId] = keyRingId
             } else {
-                val possibleKeyRingId = keyRingIdForKey[currentDeviceKeyPair.keyId]
-                if (possibleKeyRingId != null) {
-                    keyRingId = possibleKeyRingId
+                val registeredKey = get(currentDeviceKeyPair.keyId, CachePolicy.REMOTE_ONLY)
+                if (registeredKey != null) {
+                    keyRingId = registeredKey.keyRingId
                 } else {
-                    val registeredKey = get(currentDeviceKeyPair.keyId, CachePolicy.REMOTE_ONLY)
-                    if (registeredKey != null) {
-                        keyRingId = registeredKey.keyRingId
-                    } else {
-                        val userId = userClient.getSubject()
-                            ?: throw PublicKeyService.PublicKeyServiceException.UserIdNotFoundException("UserId not found")
-
-                        keyRingId = "$keyRingServiceName.$userId"
-                        create(
-                            keyId = currentDeviceKeyPair.keyId,
-                            keyRingId = keyRingId,
-                            publicKey = currentDeviceKeyPair.publicKey
-                        )
-                    }
-                    keyRingIdForKey[currentDeviceKeyPair.keyId] = keyRingId
+                    create(
+                        keyId = currentDeviceKeyPair.keyId,
+                        keyRingId = keyRingId,
+                        publicKey = currentDeviceKeyPair.publicKey
+                    )
                 }
             }
 
@@ -130,7 +113,8 @@ internal class DefaultPublicKeyService(
                     keyId = currentDeviceKeyPair.keyId,
                     publicKey = currentDeviceKeyPair.publicKey,
                 ),
-                keyRingId = keyRingId
+                keyRingId = keyRingId,
+                created = created
             )
         } catch (e: Throwable) {
             logger.debug("unexpected error $e")
