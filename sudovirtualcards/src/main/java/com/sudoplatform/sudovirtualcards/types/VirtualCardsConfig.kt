@@ -53,16 +53,3 @@ data class FundingSourceSupportInfo(
 data class FundingSourceSupportDetail(
     val cardType: CardType
 ) : Parcelable
-
-/**
- * Representation of an enumeration depicting the type of [FundingSource], in the Sudo
- * Platform Virtual Cards SDK.
- */
-enum class CardType {
-    /** Credit card funding source. */
-    CREDIT,
-    /** Debit card funding source. */
-    DEBIT,
-    /** Prepaid card funding source. */
-    PREPAID,
-}

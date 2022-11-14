@@ -62,6 +62,7 @@ internal object VirtualCardsConfigTransformer {
             CardType.CREDIT -> CardTypeEntity.CREDIT
             CardType.DEBIT -> CardTypeEntity.DEBIT
             CardType.PREPAID -> CardTypeEntity.PREPAID
+            CardType.OTHER -> CardTypeEntity.OTHER
         }
     }
 

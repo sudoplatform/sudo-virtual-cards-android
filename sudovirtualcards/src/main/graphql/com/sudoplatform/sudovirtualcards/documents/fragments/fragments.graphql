@@ -44,6 +44,7 @@ fragment FundingSource on CreditCardFundingSource {
   currency
   last4
   network
+  cardType
 }
 
 fragment SealedAttribute on SealedAttribute {

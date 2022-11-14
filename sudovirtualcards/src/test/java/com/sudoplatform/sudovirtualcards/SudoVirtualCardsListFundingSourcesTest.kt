@@ -22,6 +22,7 @@ import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
+import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource as FundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState
@@ -66,7 +67,8 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
                             FundingSourceState.ACTIVE,
                             "USD",
                             "last4",
-                            CreditCardNetwork.VISA
+                            CreditCardNetwork.VISA,
+                            CardType.CREDIT
                         )
                     )
                 )
@@ -176,7 +178,8 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
                                 FundingSourceState.ACTIVE,
                                 "USD",
                                 "last4",
-                                CreditCardNetwork.VISA
+                                CreditCardNetwork.VISA,
+                                CardType.CREDIT
                             )
                         )
                     )

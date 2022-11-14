@@ -26,6 +26,7 @@ import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardUserInteractionData
 import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource as FundingSourceFragment
 import com.sudoplatform.sudologging.Logger
+import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -117,7 +118,8 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
                     FundingSourceState.ACTIVE,
                     "USD",
                     "last4",
-                    CreditCardNetwork.VISA
+                    CreditCardNetwork.VISA,
+                    CardType.CREDIT
                 )
             )
         )

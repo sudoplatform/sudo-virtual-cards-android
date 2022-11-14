@@ -33,7 +33,8 @@ data class FundingSource(
     val state: State,
     val currency: String,
     val last4: String,
-    val network: CreditCardNetwork
+    val network: CreditCardNetwork,
+    val cardType: CardType
 ) : Parcelable {
     enum class State {
         /** Funding source is active and can be used */

@@ -11,6 +11,8 @@ import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceState
+import com.sudoplatform.sudovirtualcards.types.CardType
+import com.sudoplatform.sudovirtualcards.graphql.type.CardType as GraphQLCardType
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType as GraphqlTypeFundingSourceType
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
@@ -40,7 +42,8 @@ internal object FundingSourceTransformer {
             state = fundingSource.state().toEntityState(),
             currency = fundingSource.currency(),
             last4 = fundingSource.last4(),
-            network = fundingSource.network().toEntityNetwork()
+            network = fundingSource.network().toEntityNetwork(),
+            cardType = fundingSource.cardType().toEntityCardType()
         )
     }
 
@@ -106,6 +109,15 @@ private fun CreditCardNetwork.toEntityNetwork(): FundingSource.CreditCardNetwork
         }
     }
     return FundingSource.CreditCardNetwork.UNKNOWN
+}
+
+private fun GraphQLCardType.toEntityCardType(): CardType {
+    for (value in CardType.values()) {
+        if (value.name == this.name) {
+            return value
+        }
+    }
+    return CardType.UNKNOWN
 }
 
 private fun GraphqlTypeFundingSourceType.toEntityFundingSourceType(): FundingSourceType {
