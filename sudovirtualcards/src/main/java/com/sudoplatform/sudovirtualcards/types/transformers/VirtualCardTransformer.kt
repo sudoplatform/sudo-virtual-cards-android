@@ -212,7 +212,7 @@ internal object VirtualCardTransformer {
     }
 
     private fun SealedCard.Owner.toOwner(): Owner {
-        return Owner(id = fragments().owner()?.id(), issuer = fragments().owner()?.issuer())
+        return Owner(id = fragments().owner().id(), issuer = fragments().owner().issuer())
     }
 
     private fun List<SealedCard.Owner>.toOwners(): List<Owner> {

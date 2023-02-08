@@ -11,13 +11,21 @@ import com.checkout.android_sdk.CheckoutAPIClient
 import com.checkout.android_sdk.Utils.Environment
 import com.stripe.android.Stripe
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType
 
 /**
- * Helper class to manage optional funding source providers.
+ * Helper classes to manage optional funding source providers.
  */
+
 class ProviderAPIs(
     val stripe: Stripe?,
     val checkout: CheckoutAPIClient?
+)
+class FundingSourceProviders(
+    val stripeCardEnabled: Boolean,
+    val checkoutCardEnabled: Boolean,
+    val checkoutBankAccountEnabled: Boolean,
+    val apis: ProviderAPIs
 ) {
     companion object {
         /**
@@ -26,24 +34,36 @@ class ProviderAPIs(
          * @param client The Virtual Cards Client for which the funding source provider apis will be returned.
          * @param context Application context.
          */
-        suspend fun getProviderAPIs(
+        suspend fun getFundingSourceProviders(
             client: SudoVirtualCardsClient,
             context: Context
-        ): ProviderAPIs {
+        ): FundingSourceProviders {
             var stripe: Stripe? = null
             var checkout: CheckoutAPIClient? = null
+            var stripeCardEnabled: Boolean = false
+            var checkoutCardEnabled: Boolean = false
+            var checkoutBankAccountEnabled: Boolean = false
 
             val config = client.getFundingSourceClientConfiguration()
             config.forEach {
                 if (it.type == "stripe") {
                     stripe = Stripe(context, it.apiKey)
+                    stripeCardEnabled = true
                 }
                 if (it.type == "checkout") {
-                    checkout = CheckoutAPIClient(context, it.apiKey, Environment.SANDBOX)
+                    checkout = checkout ?: CheckoutAPIClient(context, it.apiKey, Environment.SANDBOX)
+                    if (it.fundingSourceType == FundingSourceType.CREDIT_CARD) {
+                        checkoutCardEnabled = true
+                    }
+                    if (it.fundingSourceType == FundingSourceType.BANK_ACCOUNT) {
+                        checkoutBankAccountEnabled = true
+                    }
                 }
             }
             stripe ?: throw AssertionError("stripe is mandatory provider, but no client configuration found")
-            return ProviderAPIs(stripe, checkout)
+            return FundingSourceProviders(
+                stripeCardEnabled, checkoutCardEnabled, checkoutBankAccountEnabled, ProviderAPIs(stripe, checkout)
+            )
         }
     }
 }

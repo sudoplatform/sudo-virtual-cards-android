@@ -156,7 +156,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             }
         }
 
-        if (isCheckoutEnabled(vcClient)) {
+        if (isCheckoutCardEnabled(vcClient)) {
             val setupCheckoutCardInput = SetupFundingSourceInput("USD", FundingSourceType.CREDIT_CARD, listOf("checkout"))
             val checkoutCardProvisionalFundingSource = vcClient.setupFundingSource(setupCheckoutCardInput)
 
@@ -202,7 +202,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             }
         }
 
-        if (isCheckoutEnabled(vcClient)) {
+        if (isCheckoutCardEnabled(vcClient)) {
             fundingSourceTypes.forEach {
                 val checkoutSetupInput = SetupFundingSourceInput("AUD", it, listOf("checkout"))
                 shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnsupportedCurrencyException> {
@@ -276,7 +276,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             }
         }
 
-        if (isCheckoutEnabled(vcClient)) {
+        if (isCheckoutCardEnabled(vcClient)) {
             val checkoutInput = CompleteFundingSourceInput(
                 UUID.randomUUID().toString(),
                 CheckoutCardProviderCompletionData(
@@ -321,7 +321,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 vcClient.completeFundingSource(stripeCompleteInput)
             }
         }
-        if (isCheckoutEnabled(vcClient)) {
+        if (isCheckoutCardEnabled(vcClient)) {
             val checkoutSetupInput = SetupFundingSourceInput(
                 "USD",
                 FundingSourceType.CREDIT_CARD,
@@ -350,7 +350,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
-        if (isCheckoutEnabled(vcClient)) {
+        if (isCheckoutCardEnabled(vcClient)) {
             val provider = "checkout"
             val testCard = TestData.TestCards[provider]?.get("Visa-3DS2-1") ?: throw AssertionError("Unable to locate test card")
 
@@ -383,7 +383,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
-        if (isCheckoutEnabled(vcClient)) {
+        if (isCheckoutCardEnabled(vcClient)) {
             val provider = "checkout"
             val testCard = TestData.TestCards[provider]?.get("BadAddress") ?: throw AssertionError("Unable to locate test card")
 
@@ -416,7 +416,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
-        if (isCheckoutEnabled(vcClient)) {
+        if (isCheckoutCardEnabled(vcClient)) {
             val provider = "checkout"
             val testCard = TestData.TestCards[provider]?.get("BadCVV") ?: throw AssertionError("Unable to locate test card")
 

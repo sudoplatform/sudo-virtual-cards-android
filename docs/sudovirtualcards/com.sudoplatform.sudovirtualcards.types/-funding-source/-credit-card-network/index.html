@@ -1,211 +1,275 @@
+<!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>CreditCardNetwork</title>
-<link href="../../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../../";</script>    <script>const storage = localStorage.getItem("dokka-dark-mode")
-const savedDarkMode = storage ? JSON.parse(storage) : false
-if(savedDarkMode === true){
-    document.getElementsByTagName("html")[0].classList.add("theme-dark")
-}</script>
-<script type="text/javascript" src="../../../../scripts/sourceset_dependencies.js" async="async"></script><link href="../../../../styles/style.css" rel="Stylesheet"><link href="../../../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../../../styles/main.css" rel="Stylesheet"><link href="../../../../styles/prism.css" rel="Stylesheet"><link href="../../../../styles/logo-styles.css" rel="Stylesheet"><script type="text/javascript" src="../../../../scripts/clipboard.js" async="async"></script><script type="text/javascript" src="../../../../scripts/navigation-loader.js" async="async"></script><script type="text/javascript" src="../../../../scripts/platform-content-handler.js" async="async"></script><script type="text/javascript" src="../../../../scripts/main.js" defer="defer"></script><script type="text/javascript" src="../../../../scripts/prism.js" async="async"></script>  </head>
-  <body>
-    <div class="navigation-wrapper" id="navigation-wrapper">
-      <div id="leftToggler"><span class="icon-toggler"></span></div>
-      <div class="library-name"><a href="../../../../index.html">sudovirtualcards</a></div>
-      <div></div>
-      <div class="pull-right d-flex"><button id="theme-toggle-button"><span id="theme-toggle"></span></button>
-        <div id="searchBar"></div>
-      </div>
+    <link href="../../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../../";</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="../../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../../styles/style.css" rel="Stylesheet">
+<link href="../../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../../styles/main.css" rel="Stylesheet">
+<link href="../../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+            <a href="../../../../index.html">
+                    <span>sudovirtualcards</span>
+            </a>
     </div>
-    <div id="container">
-      <div id="leftColumn">
+    <div>
+    </div>
+    <div class="pull-right d-flex">
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
         <div id="sideMenu"></div>
-      </div>
-      <div id="main">
-        <div class="main-content" id="content" pageIds="sudovirtualcards::com.sudoplatform.sudovirtualcards.types/FundingSource.CreditCardNetwork///PointingToDeclaration//-2124582697">
-          <div class="breadcrumbs"><a href="../../../../index.html">sudovirtualcards</a>/<a href="../../index.html">com.sudoplatform.sudovirtualcards.types</a>/<a href="../index.html">FundingSource</a>/<a href="index.html">CreditCardNetwork</a></div>
-          <div class="cover ">
-            <h1 class="cover"><span>Credit</span><wbr></wbr><span>Card</span><wbr></wbr><span><span>Network</span></span></h1>
-            <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">enum </span><a href="index.html">CreditCardNetwork</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">FundingSource.CreditCardNetwork</a><span class="token operator">&gt; </span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-          </div>
-          <div class="tabbedcontent">
-            <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Entries">Entries</button><button class="section-tab" data-togglable="Properties">Properties</button></div>
-            <div class="tabs-section-body">
-              <h2 class="tabbedcontent">Entries</h2>
-              <div class="table" data-togglable="Entries"><a data-name="63916868%2FClasslikes%2F-2124582697" anchor-label="UNKNOWN" id="63916868%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="-u-n-k-n-o-w-n/index.html">UNKNOWN</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="63916868%2FClasslikes%2F-2124582697"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-u-n-k-n-o-w-n/index.html">UNKNOWN</a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Unknown network. Please check you have the correct (latest) version of this SDK.</p></div></div></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="1255039614%2FClasslikes%2F-2124582697" anchor-label="OTHER" id="1255039614%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="-o-t-h-e-r/index.html">OTHER</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1255039614%2FClasslikes%2F-2124582697"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-o-t-h-e-r/index.html">OTHER</a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="-1490109389%2FClasslikes%2F-2124582697" anchor-label="VISA" id="-1490109389%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="-v-i-s-a/index.html">VISA</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1490109389%2FClasslikes%2F-2124582697"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-v-i-s-a/index.html">VISA</a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="1877480059%2FClasslikes%2F-2124582697" anchor-label="UNIONPAY" id="1877480059%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="-u-n-i-o-n-p-a-y/index.html">UNIONPAY</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1877480059%2FClasslikes%2F-2124582697"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-u-n-i-o-n-p-a-y/index.html">UNIONPAY</a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="122200802%2FClasslikes%2F-2124582697" anchor-label="MASTERCARD" id="122200802%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="-m-a-s-t-e-r-c-a-r-d/index.html">MASTERCARD</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="122200802%2FClasslikes%2F-2124582697"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-m-a-s-t-e-r-c-a-r-d/index.html">MASTERCARD</a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="-1711581019%2FClasslikes%2F-2124582697" anchor-label="JCB" id="-1711581019%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="-j-c-b/index.html">JCB</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1711581019%2FClasslikes%2F-2124582697"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-j-c-b/index.html">JCB</a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="-617862133%2FClasslikes%2F-2124582697" anchor-label="DISCOVER" id="-617862133%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="-d-i-s-c-o-v-e-r/index.html">DISCOVER</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-617862133%2FClasslikes%2F-2124582697"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-d-i-s-c-o-v-e-r/index.html">DISCOVER</a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="-646895881%2FClasslikes%2F-2124582697" anchor-label="DINERS" id="-646895881%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="-d-i-n-e-r-s/index.html">DINERS</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-646895881%2FClasslikes%2F-2124582697"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-d-i-n-e-r-s/index.html">DINERS</a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="251439189%2FClasslikes%2F-2124582697" anchor-label="AMEX" id="251439189%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="-a-m-e-x/index.html">AMEX</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="251439189%2FClasslikes%2F-2124582697"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-a-m-e-x/index.html">AMEX</a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <h2 class="">Properties</h2>
-              <div class="table" data-togglable="Properties"><a data-name="-372974862%2FProperties%2F-2124582697" anchor-label="name" id="-372974862%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="../../../com.sudoplatform.sudovirtualcards.types.inputs/-funding-source-type/-c-r-e-d-i-t_-c-a-r-d/index.html#-372974862%2FProperties%2F-2124582697">name</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-372974862%2FProperties%2F-2124582697"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="-372974862%2FProperties%2F-2124582697" anchor-label="name" id="-372974862%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="../../../com.sudoplatform.sudovirtualcards.types.inputs/-funding-source-type/-c-r-e-d-i-t_-c-a-r-d/index.html#-372974862%2FProperties%2F-2124582697">name</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-<a data-name="-739389684%2FProperties%2F-2124582697" anchor-label="ordinal" id="-739389684%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-                <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-                  <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex">
-                        <div><a href="../../../com.sudoplatform.sudovirtualcards.types.inputs/-funding-source-type/-c-r-e-d-i-t_-c-a-r-d/index.html#-739389684%2FProperties%2F-2124582697">ordinal</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-739389684%2FProperties%2F-2124582697"></span>
-                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                        </span></span></div>
-                    <div>
-                      <div class="title">
-                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="-739389684%2FProperties%2F-2124582697" anchor-label="ordinal" id="-739389684%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="../../../com.sudoplatform.sudovirtualcards.types.inputs/-funding-source-type/-c-r-e-d-i-t_-c-a-r-d/index.html#-739389684%2FProperties%2F-2124582697">ordinal</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+    </div>
+    <div id="main">
+<div class="main-content" id="content" pageIds="sudovirtualcards::com.sudoplatform.sudovirtualcards.types/FundingSource.CreditCardNetwork///PointingToDeclaration//-2124582697">
+  <div class="breadcrumbs"><a href="../../../../index.html">sudovirtualcards</a><span class="delimiter">/</span><a href="../../index.html">com.sudoplatform.sudovirtualcards.types</a><span class="delimiter">/</span><a href="../index.html">FundingSource</a><span class="delimiter">/</span><span class="current">CreditCardNetwork</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Credit</span><wbr></wbr><span>Card</span><wbr></wbr><span><span>Network</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">enum </span><a href="index.html">CreditCardNetwork</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">FundingSource.CreditCardNetwork</a><span class="token operator">&gt; </span></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Entries">Entries</button><button class="section-tab" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Properties">Properties</button></div>
+    <div class="tabs-section-body">
+      <h2 class="tabbedcontent">Entries</h2>
+      <div class="table" data-togglable="Entries"><a data-name="888296432%2FClasslikes%2F-2124582697" anchor-label="AMEX" id="888296432%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-a-m-e-x/index.html">AMEX</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="888296432%2FClasslikes%2F-2124582697"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-a-m-e-x/index.html">AMEX</a></div></div></div></div>
               </div>
             </div>
           </div>
         </div>
-        <div class="footer"><span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2022 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span></div>
+<a data-name="1687667342%2FClasslikes%2F-2124582697" anchor-label="DINERS" id="1687667342%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-d-i-n-e-r-s/index.html">DINERS</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1687667342%2FClasslikes%2F-2124582697"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-d-i-n-e-r-s/index.html">DINERS</a></div></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1104067066%2FClasslikes%2F-2124582697" anchor-label="DISCOVER" id="1104067066%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-d-i-s-c-o-v-e-r/index.html">DISCOVER</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1104067066%2FClasslikes%2F-2124582697"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-d-i-s-c-o-v-e-r/index.html">DISCOVER</a></div></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1756555872%2FClasslikes%2F-2124582697" anchor-label="JCB" id="-1756555872%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-j-c-b/index.html">JCB</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1756555872%2FClasslikes%2F-2124582697"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-j-c-b/index.html">JCB</a></div></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1126483331%2FClasslikes%2F-2124582697" anchor-label="MASTERCARD" id="1126483331%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-m-a-s-t-e-r-c-a-r-d/index.html">MASTERCARD</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1126483331%2FClasslikes%2F-2124582697"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-m-a-s-t-e-r-c-a-r-d/index.html">MASTERCARD</a></div></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="738892170%2FClasslikes%2F-2124582697" anchor-label="UNIONPAY" id="738892170%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-u-n-i-o-n-p-a-y/index.html">UNIONPAY</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="738892170%2FClasslikes%2F-2124582697"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-u-n-i-o-n-p-a-y/index.html">UNIONPAY</a></div></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-2107907374%2FClasslikes%2F-2124582697" anchor-label="VISA" id="-2107907374%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-v-i-s-a/index.html">VISA</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2107907374%2FClasslikes%2F-2124582697"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-v-i-s-a/index.html">VISA</a></div></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1030797159%2FClasslikes%2F-2124582697" anchor-label="OTHER" id="1030797159%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-o-t-h-e-r/index.html">OTHER</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1030797159%2FClasslikes%2F-2124582697"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-o-t-h-e-r/index.html">OTHER</a></div></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1852908129%2FClasslikes%2F-2124582697" anchor-label="UNKNOWN" id="1852908129%2FClasslikes%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-u-n-k-n-o-w-n/index.html">UNKNOWN</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1852908129%2FClasslikes%2F-2124582697"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><div class="block"><a href="-u-n-k-n-o-w-n/index.html">UNKNOWN</a></div></div><div class="brief "><p class="paragraph">Unknown network. Please check you have the correct (latest) version of this SDK.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Functions</h2>
+      <div class="table" data-togglable="Functions"><a data-name="-1957923759%2FFunctions%2F-2124582697" anchor-label="valueOf" id="-1957923759%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="value-of.html"><span>value</span><wbr></wbr><span><span>Of</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1957923759%2FFunctions%2F-2124582697"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="value-of.html"><span class="token function">valueOf</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">FundingSource.CreditCardNetwork</a></div><div class="brief "><p class="paragraph">Returns the enum constant of this type with the specified name. The string must match exactly an identifier used to declare an enum constant in this type. (Extraneous whitespace characters are not permitted.)</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="837989149%2FFunctions%2F-2124582697" anchor-label="values" id="837989149%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="values.html"><span><span>values</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="837989149%2FFunctions%2F-2124582697"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="values.html"><span class="token function">values</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">FundingSource.CreditCardNetwork</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns an array containing the constants of this enum type, in the order they're declared.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Properties</h2>
+      <div class="table" data-togglable="Properties"><a data-name="-372974862%2FProperties%2F-2124582697" anchor-label="name" id="-372974862%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../../com.sudoplatform.sudovirtualcards.types.inputs/-funding-source-type/-b-a-n-k_-a-c-c-o-u-n-t/index.html#-372974862%2FProperties%2F-2124582697"><span><span>name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-372974862%2FProperties%2F-2124582697"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="-372974862%2FProperties%2F-2124582697" anchor-label="name" id="-372974862%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="../../../com.sudoplatform.sudovirtualcards.types.inputs/-funding-source-type/-b-a-n-k_-a-c-c-o-u-n-t/index.html#-372974862%2FProperties%2F-2124582697">name</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-739389684%2FProperties%2F-2124582697" anchor-label="ordinal" id="-739389684%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../../com.sudoplatform.sudovirtualcards.types.inputs/-funding-source-type/-b-a-n-k_-a-c-c-o-u-n-t/index.html#-739389684%2FProperties%2F-2124582697"><span><span>ordinal</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-739389684%2FProperties%2F-2124582697"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="-739389684%2FProperties%2F-2124582697" anchor-label="ordinal" id="-739389684%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="../../../com.sudoplatform.sudovirtualcards.types.inputs/-funding-source-type/-b-a-n-k_-a-c-c-o-u-n-t/index.html#-739389684%2FProperties%2F-2124582697">ordinal</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </body>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2023 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+</body>
 </html>
-

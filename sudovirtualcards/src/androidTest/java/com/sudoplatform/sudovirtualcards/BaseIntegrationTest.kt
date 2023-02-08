@@ -34,7 +34,7 @@ import com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInp
 import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
-import com.sudoplatform.sudovirtualcards.util.ProviderAPIs
+import com.sudoplatform.sudovirtualcards.util.FundingSourceProviders
 import com.sudoplatform.sudovirtualcards.util.CheckoutTokenWorker
 import com.sudoplatform.sudovirtualcards.util.LocaleUtil
 import com.sudoplatform.sudovirtualcards.util.StripeIntentWorker
@@ -100,7 +100,7 @@ abstract class BaseIntegrationTest {
         KeyManagerFactory(context).createAndroidKeyManager("vc-client-test")
     }
 
-    private var fundingSourceAPIs: ProviderAPIs? = null
+    private var fundingSourceProviders: FundingSourceProviders? = null
 
     private fun readTextFile(fileName: String): String {
         return context.assets.open(fileName).bufferedReader().use {
@@ -123,8 +123,7 @@ abstract class BaseIntegrationTest {
     /** Returns the next calendar month. */
     protected fun expirationMonth(): Int {
         val calendar = Calendar.getInstance()
-        calendar.add(Calendar.MONTH, 1)
-        return calendar.get(Calendar.MONTH)
+        return calendar.get(Calendar.MONTH) + 1
     }
 
     /** Returns the next calendar year. */
@@ -214,7 +213,7 @@ abstract class BaseIntegrationTest {
         options: CreateCardFundingSourceOptions
     ): FundingSource {
 
-        val cardProviderAPIs = fundingSourceAPIs ?: determineFundingSourceProviderAPIs(client)
+        val cardProviders = fundingSourceProviders ?: determineFundingSourceProviders(client)
         // Perform the funding source setup operation
         val setupInput = SetupFundingSourceInput(options.currency, FundingSourceType.CREDIT_CARD, options.supportedProviders)
         val provisionalFundingSource = client.setupFundingSource(setupInput)
@@ -225,8 +224,8 @@ abstract class BaseIntegrationTest {
         when (provisionalData.provider) {
             "stripe" -> {
                 // Process stripe data
-                cardProviderAPIs.stripe ?: throw AssertionError("No stripe API but provisioning data is for stripe")
-                val stripeIntentWorker = StripeIntentWorker(context, cardProviderAPIs.stripe)
+                cardProviders.apis.stripe ?: throw AssertionError("No stripe API but provisioning data is for stripe")
+                val stripeIntentWorker = StripeIntentWorker(context, cardProviders.apis.stripe)
                 completionData = stripeIntentWorker.confirmSetupIntent(
                     input,
                     (provisionalFundingSource.provisioningData as StripeCardProvisioningData).clientSecret
@@ -234,10 +233,10 @@ abstract class BaseIntegrationTest {
             }
             "checkout" -> {
                 // Process checkout data
-                cardProviderAPIs.checkout ?: throw AssertionError("No checkout API but provisioning data is for checkout")
+                cardProviders.apis.checkout ?: throw AssertionError("No checkout API but provisioning data is for checkout")
                 input.name ?: throw java.lang.AssertionError("Checkout requires cardholder name")
 
-                val checkoutTokenWorker = CheckoutTokenWorker(cardProviderAPIs.checkout)
+                val checkoutTokenWorker = CheckoutTokenWorker(cardProviders.apis.checkout)
                 completionData = checkoutTokenWorker.generatePaymentToken(input)
             }
             else -> {
@@ -327,36 +326,43 @@ abstract class BaseIntegrationTest {
     }
 
     protected suspend fun getProvidersList(client: SudoVirtualCardsClient): List<String> {
-        val apis = determineFundingSourceProviderAPIs(client)
-        val providers = mutableListOf<String>()
-        if (apis.checkout != null) {
-            providers.add("checkout")
+        val providers = determineFundingSourceProviders(client)
+        val cardProviders = mutableListOf<String>()
+        if (providers.checkoutCardEnabled) {
+            cardProviders.add("checkout")
         }
-        if (apis.stripe != null) {
-            providers.add("stripe")
+        if (providers.stripeCardEnabled) {
+            cardProviders.add("stripe")
         }
-        return providers
+        return cardProviders
     }
 
     protected suspend fun isStripeEnabled(client: SudoVirtualCardsClient): Boolean {
-        return (determineFundingSourceProviderAPIs(client).stripe != null)
+        return determineFundingSourceProviders(client).stripeCardEnabled
     }
 
     protected suspend fun isCheckoutEnabled(client: SudoVirtualCardsClient): Boolean {
-        return (determineFundingSourceProviderAPIs(client).checkout != null)
+        val providers = determineFundingSourceProviders(client)
+        return providers.checkoutCardEnabled || providers.checkoutBankAccountEnabled
+    }
+    protected suspend fun isCheckoutCardEnabled(client: SudoVirtualCardsClient): Boolean {
+        return determineFundingSourceProviders(client).checkoutCardEnabled
+    }
+    protected suspend fun isCheckoutBankAccountEnabled(client: SudoVirtualCardsClient): Boolean {
+        return determineFundingSourceProviders(client).checkoutBankAccountEnabled
     }
     protected suspend fun getProviderToUse(client: SudoVirtualCardsClient): String {
         if (isStripeEnabled(client)) {
             return "stripe"
         }
-        if (isCheckoutEnabled(client)) {
+        if (isCheckoutCardEnabled(client)) {
             return "checkout"
         }
         throw AssertionError("No card funding source providers available")
     }
 
-    private suspend fun determineFundingSourceProviderAPIs(client: SudoVirtualCardsClient): ProviderAPIs {
-        fundingSourceAPIs = fundingSourceAPIs ?: ProviderAPIs.getProviderAPIs(client, context)
-        return fundingSourceAPIs ?: throw AssertionError("CardFundingSourceProviders not set")
+    private suspend fun determineFundingSourceProviders(client: SudoVirtualCardsClient): FundingSourceProviders {
+        fundingSourceProviders = fundingSourceProviders ?: FundingSourceProviders.getFundingSourceProviders(client, context)
+        return fundingSourceProviders ?: throw AssertionError("CardFundingSourceProviders not set")
     }
 }

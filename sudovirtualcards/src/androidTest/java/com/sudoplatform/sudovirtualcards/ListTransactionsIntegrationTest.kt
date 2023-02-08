@@ -26,6 +26,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 
 @RunWith(AndroidJUnit4::class)
@@ -288,22 +289,45 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
         simulateTransactions(card)
 
-        val transactionsWithLimit = await.atMost(Duration.TEN_SECONDS) withPollInterval Duration.ONE_HUNDRED_MILLISECONDS untilCallTo {
+        // SimulateTransactions creates two transactions, one at a time. So this transactionsWithLimit call can return
+        // a single transaction and no nextToken, but in order to verify that it has worked, we need to wait for a single
+        // transaction and a valid nextToken.
+        val transactionsWithLimit = await.atMost(
+            Duration(
+                12, TimeUnit.SECONDS
+            )
+        ) withPollInterval Duration.TWO_HUNDRED_MILLISECONDS untilCallTo {
             runBlocking {
                 vcClient.listTransactionsByCardId(
                     cardId = card.id,
                     limit = 1
                 )
             }
-        } has { (this as ListAPIResult.Success<Transaction>).result.items.size == 1 }
+        } has {
+            (this as ListAPIResult.Success<Transaction>).result.items.size == 1 &&
+                (this.result.nextToken != null)
+        }
 
         when (transactionsWithLimit) {
             is ListAPIResult.Success -> {
                 transactionsWithLimit.result.items shouldHaveSize 1
-                transactionsWithLimit.result.nextToken shouldBe null
+                transactionsWithLimit.result.nextToken shouldNotBe null
             }
             else -> {
-                Assert.fail("Unexpected ListAPIResult")
+                Assert.fail("Unexpected ListAPIResult - listTransactionsByCardId did not result in more than 1 transaction")
+            }
+        }
+        val pagedTransactions = vcClient.listTransactionsByCardId(
+            cardId = card.id,
+            nextToken = (transactionsWithLimit as ListAPIResult.Success<Transaction>).result.nextToken
+        )
+        when (pagedTransactions) {
+            is ListAPIResult.Success -> {
+                pagedTransactions.result.items shouldHaveSize 1
+                pagedTransactions.result.nextToken shouldBe null
+            }
+            else -> {
+                Assert.fail("Unexpected ListAPIResult - paged listTransactionsByCardId did not return additional transaction")
             }
         }
     }
@@ -619,21 +643,40 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
         simulateTransactions(card)
 
-        val transactionsWithLimit = await.atMost(Duration.TEN_SECONDS) withPollInterval Duration.ONE_HUNDRED_MILLISECONDS untilCallTo {
+        val transactionsWithLimit = await.atMost(
+            Duration(
+                12, TimeUnit.SECONDS
+            )
+        ) withPollInterval Duration.TWO_HUNDRED_MILLISECONDS untilCallTo {
             runBlocking {
                 vcClient.listTransactions(
                     limit = 1
                 )
             }
-        } has { (this as ListAPIResult.Success<Transaction>).result.items.size == 1 }
+        } has {
+            (this as ListAPIResult.Success<Transaction>).result.items.size == 1 &&
+                (this.result.nextToken != null)
+        }
 
         when (transactionsWithLimit) {
             is ListAPIResult.Success -> {
                 transactionsWithLimit.result.items shouldHaveSize 1
-                transactionsWithLimit.result.nextToken shouldBe null
+                transactionsWithLimit.result.nextToken shouldNotBe null
             }
             else -> {
-                Assert.fail("Unexpected ListAPIResult")
+                Assert.fail("Unexpected ListAPIResult - listTransactions did not result in more than one transaction")
+            }
+        }
+        val pagedTransactions = vcClient.listTransactions(
+            nextToken = (transactionsWithLimit as ListAPIResult.Success<Transaction>).result.nextToken
+        )
+        when (pagedTransactions) {
+            is ListAPIResult.Success -> {
+                pagedTransactions.result.items shouldHaveSize 1
+                pagedTransactions.result.nextToken shouldBe null
+            }
+            else -> {
+                Assert.fail("Unexpected ListAPIResult - paged listTransactions did not return additional transaction")
             }
         }
     }
