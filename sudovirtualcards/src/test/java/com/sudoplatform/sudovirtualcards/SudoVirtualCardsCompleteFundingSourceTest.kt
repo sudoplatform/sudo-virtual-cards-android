@@ -25,6 +25,7 @@ import com.sudoplatform.sudovirtualcards.types.CheckoutCardProviderCompletionDat
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardUserInteractionData
 import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource as FundingSourceFragment
+import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource.TransactionVelocity
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType
@@ -117,6 +118,11 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
                     10.0,
                     FundingSourceState.ACTIVE,
                     "USD",
+                    TransactionVelocity(
+                        "TransactionVelocity",
+                        10000,
+                        listOf("10000/P1D")
+                    ),
                     "last4",
                     CreditCardNetwork.VISA,
                     CardType.CREDIT

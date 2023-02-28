@@ -105,6 +105,11 @@ type SealedCardConnection {
   nextToken: String
 }
 
+type TransactionVelocity {
+  maximum: Int
+  velocity: [String!]
+}
+
 type CreditCardFundingSource implements CommonObject {
   id: ID!
   owner: ID!
@@ -113,6 +118,7 @@ type CreditCardFundingSource implements CommonObject {
   updatedAtEpochMs: Float!
   state: FundingSourceState!
   currency: String!
+  transactionVelocity: TransactionVelocity
   last4: String!
   network: CreditCardNetwork!
   cardType: CardType!

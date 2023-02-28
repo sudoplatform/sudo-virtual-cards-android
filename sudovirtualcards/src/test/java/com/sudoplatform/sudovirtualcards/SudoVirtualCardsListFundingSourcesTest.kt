@@ -24,6 +24,7 @@ import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource as FundingSourceFragment
+import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource.TransactionVelocity
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
@@ -66,6 +67,11 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
                             10.0,
                             FundingSourceState.ACTIVE,
                             "USD",
+                            TransactionVelocity(
+                                "TransactionVelocity",
+                                10000,
+                                listOf("10000/P1D")
+                            ),
                             "last4",
                             CreditCardNetwork.VISA,
                             CardType.CREDIT
@@ -177,6 +183,11 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
                                 10.0,
                                 FundingSourceState.ACTIVE,
                                 "USD",
+                                TransactionVelocity(
+                                    "TransactionVelocity",
+                                    10000,
+                                    listOf("10000/P1D")
+                                ),
                                 "last4",
                                 CreditCardNetwork.VISA,
                                 CardType.CREDIT

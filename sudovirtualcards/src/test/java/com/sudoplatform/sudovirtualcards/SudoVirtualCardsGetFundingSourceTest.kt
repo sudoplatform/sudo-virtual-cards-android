@@ -24,6 +24,7 @@ import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceQuery
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource as FundingSourceFragment
+import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource.TransactionVelocity
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState
 import com.sudoplatform.sudovirtualcards.types.FundingSource
@@ -62,6 +63,11 @@ class SudoVirtualCardsGetFundingSourceTest : BaseTests() {
                     10.0,
                     FundingSourceState.ACTIVE,
                     "USD",
+                    TransactionVelocity(
+                        "TransactionVelocity",
+                        10000,
+                        listOf("10000/P1D")
+                    ),
                     "last4",
                     CreditCardNetwork.VISA,
                     CardType.CREDIT
@@ -141,6 +147,8 @@ class SudoVirtualCardsGetFundingSourceTest : BaseTests() {
             currency shouldBe "USD"
             last4 shouldBe "last4"
             network shouldBe FundingSource.CreditCardNetwork.VISA
+            transactionVelocity?.maximum shouldBe 10000
+            transactionVelocity?.velocity shouldBe listOf("10000/P1D")
         }
 
         verify(mockAppSyncClient).query(any<GetFundingSourceQuery>())

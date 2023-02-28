@@ -109,4 +109,18 @@
         <packageUrl regex="true">^pkg:maven/androidx\.legacy/legacy\-support\-core\-utils@.*$</packageUrl>
         <cve>CVE-2021-4277</cve>
     </suppress>
+    <suppress until="2023-07-03">
+        <notes><![CDATA[
+   file name: jackson-core-2.12.7.jar
+   ]]>Used by dokka and not subject to malicious input</notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress until="2023-07-03">
+        <notes><![CDATA[
+   file name: stax2-api-4.2.1.jar
+   ]]>Used by dokka and not subject to malicious input</notes>
+        <packageUrl regex="true">^pkg:maven/org\.codehaus\.woodstox/stax2\-api@.*$</packageUrl>
+        <cve>CVE-2022-40152</cve>
+    </suppress>
 </suppressions>

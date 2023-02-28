@@ -24,6 +24,7 @@ import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.CancelFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource as FundingSourceFragment
+import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource.TransactionVelocity
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState
 import com.sudoplatform.sudovirtualcards.graphql.type.IdInput
@@ -67,6 +68,11 @@ class SudoVirtualCardsCancelFundingSourceTest : BaseTests() {
                     10.0,
                     FundingSourceState.INACTIVE,
                     "USD",
+                    TransactionVelocity(
+                        "TransactionVelocity",
+                        10000,
+                        listOf("10000/P1D")
+                    ),
                     "last4",
                     CreditCardNetwork.VISA,
                     CardType.CREDIT,

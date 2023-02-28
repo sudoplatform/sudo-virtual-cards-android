@@ -20,6 +20,12 @@ import java.util.Date
  * @property updatedAt [Date] Date when the funding source was last updated.
  * @property state [State] Current state of the funding source.
  * @property currency [String] Billing currency of the funding source as a 3 character ISO 4217 currency code.
+ * @property transactionVelocity [TransactionVelocity]
+ *   Effective transaction velocity, if any, applied to
+ *   virtual card transactions funded by this funding source.
+ *   This is the combined result of all velocity policies
+ *   (global and funding source specific) as at the time this funding
+ *   source was retrieved.
  * @property last4 [String] Last 4 digits of the credit card used as the funding source.
  * @property network [CreditCardNetwork] Payments network of the funding source.
  */
@@ -32,6 +38,7 @@ data class FundingSource(
     val updatedAt: Date,
     val state: State,
     val currency: String,
+    val transactionVelocity: TransactionVelocity? = null,
     val last4: String,
     val network: CreditCardNetwork,
     val cardType: CardType

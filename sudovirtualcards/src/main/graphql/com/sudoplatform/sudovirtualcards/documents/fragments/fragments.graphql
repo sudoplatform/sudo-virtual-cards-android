@@ -42,6 +42,10 @@ fragment FundingSource on CreditCardFundingSource {
   updatedAtEpochMs
   state
   currency
+  transactionVelocity {
+    maximum
+    velocity
+  }
   last4
   network
   cardType

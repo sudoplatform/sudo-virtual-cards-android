@@ -14,8 +14,10 @@ import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceSt
 import com.sudoplatform.sudovirtualcards.types.CardType
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType as GraphQLCardType
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType as GraphqlTypeFundingSourceType
+import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource.TransactionVelocity as GraphqlTransactionVelocityType
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
+import com.sudoplatform.sudovirtualcards.types.TransactionVelocity
 import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceType
 import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource as FundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalFundingSource as ProvisionalFundingSourceFragment
@@ -41,6 +43,7 @@ internal object FundingSourceTransformer {
             updatedAt = fundingSource.updatedAtEpochMs().toDate(),
             state = fundingSource.state().toEntityState(),
             currency = fundingSource.currency(),
+            transactionVelocity = fundingSource.transactionVelocity()?.toEntityTransactionVelocity(),
             last4 = fundingSource.last4(),
             network = fundingSource.network().toEntityNetwork(),
             cardType = fundingSource.cardType().toEntityCardType()
@@ -127,4 +130,12 @@ private fun GraphqlTypeFundingSourceType.toEntityFundingSourceType(): FundingSou
         }
     }
     return FundingSourceType.CREDIT_CARD
+}
+
+private fun GraphqlTransactionVelocityType.toEntityTransactionVelocity(): TransactionVelocity? {
+    if (this.maximum() == null && this.velocity() == null) {
+        return null
+    }
+
+    return TransactionVelocity(this.maximum(), this.velocity())
 }

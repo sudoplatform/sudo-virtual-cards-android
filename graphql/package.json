@@ -7,11 +7,11 @@
     "codegen": "graphql-codegen -c codegen.yml"
   },
   "devDependencies": {
-    "@graphql-codegen/add": "^3.2.1",
-    "@graphql-codegen/cli": "^2.13.11",
-    "@graphql-codegen/introspection": "^2.2.1",
-    "@types/node": "^18.11.9",
+    "@graphql-codegen/add": "^4.0.1",
+    "@graphql-codegen/cli": "^3.2.1",
+    "@graphql-codegen/introspection": "^3.0.1",
+    "@types/node": "^18.14.1",
     "graphql": "^16.6.0",
-    "typescript": "^4.8.4"
+    "typescript": "^4.9.5"
   }
 }
