@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -20,12 +20,13 @@ import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalFundingSour
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceState
 import com.sudoplatform.sudovirtualcards.graphql.type.SetupFundingSourceRequest
+import com.sudoplatform.sudovirtualcards.types.AuthorizationText
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardProvisioningData
 import com.sudoplatform.sudovirtualcards.types.ProvisioningData
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
-import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceType as FundingSourceTypeEntity
+import com.sudoplatform.sudovirtualcards.types.FundingSourceType as FundingSourceTypeEntity
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -87,7 +88,8 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             "checkoutBankAccount" to SetupFundingSourceInput(
                 "USD",
                 FundingSourceTypeEntity.BANK_ACCOUNT,
-                listOf("checkout")
+                listOf("checkout"),
+                "en-US"
             )
         )
     }
@@ -113,16 +115,35 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
     // Compile-time test of backwards compatibility.
     val backwardCompatibilityProviderProvisioningData = ProvisioningData("stripe", 1, "intent", "clientSecret")
 
+    private val authorizationText = AuthorizationText(
+        "en-US",
+        "content",
+        "contentType",
+        "hash",
+        "hashAlgorithm"
+    )
     private val expectedProvisioningData = mapOf(
-        "stripe" to StripeCardProvisioningData("stripe", 1, "intent", "clientSecret", FundingSourceType.CREDIT_CARD),
-        "checkoutCard" to CheckoutCardProvisioningData("checkout", 1, FundingSourceType.CREDIT_CARD),
-        "checkoutBankAccount" to CheckoutBankAccountProvisioningData("checkout", 1, FundingSourceType.BANK_ACCOUNT, "linkToken")
+        "stripe" to StripeCardProvisioningData("stripe", 1, "intent", "clientSecret", FundingSourceTypeEntity.CREDIT_CARD),
+        "checkoutCard" to CheckoutCardProvisioningData("checkout", 1, FundingSourceTypeEntity.CREDIT_CARD),
+        "checkoutBankAccount" to CheckoutBankAccountProvisioningData(
+            "checkout",
+            1,
+            FundingSourceTypeEntity.BANK_ACCOUNT,
+            "linkToken",
+            listOf(authorizationText)
+        )
     )
 
     private val mutationResult by before {
-        val stripeSetupData = StripeCardProvisioningData("stripe", 1, "intent", "clientSecret", FundingSourceType.CREDIT_CARD)
-        val checkoutCardSetupData = CheckoutCardProvisioningData("checkout", 1, FundingSourceType.CREDIT_CARD)
-        val checkoutBankAccountSetupData = CheckoutBankAccountProvisioningData("checkout", 1, FundingSourceType.BANK_ACCOUNT, "linkToken")
+        val stripeSetupData = StripeCardProvisioningData("stripe", 1, "intent", "clientSecret", FundingSourceTypeEntity.CREDIT_CARD)
+        val checkoutCardSetupData = CheckoutCardProvisioningData("checkout", 1, FundingSourceTypeEntity.CREDIT_CARD)
+        val checkoutBankAccountSetupData = CheckoutBankAccountProvisioningData(
+            "checkout",
+            1,
+            FundingSourceTypeEntity.BANK_ACCOUNT,
+            "linkToken",
+            listOf(authorizationText)
+        )
 
         mapOf(
             "stripe" to
@@ -253,13 +274,13 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
         mutationHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
-            client.setupFundingSource(input[provider] ?: throw missingProvider())
+            client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
         }
         deferredResult.start()
 
         delay(100L)
         mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(mutationResponse[provider] ?: throw missingProvider())
+        mutationHolder.callback?.onResponse(mutationResponse[provider] ?: throw missingProvider(provider))
 
         val result = deferredResult.await()
         result shouldNotBe null
@@ -271,7 +292,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             createdAt shouldNotBe null
             updatedAt shouldNotBe null
             state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
-            provisioningData shouldBe (expectedProvisioningData[provider] ?: throw missingProvider())
+            provisioningData shouldBe (expectedProvisioningData[provider] ?: throw missingProvider(provider))
         }
 
         verify(mockAppSyncClient).mutate<
@@ -293,7 +314,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
         val nullMutationResponse by before {
             Response
                 .builder<SetupFundingSourceMutation.Data>(
-                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider())
+                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider(provider))
                 )
                 .data(null)
                 .build()
@@ -301,7 +322,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<SudoVirtualCardsClient.FundingSourceException.SetupFailedException> {
-                client.setupFundingSource(input[provider] ?: throw missingProvider())
+                client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
             }
         }
         deferredResult.start()
@@ -341,7 +362,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             )
             Response
                 .builder<SetupFundingSourceMutation.Data>(
-                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider())
+                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider(provider))
                 )
                 .errors(listOf(error))
                 .data(null)
@@ -383,7 +404,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             )
             Response
                 .builder<SetupFundingSourceMutation.Data>(
-                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider())
+                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider(provider))
                 )
                 .errors(listOf(error))
                 .data(null)
@@ -392,7 +413,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<SudoVirtualCardsClient.FundingSourceException.AccountLockedException> {
-                client.setupFundingSource(input[provider] ?: throw missingProvider())
+                client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
             }
         }
         deferredResult.start()
@@ -425,7 +446,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             )
             Response
                 .builder<SetupFundingSourceMutation.Data>(
-                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider())
+                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider(provider))
                 )
                 .errors(listOf(error))
                 .data(null)
@@ -434,7 +455,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<SudoVirtualCardsClient.FundingSourceException.EntitlementExceededException> {
-                client.setupFundingSource(input[provider] ?: throw missingProvider())
+                client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
             }
         }
         deferredResult.start()
@@ -467,7 +488,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             )
             Response
                 .builder<SetupFundingSourceMutation.Data>(
-                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider())
+                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider(provider))
                 )
                 .errors(listOf(error))
                 .data(null)
@@ -476,7 +497,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<SudoVirtualCardsClient.FundingSourceException.VelocityExceededException> {
-                client.setupFundingSource(input[provider] ?: throw missingProvider())
+                client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
             }
         }
         deferredResult.start()
@@ -503,7 +524,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<SudoVirtualCardsClient.FundingSourceException.SetupFailedException> {
-                client.setupFundingSource(input[provider] ?: throw missingProvider())
+                client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
             }
         }
         deferredResult.start()
@@ -549,7 +570,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnknownException> {
-                client.setupFundingSource(input[provider] ?: throw missingProvider())
+                client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
             }
         }
         deferredResult.start()
@@ -579,7 +600,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<CancellationException> {
-                client.setupFundingSource(input[provider] ?: throw missingProvider())
+                client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
             }
         }
         deferredResult.start()
@@ -596,9 +617,5 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                 it.variables().input().type() shouldBe mutationRequest[provider]?.type()
             }
         )
-    }
-
-    private fun missingProvider(): java.lang.AssertionError {
-        return AssertionError("Missing provider $provider")
     }
 }

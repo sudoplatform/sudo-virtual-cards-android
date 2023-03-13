@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -138,6 +138,16 @@ class DeviceKeyManagerExceptionTest : BaseTests() {
                 "42",
                 ByteArray(42)
             )
+        }
+    }
+
+    @Test
+    fun signWithPrivateKeyIdShouldThrowIfKeyManagerThrows() {
+        mockKeyManager.stub {
+            on { generateSignatureWithPrivateKey(anyString(), any()) } doThrow KeyManagerException("mock")
+        }
+        shouldThrow<DeviceKeyManager.DeviceKeyManagerException.SigningException> {
+            deviceKeyManager.signWithPrivateKeyId("42", ByteArray(42))
         }
     }
 

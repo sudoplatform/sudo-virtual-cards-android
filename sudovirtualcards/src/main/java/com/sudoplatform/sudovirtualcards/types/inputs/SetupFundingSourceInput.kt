@@ -1,12 +1,12 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.sudoplatform.sudovirtualcards.types.inputs
 
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType as FundingSourceTypeInput
+import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 
 /**
  * Input object containing the information required to setup a funding source.
@@ -14,29 +14,16 @@ import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType as Fundi
  * @property currency [String] The ISO 4217 currency code that is being used for the setup.
  * @property type [FundingSourceType] The type of funding source being setup.
  * @property supportedProviders [List<String>] The set of providers supported by this client.
+ * @property language [String] Some funding source types require presentation of end-user language
+ *  specific agreements. This property allows the client application to specify the user's
+ *  preferred language. If such presentation is required and has no translation in the requested
+ *  language or no preferred language is specified, the default translation will be presented.
+ *  The default is a property of service instance configuration. The value is an RFC 5646 language
+ *  tag e.g. en-US.
  */
 data class SetupFundingSourceInput(
     val currency: String,
     val type: FundingSourceType,
-    val supportedProviders: List<String>? = null
+    val supportedProviders: List<String>? = null,
+    val language: String? = null
 )
-
-/**
- * Representation of an enumeration depicting the funding source type in the
- * Sudo Platform Virtual Cards SDK.
- */
-enum class FundingSourceType {
-    CREDIT_CARD,
-    BANK_ACCOUNT;
-
-    fun toFundingSourceTypeInput(fundingSourceType: FundingSourceType): FundingSourceTypeInput {
-        return when (fundingSourceType) {
-            CREDIT_CARD -> {
-                FundingSourceTypeInput.CREDIT_CARD
-            }
-            BANK_ACCOUNT -> {
-                FundingSourceTypeInput.BANK_ACCOUNT
-            }
-        }
-    }
-}

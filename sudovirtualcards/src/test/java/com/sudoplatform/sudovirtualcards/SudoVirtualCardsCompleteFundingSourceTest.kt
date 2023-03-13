@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -8,27 +8,36 @@ package com.sudoplatform.sudovirtualcards
 
 import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
-import com.amazonaws.util.Base64
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
 import com.google.gson.Gson
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudouser.SudoUserClient
-import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
-import com.sudoplatform.sudovirtualcards.graphql.CompleteFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.type.CompleteFundingSourceRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as FundingSourceStateGraphQL
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
-import com.sudoplatform.sudovirtualcards.types.StripeCardProviderCompletionData
-import com.sudoplatform.sudovirtualcards.types.CheckoutCardProviderCompletionData
-import com.sudoplatform.sudovirtualcards.types.FundingSource
-import com.sudoplatform.sudovirtualcards.types.CheckoutCardUserInteractionData
-import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource as FundingSourceFragment
-import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource.TransactionVelocity
 import com.sudoplatform.sudologging.Logger
+import com.sudoplatform.sudouser.PublicKey
+import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
+import com.sudoplatform.sudovirtualcards.graphql.CompleteFundingSourceMutation
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAttribute
+import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType as BankAccountTypeGraphQL
+import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource.Authorization as AuthorizationGraphQL
+import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource as BankAccountFundingSourceGraphQL
+import com.sudoplatform.sudovirtualcards.graphql.fragment.CreditCardFundingSource as CreditCardFundingSourceGraphQL
+import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource.InstitutionName as InstitutionNameGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType
+import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
+import com.sudoplatform.sudovirtualcards.types.AuthorizationText
+import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
+import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderCompletionData
+import com.sudoplatform.sudovirtualcards.types.CheckoutCardProviderCompletionData
+import com.sudoplatform.sudovirtualcards.types.CheckoutCardUserInteractionData
+import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
+import com.sudoplatform.sudovirtualcards.types.FundingSourceState
+import com.sudoplatform.sudovirtualcards.types.FundingSourceType
+import com.sudoplatform.sudovirtualcards.types.StripeCardProviderCompletionData
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
@@ -39,11 +48,14 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Protocol
 import okhttp3.ResponseBody.Companion.toResponseBody
+import org.bouncycastle.util.encoders.Base64
 import org.junit.After
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
 import org.mockito.kotlin.check
 import org.mockito.kotlin.doReturn
@@ -67,7 +79,8 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         fun data(): Collection<String> {
             return listOf(
                 "stripe",
-                "checkout"
+                "checkoutCard",
+                "checkoutBankAccount"
             )
         }
     }
@@ -80,21 +93,37 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
                 "paymentMethod",
                 FundingSourceType.CREDIT_CARD
             ),
-            "checkout" to CheckoutCardProviderCompletionData(
+            "checkoutCard" to CheckoutCardProviderCompletionData(
                 "checkout",
                 1,
                 FundingSourceType.CREDIT_CARD,
                 "payment_token"
+            ),
+            "checkoutBankAccount" to CheckoutBankAccountProviderCompletionData(
+                "checkout",
+                1,
+                FundingSourceType.BANK_ACCOUNT,
+                "public_token",
+                "account_id",
+                "institutionId",
+                AuthorizationText(
+                    "language",
+                    "content",
+                    "contentType",
+                    "hash",
+                    "hashAlgorithm"
+                )
             )
         )
 
     private val input by before {
         CompleteFundingSourceInput(
             "id",
-            providerCompletionData[provider] ?: throw missingProvider(),
+            providerCompletionData[provider] ?: throw missingProvider(provider),
             null
         )
     }
+
     private val encodedCompletionData by before {
         val encodedCompletionDataString = Gson().toJson(input.completionData)
         Base64.encode(encodedCompletionDataString.toByteArray()).toString(Charsets.UTF_8)
@@ -105,36 +134,106 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         .completionData("completionData")
         .build()
 
-    private val mutationResult by before {
+    private val creditCardResult by before {
         CompleteFundingSourceMutation.CompleteFundingSource(
-            "CompleteFundingSource",
-            CompleteFundingSourceMutation.CompleteFundingSource.Fragments(
-                FundingSourceFragment(
-                    "FundingSource",
-                    "id",
-                    "owner",
-                    1,
-                    1.0,
-                    10.0,
-                    FundingSourceState.ACTIVE,
-                    "USD",
-                    TransactionVelocity(
-                        "TransactionVelocity",
-                        10000,
-                        listOf("10000/P1D")
-                    ),
-                    "last4",
-                    CreditCardNetwork.VISA,
-                    CardType.CREDIT
+            "CreditCardFundingSource",
+            CompleteFundingSourceMutation.AsCreditCardFundingSource(
+                "CreditCardFundingSource",
+                CompleteFundingSourceMutation.AsCreditCardFundingSource.Fragments(
+                    CreditCardFundingSourceGraphQL(
+                        "CreditCardFundingSource",
+                        "id",
+                        "owner",
+                        1,
+                        1.0,
+                        10.0,
+                        FundingSourceStateGraphQL.ACTIVE,
+                        "USD",
+                        CreditCardFundingSourceGraphQL.TransactionVelocity(
+                            "TransactionVelocity",
+                            10000,
+                            listOf("10000/P1D")
+                        ),
+                        "last4",
+                        CreditCardNetwork.VISA,
+                        CardType.CREDIT
+                    )
                 )
-            )
+            ),
+            null
         )
     }
 
-    private val mutationResponse by before {
+    private val bankAccountResult by before {
+        CompleteFundingSourceMutation.CompleteFundingSource(
+            "BankAccountFundingSource",
+            null,
+            CompleteFundingSourceMutation.AsBankAccountFundingSource(
+                "BankAccountFundingSource",
+                CompleteFundingSourceMutation.AsBankAccountFundingSource.Fragments(
+                    BankAccountFundingSourceGraphQL(
+                        "BankAccountFundingSource",
+                        "id",
+                        "owner",
+                        1,
+                        1.0,
+                        10.0,
+                        FundingSourceStateGraphQL.ACTIVE,
+                        "USD",
+                        BankAccountFundingSourceGraphQL.TransactionVelocity(
+                            "TransactionVelocity",
+                            10000,
+                            listOf("10000/P1D")
+                        ),
+                        BankAccountTypeGraphQL.CHECKING,
+                        AuthorizationGraphQL(
+                            "Authorization",
+                            "language",
+                            "content",
+                            "contentType",
+                            "signature",
+                            "keyId",
+                            "algorithm",
+                            "data"
+                        ),
+                        "last4",
+                        InstitutionNameGraphQL(
+                            "InstitutionName",
+                            InstitutionNameGraphQL.Fragments(
+                                SealedAttribute(
+                                    "typename",
+                                    "keyId",
+                                    "algorithm",
+                                    "string",
+                                    mockSeal("base64EncodedSealedData")
+                                )
+                            )
+                        ),
+                        null
+                    )
+                )
+            ),
+        )
+    }
+
+    private val creditCardResponse by before {
         Response.builder<CompleteFundingSourceMutation.Data>(CompleteFundingSourceMutation(mutationRequest))
-            .data(CompleteFundingSourceMutation.Data(mutationResult))
+            .data(CompleteFundingSourceMutation.Data(creditCardResult))
             .build()
+    }
+
+    private val bankAccountResponse by before {
+        Response.builder<CompleteFundingSourceMutation.Data>(CompleteFundingSourceMutation(mutationRequest))
+            .data(CompleteFundingSourceMutation.Data(bankAccountResult))
+            .build()
+    }
+
+    private val mutationResponse by before {
+        mapOf(
+            "stripe" to creditCardResponse,
+            "checkoutCard" to creditCardResponse,
+            "checkoutBankAccount" to bankAccountResponse
+        )
     }
 
     private val mutationHolder = CallbackHolder<CompleteFundingSourceMutation.Data>()
@@ -154,7 +253,22 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
     }
 
     private val mockKeyManager by before {
-        mock<KeyManagerInterface>()
+        mock<KeyManagerInterface>().stub {
+            on { generateSignatureWithPrivateKey(anyString(), any()) } doReturn ByteArray(42)
+            on { decryptWithPrivateKey(anyString(), any(), any()) } doReturn ByteArray(42)
+            on { decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>()) } doReturn "42".toByteArray()
+        }
+    }
+
+    private val currentKey = PublicKey(
+        keyId = "keyId",
+        publicKey = "publicKey".toByteArray(),
+    )
+
+    private val mockPublicKeyService by before {
+        mock<PublicKeyService>().stub {
+            onBlocking { getCurrentKey() } doReturn currentKey
+        }
     }
 
     private val client by before {
@@ -163,6 +277,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
             .setSudoUserClient(mockUserClient)
             .setAppSyncClient(mockAppSyncClient)
             .setKeyManager(mockKeyManager)
+            .setPublicKeyService(mockPublicKeyService)
             .setLogger(mock<Logger>())
             .build()
     }
@@ -194,33 +309,68 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
         delay(100L)
         mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(mutationResponse)
+        mutationHolder.callback?.onResponse(mutationResponse[provider] ?: throw missingProvider(provider))
 
         val result = deferredResult.await()
         result shouldNotBe null
 
-        with(result) {
-            id shouldBe "id"
-            owner shouldBe "owner"
-            version shouldBe 1
-            createdAt shouldNotBe null
-            updatedAt shouldNotBe null
-            state shouldBe FundingSource.State.ACTIVE
-            currency shouldBe "USD"
-            last4 shouldBe "last4"
-            network shouldBe FundingSource.CreditCardNetwork.VISA
+        when (result) {
+            is CreditCardFundingSource -> {
+                with(result) {
+                    id shouldBe "id"
+                    owner shouldBe "owner"
+                    version shouldBe 1
+                    createdAt shouldNotBe null
+                    updatedAt shouldNotBe null
+                    state shouldBe FundingSourceState.ACTIVE
+                    currency shouldBe "USD"
+                    transactionVelocity?.maximum shouldBe 10000
+                    transactionVelocity?.velocity shouldBe listOf("10000/P1D")
+                    last4 shouldBe "last4"
+                    network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
+                }
+            }
+            is BankAccountFundingSource -> {
+                with(result) {
+                    id shouldBe "id"
+                    owner shouldBe "owner"
+                    version shouldBe 1
+                    createdAt shouldNotBe null
+                    updatedAt shouldNotBe null
+                    state shouldBe FundingSourceState.ACTIVE
+                    currency shouldBe "USD"
+                    transactionVelocity?.maximum shouldBe 10000
+                    transactionVelocity?.velocity shouldBe listOf("10000/P1D")
+                    bankAccountType shouldBe BankAccountFundingSource.BankAccountType.CHECKING
+                    last4 shouldBe "last4"
+                    institutionName shouldNotBe null
+                    institutionLogo shouldBe null
+                }
+            }
+            else -> {
+                fail("Unexpected FundingSource type")
+            }
         }
 
-        verify(mockAppSyncClient).mutate<
-            CompleteFundingSourceMutation.Data,
-            CompleteFundingSourceMutation,
-            CompleteFundingSourceMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().completionData() shouldBe encodedCompletionData
-                it.variables().input().updateCardFundingSource() shouldBe null
-            }
-        )
+        if (provider == "stripe" || provider == "checkoutCard") {
+            verify(mockAppSyncClient).mutate<
+                CompleteFundingSourceMutation.Data,
+                CompleteFundingSourceMutation,
+                CompleteFundingSourceMutation.Variables>(
+                check {
+                    it.variables().input().id() shouldBe "id"
+                    it.variables().input().completionData() shouldBe encodedCompletionData
+                    it.variables().input().updateCardFundingSource() shouldBe null
+                }
+            )
+        }
+        if (provider == "checkoutBankAccount") {
+            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
+            verify(mockPublicKeyService).getCurrentKey()
+            verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
+            verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
+            verify(mockKeyManager).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+        }
     }
 
     @Test
@@ -245,16 +395,23 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         mutationHolder.callback shouldNotBe null
         mutationHolder.callback?.onResponse(nullMutationResponse)
 
-        verify(mockAppSyncClient).mutate<
-            CompleteFundingSourceMutation.Data,
-            CompleteFundingSourceMutation,
-            CompleteFundingSourceMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().completionData() shouldBe encodedCompletionData
-                it.variables().input().updateCardFundingSource() shouldBe null
-            }
-        )
+        if (provider == "stripe" || provider == "checkoutCard") {
+            verify(mockAppSyncClient).mutate<
+                CompleteFundingSourceMutation.Data,
+                CompleteFundingSourceMutation,
+                CompleteFundingSourceMutation.Variables>(
+                check {
+                    it.variables().input().id() shouldBe "id"
+                    it.variables().input().completionData() shouldBe encodedCompletionData
+                    it.variables().input().updateCardFundingSource() shouldBe null
+                }
+            )
+        }
+        if (provider == "checkoutBankAccount") {
+            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
+            verify(mockPublicKeyService).getCurrentKey()
+            verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
+        }
     }
 
     @Test
@@ -285,16 +442,23 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         mutationHolder.callback shouldNotBe null
         mutationHolder.callback?.onResponse(errorResponse)
 
-        verify(mockAppSyncClient).mutate<
-            CompleteFundingSourceMutation.Data,
-            CompleteFundingSourceMutation,
-            CompleteFundingSourceMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().completionData() shouldBe encodedCompletionData
-                it.variables().input().updateCardFundingSource() shouldBe null
-            }
-        )
+        if (provider == "stripe" || provider == "checkoutCard") {
+            verify(mockAppSyncClient).mutate<
+                CompleteFundingSourceMutation.Data,
+                CompleteFundingSourceMutation,
+                CompleteFundingSourceMutation.Variables>(
+                check {
+                    it.variables().input().id() shouldBe "id"
+                    it.variables().input().completionData() shouldBe encodedCompletionData
+                    it.variables().input().updateCardFundingSource() shouldBe null
+                }
+            )
+        }
+        if (provider == "checkoutBankAccount") {
+            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
+            verify(mockPublicKeyService).getCurrentKey()
+            verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
+        }
     }
 
     @Test
@@ -325,16 +489,23 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         mutationHolder.callback shouldNotBe null
         mutationHolder.callback?.onResponse(errorResponse)
 
-        verify(mockAppSyncClient).mutate<
-            CompleteFundingSourceMutation.Data,
-            CompleteFundingSourceMutation,
-            CompleteFundingSourceMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().completionData() shouldBe encodedCompletionData
-                it.variables().input().updateCardFundingSource() shouldBe null
-            }
-        )
+        if (provider == "stripe" || provider == "checkoutCard") {
+            verify(mockAppSyncClient).mutate<
+                CompleteFundingSourceMutation.Data,
+                CompleteFundingSourceMutation,
+                CompleteFundingSourceMutation.Variables>(
+                check {
+                    it.variables().input().id() shouldBe "id"
+                    it.variables().input().completionData() shouldBe encodedCompletionData
+                    it.variables().input().updateCardFundingSource() shouldBe null
+                }
+            )
+        }
+        if (provider == "checkoutBankAccount") {
+            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
+            verify(mockPublicKeyService).getCurrentKey()
+            verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
+        }
     }
 
     @Test
@@ -365,16 +536,23 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         mutationHolder.callback shouldNotBe null
         mutationHolder.callback?.onResponse(errorResponse)
 
-        verify(mockAppSyncClient).mutate<
-            CompleteFundingSourceMutation.Data,
-            CompleteFundingSourceMutation,
-            CompleteFundingSourceMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().completionData() shouldBe encodedCompletionData
-                it.variables().input().updateCardFundingSource() shouldBe null
-            }
-        )
+        if (provider == "stripe" || provider == "checkoutCard") {
+            verify(mockAppSyncClient).mutate<
+                CompleteFundingSourceMutation.Data,
+                CompleteFundingSourceMutation,
+                CompleteFundingSourceMutation.Variables>(
+                check {
+                    it.variables().input().id() shouldBe "id"
+                    it.variables().input().completionData() shouldBe encodedCompletionData
+                    it.variables().input().updateCardFundingSource() shouldBe null
+                }
+            )
+        }
+        if (provider == "checkoutBankAccount") {
+            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
+            verify(mockPublicKeyService).getCurrentKey()
+            verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
+        }
     }
 
     @Test
@@ -405,16 +583,23 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         mutationHolder.callback shouldNotBe null
         mutationHolder.callback?.onResponse(errorResponse)
 
-        verify(mockAppSyncClient).mutate<
-            CompleteFundingSourceMutation.Data,
-            CompleteFundingSourceMutation,
-            CompleteFundingSourceMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().completionData() shouldBe encodedCompletionData
-                it.variables().input().updateCardFundingSource() shouldBe null
-            }
-        )
+        if (provider == "stripe" || provider == "checkoutCard") {
+            verify(mockAppSyncClient).mutate<
+                CompleteFundingSourceMutation.Data,
+                CompleteFundingSourceMutation,
+                CompleteFundingSourceMutation.Variables>(
+                check {
+                    it.variables().input().id() shouldBe "id"
+                    it.variables().input().completionData() shouldBe encodedCompletionData
+                    it.variables().input().updateCardFundingSource() shouldBe null
+                }
+            )
+        }
+        if (provider == "checkoutBankAccount") {
+            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
+            verify(mockPublicKeyService).getCurrentKey()
+            verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
+        }
     }
 
     @Test
@@ -445,16 +630,23 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         mutationHolder.callback shouldNotBe null
         mutationHolder.callback?.onResponse(errorResponse)
 
-        verify(mockAppSyncClient).mutate<
-            CompleteFundingSourceMutation.Data,
-            CompleteFundingSourceMutation,
-            CompleteFundingSourceMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().completionData() shouldBe encodedCompletionData
-                it.variables().input().updateCardFundingSource() shouldBe null
-            }
-        )
+        if (provider == "stripe" || provider == "checkoutCard") {
+            verify(mockAppSyncClient).mutate<
+                CompleteFundingSourceMutation.Data,
+                CompleteFundingSourceMutation,
+                CompleteFundingSourceMutation.Variables>(
+                check {
+                    it.variables().input().id() shouldBe "id"
+                    it.variables().input().completionData() shouldBe encodedCompletionData
+                    it.variables().input().updateCardFundingSource() shouldBe null
+                }
+            )
+        }
+        if (provider == "checkoutBankAccount") {
+            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
+            verify(mockPublicKeyService).getCurrentKey()
+            verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
+        }
     }
 
     @Test
@@ -492,16 +684,23 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         mutationHolder.callback shouldNotBe null
         mutationHolder.callback?.onResponse(errorResponse)
 
-        verify(mockAppSyncClient).mutate<
-            CompleteFundingSourceMutation.Data,
-            CompleteFundingSourceMutation,
-            CompleteFundingSourceMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().completionData() shouldBe encodedCompletionData
-                it.variables().input().updateCardFundingSource() shouldBe null
-            }
-        )
+        if (provider == "stripe" || provider == "checkoutCard") {
+            verify(mockAppSyncClient).mutate<
+                CompleteFundingSourceMutation.Data,
+                CompleteFundingSourceMutation,
+                CompleteFundingSourceMutation.Variables>(
+                check {
+                    it.variables().input().id() shouldBe "id"
+                    it.variables().input().completionData() shouldBe encodedCompletionData
+                    it.variables().input().updateCardFundingSource() shouldBe null
+                }
+            )
+        }
+        if (provider == "checkoutBankAccount") {
+            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
+            verify(mockPublicKeyService).getCurrentKey()
+            verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
+        }
     }
 
     @Test
@@ -535,16 +734,23 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
         deferredResult.await()
 
-        verify(mockAppSyncClient).mutate<
-            CompleteFundingSourceMutation.Data,
-            CompleteFundingSourceMutation,
-            CompleteFundingSourceMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().completionData() shouldBe encodedCompletionData
-                it.variables().input().updateCardFundingSource() shouldBe null
-            }
-        )
+        if (provider == "stripe" || provider == "checkoutCard") {
+            verify(mockAppSyncClient).mutate<
+                CompleteFundingSourceMutation.Data,
+                CompleteFundingSourceMutation,
+                CompleteFundingSourceMutation.Variables>(
+                check {
+                    it.variables().input().id() shouldBe "id"
+                    it.variables().input().completionData() shouldBe encodedCompletionData
+                    it.variables().input().updateCardFundingSource() shouldBe null
+                }
+            )
+        }
+        if (provider == "checkoutBankAccount") {
+            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
+            verify(mockPublicKeyService).getCurrentKey()
+            verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
+        }
     }
 
     @Test
@@ -566,16 +772,23 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
         deferredResult.await()
 
-        verify(mockAppSyncClient).mutate<
-            CompleteFundingSourceMutation.Data,
-            CompleteFundingSourceMutation,
-            CompleteFundingSourceMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().completionData() shouldBe encodedCompletionData
-                it.variables().input().updateCardFundingSource() shouldBe null
-            }
-        )
+        if (provider == "stripe" || provider == "checkoutCard") {
+            verify(mockAppSyncClient).mutate<
+                CompleteFundingSourceMutation.Data,
+                CompleteFundingSourceMutation,
+                CompleteFundingSourceMutation.Variables>(
+                check {
+                    it.variables().input().id() shouldBe "id"
+                    it.variables().input().completionData() shouldBe encodedCompletionData
+                    it.variables().input().updateCardFundingSource() shouldBe null
+                }
+            )
+        }
+        if (provider == "checkoutBankAccount") {
+            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
+            verify(mockPublicKeyService).getCurrentKey()
+            verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
+        }
     }
 
     @Test
@@ -597,18 +810,22 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
         deferredResult.await()
 
-        verify(mockAppSyncClient).mutate<
-            CompleteFundingSourceMutation.Data,
-            CompleteFundingSourceMutation,
-            CompleteFundingSourceMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().completionData() shouldBe encodedCompletionData
-                it.variables().input().updateCardFundingSource() shouldBe null
-            }
-        )
-    }
-    private fun missingProvider(): java.lang.AssertionError {
-        return AssertionError("Missing provider $provider")
+        if (provider == "stripe" || provider == "checkoutCard") {
+            verify(mockAppSyncClient).mutate<
+                CompleteFundingSourceMutation.Data,
+                CompleteFundingSourceMutation,
+                CompleteFundingSourceMutation.Variables>(
+                check {
+                    it.variables().input().id() shouldBe "id"
+                    it.variables().input().completionData() shouldBe encodedCompletionData
+                    it.variables().input().updateCardFundingSource() shouldBe null
+                }
+            )
+        }
+        if (provider == "checkoutBankAccount") {
+            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
+            verify(mockPublicKeyService).getCurrentKey()
+            verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
+        }
     }
 }

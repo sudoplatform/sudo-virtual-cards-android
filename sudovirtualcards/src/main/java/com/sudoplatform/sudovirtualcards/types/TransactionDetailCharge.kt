@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -19,6 +19,7 @@ import kotlinx.parcelize.Parcelize
  * @property fundingSourceAmount [CurrencyAmount] The amount of the charge against the [FundingSource].
  * @property fundingSourceId [String] The identifier of the [FundingSource].
  * @property description [String] The description of this [TransactionDetailCharge].
+ * @property state [ChargeDetailState] The current state of the transaction charge detail.
  */
 @Parcelize
 data class TransactionDetailCharge(
@@ -27,5 +28,6 @@ data class TransactionDetailCharge(
     val markupAmount: CurrencyAmount,
     val fundingSourceAmount: CurrencyAmount,
     val fundingSourceId: String,
-    val description: String
+    val description: String,
+    val state: ChargeDetailState
 ) : Parcelable

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -217,6 +217,8 @@ interface SudoVirtualCardsClient : AutoCloseable {
             FundingSourceException(message = message, cause = cause)
         class CompletionDataInvalidException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
+        class UnexpectedProviderException(message: String? = null, cause: Throwable? = null) :
+            FundingSourceException(message = message, cause = cause)
         class IdentityVerificationException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
         class AccountLockedException(message: String? = null, cause: Throwable? = null) :
@@ -224,6 +226,8 @@ interface SudoVirtualCardsClient : AutoCloseable {
         class EntitlementExceededException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
         class VelocityExceededException(message: String? = null, cause: Throwable? = null) :
+            FundingSourceException(message = message, cause = cause)
+        class PublicKeyException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
         class FundingSourceRequiresUserInteractionException(
             message: String? = null,

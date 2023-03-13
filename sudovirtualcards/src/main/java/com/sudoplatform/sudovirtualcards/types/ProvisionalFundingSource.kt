@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -8,7 +8,6 @@ package com.sudoplatform.sudovirtualcards.types
 
 import android.os.Parcelable
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource.ProvisioningState
-import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceType
 import kotlinx.parcelize.Parcelize
 import java.util.Date
 

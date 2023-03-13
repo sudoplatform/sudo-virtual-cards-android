@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -16,37 +16,41 @@ import io.kotlintest.shouldThrow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
-import org.junit.After
-import org.junit.Before
-import org.junit.Ignore
-import org.junit.Test
 import org.junit.Assume.assumeTrue
 import org.junit.runner.RunWith
 import timber.log.Timber
 import java.util.logging.Logger
 import com.sudoplatform.sudokeymanager.KeyManagerFactory
 import com.sudoplatform.sudovirtualcards.logging.LogConstants
+import com.sudoplatform.sudovirtualcards.types.AuthorizationText
+import com.sudoplatform.sudovirtualcards.types.CardState
+import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardProviderCompletionData
-import com.sudoplatform.sudovirtualcards.types.StripeCardProviderCompletionData
-import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardProvisioningData
-import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
+import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSource
-import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
-import com.sudoplatform.sudovirtualcards.types.CardState
+import com.sudoplatform.sudovirtualcards.types.FundingSourceState
+import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.JsonValue
 import com.sudoplatform.sudovirtualcards.types.ListAPIResult
+import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
+import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
 import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
+import com.sudoplatform.sudovirtualcards.types.StripeCardProviderCompletionData
+import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
 import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInput
-import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
 import com.sudoplatform.sudovirtualcards.util.CreateCardFundingSourceOptions
+import org.junit.After
 import org.junit.Assert.fail
+import org.junit.Before
+import org.junit.Ignore
+import org.junit.Test
 import java.util.UUID
 import kotlin.time.Duration.Companion.parseIsoString
 
@@ -210,6 +214,15 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 }
             }
         }
+
+        if (isCheckoutCardEnabled(vcClient)) {
+            fundingSourceTypes.forEach {
+                val checkoutSetupInput = SetupFundingSourceInput("AUD", it, listOf("checkout"))
+                shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnsupportedCurrencyException> {
+                    vcClient.setupFundingSource(checkoutSetupInput)
+                }
+            }
+        }
     }
 
     @Test
@@ -240,16 +253,21 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 CreateCardFundingSourceOptions(supportedProviders = listOf(it))
             )
 
-            with(fundingSource) {
-                id shouldNotBe null
-                owner shouldBe userClient.getSubject()
-                version shouldBe 1
-                createdAt.time shouldBeGreaterThan 0L
-                updatedAt.time shouldBeGreaterThan 0L
-                state shouldBe FundingSource.State.ACTIVE
-                currency shouldBe "USD"
-                last4 shouldBe testCard.last4
-                network shouldBe FundingSource.CreditCardNetwork.VISA
+            when (fundingSource) {
+                is CreditCardFundingSource -> {
+                    fundingSource.id shouldNotBe null
+                    fundingSource.owner shouldBe userClient.getSubject()
+                    fundingSource.version shouldBe 1
+                    fundingSource.createdAt.time shouldBeGreaterThan 0L
+                    fundingSource.updatedAt.time shouldBeGreaterThan 0L
+                    fundingSource.state shouldBe FundingSourceState.ACTIVE
+                    fundingSource.currency shouldBe "USD"
+                    fundingSource.last4 shouldBe testCard.last4
+                    fundingSource.network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
+                }
+                else -> {
+                    fail("Unexpected FundingSource type")
+                }
             }
         }
     }
@@ -266,7 +284,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                     "stripe",
                     1,
                     "paymentMethod",
-                    com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType.CREDIT_CARD
+                    FundingSourceType.CREDIT_CARD
 
                 ),
                 null
@@ -280,11 +298,37 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             val checkoutInput = CompleteFundingSourceInput(
                 UUID.randomUUID().toString(),
                 CheckoutCardProviderCompletionData(
-                    "stripe",
+                    "checkout",
                     1,
-                    com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType.CREDIT_CARD,
+                    FundingSourceType.CREDIT_CARD,
                     "paymentToken"
 
+                ),
+                null
+            )
+            shouldThrow<SudoVirtualCardsClient.FundingSourceException.ProvisionalFundingSourceNotFoundException> {
+                vcClient.completeFundingSource(checkoutInput)
+            }
+        }
+
+        if (isCheckoutBankAccountEnabled(vcClient)) {
+            vcClient.createKeysIfAbsent()
+            val checkoutInput = CompleteFundingSourceInput(
+                UUID.randomUUID().toString(),
+                CheckoutBankAccountProviderCompletionData(
+                    "checkout",
+                    1,
+                    FundingSourceType.BANK_ACCOUNT,
+                    "publicToken",
+                    "accountId",
+                    "institutionId",
+                    AuthorizationText(
+                        "en-US",
+                        "authorization-text-content",
+                        "authorization-text-content-type",
+                        "authorization-text-hash",
+                        "authorization-test-hash-algorithm"
+                    )
                 ),
                 null
             )
@@ -313,7 +357,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                     "stripe",
                     1,
                     "paymentMethod",
-                    com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType.CREDIT_CARD
+                    FundingSourceType.CREDIT_CARD
                 ),
                 null
             )
@@ -321,6 +365,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 vcClient.completeFundingSource(stripeCompleteInput)
             }
         }
+
         if (isCheckoutCardEnabled(vcClient)) {
             val checkoutSetupInput = SetupFundingSourceInput(
                 "USD",
@@ -334,12 +379,40 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 CheckoutCardProviderCompletionData(
                     "checkout",
                     1,
-                    com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType.CREDIT_CARD,
+                    FundingSourceType.CREDIT_CARD,
                     "paymentToken"
                 ),
                 null
             )
             shouldThrow<SudoVirtualCardsClient.FundingSourceException> {
+                vcClient.completeFundingSource(checkoutCompleteInput)
+            }
+        }
+
+        if (isCheckoutBankAccountEnabled(vcClient)) {
+            vcClient.createKeysIfAbsent()
+            val checkoutSetupInput = SetupFundingSourceInput(
+                "USD",
+                FundingSourceType.BANK_ACCOUNT,
+                listOf("checkout")
+            )
+            val checkoutProvisionalFundingSource = vcClient.setupFundingSource(checkoutSetupInput)
+
+            val provisioningData = checkoutProvisionalFundingSource.provisioningData as CheckoutBankAccountProvisioningData
+            val checkoutCompleteInput = CompleteFundingSourceInput(
+                checkoutProvisionalFundingSource.id,
+                CheckoutBankAccountProviderCompletionData(
+                    "checkout",
+                    1,
+                    FundingSourceType.BANK_ACCOUNT,
+                    "publicToken",
+                    "accountId",
+                    "institutionId",
+                    provisioningData.authorizationText[0]
+                ),
+                null
+            )
+            shouldThrow<SudoVirtualCardsClient.FundingSourceException.CompletionDataInvalidException> {
                 vcClient.completeFundingSource(checkoutCompleteInput)
             }
         }
@@ -474,13 +547,24 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             val retrievedFundingSource = vcClient.getFundingSource(fundingSource.id)
                 ?: throw AssertionError("should not be null")
 
-            retrievedFundingSource.id shouldBe fundingSource.id
-            retrievedFundingSource.owner shouldBe fundingSource.owner
-            retrievedFundingSource.version shouldBe fundingSource.version
-            retrievedFundingSource.state shouldBe fundingSource.state
-            retrievedFundingSource.currency shouldBe fundingSource.currency
-            retrievedFundingSource.last4 shouldBe fundingSource.last4
-            retrievedFundingSource.network shouldBe fundingSource.network
+            when (retrievedFundingSource) {
+                is CreditCardFundingSource -> {
+                    with(retrievedFundingSource) {
+                        id shouldNotBe null
+                        owner shouldBe userClient.getSubject()
+                        version shouldBe 1
+                        createdAt.time shouldBeGreaterThan 0L
+                        updatedAt.time shouldBeGreaterThan 0L
+                        state shouldBe FundingSourceState.ACTIVE
+                        currency shouldBe "USD"
+                        last4 shouldBe testCard.last4
+                        network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
+                    }
+                }
+                else -> {
+                    fail("Unexpected FundingSource type")
+                }
+            }
         }
     }
 
@@ -525,13 +609,17 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         listFundingSources.nextToken shouldBe null
 
         val fundingSources = listFundingSources.items
-        fundingSources[0].id shouldBe fundingSource.id
-        fundingSources[0].owner shouldBe fundingSource.owner
-        fundingSources[0].version shouldBe fundingSource.version
-        fundingSources[0].state shouldBe fundingSource.state
-        fundingSources[0].currency shouldBe fundingSource.currency
-        fundingSources[0].last4 shouldBe fundingSource.last4
-        fundingSources[0].network shouldBe fundingSource.network
+        with(fundingSources[0] as CreditCardFundingSource) {
+            id shouldNotBe null
+            owner shouldBe userClient.getSubject()
+            version shouldBe 1
+            createdAt.time shouldBeGreaterThan 0L
+            updatedAt.time shouldBeGreaterThan 0L
+            state shouldBe FundingSourceState.ACTIVE
+            currency shouldBe "USD"
+            last4 shouldBe testCard.last4
+            network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
+        }
     }
 
     @Test
@@ -600,13 +688,17 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
 
         val fundingSources = listFundingSources.items
         for (i in 0 until fundingSourceCount) {
-            fundingSources[i].id shouldBe createdFundingSources[i].id
-            fundingSources[i].owner shouldBe createdFundingSources[i].owner
-            fundingSources[i].version shouldBe createdFundingSources[i].version
-            fundingSources[i].state shouldBe createdFundingSources[i].state
-            fundingSources[i].currency shouldBe createdFundingSources[i].currency
-            fundingSources[i].last4 shouldBe createdFundingSources[i].last4
-            fundingSources[i].network shouldBe createdFundingSources[i].network
+            val fundingSource = fundingSources[i] as CreditCardFundingSource
+            val createdFundingSource = createdFundingSources[i] as CreditCardFundingSource
+            with(fundingSource) {
+                id shouldBe createdFundingSource.id
+                owner shouldBe createdFundingSource.owner
+                version shouldBe createdFundingSource.version
+                state shouldBe createdFundingSource.state
+                currency shouldBe createdFundingSource.currency
+                last4 shouldBe createdFundingSource.last4
+                network shouldBe createdFundingSource.network
+            }
         }
     }
 
@@ -637,14 +729,24 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             )
             fundingSource shouldNotBe null
 
-            val cancelledFundingSource = vcClient.cancelFundingSource(fundingSource.id)
-            cancelledFundingSource.id shouldBe fundingSource.id
-            cancelledFundingSource.owner shouldBe fundingSource.owner
-            cancelledFundingSource.version shouldBe 2
-            cancelledFundingSource.state shouldBe FundingSource.State.INACTIVE
-            cancelledFundingSource.currency shouldBe fundingSource.currency
-            cancelledFundingSource.last4 shouldBe fundingSource.last4
-            cancelledFundingSource.network shouldBe fundingSource.network
+            when (val cancelledFundingSource = vcClient.cancelFundingSource(fundingSource.id)) {
+                is CreditCardFundingSource -> {
+                    with(cancelledFundingSource) {
+                        id shouldNotBe null
+                        owner shouldBe userClient.getSubject()
+                        version shouldBe 2
+                        createdAt.time shouldBeGreaterThan 0L
+                        updatedAt.time shouldBeGreaterThan 0L
+                        state shouldBe FundingSourceState.INACTIVE
+                        currency shouldBe "USD"
+                        last4 shouldBe testCard.last4
+                        network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
+                    }
+                }
+                else -> {
+                    fail("Unexpected FundingSource type")
+                }
+            }
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -44,23 +44,31 @@ import com.sudoplatform.sudovirtualcards.graphql.type.SetupFundingSourceRequest
 import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.logging.LogConstants
+import com.sudoplatform.sudovirtualcards.signing.DefaultSigningService
+import com.sudoplatform.sudovirtualcards.signing.Signature
+import com.sudoplatform.sudovirtualcards.signing.SignatureData
 import com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriptionService
 import com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
+import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderCompletionData
+import com.sudoplatform.sudovirtualcards.types.CheckoutCardProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.CreateKeysIfAbsentResult
 import com.sudoplatform.sudovirtualcards.types.DateRange
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceClientConfiguration
+import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.FundingSourceTypes
 import com.sudoplatform.sudovirtualcards.types.KeyResult
 import com.sudoplatform.sudovirtualcards.types.ListAPIResult
 import com.sudoplatform.sudovirtualcards.types.ListOutput
-import com.sudoplatform.sudovirtualcards.types.PartialVirtualCard
 import com.sudoplatform.sudovirtualcards.types.PartialResult
 import com.sudoplatform.sudovirtualcards.types.PartialTransaction
+import com.sudoplatform.sudovirtualcards.types.PartialVirtualCard
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
+import com.sudoplatform.sudovirtualcards.types.SerializedCheckoutBankAccountCompletionData
 import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
+import com.sudoplatform.sudovirtualcards.types.StripeCardProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.SortOrder
 import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.VirtualCard
@@ -71,6 +79,7 @@ import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.transformers.DateRangeTransformer.toDateRangeInput
 import com.sudoplatform.sudovirtualcards.types.transformers.FundingSourceTransformer
+import com.sudoplatform.sudovirtualcards.types.transformers.KeyType
 import com.sudoplatform.sudovirtualcards.types.transformers.ProviderDataTransformer
 import com.sudoplatform.sudovirtualcards.types.transformers.TransactionTransformer
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
@@ -155,7 +164,7 @@ internal class DefaultSudoVirtualCardsClient(
      * and allow us to retry. The value of `version` doesn't need to be kept up-to-date with the
      * version of the code.
      */
-    private val version: String = "5.1.0"
+    private val version: String = "9.0.0"
 
     /** This manages the subscriptions to transaction updates and deletes */
     private val transactionSubscriptions = TransactionSubscriptionService(appSyncClient, deviceKeyManager, sudoUserClient, logger)
@@ -215,11 +224,50 @@ internal class DefaultSudoVirtualCardsClient(
     @Throws(SudoVirtualCardsClient.FundingSourceException::class)
     override suspend fun completeFundingSource(input: CompleteFundingSourceInput): FundingSource {
         try {
-            val encodedCompletionDataString = Gson().toJson(input.completionData)
-            val completionData = Base64.encode(encodedCompletionDataString.toByteArray()).toString(Charsets.UTF_8)
+            val provider = input.completionData.provider
+            val type = input.completionData.type
+            val encodedCompletionData: String
+            if (input.completionData is StripeCardProviderCompletionData ||
+                input.completionData is CheckoutCardProviderCompletionData
+            ) {
+                val encodedCompletionDataString = Gson().toJson(input.completionData)
+                encodedCompletionData = Base64.encode(encodedCompletionDataString.toByteArray()).toString(Charsets.UTF_8)
+            } else if (input.completionData is CheckoutBankAccountProviderCompletionData) {
+                val publicKey = this.publicKeyService.getCurrentKey()
+                    ?: throw SudoVirtualCardsClient.FundingSourceException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
+                val signingService = DefaultSigningService(deviceKeyManager)
+                val authorizationTextSignatureData = SignatureData(
+                    hash = input.completionData.authorizationText.hash,
+                    hashAlgorithm = input.completionData.authorizationText.hashAlgorithm,
+                    blob = input.completionData.accountId,
+                )
+                val data = Gson().toJson(authorizationTextSignatureData)
+                val signature = signingService.signString(data, publicKey.keyId, KeyType.PRIVATE_KEY)
+                val authorizationTextSignature = Signature(
+                    data,
+                    algorithm = "RSASignatureSSAPKCS15SHA256",
+                    keyId = publicKey.keyId,
+                    signature = signature
+                )
+                val completionData = SerializedCheckoutBankAccountCompletionData(
+                    provider = provider,
+                    version = 1,
+                    type = FundingSourceType.BANK_ACCOUNT,
+                    keyId = publicKey.keyId,
+                    publicToken = input.completionData.publicToken,
+                    accountId = input.completionData.accountId,
+                    institutionId = input.completionData.institutionId,
+                    authorizationTextSignature = authorizationTextSignature
+                )
+                val completionDataString = Gson().toJson(completionData)
+                encodedCompletionData = Base64.encode(completionDataString.toByteArray()).toString(Charsets.UTF_8)
+            } else {
+                throw SudoVirtualCardsClient.FundingSourceException.UnexpectedProviderException("Unexpected provider: $provider:$type")
+            }
+
             val mutationInput = CompleteFundingSourceRequest.builder()
                 .id(input.id)
-                .completionData(completionData)
+                .completionData(encodedCompletionData)
                 .updateCardFundingSource(input.updateCardFundingSource)
                 .build()
 
@@ -237,9 +285,7 @@ internal class DefaultSudoVirtualCardsClient(
 
             val result = mutationResponse.data()?.completeFundingSource()
             result?.let {
-                val fundingSource = result.fragments().fundingSource()
-                    ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException("unexpected null funding source")
-                return FundingSourceTransformer.toEntity(fundingSource)
+                return FundingSourceTransformer.toEntityFromCompleteFundingSourceMutationResult(deviceKeyManager, result)
             }
             throw SudoVirtualCardsClient.FundingSourceException.CompletionFailedException(FUNDING_SOURCE_NOT_COMPLETE_MSG)
         } catch (e: Throwable) {
@@ -300,9 +346,7 @@ internal class DefaultSudoVirtualCardsClient(
             }
 
             val result = queryResponse.data()?.fundingSource ?: return null
-            val fundingSource = result.fragments().fundingSource()
-                ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException("unexpected null funding source")
-            return FundingSourceTransformer.toEntity(fundingSource)
+            return FundingSourceTransformer.toEntityFromGetFundingSourceQueryResult(deviceKeyManager, result)
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
             when (e) {
@@ -334,7 +378,7 @@ internal class DefaultSudoVirtualCardsClient(
             }
 
             val result = queryResponse.data()?.listFundingSources() ?: return ListOutput(emptyList(), null)
-            val fundingSources = FundingSourceTransformer.toEntity(result.items())
+            val fundingSources = FundingSourceTransformer.toEntity(deviceKeyManager, result.items())
             return ListOutput(fundingSources, result.nextToken())
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
@@ -365,9 +409,7 @@ internal class DefaultSudoVirtualCardsClient(
 
             val result = mutationResponse.data()?.cancelFundingSource()
             result?.let {
-                val fundingSource = result.fragments().fundingSource()
-                    ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException("unexpected null funding source")
-                return FundingSourceTransformer.toEntity(fundingSource)
+                return FundingSourceTransformer.toEntityFromCancelFundingSourceMutationResult(deviceKeyManager, result)
             }
             throw SudoVirtualCardsClient.FundingSourceException.CancelFailedException(NO_RESULT_ERROR_MSG)
         } catch (e: Throwable) {

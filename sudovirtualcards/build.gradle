@@ -15,7 +15,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 31
         versionCode = 1
-        versionName = "7.2.0"
+        versionName = "9.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testApplicationId = "com.sudoplatform.sudovirtualcards.test"
         consumerProguardFiles 'consumer-rules.pro'
@@ -101,8 +101,8 @@ dependencies {
     implementation "com.sudoplatform:sudokeymanager:5.0.0"
     implementation "com.sudoplatform:sudologging:2.1.0"
     implementation "com.sudoplatform:sudoconfigmanager:4.0.0"
-    implementation 'com.sudoplatform:sudouser:13.0.1'
-    implementation 'com.sudoplatform:sudoapiclient:5.0.1'
+    implementation 'com.sudoplatform:sudouser:14.0.0'
+    implementation 'com.sudoplatform:sudoapiclient:6.0.0'
 
     // Testing
     testImplementation "junit:junit:4.13.2"

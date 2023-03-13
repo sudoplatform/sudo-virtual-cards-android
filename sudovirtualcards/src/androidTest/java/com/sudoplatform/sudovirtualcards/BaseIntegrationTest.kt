@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -25,13 +25,13 @@ import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateAuthoriz
 import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateDebitInput
 import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateRefundInput
 import com.sudoplatform.sudovirtualcards.types.FundingSource
+import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
 import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
 import com.sudoplatform.sudovirtualcards.types.VirtualCard
 import com.sudoplatform.sudovirtualcards.types.ProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInput
-import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import com.sudoplatform.sudovirtualcards.util.FundingSourceProviders

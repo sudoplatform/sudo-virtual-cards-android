@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -42,7 +42,6 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Protocol
 import okhttp3.ResponseBody.Companion.toResponseBody
-import org.bouncycastle.util.encoders.Base64
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -55,13 +54,6 @@ import java.util.Date
  * using mocks and spies.
  */
 class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
-
-    private fun mockSeal(value: String): String {
-        val valueBytes = value.toByteArray()
-        val data = ByteArray(256)
-        valueBytes.copyInto(data)
-        return String(Base64.encode(data), Charsets.UTF_8)
-    }
 
     private val billingAddress by before {
         SealedCard.BillingAddress(

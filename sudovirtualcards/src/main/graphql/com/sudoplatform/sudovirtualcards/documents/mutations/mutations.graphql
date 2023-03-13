@@ -18,13 +18,23 @@ mutation SetupFundingSource($input: SetupFundingSourceRequest!) {
 
 mutation CompleteFundingSource($input: CompleteFundingSourceRequest!) {
   completeFundingSource(input: $input) {
-    ...FundingSource
+    ... on CreditCardFundingSource {
+      ...CreditCardFundingSource
+    }
+    ... on BankAccountFundingSource {
+      ...BankAccountFundingSource
+    }
   }
 }
 
 mutation CancelFundingSource($input: IdInput!) {
   cancelFundingSource(input: $input) {
-    ...FundingSource
+    ... on CreditCardFundingSource {
+      ...CreditCardFundingSource
+    }
+    ... on BankAccountFundingSource {
+      ...BankAccountFundingSource
+    }
   }
 }
 

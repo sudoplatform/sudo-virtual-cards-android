@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -29,6 +29,8 @@ internal interface DeviceKeyManager {
         class EncryptionException(message: String? = null, cause: Throwable? = null) :
             DeviceKeyManagerException(message = message, cause = cause)
         class KeyRingIdUnknownException(message: String? = null, cause: Throwable? = null) :
+            DeviceKeyManagerException(message = message, cause = cause)
+        class SigningException(message: String? = null, cause: Throwable? = null) :
             DeviceKeyManagerException(message = message, cause = cause)
         class UnknownException(message: String? = null, cause: Throwable? = null) :
             DeviceKeyManagerException(message = message, cause = cause)
@@ -126,6 +128,17 @@ internal interface DeviceKeyManager {
      */
     @Throws(DeviceKeyManagerException::class)
     fun encryptWithSymmetricKeyId(keyId: String, data: ByteArray): ByteArray
+
+    /**
+     * Sign the [data] with the private key [keyId].
+     *
+     * @param keyId [String] Key identifier belonging to the private key.
+     * @param data [ByteArray] Data to be signed.
+     * @return the signed data.
+     * @throws [DeviceKeyManager.DeviceKeyManagerException.SigningException] if the data cannot be signed.
+     */
+    @Throws(DeviceKeyManagerException::class)
+    fun signWithPrivateKeyId(keyId: String, data: ByteArray): ByteArray
 
     /**
      * Remove all the keys from the [DeviceKeyManager]

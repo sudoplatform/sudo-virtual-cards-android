@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -9,7 +9,8 @@ package com.sudoplatform.sudovirtualcards.types
 import android.os.Parcelable
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType
+import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
+import com.sudoplatform.sudovirtualcards.signing.Signature
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -100,6 +101,8 @@ data class CheckoutCardProvisioningData(
  * @property version See [ProviderCommonData.version].
  * @property type See [ProviderCommonData.type].
  * @property linkToken [String] Provider setup link token.
+ * @property authorizationText [AuthorizationText] Array of different content type representations of the same agreement
+ *  in the language most closely matching the language specified in the call to [SudoVirtualCardsClient.setupFundingSource].
  */
 @Keep
 @Parcelize
@@ -107,7 +110,8 @@ data class CheckoutBankAccountProvisioningData(
     override val provider: String = ProviderDefaults.checkoutProvider,
     override val version: Int = ProviderDefaults.version,
     override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
-    val linkToken: String
+    val linkToken: String,
+    val authorizationText: List<AuthorizationText>
 ) : ProviderProvisioningData()
 
 /**
@@ -144,7 +148,7 @@ data class StripeCardProviderCompletionData(
  *
  * @property provider See [ProviderCommonData.provider].
  * @property version See [ProviderCommonData.version].
- * @property type See [ProviderCommonData.type]
+ * @property type See [ProviderCommonData.type].
  * @property paymentToken [String] Specifies payment token associated with the funding source credit card.
  */
 @Keep
@@ -157,6 +161,55 @@ data class CheckoutCardProviderCompletionData(
     val paymentToken: String
 ) : ProviderCompletionData()
 
+/**
+ * Representation of [CheckoutBankAccountProviderCompletionData] sent to the provider and
+ * used to complete the funding source creation.
+ *
+ * @property provider See [ProviderCommonData.provider].
+ * @property version See [ProviderCommonData.version].
+ * @property type See [ProviderCommonData.type].
+ * @property publicToken [String] Token to be exchanged in order to perform bank account operations.
+ * @property accountId [String] Identifier of the bank account to be used.
+ * @property institutionId [String] Identifier of the institution at which account to be used is held.
+ * @property authorizationText [AuthorizationText] Authorization text presented to and agreed to by the user.
+ */
+@Keep
+@Parcelize
+data class CheckoutBankAccountProviderCompletionData(
+    override val provider: String = ProviderDefaults.checkoutProvider,
+    override val version: Int = ProviderDefaults.version,
+    override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
+    val publicToken: String,
+    val accountId: String,
+    val institutionId: String,
+    val authorizationText: AuthorizationText
+) : ProviderCompletionData()
+
+/**
+ * Representation of [SerializedCheckoutBankAccountCompletionData] used to serialised completion data
+ * required to complete the bank account funding source creation.
+ *
+ * @property provider See [ProviderCommonData.provider].
+ * @property version See [ProviderCommonData.version].
+ * @property type See [ProviderCommonData.type].
+ * @property keyId [String] Identifier of the key used to sign the authorization text.
+ * @property publicToken [String] See [CheckoutBankAccountProviderCompletionData.publicToken].
+ * @property accountId [String] See [CheckoutBankAccountProviderCompletionData.accountId].
+ * @property institutionId [String] See [CheckoutBankAccountProviderCompletionData.institutionId].
+ * @property authorizationTextSignature The signature pertaining to the authorization text.
+ */
+@Keep
+internal data class SerializedCheckoutBankAccountCompletionData(
+    override val provider: String = ProviderDefaults.checkoutProvider,
+    override val version: Int = ProviderDefaults.version,
+    override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
+    val keyId: String,
+    val publicToken: String,
+    val accountId: String,
+    val institutionId: String,
+    val authorizationTextSignature: Signature
+) : ProviderCommonData()
+
 sealed class ProviderUserInteractionData : ProviderCommonData(), Parcelable
 
 /**
@@ -165,7 +218,7 @@ sealed class ProviderUserInteractionData : ProviderCommonData(), Parcelable
  *
  * @property provider See [ProviderCommonData.provider].
  * @property version See [ProviderCommonData.version].
- * @property type See [ProviderCommonData.type]
+ * @property type See [ProviderCommonData.type].
  */
 @Keep
 @Parcelize
@@ -181,7 +234,7 @@ data class BaseUserInteractionData(
  *
  * @property provider See [ProviderCommonData.provider].
  * @property version See [ProviderCommonData.version].
- * @property type See [ProviderCommonData.type]
+ * @property type See [ProviderCommonData.type].
  * @property redirectUrl [String] Mandatory URL which indicates where the user should go for additional interaction.
  */
 @Keep

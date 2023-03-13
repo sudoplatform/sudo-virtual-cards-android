@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -16,8 +16,8 @@ import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceClientConfigurationQuery
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.FundingSourceClientConfiguration
+import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.FundingSourceTypes
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe

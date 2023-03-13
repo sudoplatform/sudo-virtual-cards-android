@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -19,9 +19,9 @@ import com.sudoplatform.sudovirtualcards.keys.PublicKeyWithKeyRingId
 internal object KeyTransformer {
 
     /**
-     * Transform the results of the [CreatePublicKeyForVirtualCardsMutation].
+     * Transform the results of the [CreatePublicKeyMutation.CreatePublicKeyForVirtualCards] mutation.
      *
-     * @param result [CreatePublicKeyForVirtualCardsMutation.CreatePublicKeyForVirtualCards] The GraphQL mutation results.
+     * @param result [CreatePublicKeyMutation.CreatePublicKeyForVirtualCards] The GraphQL mutation results.
      * @return The [PublicKey] entity type.
      */
     fun toPublicKeyWithKeyRingId(result: CreatePublicKeyMutation.CreatePublicKeyForVirtualCards): PublicKeyWithKeyRingId {
@@ -37,9 +37,9 @@ internal object KeyTransformer {
     }
 
     /**
-     * Transform the results of the [GetPublicKeyForVirtualCardsQuery].
+     * Transform the results of the [GetPublicKeyQuery.GetPublicKeyForVirtualCards] query.
      *
-     * @param result [GetPublicKeyForVirtualCardsQuery.GetPublicKeyForVirtualCards] The GraphQL query results.
+     * @param result [GetPublicKeyQuery.GetPublicKeyForVirtualCards] The GraphQL query results.
      * @return The [PublicKey] entity type.
      */
     fun toPublicKeyWithKeyRingId(result: GetPublicKeyQuery.GetPublicKeyForVirtualCards): PublicKeyWithKeyRingId {

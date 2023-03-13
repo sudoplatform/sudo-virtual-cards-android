@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -15,28 +15,30 @@ import com.sudoplatform.sudokeymanager.KeyManager
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudovirtualcards.BaseTests
 import com.sudoplatform.sudovirtualcards.graphql.ProvisionVirtualCardMutation
+import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalCard
-import com.sudoplatform.sudovirtualcards.graphql.fragment.Owner as OwnerFragment
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAddressAttribute
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAttribute
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedExpiryAttribute
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCard
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCardWithLastTransaction
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCurrencyAmountAttribute
-import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedExpiryAttribute
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedMarkupAttribute
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedTransaction
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedTransactionDetailChargeAttribute
+import com.sudoplatform.sudovirtualcards.graphql.fragment.Owner as OwnerFragment
 import com.sudoplatform.sudovirtualcards.keys.DefaultDeviceKeyManager
 import com.sudoplatform.sudovirtualcards.keys.DefaultPublicKeyService
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisioningState
 import com.sudoplatform.sudovirtualcards.graphql.type.TransactionType
-import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
 import com.sudoplatform.sudovirtualcards.types.Expiry
+import com.sudoplatform.sudovirtualcards.types.InstitutionLogo
 import com.sudoplatform.sudovirtualcards.types.JsonValue
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
 import com.sudoplatform.sudovirtualcards.types.SymmetricKeyEncryptionAlgorithm
+import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -579,7 +581,8 @@ class UnsealerTest : BaseTests() {
                                 )
                             ),
                             "fundingSourceId",
-                            seal("description")
+                            seal("description"),
+                            seal("CLEARED")
                         )
                     )
                 )
@@ -672,6 +675,79 @@ class UnsealerTest : BaseTests() {
         with(card.expiry!!) {
             mm shouldBe "01"
             yyyy shouldBe "2021"
+        }
+    }
+
+    @Test
+    fun `unseal BankAccountFundingSource InstitutionName`() {
+        val sealedInstitutionName = BankAccountFundingSource.InstitutionName(
+            "InstitutionName",
+            BankAccountFundingSource.InstitutionName.Fragments(
+                SealedAttribute(
+                    "InstitutionName",
+                    "keyId",
+                    "algorithm",
+                    "string",
+                    seal("FooBar Institution")
+                )
+            )
+        )
+        unsealer.unseal(sealedInstitutionName) shouldBe "FooBar Institution"
+    }
+
+    @Test
+    fun `unseal BankAccountFundingSource InstitutionName should throw if invalid plainTextType`() {
+        val sealedInstitutionName = BankAccountFundingSource.InstitutionName(
+            "InstitutionName",
+            BankAccountFundingSource.InstitutionName.Fragments(
+                SealedAttribute(
+                    "InstitutionName",
+                    "keyId",
+                    "algorithm",
+                    "invalid",
+                    seal("FooBar Institution")
+                )
+            )
+        )
+        shouldThrow<Unsealer.UnsealerException.UnsupportedDataTypeException> {
+            unsealer.unseal(sealedInstitutionName)
+        }
+    }
+
+    @Test
+    fun `unseal BankAccountFundingSource InstitutionLogo`() {
+        val logo = "{type: 'image/png', data: 'FooBar Institution'}"
+        val sealedInstitutionLogo = BankAccountFundingSource.InstitutionLogo(
+            "InstitutionLogo",
+            BankAccountFundingSource.InstitutionLogo.Fragments(
+                SealedAttribute(
+                    "InstitutionLogo",
+                    "keyId",
+                    "algorithm",
+                    "json-string",
+                    seal(logo)
+                )
+            )
+        )
+        unsealer.unseal(sealedInstitutionLogo) shouldBe InstitutionLogo("image/png", "FooBar Institution")
+    }
+
+    @Test
+    fun `unseal BankAccountFundingSource InstitutionLogo should throw if invalid plainTextType`() {
+        val sealedInstitutionLogo = BankAccountFundingSource.InstitutionLogo(
+            "InstitutionLogo",
+            BankAccountFundingSource.InstitutionLogo.Fragments(
+                SealedAttribute(
+                    "InstitutionLogo",
+                    "keyId",
+                    "algorithm",
+                    "invalid",
+                    seal("FooBar Institution")
+                )
+            )
+        )
+        shouldThrow<Unsealer.UnsealerException.UnsupportedDataTypeException> {
+            unsealer.unseal(sealedInstitutionLogo)
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -7,8 +7,6 @@
 package com.sudoplatform.sudovirtualcards.types.transformers
 
 import androidx.annotation.VisibleForTesting
-import com.sudoplatform.sudovirtualcards.graphql.GetTransactionQuery
-import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsByCardIdQuery
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedTransaction
 import com.sudoplatform.sudovirtualcards.graphql.type.TransactionType
 import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
@@ -18,6 +16,7 @@ import com.sudoplatform.sudovirtualcards.types.PartialTransaction
 import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.TransactionDetailCharge
 import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
+import com.sudoplatform.sudovirtualcards.types.ChargeDetailState as ChargeDetailStateEntity
 
 /**
  * Transformer responsible for transforming the [Transaction] GraphQL data
@@ -26,10 +25,10 @@ import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTyp
 internal object TransactionTransformer {
 
     /**
-     * Transform the results of the [GetTransactionQuery].
+     * Transform the results of the [SealedTransaction] GraphQL type to its entity type.
      *
      * @param deviceKeyManager [DeviceKeyManager] Used to retrieve keys to unseal data.
-     * @param transaction [SealedTransaction] The GraphQL query results.
+     * @param transaction [SealedTransaction] The GraphQL type.
      * @return The [Transaction] entity type.
      */
     fun toEntity(
@@ -61,9 +60,9 @@ internal object TransactionTransformer {
     }
 
     /**
-     * Transform the results of the [ListTransactionsByCardIdQuery.Item] into a [PartialTransaction].
+     * Transform the [SealedTransaction] GraphQL type into a [PartialTransaction].
      *
-     * @param transaction [SealedTransaction] The GraphQL query result.
+     * @param transaction [SealedTransaction] The GraphQL type.
      * @return The [PartialTransaction] entity type.
      */
     fun toPartialEntity(transaction: SealedTransaction): PartialTransaction {
@@ -116,7 +115,8 @@ internal object TransactionTransformer {
                 sealedDetail.fundingSourceAmount().fragments().sealedCurrencyAmountAttribute(),
             ),
             fundingSourceId = sealedDetail.fundingSourceId(),
-            description = unsealer.unseal(sealedDetail.description())
+            description = unsealer.unseal(sealedDetail.description()),
+            state = sealedDetail.state()?.let { unsealer.unseal(it).toChargeDetailState() } ?: ChargeDetailStateEntity.CLEARED
         )
     }
 }
@@ -129,4 +129,14 @@ internal fun String.toDeclineReason(): DeclineReason {
         }
     }
     return DeclineReason.UNKNOWN
+}
+
+@VisibleForTesting
+internal fun String.toChargeDetailState(): ChargeDetailStateEntity {
+    for (value in ChargeDetailStateEntity.values()) {
+        if (value.name == this) {
+            return value
+        }
+    }
+    return ChargeDetailStateEntity.UNKNOWN
 }

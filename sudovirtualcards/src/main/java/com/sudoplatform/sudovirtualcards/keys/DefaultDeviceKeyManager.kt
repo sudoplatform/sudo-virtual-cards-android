@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -63,7 +63,7 @@ internal class DefaultDeviceKeyManager(
     override fun getKeyWithId(id: String): DeviceKey? {
         try {
             // Currently, Android key store cannot have only a public key or
-            // only a private key - exsitence of public key implies existence
+            // only a private key - existence of public key implies existence
             // of private key so we don't need to test explicitly for private
             // key existence.
             val publicKey = keyManager.getPublicKeyData(id)
@@ -232,6 +232,16 @@ internal class DefaultDeviceKeyManager(
         } catch (e: KeyManagerException) {
             logger.error("error $e")
             throw DeviceKeyManager.DeviceKeyManagerException.EncryptionException("Failed to encrypt", e)
+        }
+    }
+
+    @Throws(DeviceKeyManager.DeviceKeyManagerException::class)
+    override fun signWithPrivateKeyId(keyId: String, data: ByteArray): ByteArray {
+        try {
+            return keyManager.generateSignatureWithPrivateKey(keyId, data)
+        } catch (e: KeyManagerException) {
+            logger.error("error $e")
+            throw DeviceKeyManager.DeviceKeyManagerException.SigningException("Failed to sign", e)
         }
     }
 

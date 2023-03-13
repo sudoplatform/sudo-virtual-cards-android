@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -9,7 +9,6 @@ package com.sudoplatform.sudovirtualcards.types.transformers
 import com.amazonaws.util.Base64
 import com.google.gson.Gson
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
-import com.sudoplatform.sudovirtualcards.graphql.ListCardsQuery
 import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalCard as ProvisionalCardFragment
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCard
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCardWithLastTransaction
@@ -39,7 +38,7 @@ import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTyp
 internal object VirtualCardTransformer {
 
     /**
-     * Transform the input type [BillingAddress] into the corresponding GraphQL type [AddressInput]
+     * Transform the input type [BillingAddress] into the corresponding GraphQL type [AddressInput].
      */
     fun BillingAddress?.toAddressInput(): AddressInput? {
         if (this == null) {
@@ -56,7 +55,7 @@ internal object VirtualCardTransformer {
     }
 
     /**
-     * Transform the input type [JsonValue] into the corresponding GraphQL type [SealedAttributeInput]
+     * Transform the input type [JsonValue] into the corresponding GraphQL type [SealedAttributeInput].
      */
     fun JsonValue<Any>?.toMetadataInput(deviceKeyManager: DeviceKeyManager): SealedAttributeInput? {
         if (this == null) {
@@ -78,10 +77,10 @@ internal object VirtualCardTransformer {
     }
 
     /**
-     * Transform the results of the [CardProvisionMutation].
+     * Transform the [ProvisionalCardFragment] GraphQL type to its entity type.
      *
      * @param deviceKeyManager [DeviceKeyManager] Used to retrieve keys to unseal data.
-     * @param result [CardProvisionMutation.CardProvision] The GraphQL mutation results.
+     * @param provisionalCard [ProvisionalCardFragment] The GraphQL type.
      * @return The [ProvisionalVirtualCard] entity type.
      */
     fun toEntity(
@@ -100,6 +99,13 @@ internal object VirtualCardTransformer {
         )
     }
 
+    /**
+     * Transform the [SealedCardWithLastTransaction] GraphQL type to its entity type.
+     *
+     * @param deviceKeyManager [DeviceKeyManager] Used to retrieve keys to unseal data.
+     * @param sealedCardWithLastTransaction [SealedCardWithLastTransaction] The GraphQL type.
+     * @return The [VirtualCard] entity type.
+     */
     fun toEntity(
         deviceKeyManager: DeviceKeyManager,
         sealedCardWithLastTransaction: SealedCardWithLastTransaction,
@@ -115,6 +121,14 @@ internal object VirtualCardTransformer {
         )
     }
 
+    /**
+     * Transform the [ProvisionalCardFragment] GraphQL type to its entity type.
+     *
+     * @param deviceKeyManager [DeviceKeyManager] Used to retrieve keys to unseal data.
+     * @param sealedCard [SealedCard] The sealed card GraphQL type.
+     * @param sealedLastTransaction [SealedTransaction] The seal last transaction GraphQL type.
+     * @return The [VirtualCard] entity type.
+     */
     fun toEntity(
         deviceKeyManager: DeviceKeyManager,
         sealedCard: SealedCard,
@@ -154,13 +168,26 @@ internal object VirtualCardTransformer {
     }
 
     /**
-     * Transform a SealedCard into a [PartialVirtualCard].
+     * Transform a [SealedCardWithLastTransaction] into a [PartialVirtualCard].
      *
-     * @param result [ListCardsQuery.Item] The GraphQL query result.
+     * @param sealedCardWithLastTransaction [SealedCardWithLastTransaction] The GraphQL type.
      * @return The [PartialVirtualCard] entity type.
      */
-    fun toPartialEntity(sealedCard: SealedCard): PartialVirtualCard {
+    fun toPartialEntity(sealedCardWithLastTransaction: SealedCardWithLastTransaction): PartialVirtualCard {
+        val sealedCard = sealedCardWithLastTransaction.fragments().sealedCard()
+            ?: throw SudoVirtualCardsClient.VirtualCardException.FailedException(
+                "unexpected null SealedCard in SealedCardWithLastTransaction"
+            )
+        return toPartialEntity(sealedCard)
+    }
 
+    /**
+     * Transform a [SealedCard] into a [PartialVirtualCard].
+     *
+     * @param sealedCard [SealedCard] The GraphQL type.
+     * @return The [PartialVirtualCard] entity type.
+     */
+    private fun toPartialEntity(sealedCard: SealedCard): PartialVirtualCard {
         return PartialVirtualCard(
             id = sealedCard.id(),
             owners = sealedCard.owners().toOwners(),
@@ -177,14 +204,6 @@ internal object VirtualCardTransformer {
         )
     }
 
-    fun toPartialEntity(sealedCardWithLastTransaction: SealedCardWithLastTransaction): PartialVirtualCard {
-        val sealedCard = sealedCardWithLastTransaction.fragments().sealedCard()
-            ?: throw SudoVirtualCardsClient.VirtualCardException.FailedException(
-                "unexpected null SealedCard in SealedCardWithLastTransaction"
-            )
-        return toPartialEntity(sealedCard)
-    }
-
     private fun CardState.toState(): CardStateEntity {
         return when (this) {
             CardState.ISSUED -> CardStateEntity.ISSUED
@@ -199,15 +218,6 @@ internal object VirtualCardTransformer {
             ProvisioningState.PROVISIONING -> ProvisionalVirtualCard.ProvisioningState.PROVISIONING
             ProvisioningState.FAILED -> ProvisionalVirtualCard.ProvisioningState.FAILED
             ProvisioningState.COMPLETED -> ProvisionalVirtualCard.ProvisioningState.COMPLETED
-        }
-    }
-
-    private fun CardState.toCardState(): CardStateEntity {
-        return when (this) {
-            CardState.CLOSED -> CardStateEntity.CLOSED
-            CardState.FAILED -> CardStateEntity.FAILED
-            CardState.ISSUED -> CardStateEntity.ISSUED
-            CardState.SUSPENDED -> CardStateEntity.SUSPENDED
         }
     }
 

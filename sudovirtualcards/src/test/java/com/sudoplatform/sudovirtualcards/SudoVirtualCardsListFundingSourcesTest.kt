@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -22,13 +22,13 @@ import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
+import com.sudoplatform.sudovirtualcards.graphql.fragment.CreditCardFundingSource as CreditCardFundingSourceGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
-import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource as FundingSourceFragment
-import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSource.TransactionVelocity
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as FundingSourceStateGraphQL
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
-import com.sudoplatform.sudovirtualcards.types.FundingSource
+import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
+import com.sudoplatform.sudovirtualcards.types.FundingSourceState
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
@@ -53,30 +53,34 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
 
     private val queryResult by before {
         ListFundingSourcesQuery.ListFundingSources(
-            "typename",
+            "ListFundingSources",
             listOf(
                 ListFundingSourcesQuery.Item(
-                    "typename",
-                    ListFundingSourcesQuery.Item.Fragments(
-                        FundingSourceFragment(
-                            "FundingSource",
-                            "id",
-                            "owner",
-                            1,
-                            1.0,
-                            10.0,
-                            FundingSourceState.ACTIVE,
-                            "USD",
-                            TransactionVelocity(
-                                "TransactionVelocity",
-                                10000,
-                                listOf("10000/P1D")
-                            ),
-                            "last4",
-                            CreditCardNetwork.VISA,
-                            CardType.CREDIT
+                    "CreditCardFundingSource",
+                    ListFundingSourcesQuery.AsCreditCardFundingSource(
+                        "CreditCardFundingSource",
+                        ListFundingSourcesQuery.AsCreditCardFundingSource.Fragments(
+                            CreditCardFundingSourceGraphQL(
+                                "CreditCardFundingSource",
+                                "id",
+                                "owner",
+                                1,
+                                1.0,
+                                10.0,
+                                FundingSourceStateGraphQL.ACTIVE,
+                                "USD",
+                                CreditCardFundingSourceGraphQL.TransactionVelocity(
+                                    "TransactionVelocity",
+                                    10000,
+                                    listOf("10000/P1D")
+                                ),
+                                "last4",
+                                CreditCardNetwork.VISA,
+                                CardType.CREDIT
+                            )
                         )
-                    )
+                    ),
+                    null
                 )
             ),
             null
@@ -149,14 +153,16 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
         result.items.size shouldBe 1
         result.nextToken shouldBe null
 
-        with(result.items[0]) {
+        with(result.items[0] as CreditCardFundingSource) {
             id shouldBe("id")
             owner shouldBe("owner")
             version shouldBe 1
-            state shouldBe FundingSource.State.ACTIVE
+            state shouldBe FundingSourceState.ACTIVE
             currency shouldBe "USD"
+            transactionVelocity?.maximum shouldBe 10000
+            transactionVelocity?.velocity shouldBe listOf("10000/P1D")
             last4 shouldBe "last4"
-            network shouldBe FundingSource.CreditCardNetwork.VISA
+            network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
         }
 
         verify(mockAppSyncClient).query(any<ListFundingSourcesQuery>())
@@ -172,27 +178,31 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
                 "ListFundingSources",
                 listOf(
                     ListFundingSourcesQuery.Item(
-                        "Item",
-                        ListFundingSourcesQuery.Item.Fragments(
-                            FundingSourceFragment(
-                                "FundingSource",
-                                "id",
-                                "owner",
-                                1,
-                                1.0,
-                                10.0,
-                                FundingSourceState.ACTIVE,
-                                "USD",
-                                TransactionVelocity(
-                                    "TransactionVelocity",
-                                    10000,
-                                    listOf("10000/P1D")
-                                ),
-                                "last4",
-                                CreditCardNetwork.VISA,
-                                CardType.CREDIT
+                        "CreditCardFundingSource",
+                        ListFundingSourcesQuery.AsCreditCardFundingSource(
+                            "CreditCardFundingSource",
+                            ListFundingSourcesQuery.AsCreditCardFundingSource.Fragments(
+                                CreditCardFundingSourceGraphQL(
+                                    "CreditCardFundingSource",
+                                    "id",
+                                    "owner",
+                                    1,
+                                    1.0,
+                                    10.0,
+                                    FundingSourceStateGraphQL.ACTIVE,
+                                    "USD",
+                                    CreditCardFundingSourceGraphQL.TransactionVelocity(
+                                        "TransactionVelocity",
+                                        10000,
+                                        listOf("10000/P1D")
+                                    ),
+                                    "last4",
+                                    CreditCardNetwork.VISA,
+                                    CardType.CREDIT
+                                )
                             )
-                        )
+                        ),
+                        null
                     )
                 ),
                 "dummyNextToken"
@@ -220,14 +230,16 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
         result.items.size shouldBe 1
         result.nextToken shouldBe "dummyNextToken"
 
-        with(result.items[0]) {
+        with(result.items[0] as CreditCardFundingSource) {
             id shouldBe("id")
             owner shouldBe("owner")
             version shouldBe 1
-            state shouldBe FundingSource.State.ACTIVE
+            state shouldBe FundingSourceState.ACTIVE
             currency shouldBe "USD"
+            transactionVelocity?.maximum shouldBe 10000
+            transactionVelocity?.velocity shouldBe listOf("10000/P1D")
             last4 shouldBe "last4"
-            network shouldBe FundingSource.CreditCardNetwork.VISA
+            network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
         }
 
         verify(mockAppSyncClient).query(any<ListFundingSourcesQuery>())

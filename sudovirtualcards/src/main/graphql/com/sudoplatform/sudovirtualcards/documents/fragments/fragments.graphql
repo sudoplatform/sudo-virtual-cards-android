@@ -23,6 +23,13 @@ fragment Owner on Owner {
   issuer
 }
 
+fragment SealedAttribute on SealedAttribute {
+  keyId
+  algorithm
+  plainTextType
+  base64EncodedSealedData
+}
+
 fragment ProvisionalFundingSource on ProvisionalFundingSource {
   id
   owner
@@ -34,7 +41,7 @@ fragment ProvisionalFundingSource on ProvisionalFundingSource {
   state
 }
 
-fragment FundingSource on CreditCardFundingSource {
+fragment CreditCardFundingSource on CreditCardFundingSource {
   id
   owner
   version
@@ -51,11 +58,35 @@ fragment FundingSource on CreditCardFundingSource {
   cardType
 }
 
-fragment SealedAttribute on SealedAttribute {
-  keyId
-  algorithm
-  plainTextType
-  base64EncodedSealedData
+fragment BankAccountFundingSource on BankAccountFundingSource {
+  id
+  owner
+  version
+  createdAtEpochMs
+  updatedAtEpochMs
+  state
+  currency
+  transactionVelocity {
+    maximum
+    velocity
+  }
+  bankAccountType
+  authorization {
+    language
+    content
+    contentType
+    signature
+    keyId
+    algorithm
+    data
+  }
+  last4
+  institutionName {
+    ...SealedAttribute
+  }
+  institutionLogo {
+    ...SealedAttribute
+  }
 }
 
 fragment ProvisionalCard on ProvisionalCard {
@@ -151,6 +182,7 @@ fragment SealedTransactionDetailChargeAttribute on SealedTransactionDetailCharge
   }
   fundingSourceId
   description
+  state
 }
 
 fragment SealedTransaction on SealedTransaction {

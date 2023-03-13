@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -11,7 +11,7 @@ import com.checkout.android_sdk.CheckoutAPIClient
 import com.checkout.android_sdk.Utils.Environment
 import com.stripe.android.Stripe
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType
+import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 
 /**
  * Helper classes to manage optional funding source providers.
@@ -31,8 +31,9 @@ class FundingSourceProviders(
         /**
          * Returns funding source providers supported by the connected Virtual Cards service.
          *
-         * @param client The Virtual Cards Client for which the funding source provider apis will be returned.
-         * @param context Application context.
+         * @param client [SudoVirtualCardsClient] The Virtual Cards Client for which the funding
+         *  source provider apis will be returned.
+         * @param context [Context] Application context.
          */
         suspend fun getFundingSourceProviders(
             client: SudoVirtualCardsClient,
@@ -40,9 +41,9 @@ class FundingSourceProviders(
         ): FundingSourceProviders {
             var stripe: Stripe? = null
             var checkout: CheckoutAPIClient? = null
-            var stripeCardEnabled: Boolean = false
-            var checkoutCardEnabled: Boolean = false
-            var checkoutBankAccountEnabled: Boolean = false
+            var stripeCardEnabled = false
+            var checkoutCardEnabled = false
+            var checkoutBankAccountEnabled = false
 
             val config = client.getFundingSourceClientConfiguration()
             config.forEach {

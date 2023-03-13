@@ -123,4 +123,11 @@
         <packageUrl regex="true">^pkg:maven/org\.codehaus\.woodstox/stax2\-api@.*$</packageUrl>
         <cve>CVE-2022-40152</cve>
     </suppress>
+    <suppress until="2023-07-03">
+        <notes><![CDATA[
+        file name: kotlin-analysis-intellij-1.7.20.jar (shaded: com.google.guava:guava:31.0.1-jre)
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
+        <vulnerabilityName>CVE-2020-8908</vulnerabilityName>
+    </suppress>
 </suppressions>

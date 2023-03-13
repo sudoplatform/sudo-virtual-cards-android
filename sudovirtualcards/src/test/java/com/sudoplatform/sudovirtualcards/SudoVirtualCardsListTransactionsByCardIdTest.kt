@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -49,7 +49,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.ResponseBody.Companion.toResponseBody
-import org.bouncycastle.util.encoders.Base64
 import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Before
@@ -64,13 +63,6 @@ import java.util.concurrent.CancellationException
  * and spies.
  */
 class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
-
-    private fun mockSeal(value: String): String {
-        val valueBytes = value.toByteArray()
-        val data = ByteArray(256)
-        valueBytes.copyInto(data)
-        return String(Base64.encode(data), Charsets.UTF_8)
-    }
 
     private val queryResultItem by before {
         ListTransactionsByCardIdQuery.Item(
@@ -161,7 +153,8 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                                         )
                                     ),
                                     "fundingSourceId",
-                                    mockSeal("description")
+                                    mockSeal("description"),
+                                    mockSeal("CLEARED")
                                 )
                             )
                         )
@@ -276,8 +269,8 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     it.variables().sortOrder() shouldBe SortOrderEntity.DESC
                 }
             )
-        verify(mockKeyManager, times(16)).decryptWithPrivateKey(anyString(), any(), any())
-        verify(mockKeyManager, times(16)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+        verify(mockKeyManager, times(17)).decryptWithPrivateKey(anyString(), any(), any())
+        verify(mockKeyManager, times(17)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
     }
 
     @Test
@@ -320,8 +313,8 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     it.variables().sortOrder() shouldBe SortOrderEntity.DESC
                 }
             )
-        verify(mockKeyManager, times(16)).decryptWithPrivateKey(anyString(), any(), any())
-        verify(mockKeyManager, times(16)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+        verify(mockKeyManager, times(17)).decryptWithPrivateKey(anyString(), any(), any())
+        verify(mockKeyManager, times(17)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
     }
 
     @Test
@@ -382,8 +375,8 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     it.variables().sortOrder() shouldBe SortOrderEntity.DESC
                 }
             )
-        verify(mockKeyManager, times(16)).decryptWithPrivateKey(anyString(), any(), any())
-        verify(mockKeyManager, times(16)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+        verify(mockKeyManager, times(17)).decryptWithPrivateKey(anyString(), any(), any())
+        verify(mockKeyManager, times(17)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
     }
 
     @Test

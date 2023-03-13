@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -43,7 +43,6 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Protocol
 import okhttp3.ResponseBody.Companion.toResponseBody
-import org.bouncycastle.util.encoders.Base64
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -55,13 +54,6 @@ import java.net.HttpURLConnection
  * using mocks and spies.
  */
 class SudoVirtualCardsGetTransactionTest : BaseTests() {
-
-    private fun mockSeal(value: String): String {
-        val valueBytes = value.toByteArray()
-        val data = ByteArray(256)
-        valueBytes.copyInto(data)
-        return String(Base64.encode(data), Charsets.UTF_8)
-    }
 
     private val queryResult by before {
         GetTransactionQuery.GetTransaction(
@@ -152,7 +144,8 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
                                         )
                                     ),
                                     "fundingSourceId",
-                                    mockSeal("description")
+                                    mockSeal("description"),
+                                    mockSeal("CLEARED")
                                 )
                             )
                         )
@@ -249,8 +242,8 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
 
         verify(mockAppSyncClient).query(any<GetTransactionQuery>())
         verify(mockPublicKeyService).getCurrentKey()
-        verify(mockKeyManager, times(16)).decryptWithPrivateKey(anyString(), any(), any())
-        verify(mockKeyManager, times(16)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+        verify(mockKeyManager, times(17)).decryptWithPrivateKey(anyString(), any(), any())
+        verify(mockKeyManager, times(17)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
     }
 
     private fun checkTransaction(transaction: Transaction) {

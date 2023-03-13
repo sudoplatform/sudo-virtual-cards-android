@@ -40,14 +40,24 @@ query GetFundingSourceClientConfiguration {
 
 query GetFundingSource($id: ID!) {
   getFundingSource(id: $id) {
-    ...FundingSource
+    ... on CreditCardFundingSource {
+      ...CreditCardFundingSource
+    }
+    ... on BankAccountFundingSource {
+      ...BankAccountFundingSource
+    }
   }
 }
 
 query ListFundingSources($limit: Int, $nextToken: String) {
   listFundingSources(limit: $limit, nextToken: $nextToken) {
     items {
-      ...FundingSource
+      ... on CreditCardFundingSource {
+        ...CreditCardFundingSource
+      }
+      ... on BankAccountFundingSource {
+        ...BankAccountFundingSource
+      }
     }
     nextToken
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -7,14 +7,13 @@
 package com.sudoplatform.sudovirtualcards.types
 
 import android.os.Parcelable
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType
 import kotlinx.parcelize.Parcelize
 
 /**
  * A representation of the funding source client configuration in the Sudo Platform Virtual Cards SDK.
  *
  * @property type [String] Type of the configuration provider.
- * @property fundingSourceType [FundingSourceType] Type of the funding source
+ * @property fundingSourceType [FundingSourceType] Type of the funding source.
  * @property version [Int] Configuration version.
  * @property apiKey [String] API key for configuring calls to the provider.
  */

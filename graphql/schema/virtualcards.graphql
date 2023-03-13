@@ -6,6 +6,17 @@ interface CommonObject {
   updatedAtEpochMs: Float!
 }
 
+interface CommonFundingSource {
+  id: ID!
+  owner: ID!
+  version: Int!
+  createdAtEpochMs: Float!
+  updatedAtEpochMs: Float!
+  state: FundingSourceState!
+  currency: String!
+  transactionVelocity: TransactionVelocity
+}
+
 enum KeyFormat {
   # PKCS#1 RSA Public Key
   RSA_PUBLIC_KEY
@@ -35,6 +46,12 @@ enum CardType {
   CREDIT
   DEBIT
   PREPAID
+  OTHER
+}
+
+enum BankAccountType {
+  SAVINGS
+  CHECKING
   OTHER
 }
 
@@ -110,7 +127,7 @@ type TransactionVelocity {
   velocity: [String!]
 }
 
-type CreditCardFundingSource implements CommonObject {
+type CreditCardFundingSource implements CommonObject & CommonFundingSource {
   id: ID!
   owner: ID!
   version: Int!
@@ -124,7 +141,33 @@ type CreditCardFundingSource implements CommonObject {
   cardType: CardType!
 }
 
-union FundingSource = CreditCardFundingSource
+type SignedAuthorizationText {
+  data: String!
+  signature: String!
+  algorithm: String!
+  keyId: String!
+  content: String!
+  contentType: String!
+  language: String!
+}
+
+type BankAccountFundingSource implements CommonObject & CommonFundingSource {
+  id: ID!
+  owner: ID!
+  version: Int!
+  createdAtEpochMs: Float!
+  updatedAtEpochMs: Float!
+  state: FundingSourceState!
+  currency: String!
+  transactionVelocity: TransactionVelocity
+  bankAccountType: BankAccountType!
+  authorization: SignedAuthorizationText!
+  last4: String!
+  institutionName: SealedAttribute!
+  institutionLogo: SealedAttribute
+}
+
+union FundingSource = CreditCardFundingSource | BankAccountFundingSource
 
 type ProvisionalFundingSource implements CommonObject {
   id: ID!
@@ -214,6 +257,7 @@ type SealedTransactionDetailChargeAttribute {
   fundingSourceAmount: SealedCurrencyAmountAttribute!
   fundingSourceId: ID!
   description: String!
+  state: String
 }
 
 type SealedMarkupAttribute {
@@ -267,6 +311,7 @@ enum ProvisionalFundingSourceState {
 enum FundingSourceState {
   ACTIVE
   INACTIVE
+  REFRESH
 }
 
 enum FundingSourceType {
@@ -284,6 +329,7 @@ input SetupFundingSourceRequest {
   type: FundingSourceType!
   currency: String!
   supportedProviders: [String!]
+  language: String
 }
 
 input CompleteFundingSourceRequest {

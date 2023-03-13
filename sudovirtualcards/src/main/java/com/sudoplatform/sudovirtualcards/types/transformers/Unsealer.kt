@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -12,7 +12,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
-import com.sudoplatform.sudovirtualcards.graphql.GetProvisionalCardQuery
+import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCard
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCurrencyAmountAttribute
 import com.sudoplatform.sudovirtualcards.keys.DefaultPublicKeyService
@@ -20,6 +20,7 @@ import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
 import com.sudoplatform.sudovirtualcards.types.BillingAddress
 import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
 import com.sudoplatform.sudovirtualcards.types.Expiry
+import com.sudoplatform.sudovirtualcards.types.InstitutionLogo
 import com.sudoplatform.sudovirtualcards.types.JsonValue
 import com.sudoplatform.sudovirtualcards.types.SymmetricKeyEncryptionAlgorithm
 
@@ -79,7 +80,7 @@ internal class Unsealer(
     }
 
     /**
-     * Unseal the fields of a GraphQL [CardProvisionMutation.BillingAddress] and convert them to
+     * Unseal the fields of a GraphQL [SealedCard.BillingAddress] and convert them to
      * a [BillingAddress].
      */
     fun unseal(value: SealedCard.BillingAddress?): BillingAddress? {
@@ -100,8 +101,8 @@ internal class Unsealer(
     }
 
     /**
-     * Unseal the fields of the GraphQL [GetProvisionalCardQuery.Expiry] and convert them
-     * to an [Expiry].
+     * Unseal the fields of the GraphQL [SealedCard.Expiry] and convert them to an
+     * [Expiry].
      */
     fun unseal(value: SealedCard.Expiry): Expiry {
         val expiry = value.fragments().sealedExpiryAttribute()
@@ -112,12 +113,44 @@ internal class Unsealer(
     }
 
     /**
-     * Unseal the fields of the GraphQL [GetProvisionalCardQuery.Metadata] and convert them
+     * Unseal the fields of the GraphQL [SealedCard.Metadata] and convert them
      * to a [Metadata] type.
      */
     fun unseal(value: SealedCard.Metadata): JsonValue<Any> {
         val metadata = value.fragments().sealedAttribute()
         return unsealJsonValue(metadata.algorithm(), metadata.base64EncodedSealedData())
+    }
+
+    /**
+     * Unseal the fields of the GraphQL [BankAccountFundingSource.InstitutionName] type.
+     */
+    fun unseal(value: BankAccountFundingSource.InstitutionName): String {
+        val sealedAttribute = value.fragments().sealedAttribute()
+        if (sealedAttribute.plainTextType() != "string") {
+            throw UnsealerException.UnsupportedDataTypeException(
+                "institutionName plain text type ${sealedAttribute.plainTextType()} is invalid"
+            )
+        }
+        return unseal(sealedAttribute.base64EncodedSealedData())
+    }
+
+    /**
+     * Unseal the fields of the GraphQL [BankAccountFundingSource.InstitutionLogo] and convert them
+     * to an [InstitutionLogo] type.
+     */
+    fun unseal(value: BankAccountFundingSource.InstitutionLogo?): InstitutionLogo? {
+        val sealedAttribute = value?.fragments()?.sealedAttribute() ?: return null
+        if (sealedAttribute.plainTextType() != "json-string") {
+            throw UnsealerException.UnsupportedDataTypeException(
+                "institutionLogo plain text type ${sealedAttribute.plainTextType()} is invalid"
+            )
+        }
+        val unsealedLogo = unseal(sealedAttribute.base64EncodedSealedData())
+        val decodedLogo = Gson().fromJson(unsealedLogo, InstitutionLogo::class.java)
+        return InstitutionLogo(
+            type = decodedLogo.type,
+            data = decodedLogo.data
+        )
     }
 
     /**

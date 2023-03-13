@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -16,6 +16,7 @@ import com.sudoplatform.sudovirtualcards.rules.ActualPropertyResetter
 import com.sudoplatform.sudovirtualcards.rules.PropertyResetRule
 import com.sudoplatform.sudovirtualcards.rules.PropertyResetter
 import com.sudoplatform.sudovirtualcards.rules.TimberLogRule
+import org.bouncycastle.util.encoders.Base64
 import org.junit.Rule
 
 /**
@@ -36,5 +37,16 @@ abstract class BaseTests : PropertyResetter by ActualPropertyResetter() {
 
     protected val mockLogger by before {
         Logger("mock", mockLogDriver)
+    }
+
+    protected fun missingProvider(provider: String): java.lang.AssertionError {
+        return AssertionError("Missing provider $provider")
+    }
+
+    protected fun mockSeal(value: String): String {
+        val valueBytes = value.toByteArray()
+        val data = ByteArray(256)
+        valueBytes.copyInto(data)
+        return String(Base64.encode(data), Charsets.UTF_8)
     }
 }
