@@ -100,7 +100,7 @@ data class CheckoutCardProvisioningData(
  * @property provider See [ProviderCommonData.provider].
  * @property version See [ProviderCommonData.version].
  * @property type See [ProviderCommonData.type].
- * @property linkToken [String] Provider setup link token.
+ * @property linkToken [LinkToken] Provider setup link token data.
  * @property authorizationText [AuthorizationText] Array of different content type representations of the same agreement
  *  in the language most closely matching the language specified in the call to [SudoVirtualCardsClient.setupFundingSource].
  */
@@ -110,9 +110,27 @@ data class CheckoutBankAccountProvisioningData(
     override val provider: String = ProviderDefaults.checkoutProvider,
     override val version: Int = ProviderDefaults.version,
     override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
-    val linkToken: String,
+    @SerializedName("plaidLinkToken")
+    val linkToken: LinkToken,
     val authorizationText: List<AuthorizationText>
 ) : ProviderProvisioningData()
+
+/**
+ * Representation of a [LinkToken] containing information required to setup the bank account funding source creation.
+ *
+ * @property linkToken [String] Provider setup link token.
+ * @property expiration [String] Date in which the link token will expire.
+ * @property requestId [String] Identifier of the request from the provider.
+ */
+@Keep
+@Parcelize
+data class LinkToken(
+    @SerializedName("link_token")
+    val linkToken: String,
+    val expiration: String,
+    @SerializedName("request_id")
+    val requestId: String
+) : Parcelable
 
 /**
  * Backward compatible ProvisioningData - represents stripe

@@ -23,6 +23,7 @@ import com.sudoplatform.sudovirtualcards.graphql.type.SetupFundingSourceRequest
 import com.sudoplatform.sudovirtualcards.types.AuthorizationText
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardProvisioningData
+import com.sudoplatform.sudovirtualcards.types.LinkToken
 import com.sudoplatform.sudovirtualcards.types.ProvisioningData
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
@@ -129,7 +130,11 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             "checkout",
             1,
             FundingSourceTypeEntity.BANK_ACCOUNT,
-            "linkToken",
+            LinkToken(
+                "linkToken",
+                "expiration",
+                "requestId"
+            ),
             listOf(authorizationText)
         )
     )
@@ -141,7 +146,11 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             "checkout",
             1,
             FundingSourceTypeEntity.BANK_ACCOUNT,
-            "linkToken",
+            LinkToken(
+                "linkToken",
+                "expiration",
+                "requestId"
+            ),
             listOf(authorizationText)
         )
 
