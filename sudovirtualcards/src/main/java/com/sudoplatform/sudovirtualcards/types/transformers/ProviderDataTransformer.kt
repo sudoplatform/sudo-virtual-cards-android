@@ -16,11 +16,13 @@ import com.google.gson.JsonDeserializationContext
 import com.sudoplatform.sudovirtualcards.types.BaseProvisioningData
 import com.sudoplatform.sudovirtualcards.types.BaseUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
+import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountRefreshUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardProvisioningData
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.ProviderProvisioningData
 import com.sudoplatform.sudovirtualcards.types.ProviderUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
+
 import java.lang.reflect.Type
 
 /**
@@ -101,7 +103,11 @@ class UserInteractionDataDeserializer : JsonDeserializer<ProviderUserInteraction
         val version = ProviderDataTransformer.extractAsIntOrThrow(jObject, "version")
         val type = ProviderDataTransformer.extractAsStringOrThrow(jObject, "type")
         return when (provider) {
-            "checkout" -> context!!.deserialize(jElement, CheckoutCardUserInteractionData::class.java)
+            "checkout" -> when (type) {
+                "CREDIT_CARD" -> context!!.deserialize(jElement, CheckoutCardUserInteractionData::class.java)
+                "BANK_ACCOUNT" -> context!!.deserialize(jElement, CheckoutBankAccountRefreshUserInteractionData::class.java)
+                else -> context!!.deserialize(jElement, BaseUserInteractionData::class.java)
+            }
             else -> context!!.deserialize(jElement, BaseUserInteractionData::class.java)
         }
     }

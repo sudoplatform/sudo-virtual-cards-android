@@ -11,6 +11,9 @@ import com.sudoplatform.sudovirtualcards.graphql.CancelFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.CompleteFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
+import com.sudoplatform.sudovirtualcards.graphql.OnFundingSourceUpdateSubscription
+import com.sudoplatform.sudovirtualcards.graphql.RefreshFundingSourceMutation
+
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as GraphqlFundingSourceState
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceState
@@ -68,6 +71,34 @@ internal object FundingSourceTransformer {
     }
 
     /**
+     * Transform the results of the refresh funding source mutation.
+     *
+     * @param deviceKeyManager [DeviceKeyManager] Used to retrieve keys to unseal data.
+     * @param result [RefreshFundingSourceMutation.RefreshFundingSource] The GraphQL mutation results.
+     * @return The [FundingSource] entity type.
+     */
+    fun toEntityFromRefreshFundingSourceMutationResult(
+        deviceKeyManager: DeviceKeyManager,
+        result: RefreshFundingSourceMutation.RefreshFundingSource
+    ): FundingSource {
+        return when (result.__typename()) {
+            "CreditCardFundingSource" -> {
+                val fundingSource = result.asCreditCardFundingSource()?.fragments()?.creditCardFundingSource()
+                    ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
+                this.toEntity(fundingSource)
+            }
+            "BankAccountFundingSource" -> {
+                val fundingSource = result.asBankAccountFundingSource()?.fragments()?.bankAccountFundingSource()
+                    ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
+                this.toEntity(deviceKeyManager, fundingSource)
+            }
+            else -> {
+                throw SudoVirtualCardsClient.FundingSourceException.FailedException(UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG)
+            }
+        }
+    }
+
+    /**
      * Transform the results of the cancel funding source mutation.
      *
      * @param deviceKeyManager [DeviceKeyManager] Used to retrieve keys to unseal data.
@@ -105,6 +136,34 @@ internal object FundingSourceTransformer {
     fun toEntityFromGetFundingSourceQueryResult(
         deviceKeyManager: DeviceKeyManager,
         result: GetFundingSourceQuery.GetFundingSource
+    ): FundingSource {
+        return when (result.__typename()) {
+            "CreditCardFundingSource" -> {
+                val fundingSource = result.asCreditCardFundingSource()?.fragments()?.creditCardFundingSource()
+                    ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
+                this.toEntity(fundingSource)
+            }
+            "BankAccountFundingSource" -> {
+                val fundingSource = result.asBankAccountFundingSource()?.fragments()?.bankAccountFundingSource()
+                    ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
+                this.toEntity(deviceKeyManager, fundingSource)
+            }
+            else -> {
+                throw SudoVirtualCardsClient.FundingSourceException.FailedException(UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG)
+            }
+        }
+    }
+
+    /**
+     * Transform the results of the funding source update notification
+     *
+     * @param deviceKeyManager [DeviceKeyManager] Used to retrieve keys to unseal data.
+     * @param result [OnFundingSourceUpdateSubscription.OnFundingSourceUpdate] The GraphQL mutation results.
+     * @return The [FundingSource] entity type.
+     */
+    fun toEntityFromFundingSourceUpdateSubscriptionResult(
+        deviceKeyManager: DeviceKeyManager,
+        result: OnFundingSourceUpdateSubscription.OnFundingSourceUpdate
     ): FundingSource {
         return when (result.__typename()) {
             "CreditCardFundingSource" -> {

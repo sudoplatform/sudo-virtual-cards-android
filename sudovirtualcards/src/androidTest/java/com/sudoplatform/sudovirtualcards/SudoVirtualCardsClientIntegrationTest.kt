@@ -22,6 +22,8 @@ import timber.log.Timber
 import java.util.logging.Logger
 import com.sudoplatform.sudokeymanager.KeyManagerFactory
 import com.sudoplatform.sudovirtualcards.logging.LogConstants
+import com.sudoplatform.sudovirtualcards.subscription.FundingSourceSubscriber
+import com.sudoplatform.sudovirtualcards.subscription.Subscriber
 import com.sudoplatform.sudovirtualcards.types.AuthorizationText
 import com.sudoplatform.sudovirtualcards.types.CardState
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderCompletionData
@@ -1909,32 +1911,43 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
     }
 
     private val transactionSubscriber = object : TransactionSubscriber {
-        override fun transactionChanged(transaction: Transaction) { }
         override fun connectionStatusChanged(state: TransactionSubscriber.ConnectionState) { }
+        override fun transactionChanged(transaction: Transaction) { }
+    }
+
+    private val fundingSourceSubscriber = object : FundingSourceSubscriber {
+        override fun connectionStatusChanged(state: Subscriber.ConnectionState) { }
+        override fun fundingSourceChanged(fundingSource: FundingSource) {}
     }
 
     @Test
-    @Ignore
     fun subscribeUnsubscribeShouldNotFail() = runBlocking {
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
         vcClient.subscribeToTransactions("id", transactionSubscriber)
-        vcClient.unsubscribeAll()
+        vcClient.unsubscribeAllFromTransactions()
 
         vcClient.subscribeToTransactions("id", transactionSubscriber)
         vcClient.unsubscribeFromTransactions("id")
 
         vcClient.subscribeToTransactions("id") { }
 
+        vcClient.subscribeToFundingSources("id", fundingSourceSubscriber)
+        vcClient.unsubscribeAllFromFundingSources()
+
+        vcClient.subscribeToFundingSources("id", fundingSourceSubscriber)
+        vcClient.unsubscribeFromFundingSources("id")
+
+        vcClient.subscribeToFundingSources("id") { }
+
         vcClient.close()
     }
 
     @Test
-    @Ignore
     fun subscribeShouldThrowWhenNotAuthenticated() = runBlocking<Unit> {
         vcClient.unsubscribeFromTransactions("id")
-        vcClient.unsubscribeAll()
+        vcClient.unsubscribeAllFromTransactions()
 
         shouldThrow<SudoVirtualCardsClient.TransactionException.AuthenticationException> {
             vcClient.subscribeToTransactions("id", transactionSubscriber)
@@ -1942,6 +1955,16 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
 
         shouldThrow<SudoVirtualCardsClient.TransactionException.AuthenticationException> {
             vcClient.subscribeToTransactions("id") {}
+        }
+
+        vcClient.unsubscribeFromFundingSources("id")
+        vcClient.unsubscribeAllFromFundingSources()
+        shouldThrow<SudoVirtualCardsClient.FundingSourceException.AuthenticationException> {
+            vcClient.subscribeToFundingSources("id", fundingSourceSubscriber)
+        }
+
+        shouldThrow<SudoVirtualCardsClient.FundingSourceException.AuthenticationException> {
+            vcClient.subscribeToFundingSources("id") {}
         }
     }
 

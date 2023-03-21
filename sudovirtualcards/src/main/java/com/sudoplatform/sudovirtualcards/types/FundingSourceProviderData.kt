@@ -228,6 +228,47 @@ internal data class SerializedCheckoutBankAccountCompletionData(
     val authorizationTextSignature: Signature
 ) : ProviderCommonData()
 
+sealed class ProviderRefreshData : ProviderCommonData(), Parcelable
+
+/**
+ * Representation of [CheckoutBankAccountProviderRefreshData] sent to the provider and
+ * used to initiate or complete the funding source refresh.
+ *
+ * @property provider See [ProviderCommonData.provider].
+ * @property version See [ProviderCommonData.version].
+ * @property type See [ProviderCommonData.type].
+ * @property accountId [String] Identifier of the bank account to be used, if known.
+ * @property authorizationText [AuthorizationText] Authorization text presented to and agreed to by the user, if available.
+ */
+@Keep
+@Parcelize
+data class CheckoutBankAccountProviderRefreshData(
+    override val provider: String = ProviderDefaults.checkoutProvider,
+    override val version: Int = ProviderDefaults.version,
+    override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
+    val accountId: String? = null,
+    val authorizationText: AuthorizationText? = null
+) : ProviderRefreshData()
+
+/**
+ * Representation of [SerializedCheckoutBankAccountRefreshData] used to serialised completion data
+ * required to complete the bank account funding source refresh.
+ *
+ * @property provider See [ProviderCommonData.provider].
+ * @property version See [ProviderCommonData.version].
+ * @property type See [ProviderCommonData.type].
+ * @property keyId [String] Identifier of the key used to sign the authorization text.
+ * @property authorizationTextSignature The signature pertaining to the authorization text.
+ */
+@Keep
+internal data class SerializedCheckoutBankAccountRefreshData(
+    override val provider: String = ProviderDefaults.checkoutProvider,
+    override val version: Int = ProviderDefaults.version,
+    override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
+    val keyId: String,
+    val authorizationTextSignature: Signature? = null
+) : ProviderCommonData()
+
 sealed class ProviderUserInteractionData : ProviderCommonData(), Parcelable
 
 /**
@@ -248,7 +289,7 @@ data class BaseUserInteractionData(
 
 /**
  * Returned when user interaction is required during the funding source setup operation
- * for checkout.com funding sources
+ * for checkout.com card funding sources
  *
  * @property provider See [ProviderCommonData.provider].
  * @property version See [ProviderCommonData.version].
@@ -262,4 +303,25 @@ data class CheckoutCardUserInteractionData(
     override val version: Int = ProviderDefaults.version,
     override val type: FundingSourceType = FundingSourceType.CREDIT_CARD,
     val redirectUrl: String
+) : ProviderUserInteractionData()
+
+/**
+ * Returned when user interaction is required during the funding source refresh operation
+ * for checkout.com bank account funding sources.
+ *
+ * @property provider See [ProviderCommonData.provider].
+ * @property version See [ProviderCommonData.version].
+ * @property type See [ProviderCommonData.type].
+ * @property linkToken [LinkToken] Provider link token data. Invocation of Plaid Link using this token token will invoke update mode.
+ * @property authorizationText [AuthorizationText] Array of different content type representations of the same agreement
+ *  in the language most closely matching the language specified in the call to [SudoVirtualCardsClient.refreshFundingSource].
+ */
+@Keep
+@Parcelize
+data class CheckoutBankAccountRefreshUserInteractionData(
+    override val provider: String = ProviderDefaults.checkoutProvider,
+    override val version: Int = ProviderDefaults.version,
+    override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
+    val linkToken: String,
+    val authorizationText: List<AuthorizationText>
 ) : ProviderUserInteractionData()

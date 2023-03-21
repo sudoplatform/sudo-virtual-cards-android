@@ -21,6 +21,8 @@ import com.sudoplatform.sudovirtualcards.keys.DefaultDeviceKeyManager
 import com.sudoplatform.sudovirtualcards.keys.DefaultPublicKeyService
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.logging.LogConstants
+import com.sudoplatform.sudovirtualcards.subscription.FundingSourceSubscriber
+import com.sudoplatform.sudovirtualcards.subscription.Subscriber
 import com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
 import com.sudoplatform.sudovirtualcards.types.CreateKeysIfAbsentResult
@@ -41,6 +43,7 @@ import com.sudoplatform.sudovirtualcards.types.VirtualCard
 import com.sudoplatform.sudovirtualcards.types.VirtualCardsConfig
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
+import com.sudoplatform.sudovirtualcards.types.inputs.RefreshFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
 import java.util.Objects
@@ -203,6 +206,8 @@ interface SudoVirtualCardsClient : AutoCloseable {
             FundingSourceException(message = message, cause = cause)
         class CompletionFailedException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
+        class RefreshFailedException(message: String? = null, cause: Throwable? = null) :
+            FundingSourceException(message = message, cause = cause)
         class CancelFailedException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
         class DuplicateFundingSourceException(message: String? = null, cause: Throwable? = null) :
@@ -228,6 +233,8 @@ interface SudoVirtualCardsClient : AutoCloseable {
         class VelocityExceededException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
         class PublicKeyException(message: String? = null, cause: Throwable? = null) :
+            FundingSourceException(message = message, cause = cause)
+        class AuthenticationException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
         class FundingSourceRequiresUserInteractionException(
             message: String? = null,
@@ -336,6 +343,17 @@ interface SudoVirtualCardsClient : AutoCloseable {
      */
     @Throws(FundingSourceException::class)
     suspend fun completeFundingSource(input: CompleteFundingSourceInput): FundingSource
+
+    /**
+     * Refresh a [FundingSource] currently in REFRESH state.
+     *
+     * @param input [RefreshFundingSourceInput] Parameters used to complete the creation of a funding source.
+     * @return The refreshed [FundingSource].
+     *
+     * @throws [FundingSourceException].
+     */
+    @Throws(FundingSourceException::class)
+    suspend fun refreshFundingSource(input: RefreshFundingSourceInput): FundingSource
 
     /**
      * Get the [FundingSourceClientConfiguration] from the service.
@@ -619,7 +637,8 @@ interface SudoVirtualCardsClient : AutoCloseable {
     ): ListAPIResult<Transaction, PartialTransaction>
 
     /**
-     * Subscribes to be notified of new, updated and deleted [Transaction]s.
+     * Subscribes to be notified of new, updated and deleted [Transaction]s. Subscribing multiple
+     * times with the same subscriber id will cause the previous subscriber to be unsubscribed.
      *
      * @param id [String] Unique identifier of the subscriber.
      * @param subscriber [TransactionSubscriber] Subscriber to notify.
@@ -639,7 +658,32 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * Unsubscribe all subscribers from receiving notifications about new, updated or
      * deleted [Transaction]s.
      */
+    suspend fun unsubscribeAllFromTransactions()
+    @Deprecated("Use unsubscribeAllFromTransactions instead")
     suspend fun unsubscribeAll()
+
+    /**
+     * Subscribes to be notified of modified [FundingSource]s. Subscribing multiple times with the same
+     * subscriber id will cause the previous subscriber to be unsubscribed.
+     *
+     * @param id [String] Unique identifier of the subscriber.
+     * @param subscriber [FundingSourceSubscriber] Subscriber to notify.
+     */
+    @Throws(FundingSourceException::class)
+    suspend fun subscribeToFundingSources(id: String, subscriber: FundingSourceSubscriber)
+
+    /**
+     * Unsubscribe the specified subscriber so that it no longer receives notifications about
+     * modified [FundingSource]s.
+     *
+     * @param id [String] Unique identifier of the subscriber.
+     */
+    suspend fun unsubscribeFromFundingSources(id: String)
+
+    /**
+     * Unsubscribe all subscribers from receiving notifications about modifications to [FundingSource]s.
+     */
+    suspend fun unsubscribeAllFromFundingSources()
 
     /**
      * Reset any internal state and cached content.
@@ -647,6 +691,30 @@ interface SudoVirtualCardsClient : AutoCloseable {
     fun reset()
 }
 
+/**
+ * Subscribes to be notified of modified [FundingSource]s.
+ *
+ * @param id [String] Unique identifier of the subscriber.
+ * @param onConnectionChange lambda that is called when the subscription connection state changes.
+ * @param onFundingSourceChanged lambda that receives updates as [FundingSource]s are modified.
+ */
+@Throws(SudoVirtualCardsClient.FundingSourceException::class)
+suspend fun SudoVirtualCardsClient.subscribeToFundingSources(
+    id: String,
+    onConnectionChange: (status: Subscriber.ConnectionState) -> Unit = {},
+    onFundingSourceChanged: (fundingSource: FundingSource) -> Unit
+) =
+    subscribeToFundingSources(
+        id,
+        object : FundingSourceSubscriber {
+            override fun connectionStatusChanged(state: Subscriber.ConnectionState) {
+                onConnectionChange.invoke(state)
+            }
+            override fun fundingSourceChanged(fundingSource: FundingSource) {
+                onFundingSourceChanged.invoke(fundingSource)
+            }
+        }
+    )
 /**
  * Subscribes to be notified of new, updated and deleted [Transaction]s.
  *
@@ -666,7 +734,6 @@ suspend fun SudoVirtualCardsClient.subscribeToTransactions(
             override fun connectionStatusChanged(state: TransactionSubscriber.ConnectionState) {
                 onConnectionChange.invoke(state)
             }
-
             override fun transactionChanged(transaction: Transaction) {
                 onTransactionChange.invoke(transaction)
             }

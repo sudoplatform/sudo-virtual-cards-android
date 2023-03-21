@@ -11,11 +11,11 @@ import com.sudoplatform.sudovirtualcards.types.Transaction
 /**
  * Subscriber for receiving notifications about new, updated or deleted [Transaction]s.
  */
-interface TransactionSubscriber {
-
+interface TransactionSubscriber : Subscriber {
     /**
-     * Connection state of the subscription.
+     * Connection state of the subscription. Redundant but retained for backwards compatibility.
      */
+    @Deprecated("Prefer Subscriber.ConnectionState")
     enum class ConnectionState {
 
         /**
@@ -31,18 +31,26 @@ interface TransactionSubscriber {
     }
 
     /**
+     * Default implementation in this class to maintain backwards compatibility. Once the deprecated method/enum
+     * are removed, this implementation should also be removed.
+     * See [Subscriber.connectionStatusChanged]
+     */
+    override fun connectionStatusChanged(state: Subscriber.ConnectionState) {
+        val localState = when (state) {
+            Subscriber.ConnectionState.CONNECTED -> ConnectionState.CONNECTED
+            Subscriber.ConnectionState.DISCONNECTED -> ConnectionState.DISCONNECTED
+        }
+        return this.connectionStatusChanged(localState)
+    }
+
+    @Deprecated("Prefer connectionStatusChanged(state: Subscriber.ConnectionState)")
+    fun connectionStatusChanged(state: ConnectionState) {
+    }
+
+    /**
      * Notifies the subscriber of a new, updated or deleted [Transaction].
      *
      * @param transaction new, updated or deleted [Transaction].
      */
     fun transactionChanged(transaction: Transaction)
-
-    /**
-     * Notifies the subscriber that the subscription connection state has changed. The subscriber won't be
-     * notified of [Transaction] changes until the connection status changes to [ConnectionState.CONNECTED]. The subscriber will
-     * stop receiving [Transaction] change notifications when the connection state changes to [ConnectionState.DISCONNECTED].
-     *
-     * @param state connection state.
-     */
-    fun connectionStatusChanged(state: ConnectionState)
 }

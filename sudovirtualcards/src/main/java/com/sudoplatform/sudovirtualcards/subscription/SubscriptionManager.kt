@@ -7,22 +7,25 @@
 package com.sudoplatform.sudovirtualcards.subscription
 
 import com.amazonaws.mobileconnectors.appsync.AppSyncSubscriptionCall
-import com.sudoplatform.sudovirtualcards.types.Transaction
 
 /**
  * Manages subscriptions for a specific GraphQL subscription.
  */
-internal class SubscriptionManager<T> {
+internal open class SubscriptionManager<T, S : Subscriber> {
 
     /**
      * Subscribers.
      */
-    private val subscribers: MutableMap<String, TransactionSubscriber> = mutableMapOf()
+    private val subscribers: MutableMap<String, S> = mutableMapOf()
 
     /**
      * AppSync subscription watcher.
      */
     internal var watcher: AppSyncSubscriptionCall<T>? = null
+
+    protected fun getSubscribers(): MutableMap<String, S> {
+        return this.subscribers
+    }
 
     /**
      * Adds or replaces a subscriber with the specified ID.
@@ -30,7 +33,7 @@ internal class SubscriptionManager<T> {
      * @param id subscriber ID.
      * @param subscriber subscriber to subscribe.
      */
-    internal fun replaceSubscriber(id: String, subscriber: TransactionSubscriber) {
+    internal fun replaceSubscriber(id: String, subscriber: S) {
         synchronized(this) {
             subscribers[id] = subscriber
         }
@@ -64,38 +67,19 @@ internal class SubscriptionManager<T> {
     }
 
     /**
-     * Notifies subscribers of a new, updated or deleted [Transaction].
-     *
-     * @param transaction new, updated or deleted [Transaction].
-     */
-    internal fun transactionChanged(transaction: Transaction) {
-        var subscribersToNotify: ArrayList<TransactionSubscriber>
-        synchronized(this) {
-            // Take a copy of the subscribers to notify in synchronized block
-            // but notify outside the block to avoid deadlock.
-            subscribersToNotify = ArrayList(subscribers.values)
-        }
-
-        // Notify subscribers.
-        for (subscriber in subscribersToNotify) {
-            subscriber.transactionChanged(transaction)
-        }
-    }
-
-    /**
      * Processes AppSync subscription connection status change.
      *
      * @param state connection state.
      */
-    internal fun connectionStatusChanged(state: TransactionSubscriber.ConnectionState) {
-        var subscribersToNotify: ArrayList<TransactionSubscriber>
+    internal fun connectionStatusChanged(state: Subscriber.ConnectionState) {
+        var subscribersToNotify: ArrayList<S>
         synchronized(this) {
             // Take a copy of the subscribers to notify in synchronized block
             // but notify outside the block to avoid deadlock.
             subscribersToNotify = ArrayList(subscribers.values)
 
             // If the subscription was disconnected then remove all subscribers.
-            if (state == TransactionSubscriber.ConnectionState.DISCONNECTED) {
+            if (state == Subscriber.ConnectionState.DISCONNECTED) {
                 subscribers.clear()
                 if (watcher?.isCanceled == false) {
                     watcher?.cancel()

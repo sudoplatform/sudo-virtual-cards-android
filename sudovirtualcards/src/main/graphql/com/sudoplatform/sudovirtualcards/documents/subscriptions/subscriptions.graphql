@@ -14,3 +14,14 @@ subscription OnUpdateCardProvisionState($owner: ID!, $clientRefId: String) {
     ...ProvisionalCard
   }
 }
+
+subscription OnFundingSourceUpdate($owner: ID!) {
+  onFundingSourceUpdate(owner: $owner) {
+    ... on CreditCardFundingSource {
+      ...CreditCardFundingSource
+    }
+    ... on BankAccountFundingSource {
+      ...BankAccountFundingSource
+    }
+  }
+}

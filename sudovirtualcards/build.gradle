@@ -95,7 +95,7 @@ dependencies {
     implementation 'com.github.checkout:frames-android:3.1.2'
 
     implementation 'org.bouncycastle:bcpkix-jdk15to18:1.71'
-    implementation 'com.nimbusds:nimbus-jose-jwt:9.23'
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
 
     // Sudo Platform
     implementation "com.sudoplatform:sudokeymanager:5.0.0"
