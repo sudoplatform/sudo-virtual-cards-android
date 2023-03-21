@@ -93,6 +93,8 @@ import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransform
 import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer.toAddressInput
 import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer.toMetadataInput
 import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardsConfigTransformer
+import java.util.Calendar
+import java.util.TimeZone
 import java.util.concurrent.CancellationException
 
 /**
@@ -171,7 +173,7 @@ internal class DefaultSudoVirtualCardsClient(
      * and allow us to retry. The value of `version` doesn't need to be kept up-to-date with the
      * version of the code.
      */
-    private val version: String = "9.0.0"
+    private val version: String = "9.1.1"
 
     /** This manages the subscriptions to transaction updates and deletes */
     private val subscriptions = SubscriptionService(appSyncClient, deviceKeyManager, sudoUserClient, logger)
@@ -243,10 +245,13 @@ internal class DefaultSudoVirtualCardsClient(
                 val publicKey = this.publicKeyService.getCurrentKey()
                     ?: throw SudoVirtualCardsClient.FundingSourceException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
                 val signingService = DefaultSigningService(deviceKeyManager)
+                TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+                val signedAt = Calendar.getInstance(TimeZone.getTimeZone("UTC")).time
                 val authorizationTextSignatureData = SignatureData(
                     hash = input.completionData.authorizationText.hash,
                     hashAlgorithm = input.completionData.authorizationText.hashAlgorithm,
-                    blob = input.completionData.accountId,
+                    account = input.completionData.accountId,
+                    signedAt = signedAt
                 )
                 val data = Gson().toJson(authorizationTextSignatureData)
                 val signature = signingService.signString(data, publicKey.keyId, KeyType.PRIVATE_KEY)
@@ -318,7 +323,7 @@ internal class DefaultSudoVirtualCardsClient(
                     val authorizationTextSignatureData = SignatureData(
                         hash = input.refreshData.authorizationText.hash,
                         hashAlgorithm = input.refreshData.authorizationText.hashAlgorithm,
-                        blob = input.refreshData.accountId,
+                        account = input.refreshData.accountId,
                     )
                     val data = Gson().toJson(authorizationTextSignatureData)
                     val signature = signingService.signString(data, publicKey.keyId, KeyType.PRIVATE_KEY)

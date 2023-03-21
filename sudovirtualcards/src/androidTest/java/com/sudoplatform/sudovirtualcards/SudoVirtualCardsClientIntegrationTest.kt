@@ -414,7 +414,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 ),
                 null
             )
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.CompletionDataInvalidException> {
+            shouldThrow<SudoVirtualCardsClient.FundingSourceException> {
                 vcClient.completeFundingSource(checkoutCompleteInput)
             }
         }

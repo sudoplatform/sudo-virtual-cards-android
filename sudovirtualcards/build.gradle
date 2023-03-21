@@ -15,7 +15,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 31
         versionCode = 1
-        versionName = "9.0.0"
+        versionName = "9.1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testApplicationId = "com.sudoplatform.sudovirtualcards.test"
         consumerProguardFiles 'consumer-rules.pro'

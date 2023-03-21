@@ -222,8 +222,11 @@ internal data class SerializedCheckoutBankAccountCompletionData(
     override val version: Int = ProviderDefaults.version,
     override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
     val keyId: String,
+    @SerializedName("public_token")
     val publicToken: String,
+    @SerializedName("account_id")
     val accountId: String,
+    @SerializedName("institution_id")
     val institutionId: String,
     val authorizationTextSignature: Signature
 ) : ProviderCommonData()

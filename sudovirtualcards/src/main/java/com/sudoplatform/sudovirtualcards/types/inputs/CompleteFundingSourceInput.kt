@@ -20,5 +20,5 @@ import com.sudoplatform.sudovirtualcards.types.ProviderCompletionData as Complet
 data class CompleteFundingSourceInput(
     val id: String,
     val completionData: CompletionDataInput,
-    val updateCardFundingSource: Boolean?
+    val updateCardFundingSource: Boolean? = null
 )
