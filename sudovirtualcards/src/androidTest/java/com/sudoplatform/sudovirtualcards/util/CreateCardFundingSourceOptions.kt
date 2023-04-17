@@ -13,4 +13,5 @@ data class CreateCardFundingSourceOptions(
     val currency: String = "USD",
     val supportedProviders: List<String>? = null,
     val updateCardFundingSource: Boolean? = null,
+    val applicationName: String = "system-test-app"
 )

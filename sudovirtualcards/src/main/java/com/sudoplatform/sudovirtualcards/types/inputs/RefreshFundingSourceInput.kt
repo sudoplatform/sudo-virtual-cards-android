@@ -6,6 +6,7 @@
 
 package com.sudoplatform.sudovirtualcards.types.inputs
 
+import com.sudoplatform.sudovirtualcards.types.ClientApplicationData
 import com.sudoplatform.sudovirtualcards.types.ProviderRefreshData as RefreshDataInput
 
 /**
@@ -14,6 +15,8 @@ import com.sudoplatform.sudovirtualcards.types.ProviderRefreshData as RefreshDat
  * @property id [String] Identifier of the provisional funding source to be completed and provisioned.
  * @property refreshData [RefreshDataInput] The refresh data used to complete
  *  the funding source refresh operation.
+ * @property applicationData [ClientApplicationData] Information about the client application which maps to
+ *  service-side configuration.
  * @property language [String] Some funding source types require presentation of end-user language
  *  specific agreements. This property allows the client application to specify the user's
  *  preferred language. If such presentation is required and has no translation in the requested
@@ -24,5 +27,6 @@ import com.sudoplatform.sudovirtualcards.types.ProviderRefreshData as RefreshDat
 data class RefreshFundingSourceInput(
     val id: String,
     val refreshData: RefreshDataInput,
+    val applicationData: ClientApplicationData,
     val language: String? = null
 )

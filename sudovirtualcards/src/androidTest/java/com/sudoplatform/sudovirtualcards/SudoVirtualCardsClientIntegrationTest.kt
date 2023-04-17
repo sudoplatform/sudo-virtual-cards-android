@@ -30,6 +30,7 @@ import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderComple
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardProvisioningData
+import com.sudoplatform.sudovirtualcards.types.ClientApplicationData
 import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
@@ -146,7 +147,9 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         verifyTestUserIdentity()
 
         if (isStripeEnabled(vcClient)) {
-            val setupStripeInput = SetupFundingSourceInput("USD", FundingSourceType.CREDIT_CARD, listOf("stripe"))
+            val setupStripeInput = SetupFundingSourceInput(
+                "USD", FundingSourceType.CREDIT_CARD, ClientApplicationData("system-test-app"), listOf("stripe")
+            )
             val stripeProvisionalFundingSource = vcClient.setupFundingSource(setupStripeInput)
 
             with(stripeProvisionalFundingSource) {
@@ -163,7 +166,9 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         }
 
         if (isCheckoutCardEnabled(vcClient)) {
-            val setupCheckoutCardInput = SetupFundingSourceInput("USD", FundingSourceType.CREDIT_CARD, listOf("checkout"))
+            val setupCheckoutCardInput = SetupFundingSourceInput(
+                "USD", FundingSourceType.CREDIT_CARD, ClientApplicationData("system-test-app"), listOf("checkout")
+            )
             val checkoutCardProvisionalFundingSource = vcClient.setupFundingSource(setupCheckoutCardInput)
 
             with(checkoutCardProvisionalFundingSource) {
@@ -178,7 +183,9 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 checkoutProvisioningData shouldNotBe null
             }
 
-            val setupCheckoutBankAccountInput = SetupFundingSourceInput("USD", FundingSourceType.BANK_ACCOUNT, listOf("checkout"))
+            val setupCheckoutBankAccountInput = SetupFundingSourceInput(
+                "USD", FundingSourceType.BANK_ACCOUNT, ClientApplicationData("system-test-app"), listOf("checkout")
+            )
             val checkoutBankAccountProvisionalFundingSource = vcClient.setupFundingSource(setupCheckoutBankAccountInput)
 
             with(checkoutBankAccountProvisionalFundingSource) {
@@ -202,7 +209,9 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
 
         val fundingSourceTypes = listOf(FundingSourceType.CREDIT_CARD, FundingSourceType.BANK_ACCOUNT)
         if (isStripeEnabled(vcClient)) {
-            val stripeSetupInput = SetupFundingSourceInput("AUD", fundingSourceTypes.first(), listOf("stripe"))
+            val stripeSetupInput = SetupFundingSourceInput(
+                "AUD", fundingSourceTypes.first(), ClientApplicationData("system-test-app"), listOf("stripe")
+            )
             shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnsupportedCurrencyException> {
                 vcClient.setupFundingSource(stripeSetupInput)
             }
@@ -210,7 +219,9 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
 
         if (isCheckoutCardEnabled(vcClient)) {
             fundingSourceTypes.forEach {
-                val checkoutSetupInput = SetupFundingSourceInput("AUD", it, listOf("checkout"))
+                val checkoutSetupInput = SetupFundingSourceInput(
+                    "AUD", it, ClientApplicationData("system-test-app"), listOf("checkout")
+                )
                 shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnsupportedCurrencyException> {
                     vcClient.setupFundingSource(checkoutSetupInput)
                 }
@@ -219,7 +230,9 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
 
         if (isCheckoutCardEnabled(vcClient)) {
             fundingSourceTypes.forEach {
-                val checkoutSetupInput = SetupFundingSourceInput("AUD", it, listOf("checkout"))
+                val checkoutSetupInput = SetupFundingSourceInput(
+                    "AUD", it, ClientApplicationData("system-test-app"), listOf("checkout")
+                )
                 shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnsupportedCurrencyException> {
                     vcClient.setupFundingSource(checkoutSetupInput)
                 }
@@ -349,6 +362,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             val stripeSetupInput = SetupFundingSourceInput(
                 "USD",
                 FundingSourceType.CREDIT_CARD,
+                ClientApplicationData("system-test-app"),
                 listOf("stripe")
             )
             val stripeProvisionalFundingSource = vcClient.setupFundingSource(stripeSetupInput)
@@ -372,6 +386,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             val checkoutSetupInput = SetupFundingSourceInput(
                 "USD",
                 FundingSourceType.CREDIT_CARD,
+                ClientApplicationData("system-test-app"),
                 listOf("checkout")
             )
             val checkoutProvisionalFundingSource = vcClient.setupFundingSource(checkoutSetupInput)
@@ -396,6 +411,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             val checkoutSetupInput = SetupFundingSourceInput(
                 "USD",
                 FundingSourceType.BANK_ACCOUNT,
+                ClientApplicationData("system-test-app"),
                 listOf("checkout")
             )
             val checkoutProvisionalFundingSource = vcClient.setupFundingSource(checkoutSetupInput)

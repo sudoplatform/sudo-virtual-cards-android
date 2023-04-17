@@ -23,6 +23,7 @@ import com.sudoplatform.sudovirtualcards.graphql.type.SetupFundingSourceRequest
 import com.sudoplatform.sudovirtualcards.types.AuthorizationText
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardProvisioningData
+import com.sudoplatform.sudovirtualcards.types.ClientApplicationData
 import com.sudoplatform.sudovirtualcards.types.LinkToken
 import com.sudoplatform.sudovirtualcards.types.ProvisioningData
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
@@ -79,16 +80,19 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             "stripe" to SetupFundingSourceInput(
                 "USD",
                 FundingSourceTypeEntity.CREDIT_CARD,
+                ClientApplicationData("system-test-app"),
                 listOf("stripe")
             ),
             "checkoutCard" to SetupFundingSourceInput(
                 "USD",
                 FundingSourceTypeEntity.CREDIT_CARD,
+                ClientApplicationData("system-test-app"),
                 listOf("checkout")
             ),
             "checkoutBankAccount" to SetupFundingSourceInput(
                 "USD",
                 FundingSourceTypeEntity.BANK_ACCOUNT,
+                ClientApplicationData("system-test-app"),
                 listOf("checkout"),
                 "en-US"
             )
@@ -100,16 +104,43 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             .type(FundingSourceType.CREDIT_CARD)
             .currency("USD")
             .supportedProviders(listOf("stripe"))
+            .setupData(
+                com.amazonaws.util.Base64.encode(
+                    Gson().toJson(
+                        ClientApplicationData(
+                            "system-test-app"
+                        )
+                    ).toByteArray()
+                ).toString(Charsets.UTF_8)
+            )
             .build(),
         "checkoutCard" to SetupFundingSourceRequest.builder()
             .type(FundingSourceType.CREDIT_CARD)
             .currency("USD")
             .supportedProviders(listOf("checkout"))
+            .setupData(
+                com.amazonaws.util.Base64.encode(
+                    Gson().toJson(
+                        ClientApplicationData(
+                            "system-test-app"
+                        )
+                    ).toByteArray()
+                ).toString(Charsets.UTF_8)
+            )
             .build(),
         "checkoutBankAccount" to SetupFundingSourceRequest.builder()
             .type(FundingSourceType.BANK_ACCOUNT)
             .currency("USD")
             .supportedProviders(listOf("checkout"))
+            .setupData(
+                com.amazonaws.util.Base64.encode(
+                    Gson().toJson(
+                        ClientApplicationData(
+                            "system-test-app"
+                        )
+                    ).toByteArray()
+                ).toString(Charsets.UTF_8)
+            )
             .build(),
     )
 
@@ -360,6 +391,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             SetupFundingSourceInput(
                 "AUD",
                 FundingSourceTypeEntity.CREDIT_CARD,
+                ClientApplicationData("system-test-app")
             )
         }
 

@@ -24,6 +24,7 @@ import com.sudoplatform.sudovirtualcards.simulator.SudoVirtualCardsSimulatorClie
 import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateAuthorizationInput
 import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateDebitInput
 import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateRefundInput
+import com.sudoplatform.sudovirtualcards.types.ClientApplicationData
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
@@ -215,7 +216,9 @@ abstract class BaseIntegrationTest {
 
         val cardProviders = fundingSourceProviders ?: determineFundingSourceProviders(client)
         // Perform the funding source setup operation
-        val setupInput = SetupFundingSourceInput(options.currency, FundingSourceType.CREDIT_CARD, options.supportedProviders)
+        val setupInput = SetupFundingSourceInput(
+            options.currency, FundingSourceType.CREDIT_CARD, ClientApplicationData(options.applicationName), options.supportedProviders
+        )
         val provisionalFundingSource = client.setupFundingSource(setupInput)
 
         val provisionalData = provisionalFundingSource.provisioningData

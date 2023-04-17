@@ -30,6 +30,7 @@ import com.sudoplatform.sudovirtualcards.types.AuthorizationText
 import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderRefreshData
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountRefreshUserInteractionData
+import com.sudoplatform.sudovirtualcards.types.ClientApplicationData
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import io.kotlintest.shouldBe
@@ -97,6 +98,7 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
         RefreshFundingSourceInput(
             "id",
             providerRefreshData[provider] ?: throw missingProvider(provider),
+            ClientApplicationData("system-test-app"),
             "en-us"
         )
     }

@@ -68,6 +68,7 @@ import com.sudoplatform.sudovirtualcards.types.ListOutput
 import com.sudoplatform.sudovirtualcards.types.PartialResult
 import com.sudoplatform.sudovirtualcards.types.PartialTransaction
 import com.sudoplatform.sudovirtualcards.types.PartialVirtualCard
+import com.sudoplatform.sudovirtualcards.types.ProviderSetupData
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
 import com.sudoplatform.sudovirtualcards.types.SerializedCheckoutBankAccountCompletionData
@@ -199,10 +200,16 @@ internal class DefaultSudoVirtualCardsClient(
     @Throws(SudoVirtualCardsClient.FundingSourceException::class)
     override suspend fun setupFundingSource(input: SetupFundingSourceInput): ProvisionalFundingSource {
         try {
+            val setupData = ProviderSetupData(
+                applicationName = input.applicationData.applicationName,
+            )
+            val setupDataString = Gson().toJson(setupData)
+            val encodedSetupData = Base64.encode(setupDataString.toByteArray()).toString(Charsets.UTF_8)
             val mutationInput = SetupFundingSourceRequest.builder()
                 .type(input.type.toFundingSourceTypeInput(input.type))
                 .currency(input.currency)
                 .supportedProviders(input.supportedProviders)
+                .setupData(encodedSetupData)
                 .build()
             val mutation = SetupFundingSourceMutation.builder()
                 .input(mutationInput)
@@ -315,6 +322,7 @@ internal class DefaultSudoVirtualCardsClient(
             val type = input.refreshData.type
             val encodedRefreshData: String
             if (input.refreshData is CheckoutBankAccountProviderRefreshData) {
+                val applicationName = input.applicationData.applicationName
                 var authorizationTextSignature: Signature? = null
                 val publicKey = this.publicKeyService.getCurrentKey()
                     ?: throw SudoVirtualCardsClient.FundingSourceException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
@@ -338,6 +346,7 @@ internal class DefaultSudoVirtualCardsClient(
                     provider = provider,
                     version = 1,
                     type = FundingSourceType.BANK_ACCOUNT,
+                    applicationName = applicationName,
                     keyId = publicKey.keyId,
                     authorizationTextSignature = authorizationTextSignature
                 )

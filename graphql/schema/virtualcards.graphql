@@ -328,6 +328,7 @@ enum ProvisioningState {
 input SetupFundingSourceRequest {
   type: FundingSourceType!
   currency: String!
+  setupData: ID
   supportedProviders: [String!]
   language: String
 }

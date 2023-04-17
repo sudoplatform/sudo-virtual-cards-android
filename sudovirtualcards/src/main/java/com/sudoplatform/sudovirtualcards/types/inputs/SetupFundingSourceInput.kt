@@ -6,6 +6,7 @@
 
 package com.sudoplatform.sudovirtualcards.types.inputs
 
+import com.sudoplatform.sudovirtualcards.types.ClientApplicationData
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 
 /**
@@ -13,6 +14,8 @@ import com.sudoplatform.sudovirtualcards.types.FundingSourceType
  *
  * @property currency [String] The ISO 4217 currency code that is being used for the setup.
  * @property type [FundingSourceType] The type of funding source being setup.
+ * @property applicationData [ClientApplicationData] Information about the client application which
+ *  maps to service-side configuration.
  * @property supportedProviders [List<String>] The set of providers supported by this client.
  * @property language [String] Some funding source types require presentation of end-user language
  *  specific agreements. This property allows the client application to specify the user's
@@ -24,6 +27,7 @@ import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 data class SetupFundingSourceInput(
     val currency: String,
     val type: FundingSourceType,
+    val applicationData: ClientApplicationData,
     val supportedProviders: List<String>? = null,
     val language: String? = null
 )

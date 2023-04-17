@@ -231,6 +231,12 @@ internal data class SerializedCheckoutBankAccountCompletionData(
     val authorizationTextSignature: Signature
 ) : ProviderCommonData()
 
+@Keep
+@Parcelize
+internal data class ProviderSetupData(
+    val applicationName: String
+) : Parcelable
+
 sealed class ProviderRefreshData : ProviderCommonData(), Parcelable
 
 /**
@@ -268,6 +274,7 @@ internal data class SerializedCheckoutBankAccountRefreshData(
     override val provider: String = ProviderDefaults.checkoutProvider,
     override val version: Int = ProviderDefaults.version,
     override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
+    val applicationName: String,
     val keyId: String,
     val authorizationTextSignature: Signature? = null
 ) : ProviderCommonData()
