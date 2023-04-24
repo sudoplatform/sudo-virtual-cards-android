@@ -33,6 +33,7 @@ import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountRefreshUserInt
 import com.sudoplatform.sudovirtualcards.types.ClientApplicationData
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
+import com.sudoplatform.sudovirtualcards.types.LinkToken
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
@@ -421,7 +422,7 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
     fun `refreshFundingSource() should throw when a user interaction required funding source error occurs`() = runBlocking<Unit> {
         mutationHolder.callback shouldBe null
         val providerInteractionData = CheckoutBankAccountRefreshUserInteractionData(
-            linkToken = "link-token",
+            linkToken = LinkToken("link-token", "expiration", "request-id"),
             authorizationText = listOf(authorizationText)
         )
         val interactionData = SudoVirtualCardsClient.FundingSourceInteractionData(

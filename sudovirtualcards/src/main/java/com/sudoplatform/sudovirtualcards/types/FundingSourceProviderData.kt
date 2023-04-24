@@ -332,6 +332,7 @@ data class CheckoutBankAccountRefreshUserInteractionData(
     override val provider: String = ProviderDefaults.checkoutProvider,
     override val version: Int = ProviderDefaults.version,
     override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
-    val linkToken: String,
+    @SerializedName("plaidLinkToken")
+    val linkToken: LinkToken,
     val authorizationText: List<AuthorizationText>
 ) : ProviderUserInteractionData()
