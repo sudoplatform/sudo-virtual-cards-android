@@ -87,13 +87,6 @@ dependencies {
         }
     }
 
-    // Stripe
-    // Version > 20.5.0 require a minimum compile SDK version of 32
-    implementation 'com.stripe:stripe-android:20.5.0'
-
-    // Checkout.com
-    implementation 'com.github.checkout:frames-android:3.1.2'
-
     implementation 'org.bouncycastle:bcpkix-jdk15to18:1.71'
     implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
 
@@ -115,6 +108,22 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:4.8.2'
     testImplementation "com.jakewharton.timber:timber:4.7.1"
     testImplementation "commons-codec:commons-codec:1.15"
+
+    // Stripe
+    // Version > 20.5.0 require a minimum compile SDK version of 32
+    androidTestImplementation 'com.stripe:stripe-android:20.5.0'
+
+    // Checkout.com
+    androidTestImplementation 'com.github.checkout:frames-android:3.1.2'
+
+    // Checkout dependency only works with 1.3.0 or 1.4.0 so we peg
+    // it to 1.4.0 so other test related dependencies do not automatically
+    // upgrade it to a later version that breaks the build.
+    androidTestImplementation("com.google.android.material:material") {
+        version {
+            strictly("1.4.0")
+        }
+    }
 
     androidTestImplementation "androidx.test.ext:junit:1.1.5"
     androidTestImplementation "androidx.test:runner:1.5.2"

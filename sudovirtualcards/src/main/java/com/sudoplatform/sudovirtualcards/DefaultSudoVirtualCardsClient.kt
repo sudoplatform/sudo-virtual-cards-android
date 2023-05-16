@@ -242,6 +242,9 @@ internal class DefaultSudoVirtualCardsClient(
         try {
             val provider = input.completionData.provider
             val type = input.completionData.type
+
+            this.logger.info("Completing funding source: provider=$provider, type=$type")
+
             val encodedCompletionData: String
             if (input.completionData is StripeCardProviderCompletionData ||
                 input.completionData is CheckoutCardProviderCompletionData
@@ -278,6 +281,7 @@ internal class DefaultSudoVirtualCardsClient(
                     institutionId = input.completionData.institutionId,
                     authorizationTextSignature = authorizationTextSignature
                 )
+
                 val completionDataString = Gson().toJson(completionData)
                 encodedCompletionData = Base64.encode(completionDataString.toByteArray()).toString(Charsets.UTF_8)
             } else {
