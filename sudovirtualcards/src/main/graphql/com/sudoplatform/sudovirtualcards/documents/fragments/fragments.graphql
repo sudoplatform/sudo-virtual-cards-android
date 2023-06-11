@@ -241,4 +241,5 @@ fragment VirtualCardsConfig on VirtualCardsConfig {
   fundingSourceSupportInfo {
     ...FundingSourceSupportInfo
   }
+  bankAccountFundingSourceExpendableEnabled
 }

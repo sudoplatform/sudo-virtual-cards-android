@@ -100,7 +100,8 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                                 )
                             )
                         )
-                    )
+                    ),
+                    true
                 )
             )
         )

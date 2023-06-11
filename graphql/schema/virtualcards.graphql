@@ -84,6 +84,7 @@ type VirtualCardsConfig {
   maxTransactionAmount: [CurrencyAmount!]!
   virtualCardCurrencies: [String!]!
   fundingSourceSupportInfo: [FundingSourceSupportInfo!]!
+  bankAccountFundingSourceExpendableEnabled: Boolean!
 }
 
 type PublicKey {

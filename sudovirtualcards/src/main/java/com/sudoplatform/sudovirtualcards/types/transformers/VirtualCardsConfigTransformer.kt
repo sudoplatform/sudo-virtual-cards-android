@@ -87,6 +87,7 @@ internal object VirtualCardsConfigTransformer {
                     it.fragments().fundingSourceSupportInfo()
                 )
             },
+            bankAccountFundingSourceExpendableEnabled = result.bankAccountFundingSourceExpendableEnabled()
         )
     }
 }

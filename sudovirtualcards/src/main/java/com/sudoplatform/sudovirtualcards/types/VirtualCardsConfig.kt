@@ -33,6 +33,7 @@ data class VirtualCardsConfig(
     val maxTransactionAmount: List<CurrencyAmount>,
     val virtualCardCurrencies: List<String>,
     val fundingSourceSupportInfo: List<FundingSourceSupportInfo>,
+    val bankAccountFundingSourceExpendableEnabled: Boolean
 ) : Parcelable
 
 @Parcelize
