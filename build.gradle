@@ -57,6 +57,7 @@ if (project.findProperty("tag") && sonatypeStagingProfileId) {
 
 allprojects {
     repositories {
+        maven { url 'https://jitpack.io' }
         mavenLocal()
         google()
         mavenCentral()
@@ -78,7 +79,6 @@ allprojects {
                 }
             }
         }
-        maven { url 'https://jitpack.io' }
     }
     gradle.projectsEvaluated {
         tasks.withType(Test) {

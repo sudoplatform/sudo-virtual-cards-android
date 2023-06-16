@@ -7,11 +7,24 @@
 package com.sudoplatform.sudovirtualcards.util
 
 /**
- * Helper class to manage card-based funding source creation options
+ * Helper classes to manage funding source creation options
  */
+abstract class CreateFundingSourceOptions {
+    abstract val currency: String
+    abstract val supportedProviders: List<String>?
+    abstract val applicationName: String
+}
+
 data class CreateCardFundingSourceOptions(
-    val currency: String = "USD",
-    val supportedProviders: List<String>? = null,
+    override val currency: String = "USD",
+    override val supportedProviders: List<String>? = null,
+    override val applicationName: String = "system-test-app",
     val updateCardFundingSource: Boolean? = null,
-    val applicationName: String = "system-test-app"
-)
+) : CreateFundingSourceOptions()
+
+data class CreateBankAccountFundingSourceOptions(
+    override val currency: String = "USD",
+    override val supportedProviders: List<String>? = null,
+    override val applicationName: String = "system-test-app",
+    val username: String
+) : CreateFundingSourceOptions()

@@ -94,4 +94,9 @@ object TestData {
             "BadCVV" to TestCard("4532432452900131", "202", DefaultTestCardBillingAddress["checkout"]!!)
         )
     )
+
+    object TestBankAccountUsername {
+        const val customChecking = "custom_checking_500"
+        const val customIdentityMismatch = "custom_identity_mismatch"
+    }
 }

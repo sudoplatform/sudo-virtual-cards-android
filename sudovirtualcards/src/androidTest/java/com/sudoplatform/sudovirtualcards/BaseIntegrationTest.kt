@@ -24,6 +24,9 @@ import com.sudoplatform.sudovirtualcards.simulator.SudoVirtualCardsSimulatorClie
 import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateAuthorizationInput
 import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateDebitInput
 import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateRefundInput
+import com.sudoplatform.sudovirtualcards.types.AuthorizationText
+import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderCompletionData
+import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
 import com.sudoplatform.sudovirtualcards.types.ClientApplicationData
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
@@ -31,15 +34,20 @@ import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
 import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
 import com.sudoplatform.sudovirtualcards.types.VirtualCard
 import com.sudoplatform.sudovirtualcards.types.ProviderCompletionData
+import com.sudoplatform.sudovirtualcards.types.VirtualCardsConfig
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import com.sudoplatform.sudovirtualcards.util.FundingSourceProviders
 import com.sudoplatform.sudovirtualcards.util.CheckoutTokenWorker
+import com.sudoplatform.sudovirtualcards.util.CreateBankAccountFundingSourceOptions
 import com.sudoplatform.sudovirtualcards.util.LocaleUtil
 import com.sudoplatform.sudovirtualcards.util.StripeIntentWorker
 import com.sudoplatform.sudovirtualcards.util.CreateCardFundingSourceOptions
+import com.sudoplatform.sudovirtualcardsadmin.SudoVirtualCardsAdminClient
+import com.sudoplatform.sudovirtualcardsadmin.types.inputs.GetPlaidSandboxDataInput
+import io.kotlintest.fail
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.shouldBe
 import kotlinx.coroutines.delay
@@ -59,7 +67,7 @@ abstract class BaseIntegrationTest {
     // tests we can have. A singleton user client that we reset
     // between tests resolves this issue.
     protected companion object {
-        val context: Context = ApplicationProvider.getApplicationContext<Context>()
+        val context: Context = ApplicationProvider.getApplicationContext()
         val userClientInstance = DefaultSudoUserClient(context, "vc-client-test")
     }
 
@@ -87,6 +95,11 @@ abstract class BaseIntegrationTest {
 
     private val identityVerificationClient by lazy {
         DefaultSudoIdentityVerificationClient(context, userClient)
+    }
+
+    protected val virtualCardsAdminClient by lazy {
+        val adminApiKey = readArgument("ADMIN_API_KEY", "api.key")
+        SudoVirtualCardsAdminClient.builder(context, adminApiKey).build()
     }
 
     protected val vcSimulatorClient by lazy {
@@ -160,17 +173,22 @@ abstract class BaseIntegrationTest {
     }
 
     private suspend fun registerAndSignIn() {
-        userClient.isRegistered() shouldBe false
-        register()
+        if (!userClient.isRegistered()) {
+            register()
+        }
         userClient.isRegistered() shouldBe true
-        signIn()
+        if (userClient.isSignedIn()) {
+            userClient.getRefreshToken()?.let { userClient.refreshTokens(it) }
+        } else {
+            signIn()
+        }
         userClient.isSignedIn() shouldBe true
     }
 
-    protected suspend fun registerSignInAndEntitle() {
+    protected suspend fun registerSignInAndEntitle(config: VirtualCardsConfig? = null) {
         registerAndSignIn()
         val externalId = entitlementsClient.getExternalId()
-        val entitlements = listOf(
+        val entitlements = mutableListOf(
             Entitlement("sudoplatform.sudo.max", "test", 3),
             Entitlement("sudoplatform.identity-verification.verifyIdentityUserEntitled", "test", 1),
             Entitlement("sudoplatform.virtual-cards.serviceUserEntitled", "test", 1),
@@ -178,6 +196,13 @@ abstract class BaseIntegrationTest {
             Entitlement("sudoplatform.virtual-cards.virtualCardProvisionUserEntitled", "test", 1),
             Entitlement("sudoplatform.virtual-cards.virtualCardTransactUserEntitled", "test", 1)
         )
+        if (config != null) {
+            if (config.bankAccountFundingSourceExpendableEnabled) {
+                entitlements.add(
+                    Entitlement("sudoplatform.virtual-cards.bankAccountFundingSourceExpendable", "test", 5)
+                )
+            }
+        }
         entitlementsAdminClient.applyEntitlementsToUser(externalId, entitlements)
         entitlementsClient.redeemEntitlements()
     }
@@ -206,6 +231,11 @@ abstract class BaseIntegrationTest {
 
     protected suspend fun getOwnershipProof(sudo: Sudo): String {
         return sudoClient.getOwnershipProof(sudo, "sudoplatform.virtual-cards.virtual-card")
+    }
+
+    protected suspend fun retrieveVirtualCardsConfig(client: SudoVirtualCardsClient): VirtualCardsConfig? {
+        registerAndSignIn()
+        return client.getVirtualCardsConfig()
     }
 
     protected suspend fun createCardFundingSource(
@@ -256,12 +286,58 @@ abstract class BaseIntegrationTest {
         return client.completeFundingSource(completeInput)
     }
 
+    protected suspend fun createBankAccountFundingSource(
+        virtualCardsClient: SudoVirtualCardsClient,
+        virtualCardsAdminClient: SudoVirtualCardsAdminClient,
+        options: CreateBankAccountFundingSourceOptions?
+    ): FundingSource {
+        val setupInput = SetupFundingSourceInput(
+            options?.currency ?: "USD",
+            FundingSourceType.BANK_ACCOUNT,
+            ClientApplicationData(options?.applicationName ?: "androidApplication"),
+            options?.supportedProviders
+        )
+        val provisionalFundingSource = virtualCardsClient.setupFundingSource(setupInput)
+        val provisioningData =
+            provisionalFundingSource.provisioningData as CheckoutBankAccountProvisioningData
+
+        val institutionId = "ins_109508" // Plaid Sandbox Bank Account - Platypus
+        val username = options?.username ?: TestData.TestBankAccountUsername.customChecking
+        val getPlaidSandboxDataInput = GetPlaidSandboxDataInput(
+            institutionId = institutionId,
+            username = username,
+        )
+        val plaidSandboxData = virtualCardsAdminClient.getPlaidSandboxData(getPlaidSandboxDataInput)
+            ?: fail("Failed to get plaid sandbox data")
+
+        val authorizationText = AuthorizationText(
+            provisioningData.authorizationText[0].language,
+            provisioningData.authorizationText[0].content,
+            provisioningData.authorizationText[0].contentType,
+            provisioningData.authorizationText[0].hash,
+            provisioningData.authorizationText[0].hashAlgorithm
+        )
+        val checkoutInput = CompleteFundingSourceInput(
+            provisionalFundingSource.id,
+            CheckoutBankAccountProviderCompletionData(
+                "checkout",
+                1,
+                FundingSourceType.BANK_ACCOUNT,
+                plaidSandboxData.publicToken,
+                plaidSandboxData.accountMetadata.accountId,
+                institutionId,
+                authorizationText
+            ),
+        )
+        return virtualCardsClient.completeFundingSource(checkoutInput)
+    }
+
     protected suspend fun provisionVirtualCard(client: SudoVirtualCardsClient, input: ProvisionVirtualCardInput): VirtualCard {
 
         val provisionalCard1 = client.provisionVirtualCard(input)
         var state = provisionalCard1.provisioningState
 
-        return withTimeout<VirtualCard>(20_000L) {
+        return withTimeout(20_000L) {
             var card: VirtualCard? = null
             while (state == ProvisionalVirtualCard.ProvisioningState.PROVISIONING) {
                 val provisionalCard2 = client.getProvisionalCard(provisionalCard1.id)

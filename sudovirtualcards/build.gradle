@@ -131,11 +131,12 @@ dependencies {
     androidTestImplementation "io.kotlintest:kotlintest-assertions:$kotlintest_version"
     androidTestImplementation "com.jakewharton.timber:timber:4.7.1"
     androidTestImplementation 'org.awaitility:awaitility-kotlin:3.1.6'
-    androidTestImplementation 'com.sudoplatform:sudoidentityverification:9.0.0'
-    androidTestImplementation 'com.sudoplatform:sudoentitlements:5.0.1'
+    androidTestImplementation 'com.sudoplatform:sudoidentityverification:10.0.2'
+    androidTestImplementation 'com.sudoplatform:sudoentitlements:6.0.1'
     androidTestImplementation 'com.sudoplatform:sudoentitlementsadmin:4.0.0'
+    androidTestImplementation 'com.sudoplatform:sudovirtualcardsadmin:1.0.1'
     androidTestImplementation 'com.sudoplatform:sudovirtualcardssimulator:3.0.2'
-    androidTestImplementation "com.sudoplatform:sudoprofiles:10.0.0"
+    androidTestImplementation "com.sudoplatform:sudoprofiles:11.0.1"
 }
 
 // Returns a list of `configurations` which should not be scanned for vulnerabilities

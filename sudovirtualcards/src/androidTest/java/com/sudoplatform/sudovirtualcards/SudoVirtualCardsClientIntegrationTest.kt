@@ -25,8 +25,10 @@ import com.sudoplatform.sudovirtualcards.logging.LogConstants
 import com.sudoplatform.sudovirtualcards.subscription.FundingSourceSubscriber
 import com.sudoplatform.sudovirtualcards.subscription.Subscriber
 import com.sudoplatform.sudovirtualcards.types.AuthorizationText
+import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.types.CardState
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderCompletionData
+import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderRefreshData
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardProvisioningData
@@ -46,11 +48,13 @@ import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
+import com.sudoplatform.sudovirtualcards.types.inputs.RefreshFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
+import com.sudoplatform.sudovirtualcards.util.CreateBankAccountFundingSourceOptions
 import com.sudoplatform.sudovirtualcards.util.CreateCardFundingSourceOptions
+import io.kotlintest.fail
 import org.junit.After
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
@@ -182,7 +186,9 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 val checkoutProvisioningData = provisioningData as CheckoutCardProvisioningData
                 checkoutProvisioningData shouldNotBe null
             }
+        }
 
+        if (isCheckoutBankAccountEnabled(vcClient)) {
             val setupCheckoutBankAccountInput = SetupFundingSourceInput(
                 "USD", FundingSourceType.BANK_ACCOUNT, ClientApplicationData("system-test-app"), listOf("checkout")
             )
@@ -242,34 +248,67 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun completeFundingSourceShouldReturnFundingSourceResult() = runBlocking {
-        registerSignInAndEntitle()
+        val config = retrieveVirtualCardsConfig(vcClient)
+        registerSignInAndEntitle(config)
         verifyTestUserIdentity()
 
-        getProvidersList(vcClient).forEach {
-            val testCard = TestData.TestCards[it]?.get("Visa-No3DS-1") ?: throw AssertionError("Unable to locate test card")
+        if (isStripeEnabled(vcClient)) {
+            getProvidersList(vcClient).forEach {
+                val testCard = TestData.TestCards[it]?.get("Visa-No3DS-1") ?: throw AssertionError("Unable to locate test card")
 
-            val input = CreditCardFundingSourceInput(
-                testCard.creditCardNumber,
-                expirationMonth(),
-                expirationYear(),
-                testCard.securityCode,
-                testCard.address.addressLine1,
-                testCard.address.addressLine2,
-                testCard.address.city,
-                testCard.address.state,
-                testCard.address.postalCode,
-                testCard.address.country,
-                TestData.VerifiedUser.fullName
-            )
+                val input = CreditCardFundingSourceInput(
+                    testCard.creditCardNumber,
+                    expirationMonth(),
+                    expirationYear(),
+                    testCard.securityCode,
+                    testCard.address.addressLine1,
+                    testCard.address.addressLine2,
+                    testCard.address.city,
+                    testCard.address.state,
+                    testCard.address.postalCode,
+                    testCard.address.country,
+                    TestData.VerifiedUser.fullName
+                )
 
-            val fundingSource = createCardFundingSource(
+                val fundingSource = createCardFundingSource(
+                    vcClient,
+                    input,
+                    CreateCardFundingSourceOptions(supportedProviders = listOf(it))
+                )
+
+                when (fundingSource) {
+                    is CreditCardFundingSource -> {
+                        fundingSource.id shouldNotBe null
+                        fundingSource.owner shouldBe userClient.getSubject()
+                        fundingSource.version shouldBe 1
+                        fundingSource.createdAt.time shouldBeGreaterThan 0L
+                        fundingSource.updatedAt.time shouldBeGreaterThan 0L
+                        fundingSource.state shouldBe FundingSourceState.ACTIVE
+                        fundingSource.currency shouldBe "USD"
+                        fundingSource.last4 shouldBe testCard.last4
+                        fundingSource.network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
+                    }
+                    else -> {
+                        fail("Unexpected FundingSource type")
+                    }
+                }
+            }
+        }
+
+        if (isCheckoutBankAccountEnabled(vcClient)) {
+            vcClient.createKeysIfAbsent()
+
+            val fundingSource = createBankAccountFundingSource(
                 vcClient,
-                input,
-                CreateCardFundingSourceOptions(supportedProviders = listOf(it))
+                virtualCardsAdminClient,
+                CreateBankAccountFundingSourceOptions(
+                    supportedProviders = listOf("checkout"),
+                    username = TestData.TestBankAccountUsername.customChecking,
+                )
             )
 
             when (fundingSource) {
-                is CreditCardFundingSource -> {
+                is BankAccountFundingSource -> {
                     fundingSource.id shouldNotBe null
                     fundingSource.owner shouldBe userClient.getSubject()
                     fundingSource.version shouldBe 1
@@ -277,12 +316,34 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                     fundingSource.updatedAt.time shouldBeGreaterThan 0L
                     fundingSource.state shouldBe FundingSourceState.ACTIVE
                     fundingSource.currency shouldBe "USD"
-                    fundingSource.last4 shouldBe testCard.last4
-                    fundingSource.network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
+                    fundingSource.bankAccountType shouldBe BankAccountFundingSource.BankAccountType.CHECKING
+                    fundingSource.institutionName shouldBe "First Platypus Bank"
                 }
+
                 else -> {
                     fail("Unexpected FundingSource type")
                 }
+            }
+        }
+    }
+
+    @Test
+    fun completeFundingSourceShouldThrowWithIdentityVerificationNotVerifiedError() = runBlocking<Unit> {
+        val config = retrieveVirtualCardsConfig(vcClient)
+        registerSignInAndEntitle(config)
+        verifyTestUserIdentity()
+
+        if (isCheckoutBankAccountEnabled(vcClient)) {
+            vcClient.createKeysIfAbsent()
+            shouldThrow<SudoVirtualCardsClient.FundingSourceException.IdentityVerificationException> {
+                createBankAccountFundingSource(
+                    vcClient,
+                    virtualCardsAdminClient,
+                    CreateBankAccountFundingSourceOptions(
+                        supportedProviders = listOf("checkout"),
+                        username = TestData.TestBankAccountUsername.customIdentityMismatch,
+                    )
+                )
             }
         }
     }
@@ -535,6 +596,87 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         }
     }
 
+    fun refreshFundingSourceShouldReturnBankAccountFundingSourceWhenRefreshNotRequired() = runBlocking {
+        val config = retrieveVirtualCardsConfig(vcClient)
+        registerSignInAndEntitle(config)
+        verifyTestUserIdentity()
+
+        if (isCheckoutBankAccountEnabled(vcClient)) {
+            vcClient.createKeysIfAbsent()
+            val fundingSource = createBankAccountFundingSource(
+                vcClient,
+                virtualCardsAdminClient,
+                CreateBankAccountFundingSourceOptions(
+                    supportedProviders = listOf("checkout"),
+                    username = TestData.TestBankAccountUsername.customChecking,
+                )
+            )
+            fundingSource shouldNotBe null
+
+            val refreshData = CheckoutBankAccountProviderRefreshData(
+                accountId = "accountId",
+                authorizationText = AuthorizationText(
+                    "en-US",
+                    "authorization-text-content",
+                    "authorization-text-content-type",
+                    "authorization-text-hash",
+                    "authorization-test-hash-algorithm"
+                )
+            )
+            val refreshInput = RefreshFundingSourceInput(
+                fundingSource.id,
+                refreshData,
+                ClientApplicationData("androidApplication"),
+                "en-US"
+            )
+            val refreshedFundingSource = vcClient.refreshFundingSource(refreshInput)
+            refreshedFundingSource shouldBe fundingSource
+        }
+    }
+
+    @Test
+    fun refreshFundingSourceShouldThrowWithFundingSourceStateExceptionForInactiveFundingSource() = runBlocking {
+        val config = retrieveVirtualCardsConfig(vcClient)
+        registerSignInAndEntitle(config)
+        verifyTestUserIdentity()
+
+        if (isCheckoutBankAccountEnabled(vcClient)) {
+            vcClient.createKeysIfAbsent()
+            val fundingSource = createBankAccountFundingSource(
+                vcClient,
+                virtualCardsAdminClient,
+                CreateBankAccountFundingSourceOptions(
+                    supportedProviders = listOf("checkout"),
+                    username = TestData.TestBankAccountUsername.customChecking,
+                )
+            )
+            fundingSource.state shouldBe FundingSourceState.ACTIVE
+
+            val cancelledFundingSource = vcClient.cancelFundingSource(fundingSource.id)
+            cancelledFundingSource.state shouldBe FundingSourceState.INACTIVE
+
+            val refreshData = CheckoutBankAccountProviderRefreshData(
+                accountId = "accountId",
+                authorizationText = AuthorizationText(
+                    "en-US",
+                    "authorization-text-content",
+                    "authorization-text-content-type",
+                    "authorization-text-hash",
+                    "authorization-test-hash-algorithm"
+                )
+            )
+            val refreshInput = RefreshFundingSourceInput(
+                fundingSource.id,
+                refreshData,
+                ClientApplicationData("androidApplication"),
+                "en-US"
+            )
+            shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceStateException> {
+                vcClient.refreshFundingSource(refreshInput)
+            }
+        }
+    }
+
     @Test
     fun getFundingSourceShouldReturnFundingSourceResult() = runBlocking {
         registerSignInAndEntitle()
@@ -649,28 +791,31 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         val createdFundingSources = mutableListOf<FundingSource>()
         var fundingSourceCount = 0
         providers.forEach {
-            val vTestCard = TestData.TestCards[it]?.get("Visa-No3DS-1") ?: throw AssertionError("Test card should not be null")
-            val input1 = CreditCardFundingSourceInput(
-                vTestCard.creditCardNumber,
-                expirationMonth(),
-                expirationYear(),
-                vTestCard.securityCode,
-                vTestCard.address.addressLine1,
-                vTestCard.address.addressLine2,
-                vTestCard.address.city,
-                vTestCard.address.state,
-                vTestCard.address.postalCode,
-                vTestCard.address.country,
-                TestData.VerifiedUser.fullName
-            )
-            val fundingSource1 = createCardFundingSource(
-                vcClient,
-                input1,
-                CreateCardFundingSourceOptions(supportedProviders = listOf(it))
-            )
-            fundingSource1 shouldNotBe null
-            createdFundingSources.add(fundingSource1)
-            ++fundingSourceCount
+            if (it != "checkout") {
+                // TODO: skipping Visa-No3DS-1 because checkout does not conform to no-3DS ruling and requires user interaction
+                val vTestCard = TestData.TestCards[it]?.get("Visa-No3DS-1") ?: throw AssertionError("Test card should not be null")
+                val input1 = CreditCardFundingSourceInput(
+                    vTestCard.creditCardNumber,
+                    expirationMonth(),
+                    expirationYear(),
+                    vTestCard.securityCode,
+                    vTestCard.address.addressLine1,
+                    vTestCard.address.addressLine2,
+                    vTestCard.address.city,
+                    vTestCard.address.state,
+                    vTestCard.address.postalCode,
+                    vTestCard.address.country,
+                    TestData.VerifiedUser.fullName
+                )
+                val fundingSource1 = createCardFundingSource(
+                    vcClient,
+                    input1,
+                    CreateCardFundingSourceOptions(supportedProviders = listOf(it))
+                )
+                fundingSource1 shouldNotBe null
+                createdFundingSources.add(fundingSource1)
+                ++fundingSourceCount
+            }
 
             if (it != "checkout") {
                 // TODO: skipping MC-no3DS because checkout does not conform to no-3DS ruling and requires user interaction
@@ -725,45 +870,44 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
-        getProvidersList(vcClient).forEach {
-            val testCard = TestData.TestCards[it]?.get("Visa-No3DS-1") ?: throw AssertionError("Test card should not be null")
-            val input = CreditCardFundingSourceInput(
-                testCard.creditCardNumber,
-                expirationMonth(),
-                expirationYear(),
-                testCard.securityCode,
-                testCard.address.addressLine1,
-                testCard.address.addressLine2,
-                testCard.address.city,
-                testCard.address.state,
-                testCard.address.postalCode,
-                testCard.address.country,
-                TestData.VerifiedUser.fullName
-            )
-            val fundingSource = createCardFundingSource(
-                vcClient,
-                input,
-                CreateCardFundingSourceOptions(supportedProviders = listOf(it))
-            )
-            fundingSource shouldNotBe null
+        val providerToUse = getProviderToUse(vcClient)
+        val testCard = TestData.TestCards[providerToUse]?.get("Visa-No3DS-1") ?: throw AssertionError("Test card should not be null")
+        val input = CreditCardFundingSourceInput(
+            testCard.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            testCard.securityCode,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
+            TestData.VerifiedUser.fullName
+        )
+        val fundingSource = createCardFundingSource(
+            vcClient,
+            input,
+            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse))
+        )
+        fundingSource shouldNotBe null
 
-            when (val cancelledFundingSource = vcClient.cancelFundingSource(fundingSource.id)) {
-                is CreditCardFundingSource -> {
-                    with(cancelledFundingSource) {
-                        id shouldNotBe null
-                        owner shouldBe userClient.getSubject()
-                        version shouldBe 2
-                        createdAt.time shouldBeGreaterThan 0L
-                        updatedAt.time shouldBeGreaterThan 0L
-                        state shouldBe FundingSourceState.INACTIVE
-                        currency shouldBe "USD"
-                        last4 shouldBe testCard.last4
-                        network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
-                    }
+        when (val cancelledFundingSource = vcClient.cancelFundingSource(fundingSource.id)) {
+            is CreditCardFundingSource -> {
+                with(cancelledFundingSource) {
+                    id shouldNotBe null
+                    owner shouldBe userClient.getSubject()
+                    version shouldBe 2
+                    createdAt.time shouldBeGreaterThan 0L
+                    updatedAt.time shouldBeGreaterThan 0L
+                    state shouldBe FundingSourceState.INACTIVE
+                    currency shouldBe "USD"
+                    last4 shouldBe testCard.last4
+                    network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
                 }
-                else -> {
-                    fail("Unexpected FundingSource type")
-                }
+            }
+            else -> {
+                fail("Unexpected FundingSource type")
             }
         }
     }
@@ -852,9 +996,9 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 provisionalCard2?.id shouldBe provisionalCard1.id
                 provisionalCard2?.clientRefId shouldBe provisionalCard1.clientRefId
                 provisionalCard2?.owner shouldBe provisionalCard1.owner
-                provisionalCard2?.version ?: 0 shouldBeGreaterThanOrEqual provisionalCard1.version
-                provisionalCard2?.createdAt?.time ?: 0L shouldBe provisionalCard1.createdAt
-                provisionalCard2?.updatedAt?.time ?: 0L shouldBeGreaterThan 0L
+                provisionalCard2?.version ?: (0 shouldBeGreaterThanOrEqual provisionalCard1.version)
+                provisionalCard2?.createdAt?.time ?: (0L shouldBe provisionalCard1.createdAt)
+                provisionalCard2?.updatedAt?.time ?: (0L shouldBeGreaterThan 0L)
 
                 if (provisionalCard2?.provisioningState == ProvisionalVirtualCard.ProvisioningState.COMPLETED) {
                     provisionalCard2.card shouldNotBe null
@@ -1326,6 +1470,8 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
     @Test
     fun getVirtualCardShouldReturnNullForNonExistentId() = runBlocking {
         registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
         vcClient.createKeysIfAbsent()
 
         val retrievedCard = vcClient.getVirtualCard("NonExistentId")
