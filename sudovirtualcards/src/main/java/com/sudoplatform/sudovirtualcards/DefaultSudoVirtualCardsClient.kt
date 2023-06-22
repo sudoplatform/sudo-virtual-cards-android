@@ -174,7 +174,7 @@ internal class DefaultSudoVirtualCardsClient(
      * and allow us to retry. The value of `version` doesn't need to be kept up-to-date with the
      * version of the code.
      */
-    private val version: String = "10.1.1"
+    private val version: String = "11.0.0"
 
     /** This manages the subscriptions to transaction updates and deletes */
     private val subscriptions = SubscriptionService(appSyncClient, deviceKeyManager, sudoUserClient, logger)
@@ -201,7 +201,7 @@ internal class DefaultSudoVirtualCardsClient(
     override suspend fun setupFundingSource(input: SetupFundingSourceInput): ProvisionalFundingSource {
         try {
             val setupData = ProviderSetupData(
-                applicationName = input.applicationData.applicationName,
+                applicationName = input.applicationData.applicationName
             )
             val setupDataString = Gson().toJson(setupData)
             val encodedSetupData = Base64.encode(setupDataString.toByteArray()).toString(Charsets.UTF_8)
@@ -335,7 +335,7 @@ internal class DefaultSudoVirtualCardsClient(
                     val authorizationTextSignatureData = SignatureData(
                         hash = input.refreshData.authorizationText.hash,
                         hashAlgorithm = input.refreshData.authorizationText.hashAlgorithm,
-                        account = input.refreshData.accountId,
+                        account = input.refreshData.accountId
                     )
                     val data = Gson().toJson(authorizationTextSignatureData)
                     val signature = signingService.signString(data, publicKey.keyId, KeyType.PRIVATE_KEY)
@@ -645,7 +645,7 @@ internal class DefaultSudoVirtualCardsClient(
     override suspend fun listVirtualCards(
         limit: Int,
         nextToken: String?,
-        cachePolicy: CachePolicy,
+        cachePolicy: CachePolicy
     ): ListAPIResult<VirtualCard, PartialVirtualCard> {
         try {
             val query = ListCardsQuery.builder()

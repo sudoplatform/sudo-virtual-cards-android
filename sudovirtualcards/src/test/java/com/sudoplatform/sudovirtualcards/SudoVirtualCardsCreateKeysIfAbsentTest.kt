@@ -44,7 +44,7 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
     private val deviceKeyResult by before {
         DeviceKey(
             keyId = keyId,
-            publicKey = ByteArray(42),
+            publicKey = ByteArray(42)
         )
     }
 
@@ -118,7 +118,6 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
 
     @Test
     fun `createKeysIfAbsent() should create new symmetric key if current symmetric key is not present`() = runBlocking<Unit> {
-
         mockDeviceKeyManager.stub {
             on { getCurrentSymmetricKeyId() } doReturn null
         }
@@ -146,7 +145,6 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
 
     @Test
     fun `createKeysIfAbsent() should throw when an unknown error occurs`() = runBlocking<Unit> {
-
         mockDeviceKeyManager.stub {
             on { getCurrentSymmetricKeyId() } doThrow RuntimeException("Mock Runtime Exception")
         }

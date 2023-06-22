@@ -189,7 +189,7 @@ internal object FundingSourceTransformer {
      * @return The [ProvisionalFundingSource] entity type.
      */
     fun toEntity(
-        provisionalFundingSource: ProvisionalFundingSourceFragment,
+        provisionalFundingSource: ProvisionalFundingSourceFragment
     ): ProvisionalFundingSource {
         val provisioningData = ProviderDataTransformer.toProvisioningData(provisionalFundingSource.provisioningData())
         return ProvisionalFundingSource(

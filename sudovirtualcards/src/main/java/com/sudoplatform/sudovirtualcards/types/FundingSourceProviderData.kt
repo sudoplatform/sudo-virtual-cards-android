@@ -19,10 +19,13 @@ import kotlinx.parcelize.Parcelize
 object ProviderDefaults {
     /** Stripe Provider String. */
     const val stripeProvider = "stripe"
+
     /** Checkout Provider String. */
     const val checkoutProvider = "checkout"
+
     /** Associated supported version. */
     const val version = 1
+
     /** Configuration Type. */
     const val configurationType = "string"
 }
@@ -56,7 +59,7 @@ sealed class ProviderProvisioningData : ProviderCommonData(), Parcelable
 data class BaseProvisioningData(
     override val provider: String = ProviderDefaults.checkoutProvider,
     override val version: Int,
-    override val type: FundingSourceType,
+    override val type: FundingSourceType
 ) : ProviderProvisioningData(), Parcelable
 
 /**
@@ -91,7 +94,7 @@ data class StripeCardProvisioningData(
 data class CheckoutCardProvisioningData(
     override val provider: String = ProviderDefaults.checkoutProvider,
     override val version: Int = ProviderDefaults.version,
-    override val type: FundingSourceType = FundingSourceType.CREDIT_CARD,
+    override val type: FundingSourceType = FundingSourceType.CREDIT_CARD
 ) : ProviderProvisioningData()
 
 /**
@@ -294,7 +297,7 @@ sealed class ProviderUserInteractionData : ProviderCommonData(), Parcelable
 data class BaseUserInteractionData(
     override val provider: String = ProviderDefaults.checkoutProvider,
     override val version: Int,
-    override val type: FundingSourceType,
+    override val type: FundingSourceType
 ) : ProviderUserInteractionData()
 
 /**

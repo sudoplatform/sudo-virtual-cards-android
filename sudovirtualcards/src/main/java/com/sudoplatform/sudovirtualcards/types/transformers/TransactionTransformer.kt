@@ -109,10 +109,10 @@ internal object TransactionTransformer {
                 minCharge = sealedMarkup.minCharge()?.let { unsealer.unseal(it).toInt() } ?: 0
             ),
             markupAmount = unsealer.unsealAmount(
-                sealedDetail.markupAmount().fragments().sealedCurrencyAmountAttribute(),
+                sealedDetail.markupAmount().fragments().sealedCurrencyAmountAttribute()
             ),
             fundingSourceAmount = unsealer.unsealAmount(
-                sealedDetail.fundingSourceAmount().fragments().sealedCurrencyAmountAttribute(),
+                sealedDetail.fundingSourceAmount().fragments().sealedCurrencyAmountAttribute()
             ),
             fundingSourceId = sealedDetail.fundingSourceId(),
             description = unsealer.unseal(sealedDetail.description()),

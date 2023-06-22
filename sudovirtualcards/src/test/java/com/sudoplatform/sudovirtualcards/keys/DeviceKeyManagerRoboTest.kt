@@ -57,7 +57,6 @@ class DeviceKeyManagerRoboTest : BaseTests() {
 
     @Test
     fun shouldBeAbleToPerformOperations() = runBlocking {
-
         deviceKeyManager.getCurrentKey() shouldBe null
         deviceKeyManager.getKeyWithId("bogusValue") shouldBe null
 

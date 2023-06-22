@@ -54,11 +54,11 @@ class SudoVirtualCardsGetFundingSourceConfigurationTest : BaseTests() {
             listOf(
                 FundingSourceClientConfiguration(
                     apiKey = "test-key",
-                    fundingSourceType = FundingSourceType.CREDIT_CARD,
+                    fundingSourceType = FundingSourceType.CREDIT_CARD
                 ),
                 FundingSourceClientConfiguration(
                     apiKey = "test-key",
-                    fundingSourceType = FundingSourceType.BANK_ACCOUNT,
+                    fundingSourceType = FundingSourceType.BANK_ACCOUNT
                 )
             )
         )
@@ -117,13 +117,12 @@ class SudoVirtualCardsGetFundingSourceConfigurationTest : BaseTests() {
             mockContext,
             mockUserClient,
             mockKeyManager,
-            mockAppSyncClient,
+            mockAppSyncClient
         )
     }
 
     @Test
     fun `getFundingSourceClientConfiguration() should return results when no error present`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -151,7 +150,6 @@ class SudoVirtualCardsGetFundingSourceConfigurationTest : BaseTests() {
 
     @Test
     fun `getFundingSourceClientConfiguration() should return null result when query response is null`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val nullResponse by before {
@@ -178,7 +176,6 @@ class SudoVirtualCardsGetFundingSourceConfigurationTest : BaseTests() {
 
     @Test
     fun `getFundingSourceClientConfiguration() should throw when http error occurs`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -212,7 +209,6 @@ class SudoVirtualCardsGetFundingSourceConfigurationTest : BaseTests() {
 
     @Test
     fun `getFundingSourceClientConfiguration() should throw when unknown error occurs()`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         mockAppSyncClient.stub {
@@ -234,7 +230,6 @@ class SudoVirtualCardsGetFundingSourceConfigurationTest : BaseTests() {
 
     @Test
     fun `getFundingSourceClientConfiguration() should not suppress CancellationException()`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         mockAppSyncClient.stub {

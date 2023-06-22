@@ -35,9 +35,8 @@ internal class CheckoutTokenWorker(
      * @param input The credit card input required to build the card and billing details.
      */
     suspend fun generatePaymentToken(
-        input: CreditCardFundingSourceInput,
+        input: CreditCardFundingSourceInput
     ): CheckoutCardProviderCompletionData {
-
         val tokenisationRequest = CardTokenisationRequest(
             input.cardNumber,
             input.name,
@@ -52,7 +51,7 @@ internal class CheckoutTokenWorker(
                 zip = input.postalCode,
                 country = input.country
             ),
-            PhoneModel(country_code = "1", number = "1111111111"),
+            PhoneModel(country_code = "1", number = "1111111111")
         )
         val tokenisationResponse = waitForTokenResponse(checkoutClient, tokenisationRequest)
 

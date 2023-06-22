@@ -63,7 +63,10 @@ class FundingSourceProviders(
             }
             stripe ?: throw AssertionError("stripe is mandatory provider, but no client configuration found")
             return FundingSourceProviders(
-                stripeCardEnabled, checkoutCardEnabled, checkoutBankAccountEnabled, ProviderAPIs(stripe, checkout)
+                stripeCardEnabled,
+                checkoutCardEnabled,
+                checkoutBankAccountEnabled,
+                ProviderAPIs(stripe, checkout)
             )
         }
     }

@@ -141,7 +141,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                     ).toByteArray()
                 ).toString(Charsets.UTF_8)
             )
-            .build(),
+            .build()
     )
 
     // Compile-time test of backwards compatibility.
@@ -199,7 +199,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                             10.0,
                             FundingSourceType.CREDIT_CARD,
                             Base64.encodeBase64String(Gson().toJson(stripeSetupData).toByteArray()),
-                            ProvisionalFundingSourceState.PROVISIONING,
+                            ProvisionalFundingSourceState.PROVISIONING
                         )
                     )
                 ),
@@ -216,7 +216,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                             10.0,
                             FundingSourceType.CREDIT_CARD,
                             Base64.encodeBase64String(Gson().toJson(checkoutCardSetupData).toByteArray()),
-                            ProvisionalFundingSourceState.PROVISIONING,
+                            ProvisionalFundingSourceState.PROVISIONING
                         )
                     )
                 ),
@@ -233,7 +233,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                             10.0,
                             FundingSourceType.BANK_ACCOUNT,
                             Base64.encodeBase64String(Gson().toJson(checkoutBankAccountSetupData).toByteArray()),
-                            ProvisionalFundingSourceState.PROVISIONING,
+                            ProvisionalFundingSourceState.PROVISIONING
                         )
                     )
                 )
@@ -260,7 +260,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             "checkoutBankAccount" to
                 Response.builder<SetupFundingSourceMutation.Data>(SetupFundingSourceMutation(checkoutBankAccountRequest))
                     .data(SetupFundingSourceMutation.Data(checkoutBankAccountResult))
-                    .build(),
+                    .build()
         )
     }
 
@@ -305,7 +305,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             mockContext,
             mockUserClient,
             mockKeyManager,
-            mockAppSyncClient,
+            mockAppSyncClient
         )
     }
 
@@ -348,7 +348,6 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
     @Test
     fun `setupFundingSource() should throw when response is null`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val nullMutationResponse by before {
@@ -384,7 +383,6 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
     @Test
     fun `setupFundingSource() should throw when an unsupported currency error occurs`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val input by before {
@@ -434,7 +432,6 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
     @Test
     fun `setupFundingSource() should throw when an account locked error occurs`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val errorResponse by before {
@@ -476,7 +473,6 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
     @Test
     fun `setupFundingSource() should throw when an entitlements exceeded error occurs`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val errorResponse by before {
@@ -518,7 +514,6 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
     @Test
     fun `setupFundingSource() should throw when a velocity exceeded error occurs`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val errorResponse by before {
@@ -560,7 +555,6 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
     @Test
     fun `setupFundingSource() should throw when http error occurs`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -602,7 +596,6 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
     @Test
     fun `setupFundingSource() should throw when unknown error occurs`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         mockAppSyncClient.stub {
@@ -632,7 +625,6 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
     @Test
     fun `setupFundingSource() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         mockAppSyncClient.stub {

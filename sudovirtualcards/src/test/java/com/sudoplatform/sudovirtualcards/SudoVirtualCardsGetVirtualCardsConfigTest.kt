@@ -166,7 +166,6 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
 
     @Test
     fun `getVirtualCardsConfig() should return results when no error present`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -216,7 +215,6 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
 
     @Test
     fun `getVirtualCardsConfig() should return null result when query response is null`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val nullQueryResponse by before {
@@ -242,7 +240,6 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
 
     @Test
     fun `getVirtualCardsConfig() should throw when query response has errors`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val errorQueryResponse by before {
@@ -273,7 +270,6 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
 
     @Test
     fun `getVirtualCardsConfig() should throw when http error occurs`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -307,7 +303,6 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
 
     @Test
     fun `getVirtualCardsConfig() should throw when unknown error occurs()`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         mockAppSyncClient.stub {
@@ -329,7 +324,6 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
 
     @Test
     fun `getVirtualCardsConfig() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-
         mockAppSyncClient.stub {
             on { query(any<GetVirtualCardsConfigQuery>()) } doThrow CancellationException("Mock Cancellation Exception")
         }

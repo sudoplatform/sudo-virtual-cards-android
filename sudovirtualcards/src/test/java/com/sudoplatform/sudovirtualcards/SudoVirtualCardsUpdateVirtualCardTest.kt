@@ -161,7 +161,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                             mockSeal("csc"),
                             billingAddress,
                             expiry,
-                            null,
+                            null
                         )
                     )
                 )
@@ -189,7 +189,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
     private val currentKey = PublicKey(
         keyId = "keyId",
-        publicKey = "publicKey".toByteArray(),
+        publicKey = "publicKey".toByteArray()
     )
 
     private val mockPublicKeyService by before {
@@ -243,7 +243,6 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
     @Test
     fun `updateVirtualCard() should return success result when no error present`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -304,7 +303,6 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
     @Test
     fun `updateVirtualCard() should return partial result when unsealing fails`() = runBlocking<Unit> {
-
         mockKeyManager.stub {
             on { decryptWithPrivateKey(anyString(), any(), any()) } doThrow KeyManagerException("KeyManagerException")
         }
@@ -361,7 +359,6 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
     @Test
     fun `updateVirtualCard() should throw when response is null`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val nullMutationResponse by before {
@@ -400,7 +397,6 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
     @Test
     fun `updateVirtualCard() should throw when mutation response has an identity verification error`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val errorMutationResponse by before {
@@ -445,7 +441,6 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
     @Test
     fun `updateVirtualCard() should throw when response has a card not found error`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val errorMutationResponse by before {
@@ -490,7 +485,6 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
     @Test
     fun `updateVirtualCard() should throw when response has an invalid card state error`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val errorMutationResponse by before {
@@ -535,7 +529,6 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
     @Test
     fun `updateVirtualCard() should throw when current key pair retrieval returns null`() = runBlocking<Unit> {
-
         mockPublicKeyService.stub {
             onBlocking { getCurrentKey() } doReturn null
         }
@@ -549,7 +542,6 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
     @Test
     fun `updateVirtualCard() should throw when unsealing fails`() = runBlocking<Unit> {
-
         mockAppSyncClient.stub {
             on { mutate(any<UpdateVirtualCardMutation>()) } doThrow Unsealer.UnsealerException.SealedDataTooShortException(
                 "Mock Unsealer Exception"
@@ -579,7 +571,6 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
     @Test
     fun `updateVirtualCard() should throw when http error occurs`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -627,7 +618,6 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
     @Test
     fun `updateVirtualCard() should throw when unknown error occurs()`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         mockAppSyncClient.stub {
@@ -663,7 +653,6 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
     @Test
     fun `updateVirtualCard() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-
         mockAppSyncClient.stub {
             on { mutate(any<UpdateVirtualCardMutation>()) } doThrow CancellationException("Mock Cancellation Exception")
         }

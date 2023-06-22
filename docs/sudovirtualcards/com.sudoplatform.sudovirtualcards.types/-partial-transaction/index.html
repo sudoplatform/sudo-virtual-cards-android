@@ -42,6 +42,9 @@
     <div>
     </div>
     <div class="pull-right d-flex">
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":sudovirtualcards:dokkaHtml/release">androidJvm</button>
+        </div>
         <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
         <div id="searchBar"></div>
     </div>
@@ -51,181 +54,187 @@
         <div id="sideMenu"></div>
     </div>
     <div id="main">
-<div class="main-content" id="content" pageIds="sudovirtualcards::com.sudoplatform.sudovirtualcards.types/PartialTransaction///PointingToDeclaration//-2124582697">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="sudovirtualcards::com.sudoplatform.sudovirtualcards.types/PartialTransaction///PointingToDeclaration//-2124582697">
   <div class="breadcrumbs"><a href="../../../index.html">sudovirtualcards</a><span class="delimiter">/</span><a href="../index.html">com.sudoplatform.sudovirtualcards.types</a><span class="delimiter">/</span><span class="current">PartialTransaction</span></div>
   <div class="cover ">
     <h1 class="cover"><span>Partial</span><wbr></wbr><span><span>Transaction</span></span></h1>
     <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="index.html">PartialTransaction</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>owner<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>version<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>createdAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>updatedAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>cardId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>sequenceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>type<span class="token operator">: </span><a href="../-transaction-type/index.html">TransactionType</a></span></span><span class="token punctuation">)</span> : <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a></div><p class="paragraph">Representation of a Virtual Card Transaction without its unsealed attributes used in the Sudo Platform Virtual Cards SDK.</p></div></div>
   </div>
   <div class="tabbedcontent">
-    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Constructors">Constructors</button><button class="section-tab" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Properties">Properties</button></div>
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,FUNCTION,PROPERTY">Members</button></div>
     <div class="tabs-section-body">
-      <h2 class="tabbedcontent">Constructors</h2>
-      <div class="table" data-togglable="Constructors"><a data-name="-1883819118%2FConstructors%2F-2124582697" anchor-label="PartialTransaction" id="-1883819118%2FConstructors%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue TabbedContent">
-            <div class=""><span class="inline-flex">
-                <div><a href="-partial-transaction.html"><span>Partial</span><wbr></wbr><span><span>Transaction</span></span></a></div>
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="">Constructors</h2>
+        <div class="table"><a data-name="-1883819118%2FConstructors%2F-2124582697" anchor-label="PartialTransaction" id="-1883819118%2FConstructors%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+          <div class="table-row" data-togglable="CONSTRUCTOR" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-partial-transaction.html"><span>Partial</span><wbr></wbr><span><span>Transaction</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1883819118%2FConstructors%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="-partial-transaction.html"><span class="token function">PartialTransaction</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">owner<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">version<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span></span><span class="parameter ">createdAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span></span><span class="parameter ">updatedAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span></span><span class="parameter ">cardId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">sequenceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">type<span class="token operator">: </span><a href="../-transaction-type/index.html">TransactionType</a></span></span><span class="token punctuation">)</span></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">owner<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">version<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span></span><span class="parameter ">createdAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span></span><span class="parameter ">updatedAt<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a><span class="token punctuation">, </span></span><span class="parameter ">cardId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">sequenceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">type<span class="token operator">: </span><a href="../-transaction-type/index.html">TransactionType</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <h2 class="">Functions</h2>
-      <div class="table" data-togglable="Functions"><a data-name="-1578325224%2FFunctions%2F-2124582697" anchor-label="describeContents" id="-1578325224%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="../-funding-source-support-detail/index.html#-1578325224%2FFunctions%2F-2124582697"><span>describe</span><wbr></wbr><span><span>Contents</span></span></a></div>
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="-1578325224%2FFunctions%2F-2124582697" anchor-label="describeContents" id="-1578325224%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-funding-source-support-detail/index.html#-1578325224%2FFunctions%2F-2124582697"><span>describe</span><wbr></wbr><span><span>Contents</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1578325224%2FFunctions%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="../-funding-source-support-detail/index.html#-1578325224%2FFunctions%2F-2124582697"><span class="token function">describeContents</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="../-funding-source-support-detail/index.html#-1578325224%2FFunctions%2F-2124582697"><span class="token function">describeContents</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="-1754457655%2FFunctions%2F-2124582697" anchor-label="writeToParcel" id="-1754457655%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="../-funding-source-support-detail/index.html#-1754457655%2FFunctions%2F-2124582697"><span>write</span><wbr></wbr><span>To</span><wbr></wbr><span><span>Parcel</span></span></a></div>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-funding-source-support-detail/index.html#-1754457655%2FFunctions%2F-2124582697"><span>write</span><wbr></wbr><span>To</span><wbr></wbr><span><span>Parcel</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1754457655%2FFunctions%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="../-funding-source-support-detail/index.html#-1754457655%2FFunctions%2F-2124582697"><span class="token function">writeToParcel</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">p0<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/os/Parcel.html">Parcel</a><span class="token punctuation">, </span></span><span class="parameter ">p1<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="../-funding-source-support-detail/index.html#-1754457655%2FFunctions%2F-2124582697"><span class="token function">writeToParcel</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">p0<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/os/Parcel.html">Parcel</a><span class="token punctuation">, </span></span><span class="parameter ">p1<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <h2 class="">Properties</h2>
-      <div class="table" data-togglable="Properties"><a data-name="-1131361282%2FProperties%2F-2124582697" anchor-label="cardId" id="-1131361282%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="card-id.html"><span>card</span><wbr></wbr><span><span>Id</span></span></a></div>
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="-1131361282%2FProperties%2F-2124582697" anchor-label="cardId" id="-1131361282%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="card-id.html"><span>card</span><wbr></wbr><span><span>Id</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1131361282%2FProperties%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="-1131361282%2FProperties%2F-2124582697" anchor-label="cardId" id="-1131361282%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="card-id.html">cardId</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><a data-name="-1131361282%2FProperties%2F-2124582697" anchor-label="cardId" id="-1131361282%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> Unique identifier of the <a href="../-virtual-card/index.html">VirtualCard</a> associated with the transaction.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="card-id.html">cardId</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> Unique identifier of the <a href="../-virtual-card/index.html">VirtualCard</a> associated with the transaction.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="-520654538%2FProperties%2F-2124582697" anchor-label="createdAt" id="-520654538%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="created-at.html"><span>created</span><wbr></wbr><span><span>At</span></span></a></div>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="created-at.html"><span>created</span><wbr></wbr><span><span>At</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-520654538%2FProperties%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="-520654538%2FProperties%2F-2124582697" anchor-label="createdAt" id="-520654538%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="created-at.html">createdAt</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a></div><div class="brief "><a data-name="-520654538%2FProperties%2F-2124582697" anchor-label="createdAt" id="-520654538%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><p class="paragraph"><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a> Date when the transaction was created.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="created-at.html">createdAt</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a></div><div class="brief "><p class="paragraph"><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a> Date when the transaction was created.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="1931198254%2FProperties%2F-2124582697" anchor-label="id" id="1931198254%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="id.html"><span><span>id</span></span></a></div>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="id.html"><span><span>id</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1931198254%2FProperties%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="1931198254%2FProperties%2F-2124582697" anchor-label="id" id="1931198254%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="id.html">id</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><a data-name="1931198254%2FProperties%2F-2124582697" anchor-label="id" id="1931198254%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> Identifier of the transaction.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="id.html">id</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> Identifier of the transaction.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="-1524970306%2FProperties%2F-2124582697" anchor-label="owner" id="-1524970306%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="owner.html"><span><span>owner</span></span></a></div>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="owner.html"><span><span>owner</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1524970306%2FProperties%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="-1524970306%2FProperties%2F-2124582697" anchor-label="owner" id="-1524970306%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="owner.html">owner</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><a data-name="-1524970306%2FProperties%2F-2124582697" anchor-label="owner" id="-1524970306%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> Identifier of the user that owns the transaction.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="owner.html">owner</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> Identifier of the user that owns the transaction.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="1011643053%2FProperties%2F-2124582697" anchor-label="sequenceId" id="1011643053%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="sequence-id.html"><span>sequence</span><wbr></wbr><span><span>Id</span></span></a></div>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="sequence-id.html"><span>sequence</span><wbr></wbr><span><span>Id</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1011643053%2FProperties%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="1011643053%2FProperties%2F-2124582697" anchor-label="sequenceId" id="1011643053%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="sequence-id.html">sequenceId</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><a data-name="1011643053%2FProperties%2F-2124582697" anchor-label="sequenceId" id="1011643053%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> Identifier of the sequence of related transaction.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="sequence-id.html">sequenceId</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> Identifier of the sequence of related transaction.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="-2008272145%2FProperties%2F-2124582697" anchor-label="type" id="-2008272145%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="type.html"><span><span>type</span></span></a></div>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="type.html"><span><span>type</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2008272145%2FProperties%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="-2008272145%2FProperties%2F-2124582697" anchor-label="type" id="-2008272145%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="type.html">type</a><span class="token operator">: </span><a href="../-transaction-type/index.html">TransactionType</a></div><div class="brief "><a data-name="-2008272145%2FProperties%2F-2124582697" anchor-label="type" id="-2008272145%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><p class="paragraph"><a href="../-transaction-type/index.html">TransactionType</a> The type of the transaction.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="type.html">type</a><span class="token operator">: </span><a href="../-transaction-type/index.html">TransactionType</a></div><div class="brief "><p class="paragraph"><a href="../-transaction-type/index.html">TransactionType</a> The type of the transaction.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="-1454144637%2FProperties%2F-2124582697" anchor-label="updatedAt" id="-1454144637%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="updated-at.html"><span>updated</span><wbr></wbr><span><span>At</span></span></a></div>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="updated-at.html"><span>updated</span><wbr></wbr><span><span>At</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1454144637%2FProperties%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="-1454144637%2FProperties%2F-2124582697" anchor-label="updatedAt" id="-1454144637%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="updated-at.html">updatedAt</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a></div><div class="brief "><a data-name="-1454144637%2FProperties%2F-2124582697" anchor-label="updatedAt" id="-1454144637%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><p class="paragraph"><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a> Date when the transaction was last updated.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="updated-at.html">updatedAt</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a></div><div class="brief "><p class="paragraph"><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a> Date when the transaction was last updated.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="-1792532167%2FProperties%2F-2124582697" anchor-label="version" id="-1792532167%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="version.html"><span><span>version</span></span></a></div>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="version.html"><span><span>version</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1792532167%2FProperties%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="-1792532167%2FProperties%2F-2124582697" anchor-label="version" id="-1792532167%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="version.html">version</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div><div class="brief "><a data-name="-1792532167%2FProperties%2F-2124582697" anchor-label="version" id="-1792532167%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a> Current version of the transaction.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="version.html">version</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a> Current version of the transaction.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>

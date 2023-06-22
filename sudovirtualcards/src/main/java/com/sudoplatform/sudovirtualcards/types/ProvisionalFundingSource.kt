@@ -38,12 +38,16 @@ data class ProvisionalFundingSource(
     enum class ProvisioningState {
         /** Provisional funding source has completed provisioning */
         COMPLETED,
+
         /** Provisional funding source has failed provisioning */
         FAILED,
+
         /** Provisional funding source is in a pending state */
         PENDING,
+
         /** Provisional funding source is in the middle of being provisioned */
         PROVISIONING,
+
         /** Unknown state. Please check you have the correct (latest) version of this SDK. */
         UNKNOWN
     }

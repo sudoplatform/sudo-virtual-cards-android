@@ -1,1 +1,1 @@
-sourceset_dependencies='{":sudovirtualcards:dokkaHtml/androidTestRelease":[],":sudovirtualcards:dokkaHtml/debug":[],":sudovirtualcards:dokkaHtml/main":[],":sudovirtualcards:dokkaHtml/release":[]}'
+sourceset_dependencies='{":sudovirtualcards:dokkaHtml/androidTestRelease":[],":sudovirtualcards:dokkaHtml/debug":[],":sudovirtualcards:dokkaHtml/main":[],":sudovirtualcards:dokkaHtml/release":[],":sudovirtualcards:dokkaHtml/testFixtures":[],":sudovirtualcards:dokkaHtml/testFixturesDebug":[],":sudovirtualcards:dokkaHtml/testFixturesRelease":[]}'

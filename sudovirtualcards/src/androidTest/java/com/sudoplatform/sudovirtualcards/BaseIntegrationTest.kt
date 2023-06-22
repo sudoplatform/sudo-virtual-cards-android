@@ -208,7 +208,6 @@ abstract class BaseIntegrationTest {
     }
 
     protected suspend fun verifyTestUserIdentity() {
-
         val countryCodeAlpha3 = LocaleUtil.toCountryCodeAlpha3(context, TestData.VerifiedUser.country)
             ?: throw IllegalArgumentException("Unable to convert country code to ISO 3166 Alpha-3")
 
@@ -243,11 +242,13 @@ abstract class BaseIntegrationTest {
         input: CreditCardFundingSourceInput,
         options: CreateCardFundingSourceOptions
     ): FundingSource {
-
         val cardProviders = fundingSourceProviders ?: determineFundingSourceProviders(client)
         // Perform the funding source setup operation
         val setupInput = SetupFundingSourceInput(
-            options.currency, FundingSourceType.CREDIT_CARD, ClientApplicationData(options.applicationName), options.supportedProviders
+            options.currency,
+            FundingSourceType.CREDIT_CARD,
+            ClientApplicationData(options.applicationName),
+            options.supportedProviders
         )
         val provisionalFundingSource = client.setupFundingSource(setupInput)
 
@@ -305,7 +306,7 @@ abstract class BaseIntegrationTest {
         val username = options?.username ?: TestData.TestBankAccountUsername.customChecking
         val getPlaidSandboxDataInput = GetPlaidSandboxDataInput(
             institutionId = institutionId,
-            username = username,
+            username = username
         )
         val plaidSandboxData = virtualCardsAdminClient.getPlaidSandboxData(getPlaidSandboxDataInput)
             ?: fail("Failed to get plaid sandbox data")
@@ -327,13 +328,12 @@ abstract class BaseIntegrationTest {
                 plaidSandboxData.accountMetadata.accountId,
                 institutionId,
                 authorizationText
-            ),
+            )
         )
         return virtualCardsClient.completeFundingSource(checkoutInput)
     }
 
     protected suspend fun provisionVirtualCard(client: SudoVirtualCardsClient, input: ProvisionVirtualCardInput): VirtualCard {
-
         val provisionalCard1 = client.provisionVirtualCard(input)
         var state = provisionalCard1.provisioningState
 
@@ -353,7 +353,6 @@ abstract class BaseIntegrationTest {
     }
 
     protected suspend fun simulateTransactions(virtualCard: VirtualCard) {
-
         // Create an authorization for a purchase (debit)
         val merchant = vcSimulatorClient.getSimulatorMerchants().first()
         val originalAmount = 75
@@ -363,7 +362,7 @@ abstract class BaseIntegrationTest {
             merchantId = merchant.id,
             securityCode = virtualCard.securityCode,
             expirationMonth = virtualCard.expiry.mm.toInt(),
-            expirationYear = virtualCard.expiry.yyyy.toInt(),
+            expirationYear = virtualCard.expiry.yyyy.toInt()
         )
         val authResponse = vcSimulatorClient.simulateAuthorization(authInput)
         with(authResponse) {

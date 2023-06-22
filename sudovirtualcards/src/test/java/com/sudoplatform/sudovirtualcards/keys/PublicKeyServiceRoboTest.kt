@@ -77,7 +77,7 @@ class PublicKeyServiceRoboTest : BaseTests() {
     private val publicKey = "publicKey".toByteArray()
     private val deviceKeyPair = DeviceKey(
         keyId = "keyId",
-        publicKey = publicKey,
+        publicKey = publicKey
     )
 
     private val queryResult by before {

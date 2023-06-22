@@ -81,6 +81,7 @@ data class CreditCardFundingSource(
         UNIONPAY,
         VISA,
         OTHER,
+
         /** Unknown network. Please check you have the correct (latest) version of this SDK. */
         UNKNOWN
     }
@@ -123,6 +124,7 @@ data class BankAccountFundingSource(
     enum class BankAccountType {
         SAVING,
         CHECKING,
+
         /** Unknown bank account type. Please check you have the correct (latest) version of this SDK. */
         UNKNOWN
     }
@@ -137,7 +139,7 @@ data class BankAccountFundingSource(
 @Parcelize
 data class InstitutionLogo(
     val type: String,
-    val data: String,
+    val data: String
 ) : Parcelable
 
 /**
@@ -147,10 +149,13 @@ data class InstitutionLogo(
 enum class FundingSourceState {
     /** Funding source is active and can be used. */
     ACTIVE,
+
     /** Funding source is inactive and cannot be used. */
     INACTIVE,
+
     /** Funding source is active but may become inactive if user intervention does not occur. */
     REFRESH,
+
     /** Unknown state. Please check you have the correct (latest) version of this SDK. */
     UNKNOWN
 }

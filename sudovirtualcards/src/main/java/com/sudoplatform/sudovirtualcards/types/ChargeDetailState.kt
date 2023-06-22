@@ -13,12 +13,16 @@ package com.sudoplatform.sudovirtualcards.types
 enum class ChargeDetailState {
     /** Funding transaction initiated. */
     PENDING,
+
     /** Funding transaction cleared. */
     CLEARED,
+
     /** Funding transaction failed due to insufficient funds. */
     INSUFFICIENT_FUNDS,
+
     /** Funding transaction deemed failed for another reason. */
     FAILED,
+
     /** Unknown charge detail state. Please check you have the correct (latest) version of this SDK. */
     UNKNOWN
 }

@@ -77,7 +77,6 @@ internal class SubscriptionService(
         }.join()
     }
     suspend fun subscribeFundingSources(id: String, subscriber: FundingSourceSubscriber) {
-
         val userSubject = userClient.getSubject()
             ?: throw SudoVirtualCardsClient.FundingSourceException.AuthenticationException(ERROR_UNAUTHENTICATED_MSG)
 

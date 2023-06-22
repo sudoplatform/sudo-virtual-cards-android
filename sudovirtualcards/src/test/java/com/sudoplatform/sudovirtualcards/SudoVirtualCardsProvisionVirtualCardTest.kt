@@ -143,7 +143,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     private val currentKey = PublicKey(
         keyId = "keyId",
-        publicKey = "publicKey".toByteArray(),
+        publicKey = "publicKey".toByteArray()
     )
 
     private val currentKeyWithKeyRingId = PublicKeyWithKeyRingId(
@@ -191,7 +191,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     @Test
     fun `provisionVirtualCard() should return results when no error present`() = runBlocking<Unit> {
-
         provisionHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -223,7 +222,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     @Test
     fun `provisionVirtualCard() should throw when registered public key retrieval fails`() = runBlocking<Unit> {
-
         provisionHolder.callback shouldBe null
 
         mockPublicKeyService.stub {
@@ -239,7 +237,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     @Test
     fun `provisionVirtualCard() should throw when card mutation response is null`() = runBlocking<Unit> {
-
         provisionHolder.callback shouldBe null
 
         val nullProvisionResponse by before {
@@ -267,7 +264,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     @Test
     fun `provisionVirtualCard() should throw when response has an identity verification not verified error`() = runBlocking<Unit> {
-
         provisionHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
@@ -301,7 +297,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     @Test
     fun `provisionVirtualCard() should throw when response has an identity verification insufficient error`() = runBlocking<Unit> {
-
         provisionHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
@@ -335,7 +330,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     @Test
     fun `provisionVirtualCard() should throw when response has a funding source not found error`() = runBlocking<Unit> {
-
         provisionHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
@@ -369,7 +363,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     @Test
     fun `provisionVirtualCard() should throw when response has a funding source not active error`() = runBlocking<Unit> {
-
         provisionHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
@@ -403,7 +396,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     @Test
     fun `provisionVirtualCard() should throw when response has a velocity exceeded error`() = runBlocking<Unit> {
-
         provisionHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
@@ -437,7 +429,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     @Test
     fun `provisionVirtualCard() should throw when response has an entitlement exceeded error`() = runBlocking<Unit> {
-
         provisionHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
@@ -472,7 +463,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     @Test
     fun `provisionVirtualCard() should throw when response has an unsupported currency error`() = runBlocking<Unit> {
-
         provisionHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
@@ -506,7 +496,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     @Test
     fun `provisionVirtualCard() should throw when response has an invalid token error`() = runBlocking<Unit> {
-
         provisionHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
@@ -540,7 +529,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     @Test
     fun `provisionVirtualCard() should throw when response has an account locked error`() = runBlocking<Unit> {
-
         provisionHolder.callback shouldBe null
 
         val errorProvisionResponse by before {
@@ -574,7 +562,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     @Test
     fun `provisionVirtualCard() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-
         mockPublicKeyService.stub {
             onBlocking { getCurrentRegisteredKey() } doThrow CancellationException("mock")
         }
@@ -588,7 +575,6 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     @Test
     fun `provisionVirtualCard() should throw when key registration fails`() = runBlocking<Unit> {
-
         mockPublicKeyService.stub {
             onBlocking { getCurrentRegisteredKey() } doThrow PublicKeyService.PublicKeyServiceException.KeyCreateException("mock")
         }

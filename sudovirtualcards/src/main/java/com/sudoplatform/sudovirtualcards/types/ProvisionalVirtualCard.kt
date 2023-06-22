@@ -32,19 +32,22 @@ data class ProvisionalVirtualCard(
     val updatedAt: Date,
     val clientRefId: String,
     val provisioningState: ProvisioningState,
-    val card: VirtualCard? = null,
+    val card: VirtualCard? = null
 ) : Parcelable {
     /** State of the provisional card. */
     enum class ProvisioningState {
         /** VirtualCard is in a provisioning state currently. */
         PROVISIONING,
+
         /**
          * [VirtualCard] has been provisioned which means the card should be accessible by either a getVirtualCard API
          * or via [card] property.
          */
         COMPLETED,
+
         /** [VirtualCard] is in a failed state and needs to be rectified. */
         FAILED,
+
         /** API Evolution - if this occurs, it may mean you need to update the library. */
         UNKNOWN
     }

@@ -54,7 +54,7 @@ internal class DefaultPublicKeyService(
 
             return PublicKey(
                 keyId = currentDeviceKeyPair.keyId,
-                publicKey = currentDeviceKeyPair.publicKey,
+                publicKey = currentDeviceKeyPair.publicKey
             )
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
@@ -111,7 +111,7 @@ internal class DefaultPublicKeyService(
             return PublicKeyWithKeyRingId(
                 publicKey = PublicKey(
                     keyId = currentDeviceKeyPair.keyId,
-                    publicKey = currentDeviceKeyPair.publicKey,
+                    publicKey = currentDeviceKeyPair.publicKey
                 ),
                 keyRingId = keyRingId,
                 created = created
@@ -158,7 +158,6 @@ internal class DefaultPublicKeyService(
     }
 
     override suspend fun create(keyId: String, keyRingId: String, publicKey: ByteArray): PublicKeyWithKeyRingId {
-
         try {
             val mutationInput = CreatePublicKeyInput.builder()
                 .publicKey(String(Base64.encode(publicKey), Charsets.UTF_8))

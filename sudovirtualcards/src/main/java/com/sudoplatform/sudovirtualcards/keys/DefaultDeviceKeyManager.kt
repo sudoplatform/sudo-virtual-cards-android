@@ -48,7 +48,7 @@ internal class DefaultDeviceKeyManager(
                 ?: return null
             return DeviceKey(
                 keyId = currentKeyId,
-                publicKey = publicKey,
+                publicKey = publicKey
             )
         } catch (e: KeyManagerException) {
             throw DeviceKeyManager.DeviceKeyManagerException.KeyOperationFailedException("KeyManager exception", e)
@@ -70,7 +70,7 @@ internal class DefaultDeviceKeyManager(
                 ?: return null
             return DeviceKey(
                 keyId = id,
-                publicKey = publicKey,
+                publicKey = publicKey
             )
         } catch (e: KeyManagerException) {
             throw DeviceKeyManager.DeviceKeyManagerException.KeyOperationFailedException("KeyManager exception", e)
@@ -86,7 +86,6 @@ internal class DefaultDeviceKeyManager(
      */
     @Throws(DeviceKeyManager.DeviceKeyManagerException::class)
     override fun generateNewCurrentKeyPair(): DeviceKey {
-
         val keyId = UUID.randomUUID().toString()
 
         try {
@@ -100,7 +99,7 @@ internal class DefaultDeviceKeyManager(
             val publicKey = keyManager.getPublicKeyData(keyId)
             return DeviceKey(
                 keyId = keyId,
-                publicKey = publicKey,
+                publicKey = publicKey
             )
         } catch (e: Exception) {
             logger.error("error $e")

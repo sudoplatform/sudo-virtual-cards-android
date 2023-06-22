@@ -217,7 +217,6 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
 
     @Test
     fun `getFundingSource() should return results when no error present`() = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -279,7 +278,6 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
 
     @Test
     fun `getFundingSource() should return null result when query result data is null`() = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         val responseWithNullResult by before {
@@ -330,7 +328,6 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
 
     @Test
     fun `getFundingSource() should throw when http error occurs`() = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -364,7 +361,6 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
 
     @Test
     fun `getFundingSource() should throw when unknown error occurs()`() = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         mockAppSyncClient.stub {
@@ -387,7 +383,6 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
     @Test
     fun `getFundingSource() should not suppress CancellationException()`
     () = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         mockAppSyncClient.stub {

@@ -39,7 +39,7 @@ class PublicKeyServiceTest : BaseIntegrationTest() {
             keyRingServiceName = keyRingServiceName,
             userClient = userClient,
             deviceKeyManager = deviceKeyManager,
-            appSyncClient = ApiClientManager.getClient(context, userClient),
+            appSyncClient = ApiClientManager.getClient(context, userClient)
         )
     }
 

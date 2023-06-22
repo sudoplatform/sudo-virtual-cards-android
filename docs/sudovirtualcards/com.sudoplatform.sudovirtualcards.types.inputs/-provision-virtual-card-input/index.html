@@ -42,6 +42,9 @@
     <div>
     </div>
     <div class="pull-right d-flex">
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":sudovirtualcards:dokkaHtml/release">androidJvm</button>
+        </div>
         <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
         <div id="searchBar"></div>
     </div>
@@ -51,164 +54,153 @@
         <div id="sideMenu"></div>
     </div>
     <div id="main">
-<div class="main-content" id="content" pageIds="sudovirtualcards::com.sudoplatform.sudovirtualcards.types.inputs/ProvisionVirtualCardInput///PointingToDeclaration//-2124582697">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="sudovirtualcards::com.sudoplatform.sudovirtualcards.types.inputs/ProvisionVirtualCardInput///PointingToDeclaration//-2124582697">
   <div class="breadcrumbs"><a href="../../../index.html">sudovirtualcards</a><span class="delimiter">/</span><a href="../index.html">com.sudoplatform.sudovirtualcards.types.inputs</a><span class="delimiter">/</span><span class="current">ProvisionVirtualCardInput</span></div>
   <div class="cover ">
     <h1 class="cover"><span>Provision</span><wbr></wbr><span>Virtual</span><wbr></wbr><span>Card</span><wbr></wbr><span><span>Input</span></span></h1>
     <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="index.html">ProvisionVirtualCardInput</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>clientRefId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span>UUID.randomUUID().toString()<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>ownershipProofs<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>fundingSourceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>cardHolder<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>alias<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>metadata<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-json-value/index.html">JsonValue</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>billingAddress<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-billing-address/index.html">BillingAddress</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>currency<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div><p class="paragraph">Input object containing the information required to provision a virtual card.</p></div></div>
   </div>
   <div class="tabbedcontent">
-    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Constructors">Constructors</button><button class="section-tab" data-togglable="Properties">Properties</button></div>
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,FUNCTION,PROPERTY">Members</button></div>
     <div class="tabs-section-body">
-      <h2 class="tabbedcontent">Constructors</h2>
-      <div class="table" data-togglable="Constructors"><a data-name="622231269%2FConstructors%2F-2124582697" anchor-label="ProvisionVirtualCardInput" id="622231269%2FConstructors%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue TabbedContent">
-            <div class=""><span class="inline-flex">
-                <div><a href="-provision-virtual-card-input.html"><span>Provision</span><wbr></wbr><span>Virtual</span><wbr></wbr><span>Card</span><wbr></wbr><span><span>Input</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="622231269%2FConstructors%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="-provision-virtual-card-input.html"><span class="token function">ProvisionVirtualCardInput</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">clientRefId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span>UUID.randomUUID().toString()<span class="token punctuation">, </span></span><span class="parameter ">ownershipProofs<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">fundingSourceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">cardHolder<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">alias<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">metadata<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-json-value/index.html">JsonValue</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">addressLine1<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">addressLine2<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">city<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">state<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">postalCode<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">country<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">currency<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div></div></div>
-              </div>
-            </div>
-          </div>
-        </div>
-<a data-name="683778316%2FConstructors%2F-2124582697" anchor-label="ProvisionVirtualCardInput" id="683778316%2FConstructors%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue TabbedContent">
-            <div class=""><span class="inline-flex">
-                <div><a href="-provision-virtual-card-input.html"><span>Provision</span><wbr></wbr><span>Virtual</span><wbr></wbr><span>Card</span><wbr></wbr><span><span>Input</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="683778316%2FConstructors%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="-provision-virtual-card-input.html"><span class="token function">ProvisionVirtualCardInput</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">clientRefId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span>UUID.randomUUID().toString()<span class="token punctuation">, </span></span><span class="parameter ">ownershipProofs<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">fundingSourceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">cardHolder<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">alias<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">metadata<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-json-value/index.html">JsonValue</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">billingAddress<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-billing-address/index.html">BillingAddress</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">currency<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div></div></div>
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="">Constructors</h2>
+        <div class="table"><a data-name="-492711323%2FConstructors%2F-2124582697" anchor-label="ProvisionVirtualCardInput" id="-492711323%2FConstructors%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+          <div class="table-row" data-togglable="CONSTRUCTOR" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-provision-virtual-card-input.html"><span>Provision</span><wbr></wbr><span>Virtual</span><wbr></wbr><span>Card</span><wbr></wbr><span><span>Input</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-492711323%2FConstructors%2F-2124582697"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">clientRefId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span>UUID.randomUUID().toString()<span class="token punctuation">, </span></span><span class="parameter ">ownershipProofs<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">fundingSourceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">cardHolder<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">alias<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">metadata<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-json-value/index.html">JsonValue</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">addressLine1<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">addressLine2<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">city<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">state<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">postalCode<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">country<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">currency<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">clientRefId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span>UUID.randomUUID().toString()<span class="token punctuation">, </span></span><span class="parameter ">ownershipProofs<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">fundingSourceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">cardHolder<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">alias<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">metadata<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-json-value/index.html">JsonValue</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">billingAddress<span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-billing-address/index.html">BillingAddress</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">currency<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <h2 class="">Properties</h2>
-      <div class="table" data-togglable="Properties"><a data-name="-2017782527%2FProperties%2F-2124582697" anchor-label="alias" id="-2017782527%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="alias.html"><span><span>alias</span></span></a></div>
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="-2017782527%2FProperties%2F-2124582697" anchor-label="alias" id="-2017782527%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="alias.html"><span><span>alias</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2017782527%2FProperties%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="-2017782527%2FProperties%2F-2124582697" anchor-label="alias" id="-2017782527%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="alias.html"><strike>alias</strike></a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null</div><div class="brief "><a data-name="-2017782527%2FProperties%2F-2124582697" anchor-label="alias" id="-2017782527%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> <i>deprecated</i> User defined name associated with the virtual card.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="alias.html"><strike>alias</strike></a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null</div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> <i>deprecated</i> User defined name associated with the virtual card.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="942724560%2FProperties%2F-2124582697" anchor-label="billingAddress" id="942724560%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="billing-address.html"><span>billing</span><wbr></wbr><span><span>Address</span></span></a></div>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="billing-address.html"><span>billing</span><wbr></wbr><span><span>Address</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="942724560%2FProperties%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="942724560%2FProperties%2F-2124582697" anchor-label="billingAddress" id="942724560%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="billing-address.html">billingAddress</a><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-billing-address/index.html">BillingAddress</a><span class="token operator">?</span><span class="token operator"> = </span>null</div><div class="brief "><a data-name="942724560%2FProperties%2F-2124582697" anchor-label="billingAddress" id="942724560%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><p class="paragraph"><a href="../../com.sudoplatform.sudovirtualcards.types/-billing-address/index.html">BillingAddress</a> associated with the virtual card. If not supplied, the default billing address will be used.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="billing-address.html">billingAddress</a><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-billing-address/index.html">BillingAddress</a><span class="token operator">?</span><span class="token operator"> = </span>null</div><div class="brief "><p class="paragraph"><a href="../../com.sudoplatform.sudovirtualcards.types/-billing-address/index.html">BillingAddress</a> associated with the virtual card. If not supplied, the default billing address will be used.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="-1562805939%2FProperties%2F-2124582697" anchor-label="cardHolder" id="-1562805939%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="card-holder.html"><span>card</span><wbr></wbr><span><span>Holder</span></span></a></div>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="card-holder.html"><span>card</span><wbr></wbr><span><span>Holder</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1562805939%2FProperties%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="-1562805939%2FProperties%2F-2124582697" anchor-label="cardHolder" id="-1562805939%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="card-holder.html">cardHolder</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><a data-name="-1562805939%2FProperties%2F-2124582697" anchor-label="cardHolder" id="-1562805939%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> The name to appear on the virtual card.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="card-holder.html">cardHolder</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> The name to appear on the virtual card.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="928006062%2FProperties%2F-2124582697" anchor-label="clientRefId" id="928006062%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="client-ref-id.html"><span>client</span><wbr></wbr><span>Ref</span><wbr></wbr><span><span>Id</span></span></a></div>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="client-ref-id.html"><span>client</span><wbr></wbr><span>Ref</span><wbr></wbr><span><span>Id</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="928006062%2FProperties%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="928006062%2FProperties%2F-2124582697" anchor-label="clientRefId" id="928006062%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="client-ref-id.html">clientRefId</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><a data-name="928006062%2FProperties%2F-2124582697" anchor-label="clientRefId" id="928006062%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> A reference identifier generated by the caller.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="client-ref-id.html">clientRefId</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> A reference identifier generated by the caller.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="1327370936%2FProperties%2F-2124582697" anchor-label="currency" id="1327370936%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="currency.html"><span><span>currency</span></span></a></div>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="currency.html"><span><span>currency</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1327370936%2FProperties%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="1327370936%2FProperties%2F-2124582697" anchor-label="currency" id="1327370936%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="currency.html">currency</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><a data-name="1327370936%2FProperties%2F-2124582697" anchor-label="currency" id="1327370936%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> The ISO 4217 currency code.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="currency.html">currency</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> The ISO 4217 currency code.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="785086206%2FProperties%2F-2124582697" anchor-label="fundingSourceId" id="785086206%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="funding-source-id.html"><span>funding</span><wbr></wbr><span>Source</span><wbr></wbr><span><span>Id</span></span></a></div>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="funding-source-id.html"><span>funding</span><wbr></wbr><span>Source</span><wbr></wbr><span><span>Id</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="785086206%2FProperties%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="785086206%2FProperties%2F-2124582697" anchor-label="fundingSourceId" id="785086206%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="funding-source-id.html">fundingSourceId</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><a data-name="785086206%2FProperties%2F-2124582697" anchor-label="fundingSourceId" id="785086206%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> Identifier of the associated funding source used to fund the provisioned virtual card.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="funding-source-id.html">fundingSourceId</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> Identifier of the associated funding source used to fund the provisioned virtual card.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="318154074%2FProperties%2F-2124582697" anchor-label="metadata" id="318154074%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="metadata.html"><span><span>metadata</span></span></a></div>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="metadata.html"><span><span>metadata</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="318154074%2FProperties%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="318154074%2FProperties%2F-2124582697" anchor-label="metadata" id="318154074%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="metadata.html">metadata</a><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-json-value/index.html">JsonValue</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null</div><div class="brief "><a data-name="318154074%2FProperties%2F-2124582697" anchor-label="metadata" id="318154074%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><p class="paragraph"><a href="../../com.sudoplatform.sudovirtualcards.types/-json-value/index.html">JsonValue</a> Custom metadata to associate with the virtual card. Can be used for values such as card aliases, card colors, image references etc. There is a limit of 3k characters when data is serialized.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="metadata.html">metadata</a><span class="token operator">: </span><a href="../../com.sudoplatform.sudovirtualcards.types/-json-value/index.html">JsonValue</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null</div><div class="brief "><p class="paragraph"><a href="../../com.sudoplatform.sudovirtualcards.types/-json-value/index.html">JsonValue</a> Custom metadata to associate with the virtual card. Can be used for values such as card aliases, card colors, image references etc. There is a limit of 3k characters when data is serialized.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="2130733587%2FProperties%2F-2124582697" anchor-label="ownershipProofs" id="2130733587%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-        <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="ownership-proofs.html"><span>ownership</span><wbr></wbr><span><span>Proofs</span></span></a></div>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="ownership-proofs.html"><span>ownership</span><wbr></wbr><span><span>Proofs</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2130733587%2FProperties%2F-2124582697"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><a data-name="2130733587%2FProperties%2F-2124582697" anchor-label="ownershipProofs" id="2130733587%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="ownership-proofs.html">ownershipProofs</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div><div class="brief "><a data-name="2130733587%2FProperties%2F-2124582697" anchor-label="ownershipProofs" id="2130733587%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a><p class="paragraph">List Proof of sudo ownership for provisioning virtual cards. The ownership proof must contain an audience of &quot;sudoplatform.virtual-cards.virtual-card&quot;.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="ownership-proofs.html">ownershipProofs</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">List Proof of sudo ownership for provisioning virtual cards. The ownership proof must contain an audience of &quot;sudoplatform.virtual-cards.virtual-card&quot;.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>

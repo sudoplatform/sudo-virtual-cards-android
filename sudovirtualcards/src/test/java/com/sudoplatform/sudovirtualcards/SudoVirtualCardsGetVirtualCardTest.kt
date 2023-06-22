@@ -116,7 +116,7 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
                             mockSeal("csc"),
                             billingAddress,
                             expiry,
-                            null,
+                            null
                         )
                     )
                 )
@@ -160,7 +160,7 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
 
     private val currentKey = PublicKey(
         keyId = "keyId",
-        publicKey = "publicKey".toByteArray(),
+        publicKey = "publicKey".toByteArray()
     )
 
     private val mockPublicKeyService by before {
@@ -198,7 +198,6 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
 
     @Test
     fun `getVirtualCard() should return results when no error present`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -242,7 +241,6 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
 
     @Test
     fun `getVirtualCard() should return null result when query result data is null`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val responseWithNullResult by before {
@@ -269,7 +267,6 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
 
     @Test
     fun `getVirtualCard() should return null result when query response is null`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val nullQueryResponse by before {
@@ -296,7 +293,6 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
 
     @Test
     fun `getVirtualCard() should throw when query response has errors`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val errorQueryResponse by before {
@@ -328,7 +324,6 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
 
     @Test
     fun `getVirtualCard() should throw when current key pair retrieval returns null`() = runBlocking<Unit> {
-
         mockPublicKeyService.stub {
             onBlocking { getCurrentKey() } doReturn null
         }
@@ -342,7 +337,6 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
 
     @Test
     fun `getVirtualCard() should throw when unsealing fails`() = runBlocking<Unit> {
-
         mockAppSyncClient.stub {
             on { query(any<GetCardQuery>()) } doThrow Unsealer.UnsealerException.SealedDataTooShortException("Mock Unsealer Exception")
         }
@@ -357,7 +351,6 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
 
     @Test
     fun `getVirtualCard() should throw when http error occurs`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -392,7 +385,6 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
 
     @Test
     fun `getVirtualCard() should throw when unknown error occurs()`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         mockAppSyncClient.stub {
@@ -415,7 +407,6 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
 
     @Test
     fun `getVirtualCard() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-
         mockAppSyncClient.stub {
             on { query(any<GetCardQuery>()) } doThrow CancellationException("Mock Cancellation Exception")
         }

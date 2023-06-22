@@ -131,7 +131,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             merchantId = merchant.id,
             securityCode = card.securityCode,
             expirationMonth = card.expiry.mm.toInt(),
-            expirationYear = card.expiry.yyyy.toInt(),
+            expirationYear = card.expiry.yyyy.toInt()
         )
         val authResponse = vcSimulatorClient.simulateAuthorization(authInput)
         with(authResponse) {
@@ -300,7 +300,8 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
         // transaction and a valid nextToken.
         val transactionsWithLimit = await.atMost(
             Duration(
-                12, TimeUnit.SECONDS
+                12,
+                TimeUnit.SECONDS
             )
         ) withPollInterval Duration.TWO_HUNDRED_MILLISECONDS untilCallTo {
             runBlocking {
@@ -485,7 +486,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             merchantId = merchant.id,
             securityCode = card.securityCode,
             expirationMonth = card.expiry.mm.toInt(),
-            expirationYear = card.expiry.yyyy.toInt(),
+            expirationYear = card.expiry.yyyy.toInt()
         )
         val authResponse = vcSimulatorClient.simulateAuthorization(authInput)
         with(authResponse) {
@@ -651,7 +652,8 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
         val transactionsWithLimit = await.atMost(
             Duration(
-                12, TimeUnit.SECONDS
+                12,
+                TimeUnit.SECONDS
             )
         ) withPollInterval Duration.TWO_HUNDRED_MILLISECONDS untilCallTo {
             runBlocking {

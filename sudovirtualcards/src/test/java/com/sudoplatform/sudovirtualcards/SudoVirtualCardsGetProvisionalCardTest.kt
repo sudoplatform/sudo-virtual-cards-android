@@ -57,7 +57,7 @@ class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
                     1.0,
                     "clientRefId",
                     ProvisioningState.PROVISIONING,
-                    null,
+                    null
                 )
             )
         )
@@ -121,7 +121,6 @@ class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
 
     @Test
     fun `getProvisionalCard() should return results when no error present`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -152,7 +151,6 @@ class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
 
     @Test
     fun `getProvisionalCard() should throw when query response is null`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val nullQueryResponse by before {
@@ -178,7 +176,6 @@ class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
 
     @Test
     fun `getProvisionalCard() should throw when query response has errors`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val errorQueryResponse by before {
@@ -209,7 +206,6 @@ class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
 
     @Test
     fun `getProvisionalCard() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-
         mockAppSyncClient.stub {
             on { query(any<GetProvisionalCardQuery>()) } doThrow CancellationException("mock")
         }
@@ -222,7 +218,6 @@ class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
 
     @Test
     fun `getProvisionalCard() should throw when key registration fails`() = runBlocking<Unit> {
-
         mockAppSyncClient.stub {
             on { query(any<GetProvisionalCardQuery>()) } doThrow Unsealer.UnsealerException.SealedDataTooShortException("mock")
         }

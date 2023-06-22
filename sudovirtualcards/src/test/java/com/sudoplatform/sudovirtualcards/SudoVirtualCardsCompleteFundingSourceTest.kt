@@ -212,7 +212,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
                         null
                     )
                 )
-            ),
+            )
         )
     }
 
@@ -262,7 +262,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     private val currentKey = PublicKey(
         keyId = "keyId",
-        publicKey = "publicKey".toByteArray(),
+        publicKey = "publicKey".toByteArray()
     )
 
     private val mockPublicKeyService by before {
@@ -293,13 +293,12 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
             mockContext,
             mockUserClient,
             mockKeyManager,
-            mockAppSyncClient,
+            mockAppSyncClient
         )
     }
 
     @Test
     fun `completeFundingSource() should return results when no error present`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -375,7 +374,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when response is null`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val nullMutationResponse by before {
@@ -416,7 +414,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when a provisional funding source not found error occurs`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val errorResponse by before {
@@ -463,7 +460,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when a funding source state error occurs`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val errorResponse by before {
@@ -510,7 +506,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when a funding source not setup error occurs`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val errorResponse by before {
@@ -557,7 +552,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when a completion data invalid error occurs`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val errorResponse by before {
@@ -604,7 +598,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when an unacceptable funding source error occurs`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val errorResponse by before {
@@ -705,7 +698,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when http error occurs`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -755,7 +747,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when unknown error occurs`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         mockAppSyncClient.stub {
@@ -793,7 +784,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         mockAppSyncClient.stub {

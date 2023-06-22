@@ -1,9 +1,3 @@
-- artifact: com.jakewharton.timber:timber:+
-  name: Timber
-  copyrightHolder: Jake Wharton
-  license: The Apache Software License, Version 2.0
-  licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.txt
-  url: https://github.com/JakeWharton/timber
 - artifact: androidx.vectordrawable:vectordrawable-animated:+
   name: AndroidX AnimatedVectorDrawable
   copyrightHolder: Google, Inc.
@@ -126,12 +120,6 @@
   url: https://developer.android.com/jetpack/androidx
 - artifact: org.jetbrains.kotlin:kotlin-stdlib-common:+
   name: org.jetbrains.kotlin:kotlin-stdlib-common
-  copyrightHolder: JetBrains s.r.o.
-  license: The Apache License, Version 2.0
-  licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.txt
-  url: https://kotlinlang.org/
-- artifact: org.jetbrains.kotlin:kotlin-android-extensions-runtime:+
-  name: org.jetbrains.kotlin:kotlin-android-extensions-runtime
   copyrightHolder: JetBrains s.r.o.
   license: The Apache License, Version 2.0
   licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -285,12 +273,6 @@
   copyrightHolder: The JSR-330 Expert Group
   licenseUrl: http://www.bouncycastle.org/licence.html
   url: http://www.bouncycastle.org/java.html
-- artifact: com.squareup.okio:okio:+
-  name: Okio
-  copyrightHolder: Square, Inc.
-  license: The Apache Software License, Version 2.0
-  licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.txt
-  url: https://github.com/square/okio/
 - artifact: org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:+
   name: kotlinx-coroutines-core
   copyrightHolder: Jetbrains, Inc.
@@ -315,12 +297,6 @@
   license: The Apache License, Version 2.0
   licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.txt
   url: https://kotlinlang.org/
-- artifact: org.bouncycastle:bctls-jdk15to18:+
-  name: Bouncy Castle JSSE provider and TLS/DTLS API
-  copyrightHolder: The JSR-330 Expert Group
-  license: Bouncy Castle Licence
-  licenseUrl: http://www.bouncycastle.org/licence.html
-  url: http://www.bouncycastle.org/java.html
 - artifact: org.hamcrest:hamcrest-core:+
   name: Hamcrest Core
   copyrightHolder: hamcrest.org
@@ -410,3 +386,9 @@
   license: The Apache Software License, Version 2.0
   licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.txt
   url: https://developer.android.com/jetpack/androidx
+- artifact: com.squareup.okio:okio-jvm:+
+  name: okio
+  copyrightHolder: Square, Inc.
+  license: The Apache Software License, Version 2.0
+  licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.txt
+  url: https://github.com/square/okio/

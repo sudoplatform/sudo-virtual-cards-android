@@ -92,7 +92,6 @@ class UnsealerTest : BaseTests() {
     }
 
     private fun seal(value: String): String {
-
         val encryptedSymmetricKeyBytes = keyManager.encryptWithPublicKey(
             publicKeyId,
             keyManager.getSymmetricKeyData(symmetricKeyId),
@@ -134,7 +133,6 @@ class UnsealerTest : BaseTests() {
 
     @Test
     fun `unseal string`() {
-
         val clearData = "The owl and the pussycat went to sea in a beautiful pea green boat."
 
         val sealedData = seal(clearData)
@@ -153,14 +151,14 @@ class UnsealerTest : BaseTests() {
         unsealer.unsealAmount(
             SealedCurrencyAmountAttribute(
                 "SealedCurrencyAmount",
-                sealedCurrency, sealedAmount
+                sealedCurrency,
+                sealedAmount
             )
         ) shouldBe CurrencyAmount("USD", 100)
     }
 
     @Test
     fun `unseal SealedCard Metadata should throw for unsupported algorithm`() {
-
         val sealedMetadata = SealedCard.Metadata(
             "Metadata",
             SealedCard.Metadata.Fragments(
@@ -181,7 +179,6 @@ class UnsealerTest : BaseTests() {
 
     @Test
     fun `unseal SealedCard Metadata`() {
-
         val sealedMetadata = SealedCard.Metadata(
             "Metadata",
             SealedCard.Metadata.Fragments(
@@ -204,7 +201,6 @@ class UnsealerTest : BaseTests() {
 
     @Test
     fun `unseal SealedCard BillingAddress`() {
-
         val sealedBillingAddress = SealedCard.BillingAddress(
             "BillingAddress",
             SealedCard.BillingAddress.Fragments(
@@ -237,7 +233,6 @@ class UnsealerTest : BaseTests() {
 
     @Test
     fun `unseal SealedCard Expiry`() {
-
         val sealedExpiry = SealedCard.Expiry(
             "Expiry",
             SealedCard.Expiry.Fragments(
@@ -268,7 +263,6 @@ class UnsealerTest : BaseTests() {
 
     @Test
     fun `unseal GetProvisionalCardQuery result`() {
-
         val sealedBillingAddress = SealedCard.BillingAddress(
             "BillingAddress",
             SealedCard.BillingAddress.Fragments(
@@ -361,7 +355,6 @@ class UnsealerTest : BaseTests() {
 
     @Test
     fun `unseal ProvisionVirtualCardMutation result`() {
-
         val sealedBillingAddress = SealedCard.BillingAddress(
             "BillingAddress",
             SealedCard.BillingAddress.Fragments(
@@ -417,7 +410,7 @@ class UnsealerTest : BaseTests() {
                             )
                         )
                     ),
-                    null,
+                    null
                 )
             )
         )
@@ -480,7 +473,6 @@ class UnsealerTest : BaseTests() {
 
     @Test
     fun `unseal SealedCard`() {
-
         val sealedBillingAddress = SealedCard.BillingAddress(
             "BillingAddress",
             SealedCard.BillingAddress.Fragments(
@@ -556,7 +548,7 @@ class UnsealerTest : BaseTests() {
                                         "SealedMarkupAttribute",
                                         seal("1.0"),
                                         seal("2.0"),
-                                        seal("3.0"),
+                                        seal("3.0")
                                     )
                                 )
                             ),
@@ -633,7 +625,7 @@ class UnsealerTest : BaseTests() {
                             )
                         )
                     ),
-                    null,
+                    null
                 )
             )
         )

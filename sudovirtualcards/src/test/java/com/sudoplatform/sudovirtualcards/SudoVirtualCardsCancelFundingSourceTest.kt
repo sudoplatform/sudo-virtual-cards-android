@@ -97,7 +97,7 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
                         ),
                         "last4",
                         CreditCardNetwork.VISA,
-                        CardType.CREDIT,
+                        CardType.CREDIT
                     )
                 )
             ),
@@ -153,7 +153,7 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
                         null
                     )
                 )
-            ),
+            )
         )
     }
 
@@ -222,7 +222,6 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
 
     @Test
     fun `cancelFundingSource() should return results when no error present`() = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -282,7 +281,6 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
 
     @Test
     fun `cancelFundingSource() should throw when mutation response is null`() = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         val nullResponse by before {
@@ -309,7 +307,6 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
 
     @Test
     fun `cancelFundingSource() should throw when response has a funding source not found error`() = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         val errorCancelResponse by before {
@@ -342,7 +339,6 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
 
     @Test
     fun `cancelFundingSource() should throw when response has an account locked error`() = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         val errorCancelResponse by before {
@@ -375,7 +371,6 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
 
     @Test
     fun `cancelFundingSource() should throw when http error occurs`() = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -409,7 +404,6 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
 
     @Test
     fun `cancelFundingSource() should throw when unknown error occurs`() = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         mockAppSyncClient.stub {
@@ -431,7 +425,6 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
 
     @Test
     fun `cancelFundingSource() should not suppress CancellationException`() = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         mockAppSyncClient.stub {

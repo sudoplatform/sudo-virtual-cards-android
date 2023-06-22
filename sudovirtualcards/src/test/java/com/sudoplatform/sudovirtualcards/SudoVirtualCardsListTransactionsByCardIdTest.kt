@@ -224,7 +224,6 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
 
     @Test
     fun `listTransactionsByCardId() should return success result when no error present`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -275,7 +274,6 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
 
     @Test
     fun `listTransactionsByCardId() should return success result using default inputs when no error present`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -319,7 +317,6 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
 
     @Test
     fun `listTransactionsByCardId() should return success result when populating nextToken`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val queryResultWithNextToken by before {
@@ -333,7 +330,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     1,
                     "dummyNextToken",
                     null,
-                    null,
+                    null
                 )
             )
                 .data(ListTransactionsByCardIdQuery.Data(queryResultWithNextToken))
@@ -381,7 +378,6 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
 
     @Test
     fun `listTransactionsByCardId() should return success empty list result when query result data is empty`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val queryResultWithEmptyList by before {
@@ -435,7 +431,6 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
 
     @Test
     fun `listTransactionsByCardId() should return success empty list result when query response is null`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val nullQueryResponse by before {
@@ -481,7 +476,6 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
 
     @Test
     fun `listTransactionsByCardId() should return partial results when unsealing fails`() = runBlocking<Unit> {
-
         mockKeyManager.stub {
             on { decryptWithPrivateKey(anyString(), any(), any()) } doThrow KeyManagerException("KeyManagerException")
         }
@@ -528,7 +522,6 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
 
     @Test
     fun `listTransactionsByCardId() should throw when unsealing fails`() = runBlocking<Unit> {
-
         mockAppSyncClient.stub {
             on { query(any<ListTransactionsByCardIdQuery>()) } doThrow
                 Unsealer.UnsealerException.SealedDataTooShortException("Mock Unsealer Exception")
@@ -552,7 +545,6 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
 
     @Test
     fun `listTransactionsByCardId() should throw when http error occurs`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -595,7 +587,6 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
 
     @Test
     fun `listTransactionsByCardId() should throw when unknown error occurs()`() = runBlocking<Unit> {
-
         queryHolder.callback shouldBe null
 
         mockAppSyncClient.stub {
@@ -626,7 +617,6 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
 
     @Test
     fun `listTransactionsByCardId() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-
         mockAppSyncClient.stub {
             on { query(any<ListTransactionsByCardIdQuery>()) } doThrow CancellationException("Mock Cancellation Exception")
         }

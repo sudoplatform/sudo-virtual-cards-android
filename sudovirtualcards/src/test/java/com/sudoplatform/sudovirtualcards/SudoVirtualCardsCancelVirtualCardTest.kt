@@ -127,7 +127,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
                             mockSeal("csc"),
                             billingAddress,
                             expiry,
-                            null,
+                            null
                         )
                     )
                 )
@@ -171,7 +171,7 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
     private val currentKey = PublicKey(
         keyId = "keyId",
-        publicKey = "publicKey".toByteArray(),
+        publicKey = "publicKey".toByteArray()
     )
 
     private val mockPublicKeyService by before {
@@ -203,7 +203,6 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
     @Test
     fun `cancelVirtualCard() should return success result when no error present`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -252,7 +251,6 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
     @Test
     fun `cancelVirtualCard() should return partial result when unsealing fails`() = runBlocking<Unit> {
-
         mockKeyManager.stub {
             on { decryptWithPrivateKey(anyString(), any(), any()) } doThrow KeyManagerException("KeyManagerException")
         }
@@ -296,7 +294,6 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
     @Test
     fun `cancelVirtualCard() should throw when response is null`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val nullMutationResponse by before {
@@ -322,7 +319,6 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
     @Test
     fun `cancelVirtualCard() should throw when mutation response has an identity verification error`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val errorMutationResponse by before {
@@ -354,7 +350,6 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
     @Test
     fun `cancelVirtualCard() should throw when response has card not found error`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val errorMutationResponse by before {
@@ -386,7 +381,6 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
     @Test
     fun `cancelVirtualCard() should throw when response has an account locked error`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val errorMutationResponse by before {
@@ -418,7 +412,6 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
     @Test
     fun `cancelVirtualCard() should throw when password retrieval fails`() = runBlocking<Unit> {
-
         mockPublicKeyService.stub {
             onBlocking { getCurrentKey() } doThrow PublicKeyService.PublicKeyServiceException.KeyCreateException(
                 "Mock PublicKey Service Exception"
@@ -434,7 +427,6 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
     @Test
     fun `cancelVirtualCard() should throw when unsealing fails`() = runBlocking<Unit> {
-
         mockAppSyncClient.stub {
             on { mutate(any<CancelVirtualCardMutation>()) } doThrow Unsealer.UnsealerException.SealedDataTooShortException(
                 "Mock Unsealer Exception"
@@ -451,7 +443,6 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
     @Test
     fun `cancelVirtualCard() should throw when http error occurs`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -486,7 +477,6 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
     @Test
     fun `cancelVirtualCard() should throw when unknown error occurs()`() = runBlocking<Unit> {
-
         mutationHolder.callback shouldBe null
 
         mockAppSyncClient.stub {
@@ -509,7 +499,6 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
     @Test
     fun `cancelVirtualCard() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-
         mockAppSyncClient.stub {
             on { mutate(any<CancelVirtualCardMutation>()) } doThrow CancellationException("Mock Cancellation Exception")
         }

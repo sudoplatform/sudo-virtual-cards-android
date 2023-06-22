@@ -659,6 +659,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * deleted [Transaction]s.
      */
     suspend fun unsubscribeAllFromTransactions()
+
     @Deprecated("Use unsubscribeAllFromTransactions instead")
     suspend fun unsubscribeAll()
 
@@ -715,6 +716,7 @@ suspend fun SudoVirtualCardsClient.subscribeToFundingSources(
             }
         }
     )
+
 /**
  * Subscribes to be notified of new, updated and deleted [Transaction]s.
  *

@@ -60,7 +60,7 @@ data class VirtualCard(
     val metadata: @RawValue JsonValue<Any>? = null,
     val billingAddress: BillingAddress? = null,
     val expiry: Expiry,
-    val lastTransaction: Transaction? = null,
+    val lastTransaction: Transaction? = null
 ) : Parcelable
 
 /**
@@ -94,7 +94,7 @@ data class PartialVirtualCard(
     val state: CardState,
     val activeTo: Date,
     val cancelledAt: Date? = null,
-    val last4: String,
+    val last4: String
 ) : Parcelable
 
 /**
@@ -104,12 +104,16 @@ data class PartialVirtualCard(
 enum class CardState {
     /** Card is in an issued state and ready to be used. */
     ISSUED,
+
     /** Card is in a failed state and must be rectified.*/
     FAILED,
+
     /** Card has been closed. */
     CLOSED,
+
     /** Card has been suspended. */
     SUSPENDED,
+
     /** API Evolution - if this occurs, it may mean you need to update the library. */
     UNKNOWN
 }

@@ -92,7 +92,6 @@ class AndroidUnsealerTest : BaseIntegrationTest() {
 
         val iterations = 1_000
         for (i in 1..iterations) {
-
             val symmetricKeyId = UUID.randomUUID().toString()
             keyManager.generateSymmetricKey(symmetricKeyId, true)
             val symmetricKeyData = keyManager.getSymmetricKeyData(symmetricKeyId)

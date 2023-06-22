@@ -11,11 +11,13 @@ node {
 android {
     compileSdkVersion 31
 
+    namespace "com.sudoplatform.sudovirtualcards"
+
     defaultConfig {
         minSdkVersion 24
         targetSdkVersion 31
         versionCode = 1
-        versionName = "9.1.1"
+        versionName = "11.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testApplicationId = "com.sudoplatform.sudovirtualcards.test"
         consumerProguardFiles 'consumer-rules.pro'
@@ -48,6 +50,7 @@ android {
 
     testOptions {
         unitTests.includeAndroidResources = true
+        unitTests.returnDefaultValues = true
         unitTests.all {
             outputs.upToDateWhen {false}
             jacoco {
@@ -58,10 +61,17 @@ android {
             }
         }
     }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 ext {
-    coroutine_version = '1.6.4'
+    coroutine_version = '1.7.1'
     kotlintest_version = "3.4.2"
 }
 
@@ -79,33 +89,30 @@ dependencies {
     implementation "com.amazonaws:aws-android-sdk-core:$aws_version!!"
     implementation "com.amazonaws:aws-android-sdk-appsync:$appsync_version!!"
     constraints {
-        implementation("com.squareup.okhttp3:okhttp:4.9.3") {
-            because("Versions < 4.9.3 has CVE-2021-0341")
-        }
         implementation("com.google.android.gms:play-services-basement:18.1.0") {
             because("Versions < 18.1.0 have CVE-2022-1799")
         }
     }
 
-    implementation 'org.bouncycastle:bcpkix-jdk15to18:1.71'
+    implementation 'org.bouncycastle:bcpkix-jdk15to18:1.73'
     implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
 
     // Sudo Platform
-    implementation "com.sudoplatform:sudokeymanager:5.0.0"
+    implementation "com.sudoplatform:sudokeymanager:5.2.1"
     implementation "com.sudoplatform:sudologging:2.1.0"
-    implementation "com.sudoplatform:sudoconfigmanager:4.0.0"
-    implementation 'com.sudoplatform:sudouser:14.0.0'
-    implementation 'com.sudoplatform:sudoapiclient:6.0.0'
+    implementation "com.sudoplatform:sudoconfigmanager:5.0.0"
+    implementation 'com.sudoplatform:sudouser:16.0.0'
+    implementation 'com.sudoplatform:sudoapiclient:7.0.0'
 
     // Testing
     testImplementation "junit:junit:4.13.2"
     testImplementation "io.kotlintest:kotlintest-assertions:$kotlintest_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutine_version"
     testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    testImplementation "org.mockito.kotlin:mockito-kotlin:4.0.0"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:4.1.0"
     testImplementation 'org.mockito:mockito-inline:4.6.1'
     testImplementation "androidx.test:core:1.5.0"
-    testImplementation 'org.robolectric:robolectric:4.8.2'
+    testImplementation 'org.robolectric:robolectric:4.10.3'
     testImplementation "com.jakewharton.timber:timber:4.7.1"
     testImplementation "commons-codec:commons-codec:1.15"
 
@@ -132,11 +139,11 @@ dependencies {
     androidTestImplementation "com.jakewharton.timber:timber:4.7.1"
     androidTestImplementation 'org.awaitility:awaitility-kotlin:3.1.6'
     androidTestImplementation 'com.sudoplatform:sudoidentityverification:10.0.2'
-    androidTestImplementation 'com.sudoplatform:sudoentitlements:6.0.1'
-    androidTestImplementation 'com.sudoplatform:sudoentitlementsadmin:4.0.0'
+    androidTestImplementation 'com.sudoplatform:sudoentitlements:7.0.0'
+    androidTestImplementation 'com.sudoplatform:sudoentitlementsadmin:5.0.0'
     androidTestImplementation 'com.sudoplatform:sudovirtualcardsadmin:1.0.1'
     androidTestImplementation 'com.sudoplatform:sudovirtualcardssimulator:3.0.2'
-    androidTestImplementation "com.sudoplatform:sudoprofiles:11.0.1"
+    androidTestImplementation "com.sudoplatform:sudoprofiles:12.0.0"
 }
 
 // Returns a list of `configurations` which should not be scanned for vulnerabilities
@@ -165,6 +172,13 @@ afterEvaluate {
         suppressionFile file("../dependency-suppression.xml").toString()
         failBuildOnCVSS 0
         skipConfigurations = getConfigurationsToSkip(configurations)
+
+        cve {
+            urlModified = "https://anonyome-nist-cve-mirror.s3.amazonaws.com/nvdcve-1.1-modified.json.gz"
+            urlBase = "https://anonyome-nist-cve-mirror.s3.amazonaws.com/nvdcve-1.1-%d.json.gz"
+            startYear = 2002
+            waitTime = 0
+        }
     }
 }
 
@@ -223,7 +237,7 @@ apollo {
 apply plugin: 'jacoco'
 
 jacoco {
-    toolVersion = "0.8.7"
+    toolVersion = "0.8.10"
 }
 
 task jacocoTestReport(type: JacocoReport, dependsOn: "testDebugUnitTest") {
@@ -239,10 +253,6 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "testDebugUnitTest") {
     )
     sourceDirectories.setFrom(files("${buildDir.parent}/sudovirtualcards/src/main/java"))
     executionData.setFrom(fileTree(["dir":"$buildDir", "includes":["**/*.exec", "**/*.ec"]]))
-    reports {
-        xml.enabled = true
-        html.enabled = true
-    }
 }
 
 // Dokka documentation generation

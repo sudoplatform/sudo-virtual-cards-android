@@ -108,7 +108,7 @@ internal object VirtualCardTransformer {
      */
     fun toEntity(
         deviceKeyManager: DeviceKeyManager,
-        sealedCardWithLastTransaction: SealedCardWithLastTransaction,
+        sealedCardWithLastTransaction: SealedCardWithLastTransaction
     ): VirtualCard {
         val sealedCard = sealedCardWithLastTransaction.fragments().sealedCard()
             ?: throw SudoVirtualCardsClient.VirtualCardException.FailedException(

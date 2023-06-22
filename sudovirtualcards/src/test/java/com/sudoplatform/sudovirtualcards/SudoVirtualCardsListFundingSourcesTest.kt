@@ -135,7 +135,6 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
 
     @Test
     fun `listFundingSources() should return results when no error present`() = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -170,7 +169,6 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
 
     @Test
     fun `listFundingSources() should return results when populating nextToken`() = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         val queryResultWithNextToken by before {
@@ -247,7 +245,6 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
 
     @Test
     fun `listFundingSources() should return empty list output when query result data is empty`() = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         val queryResultWithEmptyList by before {
@@ -312,7 +309,6 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
 
     @Test
     fun `listFundingSources() should throw when http error occurs`() = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         val deferredResult = async(Dispatchers.IO) {
@@ -346,7 +342,6 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
 
     @Test
     fun `listFundingSources() should throw when unknown error occurs`() = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         mockAppSyncClient.stub {
@@ -369,7 +364,6 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
     @Test
     fun `listFundingSources() should not suppress CancellationException`
     () = runBlocking<Unit> {
-
         holder.callback shouldBe null
 
         mockAppSyncClient.stub {

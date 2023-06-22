@@ -137,4 +137,11 @@
         ]]></notes>
         <cve>CVE-2023-34411</cve>
     </suppress>
+    <suppress until="2023-07-30">
+        <notes><![CDATA[
+        file name: bcprov-jdk15to18-1.71.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bcprov\-jdk15to18@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-33201</vulnerabilityName>
+    </suppress>
 </suppressions>

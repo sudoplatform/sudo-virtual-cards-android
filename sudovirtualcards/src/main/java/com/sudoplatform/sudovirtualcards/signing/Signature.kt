@@ -35,5 +35,5 @@ internal data class SignatureData(
     val hash: String,
     val hashAlgorithm: String,
     val signedAt: Date = Date(),
-    val account: String,
+    val account: String
 )

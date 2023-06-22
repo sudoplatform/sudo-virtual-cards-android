@@ -13,12 +13,16 @@ package com.sudoplatform.sudovirtualcards.types
 enum class CardType {
     /** Credit card funding source. */
     CREDIT,
+
     /** Debit card funding source. */
     DEBIT,
+
     /** Prepaid card funding source. */
     PREPAID,
+
     /** Other card funding source. */
     OTHER,
+
     /** Unknown card type. Please check you have the correct (latest) version of this SDK. */
     UNKNOWN
 }
