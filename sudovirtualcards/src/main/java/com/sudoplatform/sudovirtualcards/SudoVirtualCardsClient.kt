@@ -36,6 +36,7 @@ import com.sudoplatform.sudovirtualcards.types.PartialVirtualCard
 import com.sudoplatform.sudovirtualcards.types.ProviderUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
+import com.sudoplatform.sudovirtualcards.types.SandboxPlaidData
 import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
 import com.sudoplatform.sudovirtualcards.types.SortOrder
 import com.sudoplatform.sudovirtualcards.types.Transaction
@@ -685,6 +686,30 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * Unsubscribe all subscribers from receiving notifications about modifications to [FundingSource]s.
      */
     suspend fun unsubscribeAllFromFundingSources()
+
+    /**
+     * Sandbox API to obtain data normally returned by full Plaid Link flow. Useful for testing
+     * ahead of full Plaid Link integration during application development.
+     *
+     * @param institutionId [string] ID of Plaid sandbox institution to use
+     * @param plaidUsername [string] Username of Plaid sandbox user to obtain data for
+     * @returns {SandboxPlaidData}
+     *   Sandbox Plaid data for provisioning new funding
+     *   source at requested institution and user
+     * @throws(FundingSourceException::class)
+     */
+    @Throws(FundingSourceException::class)
+    suspend fun sandboxGetPlaidData(institutionId: String, plaidUsername: String): SandboxPlaidData
+
+    /**
+     * Sandbox API to set a funding source to refresh state to facilitate testing
+     *
+     * @param fundingSourceId [String] ID of funding source to set to require refresh
+     *
+     * @returns [FundingSource] The funding source
+     */
+    @Throws(FundingSourceException::class)
+    suspend fun sandboxSetFundingSourceToRequireRefresh(fundingSourceId: String): FundingSource
 
     /**
      * Reset any internal state and cached content.

@@ -45,8 +45,6 @@ import com.sudoplatform.sudovirtualcards.util.CreateBankAccountFundingSourceOpti
 import com.sudoplatform.sudovirtualcards.util.LocaleUtil
 import com.sudoplatform.sudovirtualcards.util.StripeIntentWorker
 import com.sudoplatform.sudovirtualcards.util.CreateCardFundingSourceOptions
-import com.sudoplatform.sudovirtualcardsadmin.SudoVirtualCardsAdminClient
-import com.sudoplatform.sudovirtualcardsadmin.types.inputs.GetPlaidSandboxDataInput
 import io.kotlintest.fail
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.shouldBe
@@ -95,11 +93,6 @@ abstract class BaseIntegrationTest {
 
     private val identityVerificationClient by lazy {
         DefaultSudoIdentityVerificationClient(context, userClient)
-    }
-
-    protected val virtualCardsAdminClient by lazy {
-        val adminApiKey = readArgument("ADMIN_API_KEY", "api.key")
-        SudoVirtualCardsAdminClient.builder(context, adminApiKey).build()
     }
 
     protected val vcSimulatorClient by lazy {
@@ -289,7 +282,6 @@ abstract class BaseIntegrationTest {
 
     protected suspend fun createBankAccountFundingSource(
         virtualCardsClient: SudoVirtualCardsClient,
-        virtualCardsAdminClient: SudoVirtualCardsAdminClient,
         options: CreateBankAccountFundingSourceOptions?
     ): FundingSource {
         val setupInput = SetupFundingSourceInput(
@@ -304,11 +296,8 @@ abstract class BaseIntegrationTest {
 
         val institutionId = "ins_109508" // Plaid Sandbox Bank Account - Platypus
         val username = options?.username ?: TestData.TestBankAccountUsername.customChecking
-        val getPlaidSandboxDataInput = GetPlaidSandboxDataInput(
-            institutionId = institutionId,
-            username = username
-        )
-        val plaidSandboxData = virtualCardsAdminClient.getPlaidSandboxData(getPlaidSandboxDataInput)
+
+        val plaidSandboxData = virtualCardsClient.sandboxGetPlaidData(institutionId, username)
             ?: fail("Failed to get plaid sandbox data")
 
         val authorizationText = AuthorizationText(
@@ -318,6 +307,7 @@ abstract class BaseIntegrationTest {
             provisioningData.authorizationText[0].hash,
             provisioningData.authorizationText[0].hashAlgorithm
         )
+        val accountMetadata = plaidSandboxData.accountMetdata[0]
         val checkoutInput = CompleteFundingSourceInput(
             provisionalFundingSource.id,
             CheckoutBankAccountProviderCompletionData(
@@ -325,7 +315,7 @@ abstract class BaseIntegrationTest {
                 1,
                 FundingSourceType.BANK_ACCOUNT,
                 plaidSandboxData.publicToken,
-                plaidSandboxData.accountMetadata.accountId,
+                accountMetadata.accountId,
                 institutionId,
                 authorizationText
             )

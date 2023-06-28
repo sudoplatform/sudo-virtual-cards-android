@@ -34,6 +34,8 @@ import com.sudoplatform.sudovirtualcards.graphql.CompleteFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsQuery
 import com.sudoplatform.sudovirtualcards.graphql.ProvisionVirtualCardMutation
 import com.sudoplatform.sudovirtualcards.graphql.RefreshFundingSourceMutation
+import com.sudoplatform.sudovirtualcards.graphql.SandboxGetPlaidDataQuery
+import com.sudoplatform.sudovirtualcards.graphql.SandboxSetFundingSourceToRequireRefreshMutation
 import com.sudoplatform.sudovirtualcards.graphql.SetupFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.UpdateVirtualCardMutation
 import com.sudoplatform.sudovirtualcards.graphql.type.CardCancelRequest
@@ -42,6 +44,8 @@ import com.sudoplatform.sudovirtualcards.graphql.type.CardUpdateRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.CompleteFundingSourceRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.IdInput
 import com.sudoplatform.sudovirtualcards.graphql.type.RefreshFundingSourceRequest
+import com.sudoplatform.sudovirtualcards.graphql.type.SandboxGetPlaidDataRequest
+import com.sudoplatform.sudovirtualcards.graphql.type.SandboxSetFundingSourceToRequireRefreshRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.SetupFundingSourceRequest
 import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
@@ -52,6 +56,7 @@ import com.sudoplatform.sudovirtualcards.signing.SignatureData
 import com.sudoplatform.sudovirtualcards.subscription.FundingSourceSubscriber
 import com.sudoplatform.sudovirtualcards.subscription.SubscriptionService
 import com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber
+import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderRefreshData
@@ -68,9 +73,11 @@ import com.sudoplatform.sudovirtualcards.types.ListOutput
 import com.sudoplatform.sudovirtualcards.types.PartialResult
 import com.sudoplatform.sudovirtualcards.types.PartialTransaction
 import com.sudoplatform.sudovirtualcards.types.PartialVirtualCard
+import com.sudoplatform.sudovirtualcards.types.PlaidAccountMetadata
 import com.sudoplatform.sudovirtualcards.types.ProviderSetupData
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
+import com.sudoplatform.sudovirtualcards.types.SandboxPlaidData
 import com.sudoplatform.sudovirtualcards.types.SerializedCheckoutBankAccountCompletionData
 import com.sudoplatform.sudovirtualcards.types.SerializedCheckoutBankAccountRefreshData
 import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
@@ -976,6 +983,83 @@ internal class DefaultSudoVirtualCardsClient(
         subscriptions.unsubscribeAllFundingSources()
     }
 
+    override suspend fun sandboxGetPlaidData(institutionId: String, plaidUsername: String): SandboxPlaidData {
+        try {
+            val query = SandboxGetPlaidDataQuery
+                .builder()
+                .input(
+                    SandboxGetPlaidDataRequest
+                        .builder()
+                        .institutionId(institutionId)
+                        .username(plaidUsername)
+                        .build()
+                )
+                .build()
+
+            val queryResponse = appSyncClient.query(query)
+                .responseFetcher(CachePolicy.REMOTE_ONLY.toResponseFetcher(CachePolicy.REMOTE_ONLY))
+                .enqueueFirst()
+
+            if (queryResponse.hasErrors()) {
+                logger.error("errors = ${queryResponse.errors()}")
+                throw interpretFundingSourceError(queryResponse.errors().first())
+            }
+
+            val queryResult = queryResponse.data()?.sandboxGetPlaidData()
+                ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException("No sandbox Plaid data returned")
+
+            val result = SandboxPlaidData(
+                queryResult.accountMetadata().map {
+                    PlaidAccountMetadata(it.accountId(), interpretPlaidAccountSubtype(it.subtype()))
+                },
+                queryResult.publicToken()
+            )
+
+            return result
+        } catch (e: Throwable) {
+            logger.error("unexpected error $e")
+            when (e) {
+                is ApolloException -> throw SudoVirtualCardsClient.FundingSourceException.FailedException(cause = e)
+                else -> throw interpretFundingSourceException(e)
+            }
+        }
+    }
+
+    override suspend fun sandboxSetFundingSourceToRequireRefresh(fundingSourceId: String): FundingSource {
+        try {
+            val mutation = SandboxSetFundingSourceToRequireRefreshMutation
+                .builder()
+                .input(
+                    SandboxSetFundingSourceToRequireRefreshRequest
+                        .builder()
+                        .fundingSourceId(fundingSourceId)
+                        .build()
+                )
+                .build()
+
+            val mutationResponse = appSyncClient.mutate(mutation)
+                .enqueue()
+
+            if (mutationResponse.hasErrors()) {
+                logger.error("errors = ${mutationResponse.errors()}")
+                throw interpretFundingSourceError(mutationResponse.errors().first())
+            }
+
+            val mutationResult = mutationResponse.data()?.sandboxSetFundingSourceToRequireRefresh()
+                ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(
+                    "No data returned setting funding source to require refresh"
+                )
+
+            return FundingSourceTransformer.toEntityFromSandboxSetFundingSourceToRequireRefreshResult(deviceKeyManager, mutationResult)
+        } catch (e: Throwable) {
+            logger.error("unexpected error $e")
+            when (e) {
+                is ApolloException -> throw SudoVirtualCardsClient.FundingSourceException.FailedException(cause = e)
+                else -> throw interpretFundingSourceException(e)
+            }
+        }
+    }
+
     override fun close() {
         subscriptions.close()
     }
@@ -1143,5 +1227,13 @@ internal class DefaultSudoVirtualCardsClient(
 
     private fun interpretTransactionError(e: Error): SudoVirtualCardsClient.TransactionException {
         return SudoVirtualCardsClient.TransactionException.FailedException(e.toString())
+    }
+
+    private fun interpretPlaidAccountSubtype(plaidSubtype: String?): BankAccountFundingSource.BankAccountType {
+        return when (plaidSubtype) {
+            "checking" -> BankAccountFundingSource.BankAccountType.CHECKING
+            "savings" -> BankAccountFundingSource.BankAccountType.SAVING
+            else -> BankAccountFundingSource.BankAccountType.UNKNOWN
+        }
     }
 }

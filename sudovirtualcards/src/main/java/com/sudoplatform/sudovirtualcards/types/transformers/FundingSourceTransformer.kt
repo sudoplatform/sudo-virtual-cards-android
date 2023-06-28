@@ -13,6 +13,7 @@ import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
 import com.sudoplatform.sudovirtualcards.graphql.OnFundingSourceUpdateSubscription
 import com.sudoplatform.sudovirtualcards.graphql.RefreshFundingSourceMutation
+import com.sudoplatform.sudovirtualcards.graphql.SandboxSetFundingSourceToRequireRefreshMutation
 
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as GraphqlFundingSourceState
@@ -136,6 +137,27 @@ internal object FundingSourceTransformer {
     fun toEntityFromGetFundingSourceQueryResult(
         deviceKeyManager: DeviceKeyManager,
         result: GetFundingSourceQuery.GetFundingSource
+    ): FundingSource {
+        return when (result.__typename()) {
+            "CreditCardFundingSource" -> {
+                val fundingSource = result.asCreditCardFundingSource()?.fragments()?.creditCardFundingSource()
+                    ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
+                this.toEntity(fundingSource)
+            }
+            "BankAccountFundingSource" -> {
+                val fundingSource = result.asBankAccountFundingSource()?.fragments()?.bankAccountFundingSource()
+                    ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
+                this.toEntity(deviceKeyManager, fundingSource)
+            }
+            else -> {
+                throw SudoVirtualCardsClient.FundingSourceException.FailedException(UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG)
+            }
+        }
+    }
+
+    fun toEntityFromSandboxSetFundingSourceToRequireRefreshResult(
+        deviceKeyManager: DeviceKeyManager,
+        result: SandboxSetFundingSourceToRequireRefreshMutation.SandboxSetFundingSourceToRequireRefresh
     ): FundingSource {
         return when (result.__typename()) {
             "CreditCardFundingSource" -> {

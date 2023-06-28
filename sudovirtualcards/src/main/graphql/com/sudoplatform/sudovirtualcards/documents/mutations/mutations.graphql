@@ -67,3 +67,16 @@ mutation CancelVirtualCard($input: CardCancelRequest!) {
     ...SealedCardWithLastTransaction
   }
 }
+
+mutation SandboxSetFundingSourceToRequireRefresh(
+  $input: SandboxSetFundingSourceToRequireRefreshRequest!
+) {
+  sandboxSetFundingSourceToRequireRefresh(input: $input) {
+    ... on CreditCardFundingSource {
+      ...CreditCardFundingSource
+    }
+    ... on BankAccountFundingSource {
+      ...BankAccountFundingSource
+    }
+  }
+}

@@ -317,7 +317,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
 
             val fundingSource = createBankAccountFundingSource(
                 vcClient,
-                virtualCardsAdminClient,
                 CreateBankAccountFundingSourceOptions(
                     supportedProviders = listOf("checkout"),
                     username = TestData.TestBankAccountUsername.customChecking
@@ -355,7 +354,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             shouldThrow<SudoVirtualCardsClient.FundingSourceException.IdentityVerificationException> {
                 createBankAccountFundingSource(
                     vcClient,
-                    virtualCardsAdminClient,
                     CreateBankAccountFundingSourceOptions(
                         supportedProviders = listOf("checkout"),
                         username = TestData.TestBankAccountUsername.customIdentityMismatch
@@ -622,7 +620,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             vcClient.createKeysIfAbsent()
             val fundingSource = createBankAccountFundingSource(
                 vcClient,
-                virtualCardsAdminClient,
                 CreateBankAccountFundingSourceOptions(
                     supportedProviders = listOf("checkout"),
                     username = TestData.TestBankAccountUsername.customChecking
@@ -661,7 +658,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             vcClient.createKeysIfAbsent()
             val fundingSource = createBankAccountFundingSource(
                 vcClient,
-                virtualCardsAdminClient,
                 CreateBankAccountFundingSourceOptions(
                     supportedProviders = listOf("checkout"),
                     username = TestData.TestBankAccountUsername.customChecking

@@ -1,0 +1,72 @@
+type PlaidAccountMetadata @aws_iam @aws_cognito_user_pools {
+  """
+  ID of the bank account.
+  """
+  accountId: String!
+
+  """
+  Bank account subtype. E.g. checking, saving etc.
+  """
+  subtype: String
+}
+
+"""
+Response containing the public token and bank account metadata to complete bank account funding source provisioning in a sandbox context.
+"""
+type SandboxGetPlaidDataResponse @aws_iam @aws_cognito_user_pools {
+  """
+  Metadata of the bank account including ID and subtype.
+  """
+  accountMetadata: [PlaidAccountMetadata!]!
+
+  """
+  The public token that is required to build completion data for creating
+  a bank account funding source.
+  """
+  publicToken: String!
+}
+
+"""
+Request to generate and retrieve the public token and bank account id
+required to complete bank account funding source provisioning in a sandbox context.
+
+List of supported sandbox institutionId: https://plaid.com/docs/sandbox/institutions/
+"""
+input SandboxGetPlaidDataRequest {
+  institutionId: String!
+  username: String!
+}
+
+input SandboxSetFundingSourceToRequireRefreshRequest {
+  fundingSourceId: String!
+}
+
+type Query {
+  """
+  Generates and returns the Plaid public token and bank account id
+  required to provide information to build the bank account funding source completion data. Allows testing without engaging full Plaid
+  flow.
+
+  SANDBOX ONLY
+  """
+  sandboxGetPlaidData(
+    input: SandboxGetPlaidDataRequest!
+  ): SandboxGetPlaidDataResponse!
+    @aws_cognito_user_pools
+    @aws_iam
+}
+
+type Mutation {
+  """
+  Sets a funding source to state requiring refresh.
+  Allows testing without requiring occurrence of specific
+  event that would require refresh.
+
+  SANDBOX ONLY
+  """
+  sandboxSetFundingSourceToRequireRefresh(
+    input: SandboxSetFundingSourceToRequireRefreshRequest!
+  ): FundingSource!
+    @aws_cognito_user_pools
+    @aws_iam
+}
