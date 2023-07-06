@@ -463,6 +463,12 @@ type Query {
     dateRange: DateRangeInput
     sortOrder: SortOrder
   ): SealedTransactionConnection!
+  listTransactionsByCardIdAndType(
+    cardId: ID!
+    transactionType: TransactionType!
+    limit: Int
+    nextToken: String
+  ): SealedTransactionConnection!
 }
 
 type Mutation {

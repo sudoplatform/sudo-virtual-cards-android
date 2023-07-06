@@ -40,6 +40,7 @@ import com.sudoplatform.sudovirtualcards.types.SandboxPlaidData
 import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
 import com.sudoplatform.sudovirtualcards.types.SortOrder
 import com.sudoplatform.sudovirtualcards.types.Transaction
+import com.sudoplatform.sudovirtualcards.types.TransactionType
 import com.sudoplatform.sudovirtualcards.types.VirtualCard
 import com.sudoplatform.sudovirtualcards.types.VirtualCardsConfig
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
@@ -303,6 +304,8 @@ interface SudoVirtualCardsClient : AutoCloseable {
             TransactionException(message = message, cause = cause)
         class AuthenticationException(message: String? = null, cause: Throwable? = null) :
             TransactionException(message = message, cause = cause)
+        class UnsupportedTransactionTypeException(message: String? = null, cause: Throwable? = null) :
+            TransactionException(message = message, cause = cause)
         class UnknownException(cause: Throwable) :
             TransactionException(cause = cause)
     }
@@ -383,7 +386,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * If no [FundingSource]s can be found, the [ListOutput] will contain null for the [ListOutput.nextToken]
      * field and contain an empty [ListOutput.items] list.
      *
-     * @param limit [Int] Number of [FundingSource]s to return. If omitted the limit defaults to 10.
+     * @param limit [Int] Maximum number of [FundingSource]s to return. If omitted the limit defaults to 10.
      * @param nextToken [String] A token generated from previous calls to [listFundingSources].
      *  This is to allow for pagination. This value should be generated from a
      *  previous pagination call, otherwise it will throw an exception. The same
@@ -484,7 +487,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * To ensure you obtain all the virtual cards that match, you should continue to call this method
      * whenever the [nextToken] field is not null, even if the items list is empty.
      *
-     * @param limit [Int] Number of [VirtualCard]s to return. If omitted the limit defaults to 10.
+     * @param limit [Int] Maximum number of [VirtualCard]s to return. If omitted the limit defaults to 10.
      * @param nextToken [String] A token generated from previous calls to [listVirtualCards].
      *  This is to allow for pagination. This value should be generated from a
      *  previous pagination call, otherwise it will throw an exception. The same
@@ -574,7 +577,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * whenever the [nextToken] field is not null, even if the items list is empty.
      *
      * @param cardId [String] Identifier of the virtual card to list for related transactions.
-     * @param limit [Int] Number of [Transaction]s to return. If omitted the limit defaults to 100.
+     * @param limit [Int] Maximum number of [Transaction]s to return. If omitted the limit defaults to 100.
      * @param nextToken [String] A token generated from previous calls to [listTransactionsByCardId].
      *  This is to allow for pagination. This value should be generated from a
      *  previous pagination call, otherwise it will throw an exception. You should call
@@ -599,6 +602,45 @@ interface SudoVirtualCardsClient : AutoCloseable {
     ): ListAPIResult<Transaction, PartialTransaction>
 
     /**
+     * Get a list of all [Transaction]s for a certain type related to a virtual card.
+     *
+     * This API returns a [ListAPIResult]:
+     * - On [ListAPIResult.Success] result, contains the list of requested [Transaction]s.
+     * - On [ListAPIResult.Partial] result, contains the list of [PartialTransaction]s representing
+     *    transactions that could not be unsealed successfully and the exception indicating why
+     *    the unsealing failed. A transaction may fail to unseal if the client version is not up to
+     *    date or the required cryptographic key is missing from the client device.
+     *
+     * If no [Transaction]s can be found, the result will contain null for the [nextToken] field and
+     * contain an empty item list.
+     *
+     * To ensure you obtain all the transactions that match, you should continue to call this method
+     * whenever the [nextToken] field is not null, even if the items list is empty.
+     *
+     * @param cardId [String] Identifier of the virtual card to list for related transactions.
+     * @param transactionType [TransactionType] The type of transaction to retrieve.
+     * @param limit [Int] Maximum number of [Transaction]s to return. If omitted the limit defaults to 100.
+     * @param nextToken [String] A token generated from previous calls to [listTransactionsByCardId].
+     *  This is to allow for pagination. This value should be generated from a
+     *  previous pagination call, otherwise it will throw an exception. You should call
+     *  this method with the same argument if you are using a previously generated [nextToken].
+     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
+     *  be aware that this will only return cached results of identical API calls.
+     * @return A [ListAPIResult.Success] or a [ListAPIResult.Partial] result containing either a list of
+     *  [Transaction]s or [PartialTransaction]s respectively. Returns an empty list if no transactions can be found.
+     *
+     * @throws [TransactionException].
+     */
+    @Throws(TransactionException::class)
+    suspend fun listTransactionsByCardIdAndType(
+        cardId: String,
+        transactionType: TransactionType,
+        limit: Int = DEFAULT_TRANSACTION_LIMIT,
+        nextToken: String? = null,
+        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY
+    ): ListAPIResult<Transaction, PartialTransaction>
+
+    /**
      * Get a list of all [Transaction]s across all virtual cards.
      *
      * This API returns a [ListAPIResult]:
@@ -614,7 +656,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * To ensure you obtain all the transactions that match, you should continue to call this method
      * whenever the [nextToken] field is not null, even if the items list is empty.
      *
-     * @param limit [Int] Number of [Transaction]s to return. If omitted the limit defaults to 100.
+     * @param limit [Int] Maximum number of [Transaction]s to return. If omitted the limit defaults to 100.
      * @param nextToken [String] A token generated from previous calls to [listTransactionsByCardId].
      *  This is to allow for pagination. This value should be generated from a
      *  previous pagination call, otherwise it will throw an exception. You should call

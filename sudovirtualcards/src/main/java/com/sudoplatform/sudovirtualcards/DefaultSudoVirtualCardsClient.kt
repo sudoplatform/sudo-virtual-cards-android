@@ -31,6 +31,7 @@ import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsByCardIdQuery
 import com.sudoplatform.sudovirtualcards.graphql.CancelVirtualCardMutation
 import com.sudoplatform.sudovirtualcards.graphql.CompleteFundingSourceMutation
+import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsByCardIdAndTypeQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsQuery
 import com.sudoplatform.sudovirtualcards.graphql.ProvisionVirtualCardMutation
 import com.sudoplatform.sudovirtualcards.graphql.RefreshFundingSourceMutation
@@ -84,6 +85,7 @@ import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
 import com.sudoplatform.sudovirtualcards.types.StripeCardProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.SortOrder
 import com.sudoplatform.sudovirtualcards.types.Transaction
+import com.sudoplatform.sudovirtualcards.types.TransactionType
 import com.sudoplatform.sudovirtualcards.types.VirtualCard
 import com.sudoplatform.sudovirtualcards.types.VirtualCardsConfig
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
@@ -96,6 +98,7 @@ import com.sudoplatform.sudovirtualcards.types.transformers.FundingSourceTransfo
 import com.sudoplatform.sudovirtualcards.types.transformers.KeyType
 import com.sudoplatform.sudovirtualcards.types.transformers.ProviderDataTransformer
 import com.sudoplatform.sudovirtualcards.types.transformers.TransactionTransformer
+import com.sudoplatform.sudovirtualcards.types.transformers.TransactionTypeTransformer.toTransactionType
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
 import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer
 import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer.toAddressInput
@@ -149,6 +152,7 @@ internal class DefaultSudoVirtualCardsClient(
         private const val VELOCITY_EXCEEDED_MSG = "Velocity has been exceeded"
         private const val ENTITLEMENT_EXCEEDED_MSG = "Entitlements have been exceeded"
         private const val ACCOUNT_LOCKED_MSG = "Account is locked"
+        private const val UNSUPPORTED_TRANSACTION_TYPE_MSG = "Transaction type is not supported"
 
         /** Errors returned from the service */
         private const val ERROR_TYPE = "errorType"
@@ -864,6 +868,69 @@ internal class DefaultSudoVirtualCardsClient(
             }
 
             val queryResult = queryResponse.data()?.listTransactionsByCardId2()
+            val sealedTransactions = queryResult?.items() ?: emptyList()
+            val newNextToken = queryResult?.nextToken()
+
+            val success: MutableList<Transaction> = mutableListOf()
+            val partials: MutableList<PartialResult<PartialTransaction>> = mutableListOf()
+            for (sealedTransaction in sealedTransactions) {
+                try {
+                    val unsealerTransaction =
+                        TransactionTransformer.toEntity(deviceKeyManager, sealedTransaction.fragments().sealedTransaction())
+                    success.add(unsealerTransaction)
+                } catch (e: Exception) {
+                    val partialTransaction =
+                        TransactionTransformer.toPartialEntity(sealedTransaction.fragments().sealedTransaction())
+                    val partialResult = PartialResult(partialTransaction, e)
+                    partials.add(partialResult)
+                }
+            }
+            if (partials.isNotEmpty()) {
+                val listPartialResult = ListAPIResult.ListPartialResult(success, partials, newNextToken)
+                return ListAPIResult.Partial(listPartialResult)
+            }
+            val listSuccessResult = ListAPIResult.ListSuccessResult(success, newNextToken)
+            return ListAPIResult.Success(listSuccessResult)
+        } catch (e: Throwable) {
+            logger.error("unexpected error $e")
+            when (e) {
+                is ApolloException -> throw SudoVirtualCardsClient.TransactionException.FailedException(cause = e)
+                else -> throw interpretTransactionException(e)
+            }
+        }
+    }
+
+    @Throws(SudoVirtualCardsClient.TransactionException::class)
+    override suspend fun listTransactionsByCardIdAndType(
+        cardId: String,
+        transactionType: TransactionType,
+        limit: Int,
+        nextToken: String?,
+        cachePolicy: CachePolicy
+    ): ListAPIResult<Transaction, PartialTransaction> {
+        try {
+            val query = ListTransactionsByCardIdAndTypeQuery.builder()
+                .cardId(cardId)
+                .transactionType(
+                    transactionType.toTransactionType()
+                        ?: throw SudoVirtualCardsClient.TransactionException.UnsupportedTransactionTypeException(
+                            UNSUPPORTED_TRANSACTION_TYPE_MSG
+                        )
+                )
+                .limit(limit)
+                .nextToken(nextToken)
+                .build()
+
+            val queryResponse = appSyncClient.query(query)
+                .responseFetcher(cachePolicy.toResponseFetcher(cachePolicy))
+                .enqueueFirst()
+
+            if (queryResponse.hasErrors()) {
+                logger.error("errors = ${queryResponse.errors()}")
+                throw interpretTransactionError(queryResponse.errors().first())
+            }
+
+            val queryResult = queryResponse.data()?.listTransactionsByCardIdAndType()
             val sealedTransactions = queryResult?.items() ?: emptyList()
             val newNextToken = queryResult?.nextToken()
 
