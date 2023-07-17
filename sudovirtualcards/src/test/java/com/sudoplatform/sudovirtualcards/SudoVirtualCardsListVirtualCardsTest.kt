@@ -466,6 +466,56 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
     }
 
     @Test
+    fun `listVirtualCards() should not return duplicate cards with matching identifiers`() = runBlocking<Unit> {
+        val queryResultItem1 = createMockVirtualCard("id1")
+        val queryResultItem2 = createMockVirtualCard("id2")
+        val queryResultItem3 = createMockVirtualCard("id1")
+
+        val queryResult by before {
+            ListCardsQuery.ListCards(
+                "ListCards",
+                listOf(queryResultItem1, queryResultItem2, queryResultItem3),
+                null
+            )
+        }
+
+        val queryResponse by before {
+            Response.builder<ListCardsQuery.Data>(ListCardsQuery(null, null))
+                .data(ListCardsQuery.Data(queryResult))
+                .build()
+        }
+
+        queryHolder.callback shouldBe null
+
+        val deferredResult = async(Dispatchers.IO) {
+            client.listVirtualCards()
+        }
+        deferredResult.start()
+
+        delay(100L)
+        queryHolder.callback shouldNotBe null
+        queryHolder.callback?.onResponse(queryResponse)
+
+        val listCard = deferredResult.await()
+        listCard shouldNotBe null
+
+        when (listCard) {
+            is ListAPIResult.Success -> {
+                listCard.result.items.isEmpty() shouldBe false
+                listCard.result.items.size shouldBe 2
+                listCard.result.nextToken shouldBe null
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
+        }
+
+        verify(mockAppSyncClient).query(any<ListCardsQuery>())
+        verify(mockKeyManager, times(36)).decryptWithPrivateKey(anyString(), any(), any())
+        verify(mockKeyManager, times(36)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+    }
+
+    @Test
     fun `listVirtualCards() should throw when unsealing fails`() = runBlocking<Unit> {
         mockAppSyncClient.stub {
             on { query(any<ListCardsQuery>()) } doThrow Unsealer.UnsealerException.SealedDataTooShortException("Mock Unsealer Exception")
@@ -543,5 +593,44 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
         }
 
         verify(mockAppSyncClient).query(any<ListCardsQuery>())
+    }
+
+    private fun createMockVirtualCard(id: String): ListCardsQuery.Item {
+        return ListCardsQuery.Item(
+            "Item",
+            ListCardsQuery.Item.Fragments(
+                SealedCardWithLastTransaction(
+                    "SealedCardWithLastTransaction",
+                    null,
+                    SealedCardWithLastTransaction.Fragments(
+                        SealedCard(
+                            "SealedCard",
+                            id,
+                            "owner",
+                            1,
+                            1.0,
+                            1.0,
+                            "algorithm",
+                            "keyId",
+                            "keyRingId",
+                            emptyList(),
+                            "fundingSourceId",
+                            "currency",
+                            CardState.ISSUED,
+                            1.0,
+                            null,
+                            "last4",
+                            mockSeal("cardHolder"),
+                            mockSeal("alias"),
+                            mockSeal("pan"),
+                            mockSeal("csc"),
+                            billingAddress,
+                            expiry,
+                            null
+                        )
+                    )
+                )
+            )
+        )
     }
 }

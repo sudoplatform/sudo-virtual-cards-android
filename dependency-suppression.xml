@@ -83,4 +83,11 @@
         <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bcprov\-jdk15to18@.*$</packageUrl>
         <vulnerabilityName>CVE-2023-33201</vulnerabilityName>
     </suppress>
+    <suppress until="2023-12-31">
+        <notes><![CDATA[
+        file name: okio-metadata-3.2.0-all.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.squareup\.okio/okio@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-3635</vulnerabilityName>
+    </suppress>
 </suppressions>

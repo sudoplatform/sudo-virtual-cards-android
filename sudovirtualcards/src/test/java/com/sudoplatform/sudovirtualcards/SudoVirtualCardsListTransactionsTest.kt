@@ -64,6 +64,32 @@ import java.util.concurrent.CancellationException
  */
 class SudoVirtualCardsListTransactionsTest : BaseTests() {
 
+    private val billedAmount by before {
+        SealedTransaction.BilledAmount(
+            "BilledAmount",
+            SealedTransaction.BilledAmount.Fragments(
+                SealedCurrencyAmountAttribute(
+                    "CurrencyAmount",
+                    mockSeal("USD"),
+                    mockSeal("billedAmount")
+                )
+            )
+        )
+    }
+
+    private val transactedAmount by before {
+        SealedTransaction.TransactedAmount(
+            "TransactedAmount",
+            SealedTransaction.TransactedAmount.Fragments(
+                SealedCurrencyAmountAttribute(
+                    "CurrencyAmount",
+                    mockSeal("USD"),
+                    mockSeal("transactedAmount")
+                )
+            )
+        )
+    }
+
     private val queryResultItem by before {
         ListTransactionsQuery.Item(
             "typename",
@@ -83,26 +109,8 @@ class SudoVirtualCardsListTransactionsTest : BaseTests() {
                     TransactionType.COMPLETE,
                     mockSeal("transactedAt"),
                     mockSeal("settledAt"),
-                    SealedTransaction.BilledAmount(
-                        "BilledAmount",
-                        SealedTransaction.BilledAmount.Fragments(
-                            SealedCurrencyAmountAttribute(
-                                "CurrencyAmount",
-                                mockSeal("USD"),
-                                mockSeal("billedAmount")
-                            )
-                        )
-                    ),
-                    SealedTransaction.TransactedAmount(
-                        "TransactedAmount",
-                        SealedTransaction.TransactedAmount.Fragments(
-                            SealedCurrencyAmountAttribute(
-                                "CurrencyAmount",
-                                mockSeal("USD"),
-                                mockSeal("transactedAmount")
-                            )
-                        )
-                    ),
+                    billedAmount,
+                    transactedAmount,
                     mockSeal("description"),
                     null,
                     listOf(
@@ -514,6 +522,69 @@ class SudoVirtualCardsListTransactionsTest : BaseTests() {
     }
 
     @Test
+    fun `listTransactions() should not return duplicate transactions with matching identifiers`() = runBlocking<Unit> {
+        val queryResultItem1 = createMockTransaction("id1", TransactionType.COMPLETE)
+        val queryResultItem2 = createMockTransaction("id2", TransactionType.COMPLETE)
+        val queryResultItem3 = createMockTransaction("id1", TransactionType.COMPLETE)
+
+        val queryResult by before {
+            ListTransactionsQuery.ListTransactions2(
+                "ListTransactions2",
+                listOf(queryResultItem1, queryResultItem2, queryResultItem3),
+                null
+            )
+        }
+
+        val queryResponse by before {
+            Response.builder<ListTransactionsQuery.Data>(ListTransactionsQuery(null, null, null, null))
+                .data(ListTransactionsQuery.Data(queryResult))
+                .build()
+        }
+
+        queryHolder.callback shouldBe null
+
+        val deferredResult = async(Dispatchers.IO) {
+            client.listTransactions(
+                nextToken = null,
+                dateRange = DateRange(Date(), Date()),
+                sortOrder = SortOrder.DESC
+            )
+        }
+        deferredResult.start()
+
+        delay(100L)
+        queryHolder.callback shouldNotBe null
+        queryHolder.callback?.onResponse(queryResponse)
+
+        val listTransactions = deferredResult.await()
+        listTransactions shouldNotBe null
+
+        when (listTransactions) {
+            is ListAPIResult.Success -> {
+                listTransactions.result.items.isEmpty() shouldBe false
+                listTransactions.result.items.size shouldBe 2
+                listTransactions.result.nextToken shouldBe null
+            }
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
+        }
+
+        verify(mockAppSyncClient)
+            .query<ListTransactionsQuery.Data, ListTransactionsQuery, ListTransactionsQuery.Variables>(
+                check {
+                    it.variables().limit() shouldBe 100
+                    it.variables().nextToken() shouldBe null
+                    it.variables().dateRange()?.startDateEpochMs()?.shouldBeLessThan(Date().time.toDouble())
+                    it.variables().dateRange()?.endDateEpochMs()?.shouldBeLessThan(Date().time.toDouble())
+                    it.variables().sortOrder() shouldBe SortOrderEntity.DESC
+                }
+            )
+        verify(mockKeyManager, times(18)).decryptWithPrivateKey(anyString(), any(), any())
+        verify(mockKeyManager, times(18)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+    }
+
+    @Test
     fun `listTransactions() should throw when unsealing fails`() = runBlocking<Unit> {
         mockAppSyncClient.stub {
             on { query(any<ListTransactionsQuery>()) } doThrow
@@ -624,6 +695,35 @@ class SudoVirtualCardsListTransactionsTest : BaseTests() {
                     it.variables().sortOrder() shouldBe SortOrderEntity.DESC
                 }
             )
+    }
+
+    private fun createMockTransaction(id: String, transactionType: TransactionType): ListTransactionsQuery.Item {
+        return ListTransactionsQuery.Item(
+            "typename",
+            ListTransactionsQuery.Item.Fragments(
+                SealedTransaction(
+                    "SealedTransaction",
+                    id,
+                    "owner",
+                    1,
+                    1.0,
+                    1.0,
+                    1.0,
+                    "algorithm",
+                    "keyId",
+                    "cardId",
+                    "sequenceId",
+                    transactionType,
+                    mockSeal("transactedAt"),
+                    mockSeal("settledAt"),
+                    billedAmount,
+                    transactedAmount,
+                    mockSeal("description"),
+                    null,
+                    emptyList()
+                )
+            )
+        )
     }
 
     private fun checkTransaction(transaction: Transaction) {

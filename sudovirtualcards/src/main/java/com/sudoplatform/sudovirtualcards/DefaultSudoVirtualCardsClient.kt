@@ -185,7 +185,7 @@ internal class DefaultSudoVirtualCardsClient(
      * and allow us to retry. The value of `version` doesn't need to be kept up-to-date with the
      * version of the code.
      */
-    private val version: String = "11.0.0"
+    private val version: String = "11.3.0"
 
     /** This manages the subscriptions to transaction updates and deletes */
     private val subscriptions = SubscriptionService(appSyncClient, deviceKeyManager, sudoUserClient, logger)
@@ -692,12 +692,7 @@ internal class DefaultSudoVirtualCardsClient(
                     partials.add(partialResult)
                 }
             }
-            if (partials.isNotEmpty()) {
-                val listPartialResult = ListAPIResult.ListPartialResult(success, partials, newNextToken)
-                return ListAPIResult.Partial(listPartialResult)
-            }
-            val listSuccessResult = ListAPIResult.ListSuccessResult(success, newNextToken)
-            return ListAPIResult.Success(listSuccessResult)
+            return deduplicateListVirtualCardResult(success, partials, newNextToken)
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
             when (e) {
@@ -885,12 +880,7 @@ internal class DefaultSudoVirtualCardsClient(
                     partials.add(partialResult)
                 }
             }
-            if (partials.isNotEmpty()) {
-                val listPartialResult = ListAPIResult.ListPartialResult(success, partials, newNextToken)
-                return ListAPIResult.Partial(listPartialResult)
-            }
-            val listSuccessResult = ListAPIResult.ListSuccessResult(success, newNextToken)
-            return ListAPIResult.Success(listSuccessResult)
+            return deduplicateListTransactionResult(success, partials, newNextToken)
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
             when (e) {
@@ -948,12 +938,7 @@ internal class DefaultSudoVirtualCardsClient(
                     partials.add(partialResult)
                 }
             }
-            if (partials.isNotEmpty()) {
-                val listPartialResult = ListAPIResult.ListPartialResult(success, partials, newNextToken)
-                return ListAPIResult.Partial(listPartialResult)
-            }
-            val listSuccessResult = ListAPIResult.ListSuccessResult(success, newNextToken)
-            return ListAPIResult.Success(listSuccessResult)
+            return deduplicateListTransactionResult(success, partials, newNextToken)
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
             when (e) {
@@ -1006,12 +991,7 @@ internal class DefaultSudoVirtualCardsClient(
                     partials.add(partialResult)
                 }
             }
-            if (partials.isNotEmpty()) {
-                val listPartialResult = ListAPIResult.ListPartialResult(success, partials, newNextToken)
-                return ListAPIResult.Partial(listPartialResult)
-            }
-            val listSuccessResult = ListAPIResult.ListSuccessResult(success, newNextToken)
-            return ListAPIResult.Success(listSuccessResult)
+            return deduplicateListTransactionResult(success, partials, newNextToken)
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
             when (e) {
@@ -1161,6 +1141,66 @@ internal class DefaultSudoVirtualCardsClient(
             logger.error("unexpected error $e")
             throw e
         }
+    }
+
+    /**
+     * Removes duplicate unsealed virtual cards from success and partial results based on identifier,
+     * favouring unsealed virtual cards in the success list.
+     *
+     * @param success [List<VirtualCard>] A list of successfully unsealed virtual cards.
+     * @param partials [List<PartialResult<PartialVirtualCard>>] A list of partial unsealed virtual cards.
+     * @param nextToken [String] A token generated from previous calls to allow for pagination.
+     * @return A [ListAPIResult.Success] or [ListAPIResult.Partial] result.
+     */
+    private fun deduplicateListVirtualCardResult(
+        success: List<VirtualCard>,
+        partials: List<PartialResult<PartialVirtualCard>>,
+        nextToken: String?
+    ): ListAPIResult<VirtualCard, PartialVirtualCard> {
+        // Remove duplicate success and partial virtual cards based on id
+        val distinctSuccess = success.distinctBy { it.id }.toMutableList()
+        val distinctPartials = partials.distinctBy { it.partial.id }.toMutableList()
+
+        // Remove virtual cards from partial list that have been successfully unsealed
+        distinctPartials.removeAll { partial -> distinctSuccess.any { it.id == partial.partial.id } }
+
+        // Build up and return the ListAPIResult
+        if (distinctPartials.isNotEmpty()) {
+            val listPartialResult = ListAPIResult.ListPartialResult(distinctSuccess, distinctPartials, nextToken)
+            return ListAPIResult.Partial(listPartialResult)
+        }
+        val listSuccessResult = ListAPIResult.ListSuccessResult(distinctSuccess, nextToken)
+        return ListAPIResult.Success(listSuccessResult)
+    }
+
+    /**
+     * Removes duplicate unsealed transactions from success and partial results based on identifier,
+     * favouring unsealed transactions in the success list.
+     *
+     * @param success [List<Transaction>] A list of successfully unsealed transactions.
+     * @param partials [List<PartialResult<PartialTransaction>>] A list of partial unsealed transactions.
+     * @param nextToken [String] A token generated from previous calls to allow for pagination.
+     * @return A [ListAPIResult.Success] or [ListAPIResult.Partial] result.
+     */
+    private fun deduplicateListTransactionResult(
+        success: List<Transaction>,
+        partials: List<PartialResult<PartialTransaction>>,
+        nextToken: String?
+    ): ListAPIResult<Transaction, PartialTransaction> {
+        // Remove duplicate success and partial transactions based on id
+        val distinctSuccess = success.distinctBy { it.id }.toMutableList()
+        val distinctPartials = partials.distinctBy { it.partial.id }.toMutableList()
+
+        // Remove transactions from partial list that have been successfully unsealed
+        distinctPartials.removeAll { partial -> distinctSuccess.any { it.id == partial.partial.id } }
+
+        // Build up and return the ListAPIResult
+        if (distinctPartials.isNotEmpty()) {
+            val listPartialResult = ListAPIResult.ListPartialResult(distinctSuccess, distinctPartials, nextToken)
+            return ListAPIResult.Partial(listPartialResult)
+        }
+        val listSuccessResult = ListAPIResult.ListSuccessResult(distinctSuccess, nextToken)
+        return ListAPIResult.Success(listSuccessResult)
     }
 
     private fun interpretFundingSourceException(e: Throwable): Throwable {
