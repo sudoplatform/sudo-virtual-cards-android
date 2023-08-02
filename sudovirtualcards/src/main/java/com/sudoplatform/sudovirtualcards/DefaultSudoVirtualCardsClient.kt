@@ -185,7 +185,7 @@ internal class DefaultSudoVirtualCardsClient(
      * and allow us to retry. The value of `version` doesn't need to be kept up-to-date with the
      * version of the code.
      */
-    private val version: String = "11.3.0"
+    private val version: String = "12.0.0"
 
     /** This manages the subscriptions to transaction updates and deletes */
     private val subscriptions = SubscriptionService(appSyncClient, deviceKeyManager, sudoUserClient, logger)
