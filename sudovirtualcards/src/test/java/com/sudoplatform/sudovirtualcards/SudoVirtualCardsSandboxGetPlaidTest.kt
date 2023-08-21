@@ -157,8 +157,8 @@ class SudoVirtualCardsSandboxGetPlaidTest : BaseTests() {
         val result = deferredResult.await()
         result shouldNotBe null
 
-        with(result!!) {
-            accountMetdata shouldBe listOf(
+        with(result) {
+            accountMetadata shouldBe listOf(
                 PlaidAccountMetadata("checkingAccountId", BankAccountFundingSource.BankAccountType.CHECKING),
                 PlaidAccountMetadata("savingsAccountId", BankAccountFundingSource.BankAccountType.SAVING),
                 PlaidAccountMetadata("otherAccountId", BankAccountFundingSource.BankAccountType.UNKNOWN),

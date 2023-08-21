@@ -242,4 +242,10 @@ fragment VirtualCardsConfig on VirtualCardsConfig {
     ...FundingSourceSupportInfo
   }
   bankAccountFundingSourceExpendableEnabled
+  fundingSourceClientConfiguration {
+    data
+  }
+  clientApplicationsConfiguration {
+    data
+  }
 }

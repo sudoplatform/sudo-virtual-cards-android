@@ -403,6 +403,10 @@ internal class DefaultSudoVirtualCardsClient(
         }
     }
 
+    @Deprecated(
+        "Use getVirtualCardsConfig instead to retrieve the FundingSourceClientConfiguration",
+        ReplaceWith("getVirtualCardsConfig")
+    )
     @Throws(SudoVirtualCardsClient.FundingSourceException::class)
     override suspend fun getFundingSourceClientConfiguration(): List<FundingSourceClientConfiguration> {
         try {

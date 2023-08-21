@@ -10,6 +10,8 @@ import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
@@ -20,6 +22,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
+import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceClientConfigurationQuery
 import com.sudoplatform.sudovirtualcards.graphql.GetVirtualCardsConfigQuery
 import com.sudoplatform.sudovirtualcards.graphql.fragment.VirtualCardsConfig
 import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSourceSupportInfo
@@ -28,9 +31,15 @@ import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.types.CurrencyVelocity
 import com.sudoplatform.sudovirtualcards.types.FundingSourceSupportInfo as FundingSourceSupportInfoEntity
 import com.sudoplatform.sudovirtualcards.types.FundingSourceSupportDetail as FundingSourceSupportDetailEntity
+import com.sudoplatform.sudovirtualcards.types.FundingSourceClientConfiguration as FundingSourceClientConfigurationEntity
 import com.sudoplatform.sudovirtualcards.types.CardType as CardTypeEntity
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
+import com.sudoplatform.sudovirtualcards.types.ClientApplicationConfiguration
 import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
+import com.sudoplatform.sudovirtualcards.types.FundingSourceProviders
+import com.sudoplatform.sudovirtualcards.types.FundingSourceType
+import com.sudoplatform.sudovirtualcards.types.FundingSourceTypes
+import com.sudoplatform.sudovirtualcards.types.PlaidApplicationConfiguration
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
@@ -42,6 +51,7 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Protocol
 import okhttp3.ResponseBody.Companion.toResponseBody
+import org.apache.commons.codec.binary.Base64
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -53,7 +63,44 @@ import java.net.HttpURLConnection
  */
 class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
 
+    data class SerializedClientApplicationConfiguration(
+        @SerializedName("client_application_configuration")
+        val clientApplicationConfiguration: ClientApplicationConfiguration
+    )
+
     private val queryResult by before {
+        val fsConfig = FundingSourceTypes(
+            listOf(
+                FundingSourceClientConfigurationEntity(
+                    apiKey = "test-key",
+                    fundingSourceType = FundingSourceType.CREDIT_CARD
+                ),
+                FundingSourceClientConfigurationEntity(
+                    apiKey = "test-key",
+                    fundingSourceType = FundingSourceType.BANK_ACCOUNT
+                )
+            )
+        )
+        val fsConfigStr = Gson().toJson(fsConfig)
+        val encodedFsConfigData = Base64.encodeBase64String(fsConfigStr.toByteArray())
+        GetFundingSourceClientConfigurationQuery.GetFundingSourceClientConfiguration(
+            "typename",
+            encodedFsConfigData
+        )
+
+        val appConfig = SerializedClientApplicationConfiguration(
+            clientApplicationConfiguration = ClientApplicationConfiguration(
+                fundingSourceProviders = FundingSourceProviders(
+                    plaid = PlaidApplicationConfiguration(
+                        clientName = "client-name",
+                        androidPackageName = "android-package-name"
+                    )
+                )
+            )
+        )
+        val appConfigStr = Gson().toJson(appConfig)
+        val encodedAppConfigData = Base64.encodeBase64String(appConfigStr.toByteArray())
+
         GetVirtualCardsConfigQuery.GetVirtualCardsConfig(
             "typename",
             GetVirtualCardsConfigQuery.GetVirtualCardsConfig.Fragments(
@@ -101,7 +148,15 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                             )
                         )
                     ),
-                    true
+                    true,
+                    VirtualCardsConfig.FundingSourceClientConfiguration(
+                        "typename",
+                        encodedFsConfigData
+                    ),
+                    VirtualCardsConfig.ClientApplicationsConfiguration(
+                        "typename",
+                        encodedAppConfigData
+                    )
                 )
             )
         )
@@ -181,6 +236,13 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
         result shouldNotBe null
 
         with(result!!) {
+            val fundingSourceTypes = listOf(FundingSourceType.CREDIT_CARD, FundingSourceType.BANK_ACCOUNT)
+            for (i in result.fundingSourceClientConfiguration.indices) {
+                result.fundingSourceClientConfiguration[i].fundingSourceType shouldBe fundingSourceTypes[i]
+                result.fundingSourceClientConfiguration[i].type shouldBe "string"
+                result.fundingSourceClientConfiguration[i].version shouldBe 1
+                result.fundingSourceClientConfiguration[i].apiKey shouldBe "test-key"
+            }
             maxFundingSourceVelocity shouldBe listOf("maxFundingSourceVelocity")
             maxFundingSourceFailureVelocity shouldBe listOf("maxFundingSourceFailureVelocity")
             maxCardCreationVelocity shouldBe listOf("maxCardCreationVelocity")
@@ -205,6 +267,19 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                     listOf(
                         FundingSourceSupportDetailEntity(
                             CardTypeEntity.PREPAID
+                        )
+                    )
+                )
+            )
+            clientApplicationConfiguration shouldBe mapOf(
+                Pair(
+                    "client_application_configuration",
+                    ClientApplicationConfiguration(
+                        FundingSourceProviders(
+                            PlaidApplicationConfiguration(
+                                "client-name",
+                                "android-package-name"
+                            )
                         )
                     )
                 )

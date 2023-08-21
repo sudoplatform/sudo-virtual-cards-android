@@ -45,7 +45,6 @@ import com.sudoplatform.sudovirtualcards.util.CreateBankAccountFundingSourceOpti
 import com.sudoplatform.sudovirtualcards.util.LocaleUtil
 import com.sudoplatform.sudovirtualcards.util.StripeIntentWorker
 import com.sudoplatform.sudovirtualcards.util.CreateCardFundingSourceOptions
-import io.kotlintest.fail
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.shouldBe
 import kotlinx.coroutines.delay
@@ -298,7 +297,6 @@ abstract class BaseIntegrationTest {
         val username = options?.username ?: TestData.TestBankAccountUsername.customChecking
 
         val plaidSandboxData = virtualCardsClient.sandboxGetPlaidData(institutionId, username)
-            ?: fail("Failed to get plaid sandbox data")
 
         val authorizationText = AuthorizationText(
             provisioningData.authorizationText[0].language,
@@ -307,7 +305,7 @@ abstract class BaseIntegrationTest {
             provisioningData.authorizationText[0].hash,
             provisioningData.authorizationText[0].hashAlgorithm
         )
-        val accountMetadata = plaidSandboxData.accountMetdata[0]
+        val accountMetadata = plaidSandboxData.accountMetadata[0]
         val checkoutInput = CompleteFundingSourceInput(
             provisionalFundingSource.id,
             CheckoutBankAccountProviderCompletionData(

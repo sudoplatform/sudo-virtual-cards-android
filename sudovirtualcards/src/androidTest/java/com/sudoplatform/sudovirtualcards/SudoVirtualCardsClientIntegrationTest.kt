@@ -1509,13 +1509,16 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         }
 
         val virtualCardsConfig = vcClient.getVirtualCardsConfig() ?: throw AssertionError("should not be null")
-        virtualCardsConfig.maxFundingSourceVelocity.forEach { verifyVelocity(it) }
-        virtualCardsConfig.maxFundingSourceFailureVelocity.forEach { verifyVelocity(it) }
-        virtualCardsConfig.maxCardCreationVelocity.forEach { verifyVelocity(it) }
-        virtualCardsConfig.maxTransactionVelocity.size shouldBeGreaterThanOrEqual 1
-        virtualCardsConfig.maxTransactionAmount.size shouldBeGreaterThanOrEqual 1
-        virtualCardsConfig.virtualCardCurrencies.size shouldBeGreaterThanOrEqual 1
-        virtualCardsConfig.fundingSourceSupportInfo.size shouldBeGreaterThanOrEqual 1
+        with(virtualCardsConfig) {
+            maxFundingSourceVelocity.forEach { verifyVelocity(it) }
+            maxFundingSourceFailureVelocity.forEach { verifyVelocity(it) }
+            maxCardCreationVelocity.forEach { verifyVelocity(it) }
+            maxTransactionVelocity.size shouldBeGreaterThanOrEqual 1
+            maxTransactionAmount.size shouldBeGreaterThanOrEqual 1
+            virtualCardCurrencies.size shouldBeGreaterThanOrEqual 1
+            fundingSourceSupportInfo.size shouldBeGreaterThanOrEqual 1
+            fundingSourceClientConfiguration.size shouldBeGreaterThanOrEqual 1
+        }
     }
 
     @Test

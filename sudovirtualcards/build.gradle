@@ -141,7 +141,7 @@ dependencies {
     androidTestImplementation 'com.sudoplatform:sudoidentityverification:12.0.1'
     androidTestImplementation 'com.sudoplatform:sudoentitlements:8.0.1'
     androidTestImplementation 'com.sudoplatform:sudoentitlementsadmin:6.0.0'
-    androidTestImplementation 'com.sudoplatform:sudovirtualcardssimulator:7.0.0'
+    androidTestImplementation 'com.sudoplatform:sudovirtualcardssimulator:8.0.0'
     androidTestImplementation "com.sudoplatform:sudoprofiles:13.0.1"
 }
 

@@ -364,6 +364,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
      *
      * @return The [FundingSourceClientConfiguration] of the client funding source data.
      */
+    @Deprecated("Use getVirtualCardsConfig instead to retrieve the FundingSourceClientConfiguration")
     @Throws(FundingSourceException::class)
     suspend fun getFundingSourceClientConfiguration(): List<FundingSourceClientConfiguration>
 
@@ -733,9 +734,9 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * Sandbox API to obtain data normally returned by full Plaid Link flow. Useful for testing
      * ahead of full Plaid Link integration during application development.
      *
-     * @param institutionId [string] ID of Plaid sandbox institution to use
-     * @param plaidUsername [string] Username of Plaid sandbox user to obtain data for
-     * @returns {SandboxPlaidData}
+     * @param institutionId [String] ID of Plaid sandbox institution to use
+     * @param plaidUsername [String] Username of Plaid sandbox user to obtain data for
+     * @returns [SandboxPlaidData]
      *   Sandbox Plaid data for provisioning new funding
      *   source at requested institution and user
      * @throws(FundingSourceException::class)
@@ -744,11 +745,11 @@ interface SudoVirtualCardsClient : AutoCloseable {
     suspend fun sandboxGetPlaidData(institutionId: String, plaidUsername: String): SandboxPlaidData
 
     /**
-     * Sandbox API to set a funding source to refresh state to facilitate testing
+     * Sandbox API to set a funding source to refresh state to facilitate testing.
      *
-     * @param fundingSourceId [String] ID of funding source to set to require refresh
+     * @param fundingSourceId [String] ID of funding source to set to require refresh.
      *
-     * @returns [FundingSource] The funding source
+     * @returns [FundingSource] The funding source.
      */
     @Throws(FundingSourceException::class)
     suspend fun sandboxSetFundingSourceToRequireRefresh(fundingSourceId: String): FundingSource
