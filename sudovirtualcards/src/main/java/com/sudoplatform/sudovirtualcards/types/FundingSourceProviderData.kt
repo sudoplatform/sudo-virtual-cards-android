@@ -170,7 +170,9 @@ data class StripeCardProviderCompletionData(
  * @property provider See [ProviderCommonData.provider].
  * @property version See [ProviderCommonData.version].
  * @property type See [ProviderCommonData.type].
- * @property paymentToken [String] Specifies payment token associated with the funding source credit card.
+ * @property paymentToken [String]
+ *      Optional. Specifies payment token associated with the funding source credit
+ *      card or null on subsequent call to completeFundingSource after user interaction.
  */
 @Keep
 @Parcelize
@@ -179,7 +181,7 @@ data class CheckoutCardProviderCompletionData(
     override val version: Int = ProviderDefaults.version,
     override val type: FundingSourceType = FundingSourceType.CREDIT_CARD,
     @SerializedName("payment_token")
-    val paymentToken: String
+    val paymentToken: String?
 ) : ProviderCompletionData()
 
 /**
