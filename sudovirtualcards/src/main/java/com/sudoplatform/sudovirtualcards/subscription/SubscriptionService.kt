@@ -55,23 +55,23 @@ internal class SubscriptionService(
         txnDeleteSubscriptionManager.replaceSubscriber(id, subscriber)
 
         scope.launch {
-            if (txnUpdateSubscriptionManager.watcher == null) {
+            if (txnUpdateSubscriptionManager.watcher == null && txnUpdateSubscriptionManager.pendingWatcher == null) {
                 val watcher = appSyncClient.subscribe(
                     OnTransactionUpdateSubscription.builder()
                         .owner(userSubject)
                         .build()
                 )
-                txnUpdateSubscriptionManager.watcher = watcher
+                txnUpdateSubscriptionManager.pendingWatcher = watcher
                 watcher.execute(updateCallback)
             }
 
-            if (txnDeleteSubscriptionManager.watcher == null) {
+            if (txnDeleteSubscriptionManager.watcher == null && txnDeleteSubscriptionManager.pendingWatcher == null) {
                 val watcher = appSyncClient.subscribe(
                     OnTransactionDeleteSubscription.builder()
                         .owner(userSubject)
                         .build()
                 )
-                txnDeleteSubscriptionManager.watcher = watcher
+                txnDeleteSubscriptionManager.pendingWatcher = watcher
                 watcher.execute(deleteCallback)
             }
         }.join()
@@ -83,13 +83,13 @@ internal class SubscriptionService(
         fsUpdateSubscriptionManager.replaceSubscriber(id, subscriber)
 
         scope.launch {
-            if (fsUpdateSubscriptionManager.watcher == null) {
+            if (fsUpdateSubscriptionManager.watcher == null && fsUpdateSubscriptionManager.pendingWatcher == null) {
                 val watcher = appSyncClient.subscribe(
                     OnFundingSourceUpdateSubscription.builder()
                         .owner(userSubject)
                         .build()
                 )
-                fsUpdateSubscriptionManager.watcher = watcher
+                fsUpdateSubscriptionManager.pendingWatcher = watcher
                 watcher.execute(fundingSourceCallback)
             }
         }.join()
@@ -119,7 +119,7 @@ internal class SubscriptionService(
         scope.cancel()
     }
 
-    private val updateCallback = object : AppSyncSubscriptionCall.Callback<OnTransactionUpdateSubscription.Data> {
+    private val updateCallback = object : AppSyncSubscriptionCall.StartedCallback<OnTransactionUpdateSubscription.Data> {
         override fun onFailure(e: ApolloException) {
             logger.error("Transaction update subscription error $e")
             txnUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
@@ -138,9 +138,17 @@ internal class SubscriptionService(
         override fun onCompleted() {
             txnUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
         }
+
+        override fun onStarted() {
+            txnUpdateSubscriptionManager
+                .watcher = txnUpdateSubscriptionManager.pendingWatcher
+            txnUpdateSubscriptionManager.connectionStatusChanged(
+                Subscriber.ConnectionState.CONNECTED
+            )
+        }
     }
 
-    private val fundingSourceCallback = object : AppSyncSubscriptionCall.Callback<OnFundingSourceUpdateSubscription.Data> {
+    private val fundingSourceCallback = object : AppSyncSubscriptionCall.StartedCallback<OnFundingSourceUpdateSubscription.Data> {
         override fun onFailure(e: ApolloException) {
             logger.error("FundingSource update subscription error $e")
             fsUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
@@ -157,11 +165,19 @@ internal class SubscriptionService(
         }
 
         override fun onCompleted() {
-            txnUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
+            fsUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
+        }
+
+        override fun onStarted() {
+            fsUpdateSubscriptionManager
+                .watcher = fsUpdateSubscriptionManager.pendingWatcher
+            fsUpdateSubscriptionManager.connectionStatusChanged(
+                Subscriber.ConnectionState.CONNECTED
+            )
         }
     }
 
-    private val deleteCallback = object : AppSyncSubscriptionCall.Callback<OnTransactionDeleteSubscription.Data> {
+    private val deleteCallback = object : AppSyncSubscriptionCall.StartedCallback<OnTransactionDeleteSubscription.Data> {
         override fun onFailure(e: ApolloException) {
             logger.error("Transaction delete subscription error $e")
             txnDeleteSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
@@ -178,7 +194,15 @@ internal class SubscriptionService(
         }
 
         override fun onCompleted() {
-            txnUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
+            txnDeleteSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
+        }
+
+        override fun onStarted() {
+            txnDeleteSubscriptionManager
+                .watcher = txnDeleteSubscriptionManager.pendingWatcher
+            txnDeleteSubscriptionManager.connectionStatusChanged(
+                Subscriber.ConnectionState.CONNECTED
+            )
         }
     }
 }

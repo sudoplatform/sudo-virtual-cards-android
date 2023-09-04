@@ -101,7 +101,7 @@ dependencies {
     implementation "com.sudoplatform:sudokeymanager:6.0.0"
     implementation "com.sudoplatform:sudologging:3.0.0"
     implementation "com.sudoplatform:sudoconfigmanager:6.0.0"
-    implementation 'com.sudoplatform:sudouser:17.0.1'
+    implementation 'com.sudoplatform:sudouser:17.0.2'
     implementation 'com.sudoplatform:sudoapiclient:8.0.0'
 
     // Testing
@@ -142,7 +142,7 @@ dependencies {
     androidTestImplementation 'com.sudoplatform:sudoentitlements:8.0.1'
     androidTestImplementation 'com.sudoplatform:sudoentitlementsadmin:6.0.0'
     androidTestImplementation 'com.sudoplatform:sudovirtualcardssimulator:8.0.0'
-    androidTestImplementation "com.sudoplatform:sudoprofiles:13.0.1"
+    androidTestImplementation "com.sudoplatform:sudoprofiles:13.0.2"
 }
 
 // Returns a list of `configurations` which should not be scanned for vulnerabilities
