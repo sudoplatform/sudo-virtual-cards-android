@@ -22,6 +22,7 @@ import com.sudoplatform.sudovirtualcards.types.CurrencyVelocity
 import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
 import com.sudoplatform.sudovirtualcards.types.FundingSourceClientConfiguration
 import com.sudoplatform.sudovirtualcards.types.FundingSourceTypes
+import com.sudoplatform.sudovirtualcards.types.PricingPolicy
 import java.lang.Exception
 import com.sudoplatform.sudovirtualcards.types.FundingSourceSupportInfo as FundingSourceSupportInfoEntity
 import com.sudoplatform.sudovirtualcards.types.FundingSourceSupportDetail as FundingSourceSupportDetailEntity
@@ -55,6 +56,7 @@ internal object VirtualCardsConfigTransformer {
                 )
             },
             bankAccountFundingSourceExpendableEnabled = result.bankAccountFundingSourceExpendableEnabled(),
+            bankAccountFundingSourceCreationEnabled = result.bankAccountFundingSourceCreationEnabled(),
             fundingSourceClientConfiguration = result.fundingSourceClientConfiguration()?.data().let {
                 if (it != null) {
                     decodeFundingSourceClientConfiguration(it)
@@ -67,6 +69,13 @@ internal object VirtualCardsConfigTransformer {
                     decodeClientApplicationConfiguration(it)
                 } else {
                     emptyMap()
+                }
+            },
+            pricingPolicy = result.pricingPolicy()?.data().let {
+                if (it != null) {
+                    decodePricingPolicy(it)
+                } else {
+                    null
                 }
             }
         )
@@ -113,6 +122,36 @@ internal object VirtualCardsConfigTransformer {
             CardType.OTHER -> CardTypeEntity.OTHER
         }
     }
+}
+
+/**
+ * Decodes the pricing policy data.
+ *
+ * @param policyData [String] The pricing policy as a JSON string.
+ * @return The decoded pricing policy object.
+ */
+@VisibleForTesting
+internal fun decodePricingPolicy(policyData: String): PricingPolicy {
+    val msg = "pricing policy data cannot be decoded"
+
+    val decodedString: String
+    try {
+        decodedString = String(Base64.decode(policyData), Charsets.UTF_8)
+    } catch (e: Exception) {
+        throw SudoVirtualCardsClient.VirtualCardException.FailedException(
+            "$msg: Base64 decoding failed: $policyData: $e"
+        )
+    }
+
+    val pricingPolicy: PricingPolicy
+    try {
+        pricingPolicy = Gson().fromJson(decodedString, PricingPolicy::class.java)
+    } catch (e: Exception) {
+        throw SudoVirtualCardsClient.VirtualCardException.FailedException(
+            "$msg: JSON parsing failed: $decodedString: $e"
+        )
+    }
+    return pricingPolicy
 }
 
 /**

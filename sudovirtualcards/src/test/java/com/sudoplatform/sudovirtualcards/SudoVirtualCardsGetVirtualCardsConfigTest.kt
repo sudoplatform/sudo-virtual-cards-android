@@ -34,12 +34,18 @@ import com.sudoplatform.sudovirtualcards.types.FundingSourceSupportDetail as Fun
 import com.sudoplatform.sudovirtualcards.types.FundingSourceClientConfiguration as FundingSourceClientConfigurationEntity
 import com.sudoplatform.sudovirtualcards.types.CardType as CardTypeEntity
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
+import com.sudoplatform.sudovirtualcards.types.CheckoutPricingPolicy
 import com.sudoplatform.sudovirtualcards.types.ClientApplicationConfiguration
 import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
 import com.sudoplatform.sudovirtualcards.types.FundingSourceProviders
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.FundingSourceTypes
+import com.sudoplatform.sudovirtualcards.types.Markup
 import com.sudoplatform.sudovirtualcards.types.PlaidApplicationConfiguration
+import com.sudoplatform.sudovirtualcards.types.PricingPolicy
+import com.sudoplatform.sudovirtualcards.types.StripePricingPolicy
+import com.sudoplatform.sudovirtualcards.types.TieredMarkup
+import com.sudoplatform.sudovirtualcards.types.TieredMarkupPolicy
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
@@ -101,6 +107,70 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
         val appConfigStr = Gson().toJson(appConfig)
         val encodedAppConfigData = Base64.encodeBase64String(appConfigStr.toByteArray())
 
+        val pricingPolicy = PricingPolicy(
+            stripe = StripePricingPolicy(
+                creditCard = mapOf(
+                    Pair(
+                        "DEFAULT",
+                        TieredMarkupPolicy(
+                            tiers = listOf(
+                                TieredMarkup(
+                                    markup = Markup(
+                                        flat = 1000,
+                                        percent = 10
+                                    ),
+                                    minThreshold = 0
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+            checkout = CheckoutPricingPolicy(
+                creditCard = mapOf(
+                    Pair(
+                        "DEFAULT",
+                        TieredMarkupPolicy(
+                            tiers = listOf(
+                                TieredMarkup(
+                                    markup = Markup(
+                                        flat = 2500,
+                                        percent = 25
+                                    ),
+                                    minThreshold = 0
+                                )
+                            )
+                        )
+                    )
+                ),
+                bankAccount = mapOf(
+                    Pair(
+                        "DEFAULT",
+                        TieredMarkupPolicy(
+                            tiers = listOf(
+                                TieredMarkup(
+                                    minThreshold = 0,
+                                    markup = Markup(
+                                        flat = 1000,
+                                        percent = 0
+                                    )
+                                ),
+                                TieredMarkup(
+                                    minThreshold = 10000,
+                                    markup = Markup(
+                                        flat = 2000,
+                                        percent = 0
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
+        val pricingPolicyStr = Gson().toJson(pricingPolicy)
+        val encodedPricingPolicy = Base64.encodeBase64String((pricingPolicyStr.toByteArray()))
+
         GetVirtualCardsConfigQuery.GetVirtualCardsConfig(
             "typename",
             GetVirtualCardsConfigQuery.GetVirtualCardsConfig.Fragments(
@@ -149,6 +219,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                         )
                     ),
                     true,
+                    true,
                     VirtualCardsConfig.FundingSourceClientConfiguration(
                         "typename",
                         encodedFsConfigData
@@ -156,6 +227,10 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                     VirtualCardsConfig.ClientApplicationsConfiguration(
                         "typename",
                         encodedAppConfigData
+                    ),
+                    VirtualCardsConfig.PricingPolicy(
+                        "typename",
+                        encodedPricingPolicy
                     )
                 )
             )
@@ -279,6 +354,67 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                             PlaidApplicationConfiguration(
                                 "client-name",
                                 "android-package-name"
+                            )
+                        )
+                    )
+                )
+            )
+            pricingPolicy shouldBe PricingPolicy(
+                StripePricingPolicy(
+                    mapOf(
+                        Pair(
+                            "DEFAULT",
+                            TieredMarkupPolicy(
+                                listOf(
+                                    TieredMarkup(
+                                        Markup(
+                                            10,
+                                            1000
+                                        ),
+                                        0
+                                    )
+                                )
+                            )
+                        )
+                    )
+                ),
+                CheckoutPricingPolicy(
+                    mapOf(
+                        Pair(
+                            "DEFAULT",
+                            TieredMarkupPolicy(
+                                listOf(
+                                    TieredMarkup(
+                                        Markup(
+                                            25,
+                                            2500
+                                        ),
+                                        0
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    mapOf(
+                        Pair(
+                            "DEFAULT",
+                            TieredMarkupPolicy(
+                                listOf(
+                                    TieredMarkup(
+                                        Markup(
+                                            0,
+                                            1000
+                                        ),
+                                        0
+                                    ),
+                                    TieredMarkup(
+                                        Markup(
+                                            0,
+                                            2000
+                                        ),
+                                        10000
+                                    )
+                                )
                             )
                         )
                     )

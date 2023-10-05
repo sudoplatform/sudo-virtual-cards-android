@@ -85,8 +85,10 @@ type VirtualCardsConfig {
   virtualCardCurrencies: [String!]!
   fundingSourceSupportInfo: [FundingSourceSupportInfo!]!
   bankAccountFundingSourceExpendableEnabled: Boolean!
+  bankAccountFundingSourceCreationEnabled: Boolean
   fundingSourceClientConfiguration: FundingSourceClientConfiguration
   clientApplicationsConfiguration: VirtualCardApplicationsConfiguration
+  pricingPolicy: VirtualCardPricingPolicy
 }
 
 type PublicKey {
@@ -121,6 +123,10 @@ type FundingSourceClientConfiguration {
 }
 
 type VirtualCardApplicationsConfiguration {
+  data: ID!
+}
+
+type VirtualCardPricingPolicy {
   data: ID!
 }
 

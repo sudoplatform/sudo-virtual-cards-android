@@ -21,6 +21,7 @@ class ProviderAPIs(
     val stripe: Stripe?,
     val checkout: CheckoutAPIClient?
 )
+
 class FundingSourceProviders(
     val stripeCardEnabled: Boolean,
     val checkoutCardEnabled: Boolean,
@@ -45,8 +46,8 @@ class FundingSourceProviders(
             var checkoutCardEnabled = false
             var checkoutBankAccountEnabled = false
 
-            val config = client.getFundingSourceClientConfiguration()
-            config.forEach {
+            val config = client.getVirtualCardsConfig()
+            config?.fundingSourceClientConfiguration?.forEach {
                 if (it.type == "stripe") {
                     stripe = Stripe(context, it.apiKey)
                     stripeCardEnabled = true
@@ -56,7 +57,7 @@ class FundingSourceProviders(
                     if (it.fundingSourceType == FundingSourceType.CREDIT_CARD) {
                         checkoutCardEnabled = true
                     }
-                    if (it.fundingSourceType == FundingSourceType.BANK_ACCOUNT) {
+                    if (it.fundingSourceType == FundingSourceType.BANK_ACCOUNT && config.bankAccountFundingSourceCreationEnabled == true) {
                         checkoutBankAccountEnabled = true
                     }
                 }

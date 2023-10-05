@@ -9,12 +9,18 @@ package com.sudoplatform.sudovirtualcards.types.transformers
 import com.google.gson.Gson
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsGetVirtualCardsConfigTest
+import com.sudoplatform.sudovirtualcards.types.CheckoutPricingPolicy
 import com.sudoplatform.sudovirtualcards.types.ClientApplicationConfiguration
 import com.sudoplatform.sudovirtualcards.types.FundingSourceClientConfiguration
 import com.sudoplatform.sudovirtualcards.types.FundingSourceProviders
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.FundingSourceTypes
+import com.sudoplatform.sudovirtualcards.types.Markup
 import com.sudoplatform.sudovirtualcards.types.PlaidApplicationConfiguration
+import com.sudoplatform.sudovirtualcards.types.PricingPolicy
+import com.sudoplatform.sudovirtualcards.types.StripePricingPolicy
+import com.sudoplatform.sudovirtualcards.types.TieredMarkup
+import com.sudoplatform.sudovirtualcards.types.TieredMarkupPolicy
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.apache.commons.codec.binary.Base64
@@ -101,6 +107,83 @@ class ClientConfigurationTransformerTest {
     fun `decodeClientApplicationConfiguration should throw if encoded config data is not valid JSON`() {
         shouldThrow<SudoVirtualCardsClient.VirtualCardException.FailedException> {
             decodeClientApplicationConfiguration("this is not JSON")
+        }
+    }
+
+    @Test
+    fun `decodePricingPolicy should decode successfully`() {
+        val pricingPolicy = PricingPolicy(
+            stripe = StripePricingPolicy(
+                creditCard = mapOf(
+                    Pair(
+                        "DEFAULT",
+                        TieredMarkupPolicy(
+                            tiers = listOf(
+                                TieredMarkup(
+                                    markup = Markup(
+                                        flat = 1000,
+                                        percent = 10
+                                    ),
+                                    minThreshold = 0
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+            checkout = CheckoutPricingPolicy(
+                creditCard = mapOf(
+                    Pair(
+                        "DEFAULT",
+                        TieredMarkupPolicy(
+                            tiers = listOf(
+                                TieredMarkup(
+                                    markup = Markup(
+                                        flat = 2500,
+                                        percent = 25
+                                    ),
+                                    minThreshold = 0
+                                )
+                            )
+                        )
+                    )
+                ),
+                bankAccount = mapOf(
+                    Pair(
+                        "DEFAULT",
+                        TieredMarkupPolicy(
+                            tiers = listOf(
+                                TieredMarkup(
+                                    minThreshold = 0,
+                                    markup = Markup(
+                                        flat = 1000,
+                                        percent = 0
+                                    )
+                                ),
+                                TieredMarkup(
+                                    minThreshold = 10000,
+                                    markup = Markup(
+                                        flat = 2000,
+                                        percent = 0
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
+        val pricingPolicyStr = Gson().toJson(pricingPolicy)
+        val encodedPricingPolicy = Base64.encodeBase64String(pricingPolicyStr.toByteArray())
+
+        val decodedPricingPolicy = decodePricingPolicy(encodedPricingPolicy)
+        decodedPricingPolicy shouldBe pricingPolicy
+    }
+
+    @Test
+    fun `decodePricingPolicy should throw if encoded policy data is not valid JSON`() {
+        shouldThrow<SudoVirtualCardsClient.VirtualCardException.FailedException> {
+            decodePricingPolicy("this is not JSON")
         }
     }
 }

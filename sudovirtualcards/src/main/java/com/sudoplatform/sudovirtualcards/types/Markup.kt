@@ -25,5 +25,5 @@ import kotlinx.parcelize.Parcelize
 data class Markup(
     val percent: Int,
     val flat: Int,
-    val minCharge: Int?
+    val minCharge: Int? = null
 ) : Parcelable

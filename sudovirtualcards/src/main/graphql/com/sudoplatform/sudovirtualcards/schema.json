@@ -5743,9 +5743,48 @@
       },
       {
         "kind": "OBJECT",
+        "name": "VirtualCardPricingPolicy",
+        "description": null,
+        "fields": [
+          {
+            "name": "data",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "VirtualCardsConfig",
         "description": null,
         "fields": [
+          {
+            "name": "bankAccountFundingSourceCreationEnabled",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "bankAccountFundingSourceExpendableEnabled",
             "description": null,
@@ -5926,6 +5965,18 @@
                   }
                 }
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "pricingPolicy",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "VirtualCardPricingPolicy",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
