@@ -16,6 +16,8 @@ import kotlinx.parcelize.Parcelize
  * successfully created within a defined period.
  * @property maxFundingSourceFailureVelocity [List<String] The maximum number of failed funding source
  * creations that can be performed within a defined period.
+ * @property maxFundingSourcePendingVelocity [List<String] The maximum number of pending funding source
+ * creations that can be performed within a defined period.
  * @property maxCardCreationVelocity [List<String>] The maximum number of virtual cards that can be
  * created within a defined period.
  * @property maxTransactionVelocity [List<CurrencyVelocity>] The maximum number of transactions that
@@ -35,6 +37,7 @@ import kotlinx.parcelize.Parcelize
 data class VirtualCardsConfig(
     val maxFundingSourceVelocity: List<String>,
     val maxFundingSourceFailureVelocity: List<String>,
+    val maxFundingSourcePendingVelocity: List<String>,
     val maxCardCreationVelocity: List<String>,
     val maxTransactionVelocity: List<CurrencyVelocity>,
     val maxTransactionAmount: List<CurrencyAmount>,

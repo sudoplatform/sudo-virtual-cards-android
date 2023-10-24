@@ -79,6 +79,7 @@ type CurrencyAmount {
 type VirtualCardsConfig {
   maxFundingSourceVelocity: [String!]!
   maxFundingSourceFailureVelocity: [String!]!
+  maxFundingSourcePendingVelocity: [String!]!
   maxCardCreationVelocity: [String!]!
   maxTransactionVelocity: [CurrencyVelocity!]!
   maxTransactionAmount: [CurrencyAmount!]!

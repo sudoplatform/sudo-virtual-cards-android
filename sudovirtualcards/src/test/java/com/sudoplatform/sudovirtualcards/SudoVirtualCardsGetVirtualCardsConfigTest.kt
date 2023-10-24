@@ -178,6 +178,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                     "VirtualCardsConfig",
                     listOf("maxFundingSourceVelocity"),
                     listOf("maxFundingSourceFailureVelocity"),
+                    listOf("maxFundingSourcePendingVelocity"),
                     listOf("maxCardCreationVelocity"),
                     listOf(
                         VirtualCardsConfig.MaxTransactionVelocity(
@@ -320,6 +321,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
             }
             maxFundingSourceVelocity shouldBe listOf("maxFundingSourceVelocity")
             maxFundingSourceFailureVelocity shouldBe listOf("maxFundingSourceFailureVelocity")
+            maxFundingSourcePendingVelocity shouldBe listOf("maxFundingSourcePendingVelocity")
             maxCardCreationVelocity shouldBe listOf("maxCardCreationVelocity")
             maxTransactionVelocity shouldBe listOf(
                 CurrencyVelocity(

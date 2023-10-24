@@ -46,6 +46,7 @@ internal object VirtualCardsConfigTransformer {
         return VirtualCardsConfigEntity(
             maxFundingSourceVelocity = result.maxFundingSourceVelocity(),
             maxFundingSourceFailureVelocity = result.maxFundingSourceFailureVelocity(),
+            maxFundingSourcePendingVelocity = result.maxFundingSourcePendingVelocity(),
             maxCardCreationVelocity = result.maxCardCreationVelocity(),
             maxTransactionVelocity = this.toEntityFromMaxTransactionVelocity(result.maxTransactionVelocity()),
             maxTransactionAmount = this.toEntityFromMaxTransactionAmount(result.maxTransactionAmount()),
