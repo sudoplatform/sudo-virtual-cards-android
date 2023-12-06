@@ -7,25 +7,14 @@
 package com.sudoplatform.sudovirtualcards
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber
-import io.kotlintest.matchers.numerics.shouldBeGreaterThan
-import io.kotlintest.matchers.numerics.shouldBeGreaterThanOrEqual
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import io.kotlintest.shouldThrow
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
-import org.junit.Assume.assumeTrue
-import org.junit.runner.RunWith
-import timber.log.Timber
-import java.util.logging.Logger
 import com.sudoplatform.sudokeymanager.KeyManagerFactory
 import com.sudoplatform.sudovirtualcards.logging.LogConstants
 import com.sudoplatform.sudovirtualcards.subscription.FundingSourceSubscriber
 import com.sudoplatform.sudovirtualcards.subscription.Subscriber
+import com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber
 import com.sudoplatform.sudovirtualcards.types.AuthorizationText
 import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
+import com.sudoplatform.sudovirtualcards.types.CachePolicy
 import com.sudoplatform.sudovirtualcards.types.CardState
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderRefreshData
@@ -54,11 +43,24 @@ import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
 import com.sudoplatform.sudovirtualcards.util.CreateBankAccountFundingSourceOptions
 import com.sudoplatform.sudovirtualcards.util.CreateCardFundingSourceOptions
 import io.kotlintest.fail
+import io.kotlintest.matchers.numerics.shouldBeGreaterThan
+import io.kotlintest.matchers.numerics.shouldBeGreaterThanOrEqual
+import io.kotlintest.matchers.types.shouldBeInstanceOf
+import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotBe
+import io.kotlintest.shouldThrow
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.After
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
+import org.junit.runner.RunWith
+import timber.log.Timber
 import java.util.UUID
+import java.util.logging.Logger
 import kotlin.time.Duration.Companion.parseIsoString
 
 /**
@@ -2207,5 +2209,86 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         vcClient.reset()
         keyManager.exportKeys().size shouldBe 0
         assumeTrue(userClient.isRegistered())
+    }
+
+    @Test
+    fun exportImportKeysShouldSucceed() = runBlocking {
+        registerSignInAndEntitle()
+        assumeTrue(userClient.isRegistered())
+
+        verifyTestUserIdentity()
+
+        val keyManager = KeyManagerFactory(context).createAndroidKeyManager("vc")
+        keyManager.removeAllKeys()
+
+        val vcClient = SudoVirtualCardsClient.builder()
+            .setContext(context)
+            .setSudoUserClient(userClient)
+            .setKeyManager(keyManager)
+            .build()
+
+        val providerToUse = getProviderToUse(vcClient)
+        val testCard = TestData.TestCards[providerToUse]?.get("Visa-No3DS-1") ?: throw AssertionError("Test card should not be null")
+        val input = CreditCardFundingSourceInput(
+            testCard.creditCardNumber,
+            expirationMonth(),
+            expirationYear(),
+            testCard.securityCode,
+            testCard.address.addressLine1,
+            testCard.address.addressLine2,
+            testCard.address.city,
+            testCard.address.state,
+            testCard.address.postalCode,
+            testCard.address.country,
+            TestData.VerifiedUser.fullName
+        )
+        val fundingSource = createCardFundingSource(
+            vcClient,
+            input,
+            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse))
+        )
+        fundingSource shouldNotBe null
+
+        vcClient.createKeysIfAbsent()
+
+        val sudo = createSudo(
+            TestData.sudo
+        )
+        sudo.id shouldNotBe null
+
+        val ownershipProof = getOwnershipProof(sudo)
+        ownershipProof shouldNotBe null
+
+        val provisionCardInput = ProvisionVirtualCardInput(
+            ownershipProofs = listOf(ownershipProof),
+            fundingSourceId = fundingSource.id,
+            cardHolder = TestData.ProvisionCardInput.cardHolder,
+            addressLine1 = TestData.ProvisionCardInput.addressLine1,
+            city = TestData.ProvisionCardInput.city,
+            state = TestData.ProvisionCardInput.state,
+            postalCode = TestData.ProvisionCardInput.postalCode,
+            country = TestData.ProvisionCardInput.country,
+            currency = TestData.ProvisionCardInput.currency
+        )
+        val card = provisionVirtualCard(vcClient, provisionCardInput)
+        card shouldNotBe null
+
+        val exportedKeys = vcClient.exportKeys()
+        exportedKeys shouldNotBe null
+        // remove all crypto keys from KeyManager
+        vcClient.reset()
+
+        try {
+            vcClient.getVirtualCard(card.id, CachePolicy.REMOTE_ONLY)
+            throw AssertionError("expected getVirtualCard to throw with no keys, but it succeeded")
+        } catch (e: Throwable) {
+            e.shouldBeInstanceOf<SudoVirtualCardsClient.VirtualCardException.PublicKeyException>()
+        }
+
+        // restore keys
+        vcClient.importKeys(exportedKeys)
+
+        val restoredKeysCard = vcClient.getVirtualCard(card.id, CachePolicy.REMOTE_ONLY)
+        restoredKeysCard shouldBe card
     }
 }

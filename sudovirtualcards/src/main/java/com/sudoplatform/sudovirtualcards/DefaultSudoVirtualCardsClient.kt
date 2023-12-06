@@ -153,6 +153,8 @@ internal class DefaultSudoVirtualCardsClient(
         private const val ENTITLEMENT_EXCEEDED_MSG = "Entitlements have been exceeded"
         private const val ACCOUNT_LOCKED_MSG = "Account is locked"
         private const val UNSUPPORTED_TRANSACTION_TYPE_MSG = "Transaction type is not supported"
+        private const val INVALID_ARGUMENT_ERROR_MSG = "Invalid input"
+        private const val KEY_ARCHIVE_ERROR_MSG = "Unable to perform key archive operation"
 
         /** Errors returned from the service */
         private const val ERROR_TYPE = "errorType"
@@ -1111,6 +1113,27 @@ internal class DefaultSudoVirtualCardsClient(
         }
     }
 
+    override suspend fun importKeys(archiveData: ByteArray) {
+        if (archiveData.isEmpty()) {
+            throw SudoVirtualCardsClient.VirtualCardCryptographicKeysException.SecureKeyArchiveException(INVALID_ARGUMENT_ERROR_MSG)
+        }
+        try {
+            deviceKeyManager.importKeys(archiveData)
+        } catch (e: Throwable) {
+            logger.error("unexpected error $e")
+            throw interpretVirtualCardException(e)
+        }
+    }
+
+    override suspend fun exportKeys(): ByteArray {
+        try {
+            return deviceKeyManager.exportKeys()
+        } catch (e: Throwable) {
+            logger.error("unexpected error $e")
+            throw interpretVirtualCardException(e)
+        }
+    }
+
     override fun close() {
         subscriptions.close()
     }
@@ -1223,6 +1246,8 @@ internal class DefaultSudoVirtualCardsClient(
                 SudoVirtualCardsClient.VirtualCardException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG, e)
             is Unsealer.UnsealerException ->
                 SudoVirtualCardsClient.VirtualCardException.UnsealingException(UNSEAL_CARD_ERROR_MSG, e)
+            is DeviceKeyManager.DeviceKeyManagerException.SecureKeyArchiveException ->
+                SudoVirtualCardsClient.VirtualCardCryptographicKeysException.SecureKeyArchiveException(KEY_ARCHIVE_ERROR_MSG, e)
             else -> SudoVirtualCardsClient.VirtualCardException.UnknownException(e)
         }
     }

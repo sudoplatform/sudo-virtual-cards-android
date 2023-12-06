@@ -8,6 +8,7 @@ package com.sudoplatform.sudovirtualcards.keys
 
 import com.sudoplatform.sudokeymanager.KeyManagerException
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
+import com.sudoplatform.sudokeymanager.SecureKeyArchive
 import com.sudoplatform.sudologging.AndroidUtilsLogDriver
 import com.sudoplatform.sudologging.LogLevel
 import com.sudoplatform.sudologging.Logger
@@ -241,6 +242,29 @@ internal class DefaultDeviceKeyManager(
         } catch (e: KeyManagerException) {
             logger.error("error $e")
             throw DeviceKeyManager.DeviceKeyManagerException.SigningException("Failed to sign", e)
+        }
+    }
+
+    override fun importKeys(archiveData: ByteArray) {
+        try {
+            keyManager.removeAllKeys()
+            val archive = SecureKeyArchive.getInstanceV3(archiveData, keyManager)
+            archive.unarchive()
+            archive.saveKeys()
+        } catch (e: Exception) {
+            logger.error("error $e")
+            throw DeviceKeyManager.DeviceKeyManagerException.SecureKeyArchiveException("Failed to import keys", e)
+        }
+    }
+
+    override fun exportKeys(): ByteArray {
+        val archive = SecureKeyArchive.getInstanceV3(keyManager)
+        try {
+            archive.loadKeys()
+            return archive.archive()
+        } catch (e: Exception) {
+            logger.error("error $e")
+            throw DeviceKeyManager.DeviceKeyManagerException.SecureKeyArchiveException("Failed to export keys", e)
         }
     }
 

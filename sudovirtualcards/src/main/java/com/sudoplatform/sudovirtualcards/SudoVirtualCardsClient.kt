@@ -311,6 +311,20 @@ interface SudoVirtualCardsClient : AutoCloseable {
     }
 
     /**
+     * Defines the exceptions for the virtual card cryptographic keys based methods.
+     *
+     * @property message [String] Accompanying message for the exception.
+     * @property cause [Throwable] The cause for the exception.
+     */
+    sealed class VirtualCardCryptographicKeysException(
+        message: String? = null,
+        cause: Throwable? = null
+    ) : RuntimeException(message, cause) {
+        class SecureKeyArchiveException(message: String? = null, cause: Throwable? = null) :
+            VirtualCardCryptographicKeysException(message = message, cause = cause)
+    }
+
+    /**
      * Create key pair and secret key for use by the virtual cards client if they have not
      * already been created.
      *
@@ -753,6 +767,26 @@ interface SudoVirtualCardsClient : AutoCloseable {
      */
     @Throws(FundingSourceException::class)
     suspend fun sandboxSetFundingSourceToRequireRefresh(fundingSourceId: String): FundingSource
+
+    /**
+     * Import cryptographic keys from a key archive.
+     *
+     * @param archiveData [Data] Key archive data to import the keys from.
+     *
+     * @throws [VirtualCardCryptographicKeysException]
+     */
+    @Throws(VirtualCardCryptographicKeysException::class)
+    suspend fun importKeys(archiveData: ByteArray)
+
+    /**
+     * Export the cryptographic keys to a key archive.
+     *
+     * @returns Key archive data.
+     *
+     * @throws [VirtualCardCryptographicKeysException]
+     */
+    @Throws(VirtualCardCryptographicKeysException::class)
+    suspend fun exportKeys(): ByteArray
 
     /**
      * Reset any internal state and cached content.

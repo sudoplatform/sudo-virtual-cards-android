@@ -32,6 +32,8 @@ internal interface DeviceKeyManager {
             DeviceKeyManagerException(message = message, cause = cause)
         class SigningException(message: String? = null, cause: Throwable? = null) :
             DeviceKeyManagerException(message = message, cause = cause)
+        class SecureKeyArchiveException(message: String? = null, cause: Throwable? = null) :
+            DeviceKeyManagerException(message = message, cause = cause)
         class UnknownException(message: String? = null, cause: Throwable? = null) :
             DeviceKeyManagerException(message = message, cause = cause)
     }
@@ -139,6 +141,24 @@ internal interface DeviceKeyManager {
      */
     @Throws(DeviceKeyManagerException::class)
     fun signWithPrivateKeyId(keyId: String, data: ByteArray): ByteArray
+
+    /**
+     * Import keys from a key archive.
+     *
+     * @param archiveData [ByteArray] Key archive data to import the keys from.
+     * @throws [DeviceKeyManager.DeviceKeyManagerException.SecureKeyArchiveException]
+     */
+    @Throws(DeviceKeyManagerException::class)
+    fun importKeys(archiveData: ByteArray)
+
+    /**
+     * Export keys to a key archive.
+     *
+     * @return The key archive data.
+     * @throws [DeviceKeyManager.DeviceKeyManagerException.SecureKeyArchiveException]
+     */
+    @Throws(DeviceKeyManagerException::class)
+    fun exportKeys(): ByteArray
 
     /**
      * Remove all the keys from the [DeviceKeyManager]

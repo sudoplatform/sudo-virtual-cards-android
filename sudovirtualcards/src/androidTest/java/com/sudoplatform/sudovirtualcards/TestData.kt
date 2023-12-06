@@ -84,14 +84,15 @@ object TestData {
         /** Checkout Funding source test data.
          *
          * Note: All test data taken from https://www.checkout.com/docs/testing/test-cards
+         * Visa 4532432452900131 is flagged as non-3ds but does trigger a challenge.
          */
         "checkout" to mapOf(
             "Visa-3DS2-1" to TestCard("4242424242424242", "123", DefaultTestCardBillingAddress["checkout"]!!),
             "Visa-3DS2-2" to TestCard("4543474002249996", "956", DefaultTestCardBillingAddress["checkout"]!!),
-            "Visa-No3DS-1" to TestCard("4532432452900131", "257", DefaultTestCardBillingAddress["checkout"]!!),
+            "Visa-No3DS-1" to TestCard("4484070000035519", "257", DefaultTestCardBillingAddress["checkout"]!!),
             "MC-No3DS-1" to TestCard("5183683001544411", "100", DefaultTestCardBillingAddress["checkout"]!!),
-            "BadAddress" to TestCard("4532432452900131", "257", TestCardBillingAddress(addressLine1 = "Test_N")),
-            "BadCVV" to TestCard("4532432452900131", "202", DefaultTestCardBillingAddress["checkout"]!!)
+            "BadAddress" to TestCard("4484070000035519", "257", TestCardBillingAddress(addressLine1 = "Test_N")),
+            "BadCVV" to TestCard("4484070000035519", "202", DefaultTestCardBillingAddress["checkout"]!!)
         )
     )
 
