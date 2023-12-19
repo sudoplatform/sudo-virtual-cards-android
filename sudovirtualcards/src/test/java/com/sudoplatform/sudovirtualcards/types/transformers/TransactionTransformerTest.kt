@@ -22,6 +22,8 @@ class TransactionTransformerTest : BaseTests() {
         "INSUFFICIENT_FUNDS".toDeclineReason() shouldBe DeclineReason.INSUFFICIENT_FUNDS
         "SUSPICIOUS".toDeclineReason() shouldBe DeclineReason.SUSPICIOUS
         "EXPIRY_CHECK_FAILED".toDeclineReason() shouldBe DeclineReason.EXPIRY_CHECK_FAILED
+        "SERVICE_UNAVAILABLE".toDeclineReason() shouldBe DeclineReason.SERVICE_UNAVAILABLE
+        "INSUFFICIENT_ENTITLEMENTS".toDeclineReason() shouldBe DeclineReason.INSUFFICIENT_ENTITLEMENTS
         "foobar".toDeclineReason() shouldBe DeclineReason.UNKNOWN
     }
 
