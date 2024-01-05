@@ -14,7 +14,7 @@ import com.sudoplatform.sudovirtualcards.types.transformers.KeyType
  * The default implementation of the [SigningService].
  */
 internal class DefaultSigningService(
-    private val deviceKeyManager: DeviceKeyManager
+    private val deviceKeyManager: DeviceKeyManager,
 ) : SigningService {
 
     companion object {
@@ -27,7 +27,7 @@ internal class DefaultSigningService(
             KeyType.PRIVATE_KEY -> {
                 val signature = this.deviceKeyManager.signWithPrivateKeyId(
                     keyId = keyId,
-                    data = data.toByteArray()
+                    data = data.toByteArray(),
                 )
                 return Base64.encode(signature).toString(Charsets.UTF_8)
             }

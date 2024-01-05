@@ -54,19 +54,19 @@ class SudoVirtualCardsGetFundingSourceConfigurationTest : BaseTests() {
             listOf(
                 FundingSourceClientConfiguration(
                     apiKey = "test-key",
-                    fundingSourceType = FundingSourceType.CREDIT_CARD
+                    fundingSourceType = FundingSourceType.CREDIT_CARD,
                 ),
                 FundingSourceClientConfiguration(
                     apiKey = "test-key",
-                    fundingSourceType = FundingSourceType.BANK_ACCOUNT
-                )
-            )
+                    fundingSourceType = FundingSourceType.BANK_ACCOUNT,
+                ),
+            ),
         )
         val configStr = Gson().toJson(config)
         val encodedConfigData = Base64.encodeBase64String(configStr.toByteArray())
         GetFundingSourceClientConfigurationQuery.GetFundingSourceClientConfiguration(
             "typename",
-            encodedConfigData
+            encodedConfigData,
         )
     }
 
@@ -117,7 +117,7 @@ class SudoVirtualCardsGetFundingSourceConfigurationTest : BaseTests() {
             mockContext,
             mockUserClient,
             mockKeyManager,
-            mockAppSyncClient
+            mockAppSyncClient,
         )
     }
 

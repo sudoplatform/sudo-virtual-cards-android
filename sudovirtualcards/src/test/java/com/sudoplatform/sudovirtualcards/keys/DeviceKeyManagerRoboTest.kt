@@ -40,7 +40,7 @@ class DeviceKeyManagerRoboTest : BaseTests() {
     private val deviceKeyManager by before {
         DefaultDeviceKeyManager(
             keyManager = keyManager,
-            logger = mockLogger
+            logger = mockLogger,
         )
     }
 
@@ -81,12 +81,12 @@ class DeviceKeyManagerRoboTest : BaseTests() {
         var secretData = keyManager.encryptWithPublicKey(
             currentKeyPair.keyId,
             clearData,
-            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1
+            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
         )
         var decryptedData = deviceKeyManager.decryptWithPrivateKey(
             secretData,
             currentKeyPair.keyId,
-            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1
+            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
         )
         decryptedData shouldBe clearData
 

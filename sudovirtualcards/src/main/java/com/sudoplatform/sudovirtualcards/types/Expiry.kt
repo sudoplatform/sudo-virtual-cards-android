@@ -19,5 +19,5 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Expiry(
     val mm: String,
-    val yyyy: String
+    val yyyy: String,
 ) : Parcelable

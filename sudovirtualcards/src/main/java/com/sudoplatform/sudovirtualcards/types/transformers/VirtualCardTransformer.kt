@@ -9,7 +9,6 @@ package com.sudoplatform.sudovirtualcards.types.transformers
 import com.amazonaws.util.Base64
 import com.google.gson.Gson
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
-import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalCard as ProvisionalCardFragment
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCard
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCardWithLastTransaction
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedTransaction
@@ -20,15 +19,16 @@ import com.sudoplatform.sudovirtualcards.graphql.type.SealedAttributeInput
 import com.sudoplatform.sudovirtualcards.graphql.type.TransactionType
 import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
 import com.sudoplatform.sudovirtualcards.types.BillingAddress
-import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 import com.sudoplatform.sudovirtualcards.types.DeclineReason
 import com.sudoplatform.sudovirtualcards.types.JsonValue
 import com.sudoplatform.sudovirtualcards.types.Owner
 import com.sudoplatform.sudovirtualcards.types.PartialVirtualCard
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
 import com.sudoplatform.sudovirtualcards.types.SymmetricKeyEncryptionAlgorithm
-import com.sudoplatform.sudovirtualcards.types.VirtualCard
 import com.sudoplatform.sudovirtualcards.types.Transaction
+import com.sudoplatform.sudovirtualcards.types.VirtualCard
+import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalCard as ProvisionalCardFragment
+import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
 
 /**
@@ -85,7 +85,7 @@ internal object VirtualCardTransformer {
      */
     fun toEntity(
         deviceKeyManager: DeviceKeyManager,
-        provisionalCard: ProvisionalCardFragment
+        provisionalCard: ProvisionalCardFragment,
     ): ProvisionalVirtualCard {
         return ProvisionalVirtualCard(
             id = provisionalCard.id(),
@@ -95,7 +95,7 @@ internal object VirtualCardTransformer {
             provisioningState = provisionalCard.provisioningState().toProvisionalCardState(),
             card = provisionalCard.card()?.firstOrNull()?.let { toEntity(deviceKeyManager, it.fragments().sealedCard()) },
             createdAt = provisionalCard.createdAtEpochMs().toDate(),
-            updatedAt = provisionalCard.updatedAtEpochMs().toDate()
+            updatedAt = provisionalCard.updatedAtEpochMs().toDate(),
         )
     }
 
@@ -108,16 +108,16 @@ internal object VirtualCardTransformer {
      */
     fun toEntity(
         deviceKeyManager: DeviceKeyManager,
-        sealedCardWithLastTransaction: SealedCardWithLastTransaction
+        sealedCardWithLastTransaction: SealedCardWithLastTransaction,
     ): VirtualCard {
         val sealedCard = sealedCardWithLastTransaction.fragments().sealedCard()
             ?: throw SudoVirtualCardsClient.VirtualCardException.FailedException(
-                "unexpected null SealedCard in SealedCardWithLastTransaction"
+                "unexpected null SealedCard in SealedCardWithLastTransaction",
             )
         return toEntity(
             deviceKeyManager,
             sealedCard,
-            sealedCardWithLastTransaction.lastTransaction()?.fragments()?.sealedTransaction()
+            sealedCardWithLastTransaction.lastTransaction()?.fragments()?.sealedTransaction(),
         )
     }
 
@@ -132,7 +132,7 @@ internal object VirtualCardTransformer {
     fun toEntity(
         deviceKeyManager: DeviceKeyManager,
         sealedCard: SealedCard,
-        sealedLastTransaction: SealedTransaction? = null
+        sealedLastTransaction: SealedTransaction? = null,
     ): VirtualCard {
         val keyInfo = KeyInfo(sealedCard.keyId(), KeyType.PRIVATE_KEY, sealedCard.algorithm())
         val unsealer = Unsealer(deviceKeyManager, keyInfo)
@@ -163,7 +163,7 @@ internal object VirtualCardTransformer {
             cancelledAt = sealedCard.cancelledAtEpochMs()?.toDate(),
             createdAt = sealedCard.createdAtEpochMs().toDate(),
             updatedAt = sealedCard.updatedAtEpochMs().toDate(),
-            lastTransaction = sealedLastTransaction?.toTransaction(deviceKeyManager)
+            lastTransaction = sealedLastTransaction?.toTransaction(deviceKeyManager),
         )
     }
 
@@ -176,7 +176,7 @@ internal object VirtualCardTransformer {
     fun toPartialEntity(sealedCardWithLastTransaction: SealedCardWithLastTransaction): PartialVirtualCard {
         val sealedCard = sealedCardWithLastTransaction.fragments().sealedCard()
             ?: throw SudoVirtualCardsClient.VirtualCardException.FailedException(
-                "unexpected null SealedCard in SealedCardWithLastTransaction"
+                "unexpected null SealedCard in SealedCardWithLastTransaction",
             )
         return toPartialEntity(sealedCard)
     }
@@ -200,7 +200,7 @@ internal object VirtualCardTransformer {
             activeTo = sealedCard.activeToEpochMs().toDate(),
             cancelledAt = sealedCard.cancelledAtEpochMs()?.toDate(),
             createdAt = sealedCard.createdAtEpochMs().toDate(),
-            updatedAt = sealedCard.updatedAtEpochMs().toDate()
+            updatedAt = sealedCard.updatedAtEpochMs().toDate(),
         )
     }
 
@@ -247,7 +247,7 @@ internal object VirtualCardTransformer {
             declineReason = declineReason()?.let { unsealer.unseal(it).toDeclineReason() },
             transactedAt = unsealer.unseal(transactedAtEpochMs()).toDouble().toDate(),
             createdAt = createdAtEpochMs().toDate(),
-            updatedAt = updatedAtEpochMs().toDate()
+            updatedAt = updatedAtEpochMs().toDate(),
         )
     }
 

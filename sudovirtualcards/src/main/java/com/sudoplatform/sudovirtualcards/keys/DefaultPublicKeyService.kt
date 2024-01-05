@@ -34,7 +34,7 @@ internal class DefaultPublicKeyService(
     private val deviceKeyManager: DeviceKeyManager,
     private val userClient: SudoUserClient,
     private val appSyncClient: AWSAppSyncClient,
-    private val logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO))
+    private val logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO)),
 ) : PublicKeyService {
 
     companion object {
@@ -54,13 +54,14 @@ internal class DefaultPublicKeyService(
 
             return PublicKey(
                 keyId = currentDeviceKeyPair.keyId,
-                publicKey = currentDeviceKeyPair.publicKey
+                publicKey = currentDeviceKeyPair.publicKey,
             )
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
             when (e) {
                 is CancellationException,
-                is PublicKeyService.PublicKeyServiceException -> throw e
+                is PublicKeyService.PublicKeyServiceException,
+                -> throw e
                 is DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException ->
                     throw PublicKeyService.PublicKeyServiceException.KeyCreateException("Failed to generate key", e)
                 else -> throw PublicKeyService.PublicKeyServiceException.UnknownException(UNEXPECTED_EXCEPTION, e)
@@ -93,7 +94,7 @@ internal class DefaultPublicKeyService(
                 create(
                     keyId = currentDeviceKeyPair.keyId,
                     keyRingId = keyRingId,
-                    publicKey = currentDeviceKeyPair.publicKey
+                    publicKey = currentDeviceKeyPair.publicKey,
                 )
             } else {
                 val registeredKey = get(currentDeviceKeyPair.keyId, CachePolicy.REMOTE_ONLY)
@@ -103,7 +104,7 @@ internal class DefaultPublicKeyService(
                     create(
                         keyId = currentDeviceKeyPair.keyId,
                         keyRingId = keyRingId,
-                        publicKey = currentDeviceKeyPair.publicKey
+                        publicKey = currentDeviceKeyPair.publicKey,
                     )
                 }
             }
@@ -111,16 +112,17 @@ internal class DefaultPublicKeyService(
             return PublicKeyWithKeyRingId(
                 publicKey = PublicKey(
                     keyId = currentDeviceKeyPair.keyId,
-                    publicKey = currentDeviceKeyPair.publicKey
+                    publicKey = currentDeviceKeyPair.publicKey,
                 ),
                 keyRingId = keyRingId,
-                created = created
+                created = created,
             )
         } catch (e: Throwable) {
             logger.debug("unexpected error $e")
             when (e) {
                 is CancellationException,
-                is PublicKeyService.PublicKeyServiceException -> throw e
+                is PublicKeyService.PublicKeyServiceException,
+                -> throw e
                 is DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException ->
                     throw PublicKeyService.PublicKeyServiceException.KeyCreateException("Failed to generate key", e)
                 else -> throw PublicKeyService.PublicKeyServiceException.UnknownException(UNEXPECTED_EXCEPTION, e)
@@ -150,7 +152,8 @@ internal class DefaultPublicKeyService(
             logger.debug("unexpected error $e")
             when (e) {
                 is CancellationException,
-                is PublicKeyService.PublicKeyServiceException -> throw e
+                is PublicKeyService.PublicKeyServiceException,
+                -> throw e
                 is ApolloException -> throw PublicKeyService.PublicKeyServiceException.FailedException(cause = e)
                 else -> throw PublicKeyService.PublicKeyServiceException.UnknownException(UNEXPECTED_EXCEPTION, e)
             }
@@ -185,7 +188,8 @@ internal class DefaultPublicKeyService(
             logger.debug("unexpected error $e")
             when (e) {
                 is CancellationException,
-                is PublicKeyService.PublicKeyServiceException -> throw e
+                is PublicKeyService.PublicKeyServiceException,
+                -> throw e
                 is ApolloException -> throw PublicKeyService.PublicKeyServiceException.FailedException(cause = e)
                 else -> throw PublicKeyService.PublicKeyServiceException.UnknownException(UNEXPECTED_EXCEPTION, e)
             }

@@ -45,7 +45,7 @@ data class Transaction(
     val transactedAmount: CurrencyAmount,
     val description: String,
     val declineReason: DeclineReason? = null,
-    val details: List<TransactionDetailCharge> = emptyList()
+    val details: List<TransactionDetailCharge> = emptyList(),
 ) : Parcelable
 
 /**
@@ -70,7 +70,7 @@ data class PartialTransaction(
     val updatedAt: Date,
     val cardId: String,
     val sequenceId: String,
-    val type: TransactionType
+    val type: TransactionType,
 ) : Parcelable
 
 /**
@@ -91,5 +91,5 @@ enum class TransactionType {
     DECLINE,
 
     /** API Evolution - if this occurs, it may mean you need to update the library. */
-    UNKNOWN
+    UNKNOWN,
 }

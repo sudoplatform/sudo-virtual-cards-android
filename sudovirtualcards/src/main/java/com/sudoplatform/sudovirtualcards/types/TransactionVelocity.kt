@@ -36,5 +36,5 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class TransactionVelocity(
     val maximum: Int? = null,
-    val velocity: List<String>? = null
+    val velocity: List<String>? = null,
 ) : Parcelable

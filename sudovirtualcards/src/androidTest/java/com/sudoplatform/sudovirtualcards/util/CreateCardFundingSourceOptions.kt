@@ -19,12 +19,12 @@ data class CreateCardFundingSourceOptions(
     override val currency: String = "USD",
     override val supportedProviders: List<String>? = null,
     override val applicationName: String = "system-test-app",
-    val updateCardFundingSource: Boolean? = null
+    val updateCardFundingSource: Boolean? = null,
 ) : CreateFundingSourceOptions()
 
 data class CreateBankAccountFundingSourceOptions(
     override val currency: String = "USD",
     override val supportedProviders: List<String>? = null,
     override val applicationName: String = "system-test-app",
-    val username: String
+    val username: String,
 ) : CreateFundingSourceOptions()

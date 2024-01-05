@@ -24,5 +24,5 @@ enum class CardType {
     OTHER,
 
     /** Unknown card type. Please check you have the correct (latest) version of this SDK. */
-    UNKNOWN
+    UNKNOWN,
 }

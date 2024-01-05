@@ -14,5 +14,5 @@ package com.sudoplatform.sudovirtualcards.types
  */
 data class PlaidAccountMetadata(
     val accountId: String,
-    val subtype: BankAccountFundingSource.BankAccountType
+    val subtype: BankAccountFundingSource.BankAccountType,
 )

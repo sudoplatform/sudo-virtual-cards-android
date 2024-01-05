@@ -33,7 +33,7 @@ data class ProvisionalFundingSource(
     val updatedAt: Date,
     val type: FundingSourceType,
     val state: ProvisioningState,
-    val provisioningData: ProviderProvisioningData
+    val provisioningData: ProviderProvisioningData,
 ) : Parcelable {
     enum class ProvisioningState {
         /** Provisional funding source has completed provisioning */
@@ -49,6 +49,6 @@ data class ProvisionalFundingSource(
         PROVISIONING,
 
         /** Unknown state. Please check you have the correct (latest) version of this SDK. */
-        UNKNOWN
+        UNKNOWN,
     }
 }

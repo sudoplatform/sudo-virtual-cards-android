@@ -11,15 +11,6 @@ import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
 import com.sudoplatform.sudokeymanager.KeyManagerException
-import org.mockito.kotlin.any
-import org.mockito.kotlin.check
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
@@ -28,14 +19,12 @@ import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCurrencyAmountAt
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedMarkupAttribute
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedTransaction
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedTransactionDetailChargeAttribute
-import com.sudoplatform.sudovirtualcards.graphql.type.SortOrder as SortOrderEntity
 import com.sudoplatform.sudovirtualcards.graphql.type.TransactionType
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
 import com.sudoplatform.sudovirtualcards.types.DateRange
 import com.sudoplatform.sudovirtualcards.types.ListAPIResult
 import com.sudoplatform.sudovirtualcards.types.SortOrder
 import com.sudoplatform.sudovirtualcards.types.Transaction
-import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
 import io.kotlintest.matchers.doubles.shouldBeLessThan
 import io.kotlintest.shouldBe
@@ -54,9 +43,20 @@ import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.check
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import java.net.HttpURLConnection
 import java.util.Date
 import java.util.concurrent.CancellationException
+import com.sudoplatform.sudovirtualcards.graphql.type.SortOrder as SortOrderEntity
+import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
 
 /**
  * Test the correct operation of [SudoVirtualCardsClient.listTransactionsByCardId] using mocks
@@ -71,9 +71,9 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                 SealedCurrencyAmountAttribute(
                     "CurrencyAmount",
                     mockSeal("USD"),
-                    mockSeal("billedAmount")
-                )
-            )
+                    mockSeal("billedAmount"),
+                ),
+            ),
         )
     }
 
@@ -84,9 +84,9 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                 SealedCurrencyAmountAttribute(
                     "CurrencyAmount",
                     mockSeal("USD"),
-                    mockSeal("transactedAmount")
-                )
-            )
+                    mockSeal("transactedAmount"),
+                ),
+            ),
         )
     }
 
@@ -125,9 +125,9 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                                             SealedCurrencyAmountAttribute(
                                                 "CurrencyAmount",
                                                 mockSeal("USD"),
-                                                mockSeal("virtualCardAmount")
-                                            )
-                                        )
+                                                mockSeal("virtualCardAmount"),
+                                            ),
+                                        ),
                                     ),
                                     SealedTransactionDetailChargeAttribute.Markup(
                                         "Markup",
@@ -136,9 +136,9 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                                                 "SealedMarkupAttribute",
                                                 mockSeal("1"),
                                                 mockSeal("2"),
-                                                mockSeal("3")
-                                            )
-                                        )
+                                                mockSeal("3"),
+                                            ),
+                                        ),
                                     ),
                                     SealedTransactionDetailChargeAttribute.MarkupAmount(
                                         "MarkupAmount",
@@ -146,9 +146,9 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                                             SealedCurrencyAmountAttribute(
                                                 "CurrencyAmount",
                                                 mockSeal("USD"),
-                                                mockSeal("markupAmount")
-                                            )
-                                        )
+                                                mockSeal("markupAmount"),
+                                            ),
+                                        ),
                                     ),
                                     SealedTransactionDetailChargeAttribute.FundingSourceAmount(
                                         "FundingSourceAmount",
@@ -156,19 +156,19 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                                             SealedCurrencyAmountAttribute(
                                                 "CurrencyAmount",
                                                 mockSeal("USD"),
-                                                mockSeal("fundingSourceAmount")
-                                            )
-                                        )
+                                                mockSeal("fundingSourceAmount"),
+                                            ),
+                                        ),
                                     ),
                                     "fundingSourceId",
                                     mockSeal("description"),
-                                    mockSeal("CLEARED")
-                                )
-                            )
-                        )
-                    )
-                )
-            )
+                                    mockSeal("CLEARED"),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
         )
     }
 
@@ -240,7 +240,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                 limit = 1,
                 nextToken = null,
                 dateRange = DateRange(Date(), Date()),
-                sortOrder = SortOrder.DESC
+                sortOrder = SortOrder.DESC,
             )
         }
         deferredResult.start()
@@ -274,7 +274,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     it.variables().dateRange()?.startDateEpochMs()?.shouldBeLessThan(Date().time.toDouble())
                     it.variables().dateRange()?.endDateEpochMs()?.shouldBeLessThan(Date().time.toDouble())
                     it.variables().sortOrder() shouldBe SortOrderEntity.DESC
-                }
+                },
             )
         verify(mockKeyManager, times(17)).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockKeyManager, times(17)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
@@ -317,7 +317,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     it.variables().nextToken() shouldBe null
                     it.variables().dateRange() shouldBe null
                     it.variables().sortOrder() shouldBe SortOrderEntity.DESC
-                }
+                },
             )
         verify(mockKeyManager, times(17)).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockKeyManager, times(17)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
@@ -338,8 +338,8 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     1,
                     "dummyNextToken",
                     null,
-                    null
-                )
+                    null,
+                ),
             )
                 .data(ListTransactionsByCardIdQuery.Data(queryResultWithNextToken))
                 .build()
@@ -378,7 +378,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     it.variables().nextToken() shouldBe "dummyNextToken"
                     it.variables().dateRange() shouldBe null
                     it.variables().sortOrder() shouldBe SortOrderEntity.DESC
-                }
+                },
             )
         verify(mockKeyManager, times(17)).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockKeyManager, times(17)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
@@ -392,7 +392,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
             ListTransactionsByCardIdQuery.ListTransactionsByCardId2(
                 "ListTransactionsByCardId2",
                 emptyList(),
-                null
+                null,
             )
         }
 
@@ -433,7 +433,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     it.variables().nextToken() shouldBe null
                     it.variables().dateRange() shouldBe null
                     it.variables().sortOrder() shouldBe SortOrderEntity.DESC
-                }
+                },
             )
     }
 
@@ -478,7 +478,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     it.variables().nextToken() shouldBe null
                     it.variables().dateRange() shouldBe null
                     it.variables().sortOrder() shouldBe SortOrderEntity.DESC
-                }
+                },
             )
     }
 
@@ -538,7 +538,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
             ListTransactionsByCardIdQuery.ListTransactionsByCardId2(
                 "ListTransactionsByCardId2",
                 listOf(queryResultItem1, queryResultItem2, queryResultItem3),
-                null
+                null,
             )
         }
 
@@ -581,7 +581,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     it.variables().nextToken() shouldBe null
                     it.variables().dateRange() shouldBe null
                     it.variables().sortOrder() shouldBe SortOrderEntity.DESC
-                }
+                },
             )
         verify(mockKeyManager, times(18)).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockKeyManager, times(18)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
@@ -606,7 +606,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     it.variables().nextToken() shouldBe null
                     it.variables().dateRange() shouldBe null
                     it.variables().sortOrder() shouldBe SortOrderEntity.DESC
-                }
+                },
             )
     }
 
@@ -648,7 +648,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     it.variables().nextToken() shouldBe null
                     it.variables().dateRange() shouldBe null
                     it.variables().sortOrder() shouldBe SortOrderEntity.DESC
-                }
+                },
             )
     }
 
@@ -678,7 +678,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     it.variables().nextToken() shouldBe null
                     it.variables().dateRange() shouldBe null
                     it.variables().sortOrder() shouldBe SortOrderEntity.DESC
-                }
+                },
             )
     }
 
@@ -700,7 +700,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     it.variables().nextToken() shouldBe null
                     it.variables().dateRange() shouldBe null
                     it.variables().sortOrder() shouldBe SortOrderEntity.DESC
-                }
+                },
             )
     }
 
@@ -727,9 +727,9 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
                     transactedAmount,
                     mockSeal("description"),
                     null,
-                    emptyList()
-                )
-            )
+                    emptyList(),
+                ),
+            ),
         )
     }
 

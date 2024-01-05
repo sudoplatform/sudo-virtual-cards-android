@@ -12,5 +12,5 @@ package com.sudoplatform.sudovirtualcards.types
  * @property applicationName [String] Unique application name which maps to configuration data stored at the service.
  */
 data class ClientApplicationData(
-    val applicationName: String
+    val applicationName: String,
 )

@@ -70,7 +70,7 @@ data class CreditCardFundingSource(
     override val type: FundingSourceType = FundingSourceType.CREDIT_CARD,
     val last4: String,
     val network: CreditCardNetwork,
-    val cardType: CardType
+    val cardType: CardType,
 ) : FundingSource() {
     enum class CreditCardNetwork {
         AMEX,
@@ -83,7 +83,7 @@ data class CreditCardFundingSource(
         OTHER,
 
         /** Unknown network. Please check you have the correct (latest) version of this SDK. */
-        UNKNOWN
+        UNKNOWN,
     }
 }
 
@@ -119,14 +119,14 @@ data class BankAccountFundingSource(
     val bankAccountType: BankAccountType,
     val last4: String,
     val institutionName: String,
-    val institutionLogo: InstitutionLogo?
+    val institutionLogo: InstitutionLogo?,
 ) : FundingSource() {
     enum class BankAccountType {
         SAVING,
         CHECKING,
 
         /** Unknown bank account type. Please check you have the correct (latest) version of this SDK. */
-        UNKNOWN
+        UNKNOWN,
     }
 }
 
@@ -139,7 +139,7 @@ data class BankAccountFundingSource(
 @Parcelize
 data class InstitutionLogo(
     val type: String,
-    val data: String
+    val data: String,
 ) : Parcelable
 
 /**
@@ -157,5 +157,5 @@ enum class FundingSourceState {
     REFRESH,
 
     /** Unknown state. Please check you have the correct (latest) version of this SDK. */
-    UNKNOWN
+    UNKNOWN,
 }

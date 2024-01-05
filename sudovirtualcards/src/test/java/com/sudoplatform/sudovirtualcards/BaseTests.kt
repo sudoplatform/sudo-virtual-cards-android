@@ -6,9 +6,6 @@
 
 package com.sudoplatform.sudovirtualcards
 
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
 import com.sudoplatform.sudologging.LogDriverInterface
 import com.sudoplatform.sudologging.LogLevel
 import com.sudoplatform.sudologging.Logger
@@ -18,6 +15,9 @@ import com.sudoplatform.sudovirtualcards.rules.PropertyResetter
 import com.sudoplatform.sudovirtualcards.rules.TimberLogRule
 import org.bouncycastle.util.encoders.Base64
 import org.junit.Rule
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
 
 /**
  * Base class that sets up:

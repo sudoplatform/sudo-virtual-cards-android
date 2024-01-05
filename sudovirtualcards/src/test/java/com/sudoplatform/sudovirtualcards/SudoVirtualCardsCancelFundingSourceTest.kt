@@ -10,25 +10,15 @@ import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.CancelFundingSourceMutation
-import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource as BankAccountFundingSourceGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAttribute
 import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType
-import com.sudoplatform.sudovirtualcards.graphql.fragment.CreditCardFundingSource as CreditCardFundingSourceGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as FundingSourceStateGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.type.IdInput
 import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
@@ -51,7 +41,17 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import java.net.HttpURLConnection
+import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource as BankAccountFundingSourceGraphQL
+import com.sudoplatform.sudovirtualcards.graphql.fragment.CreditCardFundingSource as CreditCardFundingSourceGraphQL
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as FundingSourceStateGraphQL
 
 /**
  * Test the correct operation of [SudoVirtualCardsClient.cancelFundingSource]
@@ -66,7 +66,7 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
             return listOf(
                 "stripe",
                 "checkoutCard",
-                "checkoutBankAccount"
+                "checkoutBankAccount",
             )
         }
     }
@@ -93,15 +93,15 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
                         CreditCardFundingSourceGraphQL.TransactionVelocity(
                             "TransactionVelocity",
                             10000,
-                            listOf("10000/P1D")
+                            listOf("10000/P1D"),
                         ),
                         "last4",
                         CreditCardNetwork.VISA,
-                        CardType.CREDIT
-                    )
-                )
+                        CardType.CREDIT,
+                    ),
+                ),
             ),
-            null
+            null,
         )
     }
 
@@ -124,7 +124,7 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
                         BankAccountFundingSourceGraphQL.TransactionVelocity(
                             "TransactionVelocity",
                             10000,
-                            listOf("10000/P1D")
+                            listOf("10000/P1D"),
                         ),
                         BankAccountType.CHECKING,
                         BankAccountFundingSourceGraphQL.Authorization(
@@ -135,7 +135,7 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
                             "signature",
                             "keyId",
                             "algorithm",
-                            "data"
+                            "data",
                         ),
                         "last4",
                         BankAccountFundingSourceGraphQL.InstitutionName(
@@ -146,14 +146,14 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
                                     "keyId",
                                     "algorithm",
                                     "string",
-                                    mockSeal("base64EncodedSealedData")
-                                )
-                            )
+                                    mockSeal("base64EncodedSealedData"),
+                                ),
+                            ),
                         ),
-                        null
-                    )
-                )
-            )
+                        null,
+                    ),
+                ),
+            ),
         )
     }
 
@@ -173,7 +173,7 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
         mapOf(
             "stripe" to creditCardResponse,
             "checkoutCard" to creditCardResponse,
-            "checkoutBankAccount" to bankAccountResponse
+            "checkoutBankAccount" to bankAccountResponse,
         )
     }
 
@@ -313,7 +313,7 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "FundingSourceNotFoundError")
+                mapOf("errorType" to "FundingSourceNotFoundError"),
             )
             Response.builder<CancelFundingSourceMutation.Data>(CancelFundingSourceMutation(idInput))
                 .errors(listOf(error))
@@ -345,7 +345,7 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "AccountLockedError")
+                mapOf("errorType" to "AccountLockedError"),
             )
             Response.builder<CancelFundingSourceMutation.Data>(CancelFundingSourceMutation(idInput))
                 .errors(listOf(error))

@@ -6,10 +6,6 @@
 
 package com.sudoplatform.sudovirtualcards.keys
 
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
 import com.sudoplatform.sudokeymanager.KeyManagerException
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudovirtualcards.BaseTests
@@ -17,6 +13,10 @@ import io.kotlintest.shouldThrow
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -34,7 +34,7 @@ class DeviceKeyManagerExceptionTest : BaseTests() {
     private val deviceKeyManager by before {
         DefaultDeviceKeyManager(
             keyManager = mockKeyManager,
-            logger = mockLogger
+            logger = mockLogger,
         )
     }
 
@@ -97,7 +97,7 @@ class DeviceKeyManagerExceptionTest : BaseTests() {
             deviceKeyManager.decryptWithPrivateKey(
                 ByteArray(42),
                 "42",
-                KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1
+                KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
             )
         }
     }
@@ -110,7 +110,7 @@ class DeviceKeyManagerExceptionTest : BaseTests() {
         shouldThrow<DeviceKeyManager.DeviceKeyManagerException.DecryptionException> {
             deviceKeyManager.decryptWithSymmetricKey(
                 ByteArray(42),
-                ByteArray(42)
+                ByteArray(42),
             )
         }
     }
@@ -123,7 +123,7 @@ class DeviceKeyManagerExceptionTest : BaseTests() {
         shouldThrow<DeviceKeyManager.DeviceKeyManagerException.DecryptionException> {
             deviceKeyManager.decryptWithSymmetricKeyId(
                 "42",
-                ByteArray(42)
+                ByteArray(42),
             )
         }
     }
@@ -136,7 +136,7 @@ class DeviceKeyManagerExceptionTest : BaseTests() {
         shouldThrow<DeviceKeyManager.DeviceKeyManagerException.EncryptionException> {
             deviceKeyManager.encryptWithSymmetricKeyId(
                 "42",
-                ByteArray(42)
+                ByteArray(42),
             )
         }
     }

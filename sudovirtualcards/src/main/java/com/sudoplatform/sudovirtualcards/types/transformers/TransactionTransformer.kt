@@ -15,8 +15,8 @@ import com.sudoplatform.sudovirtualcards.types.Markup
 import com.sudoplatform.sudovirtualcards.types.PartialTransaction
 import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.TransactionDetailCharge
-import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
 import com.sudoplatform.sudovirtualcards.types.ChargeDetailState as ChargeDetailStateEntity
+import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
 
 /**
  * Transformer responsible for transforming the [Transaction] GraphQL data
@@ -33,7 +33,7 @@ internal object TransactionTransformer {
      */
     fun toEntity(
         deviceKeyManager: DeviceKeyManager,
-        transaction: SealedTransaction
+        transaction: SealedTransaction,
     ): Transaction {
         val keyInfo = KeyInfo(transaction.keyId(), KeyType.PRIVATE_KEY, transaction.algorithm())
         val unsealer = Unsealer(deviceKeyManager, keyInfo)
@@ -55,7 +55,7 @@ internal object TransactionTransformer {
             details = toEntityFromTransactionDetail(unsealer, detail()),
             transactedAt = unsealer.unseal(transactedAtEpochMs()).toDouble().toDate(),
             createdAt = createdAtEpochMs().toDate(),
-            updatedAt = updatedAtEpochMs().toDate()
+            updatedAt = updatedAtEpochMs().toDate(),
         )
     }
 
@@ -74,7 +74,7 @@ internal object TransactionTransformer {
             sequenceId = transaction.sequenceId(),
             type = transaction.type().toTransactionType(),
             createdAt = transaction.createdAtEpochMs().toDate(),
-            updatedAt = transaction.updatedAtEpochMs().toDate()
+            updatedAt = transaction.updatedAtEpochMs().toDate(),
         )
     }
 
@@ -89,7 +89,7 @@ internal object TransactionTransformer {
 
     private fun toEntityFromTransactionDetail(
         unsealer: Unsealer,
-        results: List<SealedTransaction.Detail>?
+        results: List<SealedTransaction.Detail>?,
     ): List<TransactionDetailCharge> {
         return results?.map { it.toTransactionDetailCharge(unsealer) }
             ?.toList()
@@ -101,22 +101,22 @@ internal object TransactionTransformer {
         val sealedMarkup = fragments().sealedTransactionDetailChargeAttribute().markup().fragments().sealedMarkupAttribute()
         return TransactionDetailCharge(
             virtualCardAmount = unsealer.unsealAmount(
-                sealedDetail.virtualCardAmount().fragments().sealedCurrencyAmountAttribute()
+                sealedDetail.virtualCardAmount().fragments().sealedCurrencyAmountAttribute(),
             ),
             markup = Markup(
                 percent = unsealer.unseal(sealedMarkup.percent()).toInt(),
                 flat = unsealer.unseal(sealedMarkup.flat()).toInt(),
-                minCharge = sealedMarkup.minCharge()?.let { unsealer.unseal(it).toInt() } ?: 0
+                minCharge = sealedMarkup.minCharge()?.let { unsealer.unseal(it).toInt() } ?: 0,
             ),
             markupAmount = unsealer.unsealAmount(
-                sealedDetail.markupAmount().fragments().sealedCurrencyAmountAttribute()
+                sealedDetail.markupAmount().fragments().sealedCurrencyAmountAttribute(),
             ),
             fundingSourceAmount = unsealer.unsealAmount(
-                sealedDetail.fundingSourceAmount().fragments().sealedCurrencyAmountAttribute()
+                sealedDetail.fundingSourceAmount().fragments().sealedCurrencyAmountAttribute(),
             ),
             fundingSourceId = sealedDetail.fundingSourceId(),
             description = unsealer.unseal(sealedDetail.description()),
-            state = sealedDetail.state()?.let { unsealer.unseal(it).toChargeDetailState() } ?: ChargeDetailStateEntity.CLEARED
+            state = sealedDetail.state()?.let { unsealer.unseal(it).toChargeDetailState() } ?: ChargeDetailStateEntity.CLEARED,
         )
     }
 }

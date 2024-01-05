@@ -22,7 +22,7 @@ data class FundingSourceClientConfiguration(
     val type: String = ProviderDefaults.configurationType,
     val fundingSourceType: FundingSourceType,
     val version: Int = ProviderDefaults.version,
-    val apiKey: String
+    val apiKey: String,
 ) : Parcelable
 
 /**
@@ -32,5 +32,5 @@ data class FundingSourceClientConfiguration(
  */
 @Parcelize
 data class FundingSourceTypes(
-    val fundingSourceTypes: List<FundingSourceClientConfiguration>
+    val fundingSourceTypes: List<FundingSourceClientConfiguration>,
 ) : Parcelable

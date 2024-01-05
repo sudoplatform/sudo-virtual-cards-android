@@ -47,13 +47,13 @@ data class VirtualCardsConfig(
     val bankAccountFundingSourceCreationEnabled: Boolean?,
     val fundingSourceClientConfiguration: List<FundingSourceClientConfiguration>,
     val clientApplicationConfiguration: Map<String, ClientApplicationConfiguration>,
-    val pricingPolicy: PricingPolicy?
+    val pricingPolicy: PricingPolicy?,
 ) : Parcelable
 
 @Parcelize
 data class CurrencyVelocity(
     val currency: String,
-    val velocity: List<String>
+    val velocity: List<String>,
 ) : Parcelable
 
 @Parcelize
@@ -61,10 +61,10 @@ data class FundingSourceSupportInfo(
     val providerType: String,
     val fundingSourceType: String,
     val network: String,
-    val detail: List<FundingSourceSupportDetail>
+    val detail: List<FundingSourceSupportDetail>,
 ) : Parcelable
 
 @Parcelize
 data class FundingSourceSupportDetail(
-    val cardType: CardType
+    val cardType: CardType,
 ) : Parcelable

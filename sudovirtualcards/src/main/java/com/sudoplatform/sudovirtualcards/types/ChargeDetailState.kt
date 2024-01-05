@@ -24,5 +24,5 @@ enum class ChargeDetailState {
     FAILED,
 
     /** Unknown charge detail state. Please check you have the correct (latest) version of this SDK. */
-    UNKNOWN
+    UNKNOWN,
 }

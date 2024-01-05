@@ -10,26 +10,16 @@ import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceQuery
-import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource as BankAccountFundingSourceGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAttribute
 import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType
-import com.sudoplatform.sudovirtualcards.graphql.fragment.CreditCardFundingSource as CreditCardFundingSourceGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as FundingSourceStateGraphQL
 import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
 import io.kotlintest.shouldBe
@@ -50,7 +40,17 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import java.net.HttpURLConnection
+import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource as BankAccountFundingSourceGraphQL
+import com.sudoplatform.sudovirtualcards.graphql.fragment.CreditCardFundingSource as CreditCardFundingSourceGraphQL
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as FundingSourceStateGraphQL
 
 /**
  * Test the correct operation of [SudoVirtualCardsClient.getFundingSource]
@@ -65,7 +65,7 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
             return listOf(
                 "stripe",
                 "checkoutCard",
-                "checkoutBankAccount"
+                "checkoutBankAccount",
             )
         }
     }
@@ -88,15 +88,15 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
                         CreditCardFundingSourceGraphQL.TransactionVelocity(
                             "TransactionVelocity",
                             10000,
-                            listOf("10000/P1D")
+                            listOf("10000/P1D"),
                         ),
                         "last4",
                         CreditCardNetwork.VISA,
-                        CardType.CREDIT
-                    )
-                )
+                        CardType.CREDIT,
+                    ),
+                ),
             ),
-            null
+            null,
         )
     }
 
@@ -119,7 +119,7 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
                         BankAccountFundingSourceGraphQL.TransactionVelocity(
                             "TransactionVelocity",
                             10000,
-                            listOf("10000/P1D")
+                            listOf("10000/P1D"),
                         ),
                         BankAccountType.CHECKING,
                         BankAccountFundingSourceGraphQL.Authorization(
@@ -130,7 +130,7 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
                             "signature",
                             "keyId",
                             "algorithm",
-                            "data"
+                            "data",
                         ),
                         "last4",
                         BankAccountFundingSourceGraphQL.InstitutionName(
@@ -141,14 +141,14 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
                                     "keyId",
                                     "algorithm",
                                     "string",
-                                    mockSeal("base64EncodedSealedData")
-                                )
-                            )
+                                    mockSeal("base64EncodedSealedData"),
+                                ),
+                            ),
                         ),
-                        null
-                    )
-                )
-            )
+                        null,
+                    ),
+                ),
+            ),
         )
     }
 
@@ -168,7 +168,7 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
         mapOf(
             "stripe" to creditCardResponse,
             "checkoutCard" to creditCardResponse,
-            "checkoutBankAccount" to bankAccountResponse
+            "checkoutBankAccount" to bankAccountResponse,
         )
     }
 
@@ -381,8 +381,7 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
     }
 
     @Test
-    fun `getFundingSource() should not suppress CancellationException()`
-    () = runBlocking<Unit> {
+    fun `getFundingSource() should not suppress CancellationException()`() = runBlocking<Unit> {
         holder.callback shouldBe null
 
         mockAppSyncClient.stub {

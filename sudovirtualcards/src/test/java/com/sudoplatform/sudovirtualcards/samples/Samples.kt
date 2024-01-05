@@ -7,12 +7,12 @@
 package com.sudoplatform.sudovirtualcards.samples
 
 import android.content.Context
-import org.mockito.kotlin.mock
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.BaseTests
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
 import org.robolectric.RobolectricTestRunner
 
 /**

@@ -37,7 +37,7 @@ class AndroidUnsealerTest : BaseIntegrationTest() {
 
     private val deviceKeyManager by lazy {
         DefaultDeviceKeyManager(
-            keyManager = keyManager
+            keyManager = keyManager,
         )
     }
 
@@ -66,7 +66,7 @@ class AndroidUnsealerTest : BaseIntegrationTest() {
         val encryptedKeyData = keyManager.encryptWithPublicKey(
             keyPair.keyId,
             symmetricKeyData,
-            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1
+            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
         )
 
         val encryptedData = keyManager.encryptWithSymmetricKey(symmetricKeyId, clearText.toByteArray())
@@ -99,7 +99,7 @@ class AndroidUnsealerTest : BaseIntegrationTest() {
             val encryptedKeyData = keyManager.encryptWithPublicKey(
                 keyPair.keyId,
                 symmetricKeyData,
-                KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1
+                KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
             )
 
             val encryptedData = keyManager.encryptWithSymmetricKey(symmetricKeyId, clearText.toByteArray())

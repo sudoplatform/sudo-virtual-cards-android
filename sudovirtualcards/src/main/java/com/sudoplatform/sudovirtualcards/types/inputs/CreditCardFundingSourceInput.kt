@@ -32,5 +32,5 @@ data class CreditCardFundingSourceInput(
     val state: String,
     val postalCode: String,
     val country: String,
-    val name: String? = null
+    val name: String? = null,
 )

@@ -19,14 +19,14 @@ import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 
 class ProviderAPIs(
     val stripe: Stripe?,
-    val checkout: CheckoutAPIClient?
+    val checkout: CheckoutAPIClient?,
 )
 
 class FundingSourceProviders(
     val stripeCardEnabled: Boolean,
     val checkoutCardEnabled: Boolean,
     val checkoutBankAccountEnabled: Boolean,
-    val apis: ProviderAPIs
+    val apis: ProviderAPIs,
 ) {
     companion object {
         /**
@@ -38,7 +38,7 @@ class FundingSourceProviders(
          */
         suspend fun getFundingSourceProviders(
             client: SudoVirtualCardsClient,
-            context: Context
+            context: Context,
         ): FundingSourceProviders {
             var stripe: Stripe? = null
             var checkout: CheckoutAPIClient? = null
@@ -67,7 +67,7 @@ class FundingSourceProviders(
                 stripeCardEnabled,
                 checkoutCardEnabled,
                 checkoutBankAccountEnabled,
-                ProviderAPIs(stripe, checkout)
+                ProviderAPIs(stripe, checkout),
             )
         }
     }

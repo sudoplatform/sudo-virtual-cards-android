@@ -10,14 +10,6 @@ import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
@@ -27,16 +19,15 @@ import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAddressAttribute
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCard
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCardWithLastTransaction
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedExpiryAttribute
-import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
-import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
+import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
-import kotlinx.coroutines.async
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
@@ -46,8 +37,17 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import java.net.HttpURLConnection
 import java.util.Date
+import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 
 /**
  * Test the correct operation of [SudoVirtualCardsClient.getVirtualCard]
@@ -66,9 +66,9 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
                     mockSeal("city"),
                     mockSeal("state"),
                     mockSeal("postalCode"),
-                    mockSeal("country")
-                )
-            )
+                    mockSeal("country"),
+                ),
+            ),
         )
     }
 
@@ -79,9 +79,9 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
                 SealedExpiryAttribute(
                     "SealedExpiryAttribute",
                     mockSeal("01"),
-                    mockSeal("2021")
-                )
-            )
+                    mockSeal("2021"),
+                ),
+            ),
         )
     }
 
@@ -116,11 +116,11 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
                             mockSeal("csc"),
                             billingAddress,
                             expiry,
-                            null
-                        )
-                    )
-                )
-            )
+                            null,
+                        ),
+                    ),
+                ),
+            ),
         )
     }
 
@@ -160,7 +160,7 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
 
     private val currentKey = PublicKey(
         keyId = "keyId",
-        publicKey = "publicKey".toByteArray()
+        publicKey = "publicKey".toByteArray(),
     )
 
     private val mockPublicKeyService by before {
@@ -192,7 +192,7 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
             mockUserClient,
             mockKeyManager,
             mockPublicKeyService,
-            mockAppSyncClient
+            mockAppSyncClient,
         )
     }
 
@@ -299,7 +299,7 @@ class SudoVirtualCardsGetVirtualCardTest : BaseTests() {
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "IdentityVerificationNotVerifiedError")
+                mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
             )
             Response.builder<GetCardQuery.Data>(GetCardQuery("id", "keyId"))
                 .errors(listOf(error))

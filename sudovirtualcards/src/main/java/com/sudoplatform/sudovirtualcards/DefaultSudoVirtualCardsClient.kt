@@ -20,18 +20,18 @@ import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.extensions.enqueue
 import com.sudoplatform.sudovirtualcards.extensions.enqueueFirst
 import com.sudoplatform.sudovirtualcards.graphql.CancelFundingSourceMutation
-import com.sudoplatform.sudovirtualcards.graphql.GetCardQuery
-import com.sudoplatform.sudovirtualcards.graphql.GetVirtualCardsConfigQuery
-import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceQuery
-import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceClientConfigurationQuery
-import com.sudoplatform.sudovirtualcards.graphql.GetProvisionalCardQuery
-import com.sudoplatform.sudovirtualcards.graphql.GetTransactionQuery
-import com.sudoplatform.sudovirtualcards.graphql.ListCardsQuery
-import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
-import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsByCardIdQuery
 import com.sudoplatform.sudovirtualcards.graphql.CancelVirtualCardMutation
 import com.sudoplatform.sudovirtualcards.graphql.CompleteFundingSourceMutation
+import com.sudoplatform.sudovirtualcards.graphql.GetCardQuery
+import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceClientConfigurationQuery
+import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceQuery
+import com.sudoplatform.sudovirtualcards.graphql.GetProvisionalCardQuery
+import com.sudoplatform.sudovirtualcards.graphql.GetTransactionQuery
+import com.sudoplatform.sudovirtualcards.graphql.GetVirtualCardsConfigQuery
+import com.sudoplatform.sudovirtualcards.graphql.ListCardsQuery
+import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsByCardIdAndTypeQuery
+import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsByCardIdQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsQuery
 import com.sudoplatform.sudovirtualcards.graphql.ProvisionVirtualCardMutation
 import com.sudoplatform.sudovirtualcards.graphql.RefreshFundingSourceMutation
@@ -82,8 +82,8 @@ import com.sudoplatform.sudovirtualcards.types.SandboxPlaidData
 import com.sudoplatform.sudovirtualcards.types.SerializedCheckoutBankAccountCompletionData
 import com.sudoplatform.sudovirtualcards.types.SerializedCheckoutBankAccountRefreshData
 import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
-import com.sudoplatform.sudovirtualcards.types.StripeCardProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.SortOrder
+import com.sudoplatform.sudovirtualcards.types.StripeCardProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.TransactionType
 import com.sudoplatform.sudovirtualcards.types.VirtualCard
@@ -124,7 +124,7 @@ internal class DefaultSudoVirtualCardsClient(
     private val sudoUserClient: SudoUserClient,
     private val logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO)),
     private val deviceKeyManager: DeviceKeyManager,
-    private val publicKeyService: PublicKeyService
+    private val publicKeyService: PublicKeyService,
 ) : SudoVirtualCardsClient {
 
     companion object {
@@ -187,7 +187,7 @@ internal class DefaultSudoVirtualCardsClient(
      * and allow us to retry. The value of `version` doesn't need to be kept up-to-date with the
      * version of the code.
      */
-    private val version: String = "12.0.0"
+    private val version: String = "13.0.0"
 
     /** This manages the subscriptions to transaction updates and deletes */
     private val subscriptions = SubscriptionService(appSyncClient, deviceKeyManager, sudoUserClient, logger)
@@ -202,7 +202,8 @@ internal class DefaultSudoVirtualCardsClient(
             logger.error("unexpected error $e")
             when (e) {
                 is CancellationException,
-                is PublicKeyService.PublicKeyServiceException ->
+                is PublicKeyService.PublicKeyServiceException,
+                ->
                     throw SudoVirtualCardsClient.VirtualCardException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG, e)
                 is SudoVirtualCardsClient.VirtualCardException -> throw e
                 else -> throw SudoVirtualCardsClient.VirtualCardException.UnknownException(e)
@@ -214,7 +215,7 @@ internal class DefaultSudoVirtualCardsClient(
     override suspend fun setupFundingSource(input: SetupFundingSourceInput): ProvisionalFundingSource {
         try {
             val setupData = ProviderSetupData(
-                applicationName = input.applicationData.applicationName
+                applicationName = input.applicationData.applicationName,
             )
             val setupDataString = Gson().toJson(setupData)
             val encodedSetupData = Base64.encode(setupDataString.toByteArray()).toString(Charsets.UTF_8)
@@ -274,7 +275,7 @@ internal class DefaultSudoVirtualCardsClient(
                     hash = input.completionData.authorizationText.hash,
                     hashAlgorithm = input.completionData.authorizationText.hashAlgorithm,
                     account = input.completionData.accountId,
-                    signedAt = signedAt
+                    signedAt = signedAt,
                 )
                 val data = Gson().toJson(authorizationTextSignatureData)
                 val signature = signingService.signString(data, publicKey.keyId, KeyType.PRIVATE_KEY)
@@ -282,7 +283,7 @@ internal class DefaultSudoVirtualCardsClient(
                     data,
                     algorithm = "RSASignatureSSAPKCS15SHA256",
                     keyId = publicKey.keyId,
-                    signature = signature
+                    signature = signature,
                 )
                 val completionData = SerializedCheckoutBankAccountCompletionData(
                     provider = provider,
@@ -292,7 +293,7 @@ internal class DefaultSudoVirtualCardsClient(
                     publicToken = input.completionData.publicToken,
                     accountId = input.completionData.accountId,
                     institutionId = input.completionData.institutionId,
-                    authorizationTextSignature = authorizationTextSignature
+                    authorizationTextSignature = authorizationTextSignature,
                 )
 
                 val completionDataString = Gson().toJson(completionData)
@@ -348,7 +349,7 @@ internal class DefaultSudoVirtualCardsClient(
                     val authorizationTextSignatureData = SignatureData(
                         hash = input.refreshData.authorizationText.hash,
                         hashAlgorithm = input.refreshData.authorizationText.hashAlgorithm,
-                        account = input.refreshData.accountId
+                        account = input.refreshData.accountId,
                     )
                     val data = Gson().toJson(authorizationTextSignatureData)
                     val signature = signingService.signString(data, publicKey.keyId, KeyType.PRIVATE_KEY)
@@ -356,7 +357,7 @@ internal class DefaultSudoVirtualCardsClient(
                         data,
                         algorithm = "RSASignatureSSAPKCS15SHA256",
                         keyId = publicKey.keyId,
-                        signature = signature
+                        signature = signature,
                     )
                 }
                 val refreshData = SerializedCheckoutBankAccountRefreshData(
@@ -365,7 +366,7 @@ internal class DefaultSudoVirtualCardsClient(
                     type = FundingSourceType.BANK_ACCOUNT,
                     applicationName = applicationName,
                     keyId = publicKey.keyId,
-                    authorizationTextSignature = authorizationTextSignature
+                    authorizationTextSignature = authorizationTextSignature,
                 )
                 val refreshDataString = Gson().toJson(refreshData)
                 encodedRefreshData = Base64.encode(refreshDataString.toByteArray()).toString(Charsets.UTF_8)
@@ -407,7 +408,7 @@ internal class DefaultSudoVirtualCardsClient(
 
     @Deprecated(
         "Use getVirtualCardsConfig instead to retrieve the FundingSourceClientConfiguration",
-        ReplaceWith("getVirtualCardsConfig")
+        ReplaceWith("getVirtualCardsConfig"),
     )
     @Throws(SudoVirtualCardsClient.FundingSourceException::class)
     override suspend fun getFundingSourceClientConfiguration(): List<FundingSourceClientConfiguration> {
@@ -472,7 +473,7 @@ internal class DefaultSudoVirtualCardsClient(
     override suspend fun listFundingSources(
         limit: Int,
         nextToken: String?,
-        cachePolicy: CachePolicy
+        cachePolicy: CachePolicy,
     ): ListOutput<FundingSource> {
         try {
             val query = ListFundingSourcesQuery.builder()
@@ -662,7 +663,7 @@ internal class DefaultSudoVirtualCardsClient(
     override suspend fun listVirtualCards(
         limit: Int,
         nextToken: String?,
-        cachePolicy: CachePolicy
+        cachePolicy: CachePolicy,
     ): ListAPIResult<VirtualCard, PartialVirtualCard> {
         try {
             val query = ListCardsQuery.builder()
@@ -689,7 +690,7 @@ internal class DefaultSudoVirtualCardsClient(
                 try {
                     val unsealedCard = VirtualCardTransformer.toEntity(
                         deviceKeyManager,
-                        sealedCard.fragments().sealedCardWithLastTransaction()
+                        sealedCard.fragments().sealedCardWithLastTransaction(),
                     )
                     success.add(unsealedCard)
                 } catch (e: Exception) {
@@ -742,7 +743,7 @@ internal class DefaultSudoVirtualCardsClient(
                 try {
                     val unsealedUpdatedCard = VirtualCardTransformer.toEntity(
                         deviceKeyManager,
-                        updatedCard.fragments().sealedCardWithLastTransaction()
+                        updatedCard.fragments().sealedCardWithLastTransaction(),
                     )
                     return SingleAPIResult.Success(unsealedUpdatedCard)
                 } catch (e: Exception) {
@@ -788,12 +789,12 @@ internal class DefaultSudoVirtualCardsClient(
                 try {
                     val unsealedCancelledCard = VirtualCardTransformer.toEntity(
                         deviceKeyManager,
-                        cancelledCard.fragments().sealedCardWithLastTransaction()
+                        cancelledCard.fragments().sealedCardWithLastTransaction(),
                     )
                     return SingleAPIResult.Success(unsealedCancelledCard)
                 } catch (e: Exception) {
                     val partialCancelledCard = VirtualCardTransformer.toPartialEntity(
-                        cancelledCard.fragments().sealedCardWithLastTransaction()
+                        cancelledCard.fragments().sealedCardWithLastTransaction(),
                     )
                     val partialResult = PartialResult(partialCancelledCard, e)
                     return SingleAPIResult.Partial(partialResult)
@@ -848,7 +849,7 @@ internal class DefaultSudoVirtualCardsClient(
         nextToken: String?,
         cachePolicy: CachePolicy,
         dateRange: DateRange?,
-        sortOrder: SortOrder
+        sortOrder: SortOrder,
     ): ListAPIResult<Transaction, PartialTransaction> {
         try {
             val query = ListTransactionsByCardIdQuery.builder()
@@ -902,7 +903,7 @@ internal class DefaultSudoVirtualCardsClient(
         transactionType: TransactionType,
         limit: Int,
         nextToken: String?,
-        cachePolicy: CachePolicy
+        cachePolicy: CachePolicy,
     ): ListAPIResult<Transaction, PartialTransaction> {
         try {
             val query = ListTransactionsByCardIdAndTypeQuery.builder()
@@ -910,8 +911,8 @@ internal class DefaultSudoVirtualCardsClient(
                 .transactionType(
                     transactionType.toTransactionType()
                         ?: throw SudoVirtualCardsClient.TransactionException.UnsupportedTransactionTypeException(
-                            UNSUPPORTED_TRANSACTION_TYPE_MSG
-                        )
+                            UNSUPPORTED_TRANSACTION_TYPE_MSG,
+                        ),
                 )
                 .limit(limit)
                 .nextToken(nextToken)
@@ -960,7 +961,7 @@ internal class DefaultSudoVirtualCardsClient(
         nextToken: String?,
         cachePolicy: CachePolicy,
         dateRange: DateRange?,
-        sortOrder: SortOrder
+        sortOrder: SortOrder,
     ): ListAPIResult<Transaction, PartialTransaction> {
         try {
             val query = ListTransactionsQuery.builder()
@@ -1045,7 +1046,7 @@ internal class DefaultSudoVirtualCardsClient(
                         .builder()
                         .institutionId(institutionId)
                         .username(plaidUsername)
-                        .build()
+                        .build(),
                 )
                 .build()
 
@@ -1065,7 +1066,7 @@ internal class DefaultSudoVirtualCardsClient(
                 queryResult.accountMetadata().map {
                     PlaidAccountMetadata(it.accountId(), interpretPlaidAccountSubtype(it.subtype()))
                 },
-                queryResult.publicToken()
+                queryResult.publicToken(),
             )
 
             return result
@@ -1086,7 +1087,7 @@ internal class DefaultSudoVirtualCardsClient(
                     SandboxSetFundingSourceToRequireRefreshRequest
                         .builder()
                         .fundingSourceId(fundingSourceId)
-                        .build()
+                        .build(),
                 )
                 .build()
 
@@ -1100,7 +1101,7 @@ internal class DefaultSudoVirtualCardsClient(
 
             val mutationResult = mutationResponse.data()?.sandboxSetFundingSourceToRequireRefresh()
                 ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(
-                    "No data returned setting funding source to require refresh"
+                    "No data returned setting funding source to require refresh",
                 )
 
             return FundingSourceTransformer.toEntityFromSandboxSetFundingSourceToRequireRefreshResult(deviceKeyManager, mutationResult)
@@ -1182,7 +1183,7 @@ internal class DefaultSudoVirtualCardsClient(
     private fun deduplicateListVirtualCardResult(
         success: List<VirtualCard>,
         partials: List<PartialResult<PartialVirtualCard>>,
-        nextToken: String?
+        nextToken: String?,
     ): ListAPIResult<VirtualCard, PartialVirtualCard> {
         // Remove duplicate success and partial virtual cards based on id
         val distinctSuccess = success.distinctBy { it.id }.toMutableList()
@@ -1212,7 +1213,7 @@ internal class DefaultSudoVirtualCardsClient(
     private fun deduplicateListTransactionResult(
         success: List<Transaction>,
         partials: List<PartialResult<PartialTransaction>>,
-        nextToken: String?
+        nextToken: String?,
     ): ListAPIResult<Transaction, PartialTransaction> {
         // Remove duplicate success and partial transactions based on id
         val distinctSuccess = success.distinctBy { it.id }.toMutableList()
@@ -1233,7 +1234,8 @@ internal class DefaultSudoVirtualCardsClient(
     private fun interpretFundingSourceException(e: Throwable): Throwable {
         return when (e) {
             is CancellationException,
-            is SudoVirtualCardsClient.FundingSourceException -> e
+            is SudoVirtualCardsClient.FundingSourceException,
+            -> e
             else -> SudoVirtualCardsClient.FundingSourceException.UnknownException(e)
         }
     }
@@ -1241,7 +1243,8 @@ internal class DefaultSudoVirtualCardsClient(
     private fun interpretVirtualCardException(e: Throwable): Throwable {
         return when (e) {
             is CancellationException,
-            is SudoVirtualCardsClient.VirtualCardException -> e
+            is SudoVirtualCardsClient.VirtualCardException,
+            -> e
             is PublicKeyService.PublicKeyServiceException ->
                 SudoVirtualCardsClient.VirtualCardException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG, e)
             is Unsealer.UnsealerException ->
@@ -1255,7 +1258,8 @@ internal class DefaultSudoVirtualCardsClient(
     private fun interpretTransactionException(e: Throwable): Throwable {
         return when (e) {
             is CancellationException,
-            is SudoVirtualCardsClient.TransactionException -> e
+            is SudoVirtualCardsClient.TransactionException,
+            -> e
             is PublicKeyService.PublicKeyServiceException ->
                 SudoVirtualCardsClient.TransactionException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG, e)
             is Unsealer.UnsealerException ->
@@ -1269,7 +1273,7 @@ internal class DefaultSudoVirtualCardsClient(
         val error = e.customAttributes()[ERROR_TYPE]?.toString() ?: ""
         if (error.contains(ERROR_PROVISIONAL_FUNDING_SOURCE_NOT_FOUND)) {
             return SudoVirtualCardsClient.FundingSourceException.ProvisionalFundingSourceNotFoundException(
-                PROVISIONAL_FUNDING_SOURCE_NOT_FOUND_MSG
+                PROVISIONAL_FUNDING_SOURCE_NOT_FOUND_MSG,
             )
         }
         if (error.contains(ERROR_FUNDING_SOURCE_NOT_FOUND)) {
@@ -1290,12 +1294,12 @@ internal class DefaultSudoVirtualCardsClient(
                 val interactionData = SudoVirtualCardsClient.FundingSourceInteractionData.decode(errorInfo)
                 SudoVirtualCardsClient.FundingSourceException.FundingSourceRequiresUserInteractionException(
                     FUNDING_SOURCE_REQUIRES_USER_INTERACTION_MSG,
-                    ProviderDataTransformer.toUserInteractionData(interactionData.provisioningData)
+                    ProviderDataTransformer.toUserInteractionData(interactionData.provisioningData),
                 )
             } catch (e: Throwable) {
                 SudoVirtualCardsClient.FundingSourceException.FailedException(
                     message = "Invalid user interaction data during funding source setup",
-                    cause = e
+                    cause = e,
                 )
             }
         }

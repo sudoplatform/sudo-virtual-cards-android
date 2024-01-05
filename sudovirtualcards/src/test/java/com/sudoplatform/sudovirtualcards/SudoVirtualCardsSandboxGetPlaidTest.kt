@@ -11,13 +11,6 @@ import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.SandboxGetPlaidDataQuery
@@ -28,9 +21,9 @@ import com.sudoplatform.sudovirtualcards.types.PlaidAccountMetadata
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
-import kotlinx.coroutines.async
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
@@ -39,6 +32,13 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import java.net.HttpURLConnection
 
 /**
@@ -54,25 +54,25 @@ class SudoVirtualCardsSandboxGetPlaidTest : BaseTests() {
                 SandboxGetPlaidDataQuery.AccountMetadatum(
                     "AccountMetadata",
                     "checkingAccountId",
-                    "checking"
+                    "checking",
                 ),
                 SandboxGetPlaidDataQuery.AccountMetadatum(
                     "AccountMetadata",
                     "savingsAccountId",
-                    "savings"
+                    "savings",
                 ),
                 SandboxGetPlaidDataQuery.AccountMetadatum(
                     "AccountMetadata",
                     "otherAccountId",
-                    "other"
+                    "other",
                 ),
                 SandboxGetPlaidDataQuery.AccountMetadatum(
                     "AccountMetadata",
                     "unspecifiedAccountId",
-                    null
-                )
+                    null,
+                ),
             ),
-            "publicToken"
+            "publicToken",
         )
     }
 
@@ -83,8 +83,8 @@ class SudoVirtualCardsSandboxGetPlaidTest : BaseTests() {
                     .builder()
                     .institutionId("institutionId")
                     .username("plaidUsername")
-                    .build()
-            )
+                    .build(),
+            ),
         )
             .data(SandboxGetPlaidDataQuery.Data(queryResult))
             .build()
@@ -137,7 +137,7 @@ class SudoVirtualCardsSandboxGetPlaidTest : BaseTests() {
             mockUserClient,
             mockAppSyncClient,
             mockKeyManager,
-            mockPublicKeyService
+            mockPublicKeyService,
         )
     }
 
@@ -162,7 +162,7 @@ class SudoVirtualCardsSandboxGetPlaidTest : BaseTests() {
                 PlaidAccountMetadata("checkingAccountId", BankAccountFundingSource.BankAccountType.CHECKING),
                 PlaidAccountMetadata("savingsAccountId", BankAccountFundingSource.BankAccountType.SAVING),
                 PlaidAccountMetadata("otherAccountId", BankAccountFundingSource.BankAccountType.UNKNOWN),
-                PlaidAccountMetadata("unspecifiedAccountId", BankAccountFundingSource.BankAccountType.UNKNOWN)
+                PlaidAccountMetadata("unspecifiedAccountId", BankAccountFundingSource.BankAccountType.UNKNOWN),
             )
             publicToken shouldBe "publicToken"
         }
@@ -180,8 +180,8 @@ class SudoVirtualCardsSandboxGetPlaidTest : BaseTests() {
                         .builder()
                         .institutionId("institutionId")
                         .username("plaidUsername")
-                        .build()
-                )
+                        .build(),
+                ),
             )
                 .data(null)
                 .build()
@@ -209,7 +209,7 @@ class SudoVirtualCardsSandboxGetPlaidTest : BaseTests() {
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "IdentityVerificationNotVerifiedError")
+                mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
             )
             Response.builder<SandboxGetPlaidDataQuery.Data>(
                 SandboxGetPlaidDataQuery(
@@ -217,8 +217,8 @@ class SudoVirtualCardsSandboxGetPlaidTest : BaseTests() {
                         .builder()
                         .institutionId("institutionId")
                         .username("plaidUsername")
-                        .build()
-                )
+                        .build(),
+                ),
             )
                 .errors(listOf(error))
                 .data(null)

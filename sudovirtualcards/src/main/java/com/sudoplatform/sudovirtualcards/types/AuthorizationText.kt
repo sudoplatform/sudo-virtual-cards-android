@@ -29,5 +29,5 @@ data class AuthorizationText(
     val content: String,
     val contentType: String,
     val hash: String,
-    val hashAlgorithm: String
+    val hashAlgorithm: String,
 ) : Parcelable

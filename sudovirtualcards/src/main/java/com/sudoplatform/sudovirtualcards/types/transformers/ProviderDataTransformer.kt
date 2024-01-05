@@ -8,11 +8,11 @@ package com.sudoplatform.sudovirtualcards.types.transformers
 
 import com.amazonaws.util.Base64
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
-import com.google.gson.JsonElement
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonParseException
 import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonDeserializer
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import com.google.gson.JsonParseException
 import com.sudoplatform.sudovirtualcards.types.BaseProvisioningData
 import com.sudoplatform.sudovirtualcards.types.BaseUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
@@ -22,7 +22,6 @@ import com.sudoplatform.sudovirtualcards.types.CheckoutCardUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.ProviderProvisioningData
 import com.sudoplatform.sudovirtualcards.types.ProviderUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
-
 import java.lang.reflect.Type
 
 /**
@@ -72,7 +71,7 @@ class ProvisioningDataDeserializer : JsonDeserializer<ProviderProvisioningData> 
     override fun deserialize(
         jElement: JsonElement,
         typeOfT: Type?,
-        context: JsonDeserializationContext?
+        context: JsonDeserializationContext?,
     ): ProviderProvisioningData {
         val jObject = jElement.asJsonObject
         val provider = ProviderDataTransformer.extractAsStringOrThrow(jObject, "provider")
@@ -96,7 +95,7 @@ class UserInteractionDataDeserializer : JsonDeserializer<ProviderUserInteraction
     override fun deserialize(
         jElement: JsonElement,
         typeOfT: Type?,
-        context: JsonDeserializationContext?
+        context: JsonDeserializationContext?,
     ): ProviderUserInteractionData {
         val jObject = jElement.asJsonObject
         val provider = ProviderDataTransformer.extractAsStringOrThrow(jObject, "provider")

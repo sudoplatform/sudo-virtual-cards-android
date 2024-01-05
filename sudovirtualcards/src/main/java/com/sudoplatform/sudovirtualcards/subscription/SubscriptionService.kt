@@ -35,7 +35,7 @@ internal class SubscriptionService(
     private val appSyncClient: AWSAppSyncClient,
     private val deviceKeyManager: DeviceKeyManager,
     private val userClient: SudoUserClient,
-    private val logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO))
+    private val logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO)),
 ) : AutoCloseable {
 
     companion object {
@@ -59,7 +59,7 @@ internal class SubscriptionService(
                 val watcher = appSyncClient.subscribe(
                     OnTransactionUpdateSubscription.builder()
                         .owner(userSubject)
-                        .build()
+                        .build(),
                 )
                 txnUpdateSubscriptionManager.pendingWatcher = watcher
                 watcher.execute(updateCallback)
@@ -69,7 +69,7 @@ internal class SubscriptionService(
                 val watcher = appSyncClient.subscribe(
                     OnTransactionDeleteSubscription.builder()
                         .owner(userSubject)
-                        .build()
+                        .build(),
                 )
                 txnDeleteSubscriptionManager.pendingWatcher = watcher
                 watcher.execute(deleteCallback)
@@ -87,7 +87,7 @@ internal class SubscriptionService(
                 val watcher = appSyncClient.subscribe(
                     OnFundingSourceUpdateSubscription.builder()
                         .owner(userSubject)
-                        .build()
+                        .build(),
                 )
                 fsUpdateSubscriptionManager.pendingWatcher = watcher
                 watcher.execute(fundingSourceCallback)
@@ -130,7 +130,7 @@ internal class SubscriptionService(
                 val transactionUpdate = response.data()?.onTransactionUpdate()
                     ?: return@launch
                 txnUpdateSubscriptionManager.transactionChanged(
-                    TransactionTransformer.toEntity(deviceKeyManager, transactionUpdate.fragments().sealedTransaction())
+                    TransactionTransformer.toEntity(deviceKeyManager, transactionUpdate.fragments().sealedTransaction()),
                 )
             }
         }
@@ -143,7 +143,7 @@ internal class SubscriptionService(
             txnUpdateSubscriptionManager
                 .watcher = txnUpdateSubscriptionManager.pendingWatcher
             txnUpdateSubscriptionManager.connectionStatusChanged(
-                Subscriber.ConnectionState.CONNECTED
+                Subscriber.ConnectionState.CONNECTED,
             )
         }
     }
@@ -159,7 +159,7 @@ internal class SubscriptionService(
                 val fundingSourceUpdate = response.data()?.onFundingSourceUpdate()
                     ?: return@launch
                 fsUpdateSubscriptionManager.fundingSourceChanged(
-                    FundingSourceTransformer.toEntityFromFundingSourceUpdateSubscriptionResult(deviceKeyManager, fundingSourceUpdate)
+                    FundingSourceTransformer.toEntityFromFundingSourceUpdateSubscriptionResult(deviceKeyManager, fundingSourceUpdate),
                 )
             }
         }
@@ -172,7 +172,7 @@ internal class SubscriptionService(
             fsUpdateSubscriptionManager
                 .watcher = fsUpdateSubscriptionManager.pendingWatcher
             fsUpdateSubscriptionManager.connectionStatusChanged(
-                Subscriber.ConnectionState.CONNECTED
+                Subscriber.ConnectionState.CONNECTED,
             )
         }
     }
@@ -188,7 +188,7 @@ internal class SubscriptionService(
                 val transactionDelete = response.data()?.onTransactionDelete()
                     ?: return@launch
                 txnDeleteSubscriptionManager.transactionChanged(
-                    TransactionTransformer.toEntity(deviceKeyManager, transactionDelete.fragments().sealedTransaction())
+                    TransactionTransformer.toEntity(deviceKeyManager, transactionDelete.fragments().sealedTransaction()),
                 )
             }
         }
@@ -201,7 +201,7 @@ internal class SubscriptionService(
             txnDeleteSubscriptionManager
                 .watcher = txnDeleteSubscriptionManager.pendingWatcher
             txnDeleteSubscriptionManager.connectionStatusChanged(
-                Subscriber.ConnectionState.CONNECTED
+                Subscriber.ConnectionState.CONNECTED,
             )
         }
     }

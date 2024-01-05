@@ -18,5 +18,5 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class CurrencyAmount(
     val currency: String,
-    val amount: Int
+    val amount: Int,
 ) : Parcelable

@@ -15,10 +15,10 @@ import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.ProvisionVirtualCardMutation
 import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalCard
-import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.graphql.type.AddressInput
 import com.sudoplatform.sudovirtualcards.graphql.type.CardProvisionRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisioningState
+import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyWithKeyRingId
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
@@ -62,7 +62,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             "state",
             "postalCode",
             "country",
-            "currency"
+            "currency",
         )
     }
 
@@ -103,9 +103,9 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
                     1.0,
                     "clientRefId",
                     ProvisioningState.PROVISIONING,
-                    emptyList()
-                )
-            )
+                    emptyList(),
+                ),
+            ),
         )
     }
 
@@ -143,12 +143,12 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
 
     private val currentKey = PublicKey(
         keyId = "keyId",
-        publicKey = "publicKey".toByteArray()
+        publicKey = "publicKey".toByteArray(),
     )
 
     private val currentKeyWithKeyRingId = PublicKeyWithKeyRingId(
         publicKey = currentKey,
-        keyRingId = "keyRingId"
+        keyRingId = "keyRingId",
     )
 
     private val mockPublicKeyService by before {
@@ -185,7 +185,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             mockUserClient,
             mockKeyManager,
             mockPublicKeyService,
-            mockAppSyncClient
+            mockAppSyncClient,
         )
     }
 
@@ -270,7 +270,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "IdentityVerificationNotVerifiedError")
+                mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
             )
             Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
@@ -303,7 +303,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "IdentityVerificationInsufficientError")
+                mapOf("errorType" to "IdentityVerificationInsufficientError"),
             )
             Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
@@ -336,7 +336,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "FundingSourceNotFoundError")
+                mapOf("errorType" to "FundingSourceNotFoundError"),
             )
             Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
@@ -369,7 +369,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "FundingSourceNotActiveError")
+                mapOf("errorType" to "FundingSourceNotActiveError"),
             )
             Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
@@ -402,7 +402,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "VelocityExceededError")
+                mapOf("errorType" to "VelocityExceededError"),
             )
             Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
@@ -435,7 +435,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "EntitlementExceededError")
+                mapOf("errorType" to "EntitlementExceededError"),
             )
             Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
@@ -469,7 +469,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "UnsupportedCurrencyError")
+                mapOf("errorType" to "UnsupportedCurrencyError"),
             )
             Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
@@ -502,7 +502,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "InvalidTokenError")
+                mapOf("errorType" to "InvalidTokenError"),
             )
             Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))
@@ -535,7 +535,7 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "AccountLockedError")
+                mapOf("errorType" to "AccountLockedError"),
             )
             Response.builder<ProvisionVirtualCardMutation.Data>(ProvisionVirtualCardMutation(cardProvisionRequest))
                 .errors(listOf(error))

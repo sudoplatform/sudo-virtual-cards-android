@@ -20,7 +20,7 @@ import java.util.UUID
  */
 internal class DefaultDeviceKeyManager(
     private val keyManager: KeyManagerInterface,
-    private val logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO))
+    private val logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO)),
 ) : DeviceKeyManager {
 
     companion object {
@@ -49,7 +49,7 @@ internal class DefaultDeviceKeyManager(
                 ?: return null
             return DeviceKey(
                 keyId = currentKeyId,
-                publicKey = publicKey
+                publicKey = publicKey,
             )
         } catch (e: KeyManagerException) {
             throw DeviceKeyManager.DeviceKeyManagerException.KeyOperationFailedException("KeyManager exception", e)
@@ -71,7 +71,7 @@ internal class DefaultDeviceKeyManager(
                 ?: return null
             return DeviceKey(
                 keyId = id,
-                publicKey = publicKey
+                publicKey = publicKey,
             )
         } catch (e: KeyManagerException) {
             throw DeviceKeyManager.DeviceKeyManagerException.KeyOperationFailedException("KeyManager exception", e)
@@ -100,7 +100,7 @@ internal class DefaultDeviceKeyManager(
             val publicKey = keyManager.getPublicKeyData(keyId)
             return DeviceKey(
                 keyId = keyId,
-                publicKey = publicKey
+                publicKey = publicKey,
             )
         } catch (e: Exception) {
             logger.error("error $e")
@@ -171,7 +171,7 @@ internal class DefaultDeviceKeyManager(
     override fun decryptWithPrivateKey(
         data: ByteArray,
         keyId: String,
-        algorithm: KeyManagerInterface.PublicKeyEncryptionAlgorithm
+        algorithm: KeyManagerInterface.PublicKeyEncryptionAlgorithm,
     ): ByteArray {
         try {
             return keyManager.decryptWithPrivateKey(keyId, data, algorithm)

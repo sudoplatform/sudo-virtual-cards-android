@@ -14,25 +14,24 @@ import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
 import com.sudoplatform.sudovirtualcards.graphql.OnFundingSourceUpdateSubscription
 import com.sudoplatform.sudovirtualcards.graphql.RefreshFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.SandboxSetFundingSourceToRequireRefreshMutation
-
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as GraphqlFundingSourceState
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceState
 import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
 import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.types.CardType
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType as GraphqlTypeFundingSourceType
 import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.TransactionVelocity
-import com.sudoplatform.sudovirtualcards.graphql.type.CardType as GraphqlCardType
-import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType as GraphqlBankAccountType
-import com.sudoplatform.sudovirtualcards.graphql.fragment.CreditCardFundingSource as CreditCardFundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource as BankAccountFundingSourceFragment
+import com.sudoplatform.sudovirtualcards.graphql.fragment.CreditCardFundingSource as CreditCardFundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalFundingSource as ProvisionalFundingSourceFragment
+import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType as GraphqlBankAccountType
+import com.sudoplatform.sudovirtualcards.graphql.type.CardType as GraphqlCardType
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as GraphqlFundingSourceState
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType as GraphqlTypeFundingSourceType
 
 const val FUNDING_SOURCE_NULL_ERROR_MSG = "Unexpected null funding source"
 const val UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG = "Unsupported funding source type"
@@ -52,7 +51,7 @@ internal object FundingSourceTransformer {
      */
     fun toEntityFromCompleteFundingSourceMutationResult(
         deviceKeyManager: DeviceKeyManager,
-        result: CompleteFundingSourceMutation.CompleteFundingSource
+        result: CompleteFundingSourceMutation.CompleteFundingSource,
     ): FundingSource {
         return when (result.__typename()) {
             "CreditCardFundingSource" -> {
@@ -80,7 +79,7 @@ internal object FundingSourceTransformer {
      */
     fun toEntityFromRefreshFundingSourceMutationResult(
         deviceKeyManager: DeviceKeyManager,
-        result: RefreshFundingSourceMutation.RefreshFundingSource
+        result: RefreshFundingSourceMutation.RefreshFundingSource,
     ): FundingSource {
         return when (result.__typename()) {
             "CreditCardFundingSource" -> {
@@ -108,7 +107,7 @@ internal object FundingSourceTransformer {
      */
     fun toEntityFromCancelFundingSourceMutationResult(
         deviceKeyManager: DeviceKeyManager,
-        result: CancelFundingSourceMutation.CancelFundingSource
+        result: CancelFundingSourceMutation.CancelFundingSource,
     ): FundingSource {
         return when (result.__typename()) {
             "CreditCardFundingSource" -> {
@@ -136,7 +135,7 @@ internal object FundingSourceTransformer {
      */
     fun toEntityFromGetFundingSourceQueryResult(
         deviceKeyManager: DeviceKeyManager,
-        result: GetFundingSourceQuery.GetFundingSource
+        result: GetFundingSourceQuery.GetFundingSource,
     ): FundingSource {
         return when (result.__typename()) {
             "CreditCardFundingSource" -> {
@@ -157,7 +156,7 @@ internal object FundingSourceTransformer {
 
     fun toEntityFromSandboxSetFundingSourceToRequireRefreshResult(
         deviceKeyManager: DeviceKeyManager,
-        result: SandboxSetFundingSourceToRequireRefreshMutation.SandboxSetFundingSourceToRequireRefresh
+        result: SandboxSetFundingSourceToRequireRefreshMutation.SandboxSetFundingSourceToRequireRefresh,
     ): FundingSource {
         return when (result.__typename()) {
             "CreditCardFundingSource" -> {
@@ -185,7 +184,7 @@ internal object FundingSourceTransformer {
      */
     fun toEntityFromFundingSourceUpdateSubscriptionResult(
         deviceKeyManager: DeviceKeyManager,
-        result: OnFundingSourceUpdateSubscription.OnFundingSourceUpdate
+        result: OnFundingSourceUpdateSubscription.OnFundingSourceUpdate,
     ): FundingSource {
         return when (result.__typename()) {
             "CreditCardFundingSource" -> {
@@ -211,7 +210,7 @@ internal object FundingSourceTransformer {
      * @return The [ProvisionalFundingSource] entity type.
      */
     fun toEntity(
-        provisionalFundingSource: ProvisionalFundingSourceFragment
+        provisionalFundingSource: ProvisionalFundingSourceFragment,
     ): ProvisionalFundingSource {
         val provisioningData = ProviderDataTransformer.toProvisioningData(provisionalFundingSource.provisioningData())
         return ProvisionalFundingSource(
@@ -222,7 +221,7 @@ internal object FundingSourceTransformer {
             updatedAt = provisionalFundingSource.updatedAtEpochMs().toDate(),
             type = provisionalFundingSource.type().toEntityFundingSourceType(),
             state = provisionalFundingSource.state().toEntityProvisioningState(),
-            provisioningData = provisioningData
+            provisioningData = provisioningData,
         )
     }
 
@@ -261,7 +260,7 @@ internal object FundingSourceTransformer {
      */
     private fun toEntity(
         deviceKeyManager: DeviceKeyManager,
-        fundingSource: BankAccountFundingSourceFragment
+        fundingSource: BankAccountFundingSourceFragment,
     ): FundingSource {
         val institutionName = fundingSource.institutionName().fragments().sealedAttribute()
         val nameKeyInfo = KeyInfo(institutionName.keyId(), KeyType.PRIVATE_KEY, institutionName.algorithm())
@@ -283,7 +282,7 @@ internal object FundingSourceTransformer {
                 val logoKeyInfo = KeyInfo(it.keyId(), KeyType.PRIVATE_KEY, it.algorithm())
                 val logoUnsealer = Unsealer(deviceKeyManager, logoKeyInfo)
                 logoUnsealer.unseal(fundingSource.institutionLogo())
-            }
+            },
         )
     }
 
@@ -305,7 +304,7 @@ internal object FundingSourceTransformer {
             transactionVelocity = fundingSource.transactionVelocity()?.toEntityTransactionVelocity(),
             last4 = fundingSource.last4(),
             network = fundingSource.network().toEntityNetwork(),
-            cardType = fundingSource.cardType().toEntityCardType()
+            cardType = fundingSource.cardType().toEntityCardType(),
         )
     }
 

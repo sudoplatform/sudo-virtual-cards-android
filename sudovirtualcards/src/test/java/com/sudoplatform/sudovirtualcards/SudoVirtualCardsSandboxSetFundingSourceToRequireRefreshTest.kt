@@ -10,22 +10,13 @@ import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.SandboxSetFundingSourceToRequireRefreshMutation
-import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource as BankAccountFundingSourceGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAttribute
 import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as FundingSourceStateGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.type.SandboxSetFundingSourceToRequireRefreshRequest
 import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
@@ -45,7 +36,16 @@ import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import java.net.HttpURLConnection
+import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource as BankAccountFundingSourceGraphQL
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as FundingSourceStateGraphQL
 
 /**
  * Test the correct operation of [SudoVirtualCardsClient.sandboxSetFundingSourceToRequireRefresh]
@@ -76,7 +76,7 @@ class SudoVirtualCardsSandboxSetFundingSourceToRequireRefreshTest : BaseTests() 
                         BankAccountFundingSourceGraphQL.TransactionVelocity(
                             "TransactionVelocity",
                             10000,
-                            listOf("10000/P1D")
+                            listOf("10000/P1D"),
                         ),
                         BankAccountType.CHECKING,
                         BankAccountFundingSourceGraphQL.Authorization(
@@ -87,7 +87,7 @@ class SudoVirtualCardsSandboxSetFundingSourceToRequireRefreshTest : BaseTests() 
                             "signature",
                             "keyId",
                             "algorithm",
-                            "data"
+                            "data",
                         ),
                         "last4",
                         BankAccountFundingSourceGraphQL.InstitutionName(
@@ -98,14 +98,14 @@ class SudoVirtualCardsSandboxSetFundingSourceToRequireRefreshTest : BaseTests() 
                                     "keyId",
                                     "algorithm",
                                     "string",
-                                    mockSeal("base64EncodedSealedData")
-                                )
-                            )
+                                    mockSeal("base64EncodedSealedData"),
+                                ),
+                            ),
                         ),
-                        null
-                    )
-                )
-            )
+                        null,
+                    ),
+                ),
+            ),
         )
     }
 
@@ -236,7 +236,7 @@ class SudoVirtualCardsSandboxSetFundingSourceToRequireRefreshTest : BaseTests() 
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "FundingSourceNotFoundError")
+                mapOf("errorType" to "FundingSourceNotFoundError"),
             )
             Response.builder<SandboxSetFundingSourceToRequireRefreshMutation.Data>(SandboxSetFundingSourceToRequireRefreshMutation(input))
                 .errors(listOf(error))
@@ -268,7 +268,7 @@ class SudoVirtualCardsSandboxSetFundingSourceToRequireRefreshTest : BaseTests() 
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "AccountLockedError")
+                mapOf("errorType" to "AccountLockedError"),
             )
             Response.builder<SandboxSetFundingSourceToRequireRefreshMutation.Data>(SandboxSetFundingSourceToRequireRefreshMutation(input))
                 .errors(listOf(error))
@@ -352,7 +352,7 @@ class SudoVirtualCardsSandboxSetFundingSourceToRequireRefreshTest : BaseTests() 
 
         mockAppSyncClient.stub {
             on { mutate(any<SandboxSetFundingSourceToRequireRefreshMutation>()) } doThrow CancellationException(
-                "Mock Cancellation Exception"
+                "Mock Cancellation Exception",
             )
         }
 

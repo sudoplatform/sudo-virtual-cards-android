@@ -9,13 +9,6 @@ package com.sudoplatform.sudovirtualcards
 import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
@@ -37,6 +30,13 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 
 /**
  * Test the correct operation of [SudoVirtualCardsClient.getProvisionalCard]
@@ -57,9 +57,9 @@ class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
                     1.0,
                     "clientRefId",
                     ProvisioningState.PROVISIONING,
-                    null
-                )
-            )
+                    null,
+                ),
+            ),
         )
     }
 
@@ -182,7 +182,7 @@ class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "IdentityVerificationNotVerifiedError")
+                mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
             )
             Response.builder<GetProvisionalCardQuery.Data>(GetProvisionalCardQuery("id"))
                 .errors(listOf(error))

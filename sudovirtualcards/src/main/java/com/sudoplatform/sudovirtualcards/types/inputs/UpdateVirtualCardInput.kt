@@ -28,7 +28,7 @@ data class UpdateVirtualCardInput(
     @Deprecated("Store alias as a property of metadata instead")
     val alias: String? = null,
     val metadata: JsonValue<Any>? = null,
-    val billingAddress: BillingAddress? = null
+    val billingAddress: BillingAddress? = null,
 ) {
     constructor(
         id: String,
@@ -41,13 +41,13 @@ data class UpdateVirtualCardInput(
         city: String,
         state: String,
         postalCode: String,
-        country: String
+        country: String,
     ) : this(
         id = id,
         expectedCardVersion = expectedCardVersion,
         cardHolder = cardHolder,
         alias = alias,
         metadata = metadata,
-        billingAddress = BillingAddress(addressLine1, addressLine2, city, state, postalCode, country)
+        billingAddress = BillingAddress(addressLine1, addressLine2, city, state, postalCode, country),
     )
 }

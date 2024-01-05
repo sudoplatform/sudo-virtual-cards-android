@@ -17,13 +17,13 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class PricingPolicy(
     val stripe: StripePricingPolicy? = null,
-    val checkout: CheckoutPricingPolicy? = null
+    val checkout: CheckoutPricingPolicy? = null,
 ) : Parcelable
 
 @Parcelize
 data class StripePricingPolicy(
     @SerializedName("CREDIT_CARD")
-    val creditCard: Map<String, TieredMarkupPolicy>
+    val creditCard: Map<String, TieredMarkupPolicy>,
 ) : Parcelable
 
 @Parcelize
@@ -31,16 +31,16 @@ data class CheckoutPricingPolicy(
     @SerializedName("CREDIT_CARD")
     val creditCard: Map<String, TieredMarkupPolicy>,
     @SerializedName("BANK_ACCOUNT")
-    val bankAccount: Map<String, TieredMarkupPolicy>
+    val bankAccount: Map<String, TieredMarkupPolicy>,
 ) : Parcelable
 
 @Parcelize
 data class TieredMarkup(
     val markup: Markup,
-    val minThreshold: Int? = null
+    val minThreshold: Int? = null,
 ) : Parcelable
 
 @Parcelize
 data class TieredMarkupPolicy(
-    val tiers: List<TieredMarkup>
+    val tiers: List<TieredMarkup>,
 ) : Parcelable

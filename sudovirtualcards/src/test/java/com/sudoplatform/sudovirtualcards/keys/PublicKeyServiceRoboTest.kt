@@ -8,8 +8,6 @@ package com.sudoplatform.sudovirtualcards.keys
 
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
@@ -17,28 +15,30 @@ import com.sudoplatform.sudovirtualcards.BaseTests
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.CreatePublicKeyMutation
 import com.sudoplatform.sudovirtualcards.graphql.GetPublicKeyQuery
-import com.sudoplatform.sudovirtualcards.graphql.fragment.PublicKey as PublicKeyFragment
 import com.sudoplatform.sudovirtualcards.graphql.type.CreatePublicKeyInput
 import com.sudoplatform.sudovirtualcards.graphql.type.KeyFormat
-import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.kotlin.doReturn
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import timber.log.Timber
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.bouncycastle.util.encoders.Base64
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import timber.log.Timber
+import com.sudoplatform.sudovirtualcards.graphql.fragment.PublicKey as PublicKeyFragment
 
 /**
  * Test the operation of [DefaultPublicKeyService] under exceptional conditions using mocks.
@@ -70,14 +70,14 @@ class PublicKeyServiceRoboTest : BaseTests() {
             userClient = mockUserClient,
             deviceKeyManager = mockDeviceKeyManager,
             appSyncClient = mockAppSyncClient,
-            logger = mock<Logger>()
+            logger = mock<Logger>(),
         )
     }
 
     private val publicKey = "publicKey".toByteArray()
     private val deviceKeyPair = DeviceKey(
         keyId = "keyId",
-        publicKey = publicKey
+        publicKey = publicKey,
     )
 
     private val queryResult by before {
@@ -95,9 +95,9 @@ class PublicKeyServiceRoboTest : BaseTests() {
                     "owner",
                     1,
                     1.0,
-                    1.0
-                )
-            )
+                    1.0,
+                ),
+            ),
         )
     }
 
@@ -130,9 +130,9 @@ class PublicKeyServiceRoboTest : BaseTests() {
                     "owner",
                     1,
                     1.0,
-                    1.0
-                )
-            )
+                    1.0,
+                ),
+            ),
         )
     }
 
@@ -144,9 +144,9 @@ class PublicKeyServiceRoboTest : BaseTests() {
                     .keyRingId("$keyRingServiceName.$owner")
                     .algorithm("algorithm")
                     .publicKey(Base64.toBase64String(publicKey))
-                    .build()
+                    .build(),
 
-            )
+            ),
         )
             .data(CreatePublicKeyMutation.Data(mutationResult))
             .build()
@@ -176,7 +176,7 @@ class PublicKeyServiceRoboTest : BaseTests() {
 
         publicKeyService.getCurrentKey() shouldBe PublicKey(
             keyId = deviceKeyPair.keyId,
-            publicKey = deviceKeyPair.publicKey
+            publicKey = deviceKeyPair.publicKey,
         )
 
         verify(mockDeviceKeyManager).getCurrentKey()

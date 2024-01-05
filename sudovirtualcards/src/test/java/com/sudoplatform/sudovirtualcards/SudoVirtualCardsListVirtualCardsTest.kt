@@ -11,14 +11,6 @@ import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
 import com.sudoplatform.sudokeymanager.KeyManagerException
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
@@ -31,7 +23,6 @@ import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedExpiryAttribute
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
 import com.sudoplatform.sudovirtualcards.types.ListAPIResult
-import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -49,9 +40,18 @@ import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import java.net.HttpURLConnection
 import java.util.Date
 import java.util.concurrent.CancellationException
+import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 
 /**
  * Test the correct operation of [SudoVirtualCardsClient.listVirtualCards]
@@ -70,9 +70,9 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
                     mockSeal("city"),
                     mockSeal("state"),
                     mockSeal("postalCode"),
-                    mockSeal("country")
-                )
-            )
+                    mockSeal("country"),
+                ),
+            ),
         )
     }
 
@@ -83,9 +83,9 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
                 SealedExpiryAttribute(
                     "SealedExpiryAttribute",
                     mockSeal("01"),
-                    mockSeal("2020")
-                )
-            )
+                    mockSeal("2020"),
+                ),
+            ),
         )
     }
 
@@ -123,14 +123,14 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
                                     mockSeal("csc"),
                                     billingAddress,
                                     expiry,
-                                    null
-                                )
-                            )
-                        )
-                    )
-                )
+                                    null,
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
             ),
-            null
+            null,
         )
     }
 
@@ -277,14 +277,14 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
                                         mockSeal("csc"),
                                         billingAddress,
                                         expiry,
-                                        null
-                                    )
-                                )
-                            )
-                        )
-                    )
+                                        null,
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
-                "dummyNextToken"
+                "dummyNextToken",
             )
         }
 
@@ -349,7 +349,7 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
             ListCardsQuery.ListCards(
                 "typename",
                 emptyList(),
-                null
+                null,
             )
         }
 
@@ -475,7 +475,7 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
             ListCardsQuery.ListCards(
                 "ListCards",
                 listOf(queryResultItem1, queryResultItem2, queryResultItem3),
-                null
+                null,
             )
         }
 
@@ -626,11 +626,11 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
                             mockSeal("csc"),
                             billingAddress,
                             expiry,
-                            null
-                        )
-                    )
-                )
-            )
+                            null,
+                        ),
+                    ),
+                ),
+            ),
         )
     }
 }

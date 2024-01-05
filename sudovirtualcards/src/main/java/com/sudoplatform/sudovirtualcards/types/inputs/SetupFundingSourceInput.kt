@@ -29,5 +29,5 @@ data class SetupFundingSourceInput(
     val type: FundingSourceType,
     val applicationData: ClientApplicationData,
     val supportedProviders: List<String>? = null,
-    val language: String? = null
+    val language: String? = null,
 )

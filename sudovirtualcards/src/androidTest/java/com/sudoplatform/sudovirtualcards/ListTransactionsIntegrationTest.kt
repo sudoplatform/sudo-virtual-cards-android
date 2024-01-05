@@ -90,19 +90,19 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             testCard.address.state,
             testCard.address.postalCode,
             testCard.address.country,
-            TestData.VerifiedUser.fullName
+            TestData.VerifiedUser.fullName,
         )
         val fundingSource = createCardFundingSource(
             vcClient,
             input,
-            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse))
+            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse)),
         )
         fundingSource shouldNotBe null
 
         vcClient.createKeysIfAbsent()
 
         val sudo = createSudo(
-            TestData.sudo
+            TestData.sudo,
         )
         sudo.id shouldNotBe null
 
@@ -118,7 +118,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             state = TestData.ProvisionCardInput.state,
             postalCode = TestData.ProvisionCardInput.postalCode,
             country = TestData.ProvisionCardInput.country,
-            currency = TestData.ProvisionCardInput.currency
+            currency = TestData.ProvisionCardInput.currency,
         )
         val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
@@ -131,7 +131,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             merchantId = merchant.id,
             securityCode = card.securityCode,
             expirationMonth = card.expiry.mm.toInt(),
-            expirationYear = card.expiry.yyyy.toInt()
+            expirationYear = card.expiry.yyyy.toInt(),
         )
         val authResponse = vcSimulatorClient.simulateAuthorization(authInput)
         with(authResponse) {
@@ -190,19 +190,19 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             testCard.address.state,
             testCard.address.postalCode,
             testCard.address.country,
-            TestData.VerifiedUser.fullName
+            TestData.VerifiedUser.fullName,
         )
         val fundingSource = createCardFundingSource(
             vcClient,
             input,
-            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse))
+            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse)),
         )
         fundingSource shouldNotBe null
 
         vcClient.createKeysIfAbsent()
 
         val sudo = createSudo(
-            TestData.sudo
+            TestData.sudo,
         )
         sudo.id shouldNotBe null
 
@@ -218,7 +218,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             state = TestData.ProvisionCardInput.state,
             postalCode = TestData.ProvisionCardInput.postalCode,
             country = TestData.ProvisionCardInput.country,
-            currency = TestData.ProvisionCardInput.currency
+            currency = TestData.ProvisionCardInput.currency,
         )
         val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
@@ -260,19 +260,19 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             testCard.address.state,
             testCard.address.postalCode,
             testCard.address.country,
-            TestData.VerifiedUser.fullName
+            TestData.VerifiedUser.fullName,
         )
         val fundingSource = createCardFundingSource(
             vcClient,
             input,
-            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse))
+            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse)),
         )
         fundingSource shouldNotBe null
 
         vcClient.createKeysIfAbsent()
 
         val sudo = createSudo(
-            TestData.sudo
+            TestData.sudo,
         )
         sudo.id shouldNotBe null
 
@@ -288,7 +288,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             state = TestData.ProvisionCardInput.state,
             postalCode = TestData.ProvisionCardInput.postalCode,
             country = TestData.ProvisionCardInput.country,
-            currency = TestData.ProvisionCardInput.currency
+            currency = TestData.ProvisionCardInput.currency,
         )
         val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
@@ -301,13 +301,13 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
         val transactionsWithLimit = await.atMost(
             Duration(
                 12,
-                TimeUnit.SECONDS
-            )
+                TimeUnit.SECONDS,
+            ),
         ) withPollInterval Duration.TWO_HUNDRED_MILLISECONDS untilCallTo {
             runBlocking {
                 vcClient.listTransactionsByCardId(
                     cardId = card.id,
-                    limit = 1
+                    limit = 1,
                 )
             }
         } has {
@@ -326,7 +326,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
         }
         val pagedTransactions = vcClient.listTransactionsByCardId(
             cardId = card.id,
-            nextToken = (transactionsWithLimit as ListAPIResult.Success<Transaction>).result.nextToken
+            nextToken = (transactionsWithLimit as ListAPIResult.Success<Transaction>).result.nextToken,
         )
         when (pagedTransactions) {
             is ListAPIResult.Success -> {
@@ -357,19 +357,19 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             testCard.address.state,
             testCard.address.postalCode,
             testCard.address.country,
-            TestData.VerifiedUser.fullName
+            TestData.VerifiedUser.fullName,
         )
         val fundingSource = createCardFundingSource(
             vcClient,
             input,
-            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse))
+            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse)),
         )
         fundingSource shouldNotBe null
 
         vcClient.createKeysIfAbsent()
 
         val sudo = createSudo(
-            TestData.sudo
+            TestData.sudo,
         )
         sudo.id shouldNotBe null
 
@@ -385,7 +385,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             state = TestData.ProvisionCardInput.state,
             postalCode = TestData.ProvisionCardInput.postalCode,
             country = TestData.ProvisionCardInput.country,
-            currency = TestData.ProvisionCardInput.currency
+            currency = TestData.ProvisionCardInput.currency,
         )
         val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
@@ -401,7 +401,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
         }
 
         var transactions = vcClient.listTransactionsByCardId(
-            cardId = card.id
+            cardId = card.id,
         )
         when (transactions) {
             is ListAPIResult.Success -> {
@@ -414,7 +414,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
         }
 
         transactions = vcClient.listTransactionsByCardId(
-            cardId = card.id
+            cardId = card.id,
         )
         when (transactions) {
             is ListAPIResult.Success -> {
@@ -445,19 +445,19 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             testCard.address.state,
             testCard.address.postalCode,
             testCard.address.country,
-            TestData.VerifiedUser.fullName
+            TestData.VerifiedUser.fullName,
         )
         val fundingSource = createCardFundingSource(
             vcClient,
             input,
-            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse))
+            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse)),
         )
         fundingSource shouldNotBe null
 
         vcClient.createKeysIfAbsent()
 
         val sudo = createSudo(
-            TestData.sudo
+            TestData.sudo,
         )
         sudo.id shouldNotBe null
 
@@ -473,7 +473,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             state = TestData.ProvisionCardInput.state,
             postalCode = TestData.ProvisionCardInput.postalCode,
             country = TestData.ProvisionCardInput.country,
-            currency = TestData.ProvisionCardInput.currency
+            currency = TestData.ProvisionCardInput.currency,
         )
         val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
@@ -482,7 +482,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
         // List only COMPLETE transactions
         val completeTransactions = await.atMost(
-            Duration.TEN_SECONDS.multiply(4)
+            Duration.TEN_SECONDS.multiply(4),
         ) withPollInterval Duration.TWO_HUNDRED_MILLISECONDS untilCallTo {
             runBlocking {
                 vcClient.listTransactionsByCardIdAndType(card.id, TransactionType.COMPLETE)
@@ -500,7 +500,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
         // List only REFUND transactions
         val refundTransactions = await.atMost(
-            Duration.TEN_SECONDS.multiply(4)
+            Duration.TEN_SECONDS.multiply(4),
         ) withPollInterval Duration.TWO_HUNDRED_MILLISECONDS untilCallTo {
             runBlocking {
                 vcClient.listTransactionsByCardIdAndType(card.id, TransactionType.REFUND)
@@ -535,19 +535,19 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             testCard.address.state,
             testCard.address.postalCode,
             testCard.address.country,
-            TestData.VerifiedUser.fullName
+            TestData.VerifiedUser.fullName,
         )
         val fundingSource = createCardFundingSource(
             vcClient,
             input,
-            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse))
+            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse)),
         )
         fundingSource shouldNotBe null
 
         vcClient.createKeysIfAbsent()
 
         val sudo = createSudo(
-            TestData.sudo
+            TestData.sudo,
         )
         sudo.id shouldNotBe null
 
@@ -563,7 +563,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             state = TestData.ProvisionCardInput.state,
             postalCode = TestData.ProvisionCardInput.postalCode,
             country = TestData.ProvisionCardInput.country,
-            currency = TestData.ProvisionCardInput.currency
+            currency = TestData.ProvisionCardInput.currency,
         )
         val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
@@ -606,19 +606,19 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             testCard.address.state,
             testCard.address.postalCode,
             testCard.address.country,
-            TestData.VerifiedUser.fullName
+            TestData.VerifiedUser.fullName,
         )
         val fundingSource = createCardFundingSource(
             vcClient,
             input,
-            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse))
+            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse)),
         )
         fundingSource shouldNotBe null
 
         vcClient.createKeysIfAbsent()
 
         val sudo = createSudo(
-            TestData.sudo
+            TestData.sudo,
         )
         sudo.id shouldNotBe null
 
@@ -634,7 +634,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             state = TestData.ProvisionCardInput.state,
             postalCode = TestData.ProvisionCardInput.postalCode,
             country = TestData.ProvisionCardInput.country,
-            currency = TestData.ProvisionCardInput.currency
+            currency = TestData.ProvisionCardInput.currency,
         )
         val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
@@ -649,7 +649,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             merchantId = merchant.id,
             securityCode = card.securityCode,
             expirationMonth = card.expiry.mm.toInt(),
-            expirationYear = card.expiry.yyyy.toInt()
+            expirationYear = card.expiry.yyyy.toInt(),
         )
         vcSimulatorClient.simulateAuthorization(authInput)
 
@@ -687,19 +687,19 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             testCard.address.state,
             testCard.address.postalCode,
             testCard.address.country,
-            TestData.VerifiedUser.fullName
+            TestData.VerifiedUser.fullName,
         )
         val fundingSource = createCardFundingSource(
             vcClient,
             input,
-            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse))
+            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse)),
         )
         fundingSource shouldNotBe null
 
         vcClient.createKeysIfAbsent()
 
         val sudo = createSudo(
-            TestData.sudo
+            TestData.sudo,
         )
         sudo.id shouldNotBe null
 
@@ -715,7 +715,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             state = TestData.ProvisionCardInput.state,
             postalCode = TestData.ProvisionCardInput.postalCode,
             country = TestData.ProvisionCardInput.country,
-            currency = TestData.ProvisionCardInput.currency
+            currency = TestData.ProvisionCardInput.currency,
         )
         val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
@@ -728,7 +728,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             merchantId = merchant.id,
             securityCode = card.securityCode,
             expirationMonth = card.expiry.mm.toInt(),
-            expirationYear = card.expiry.yyyy.toInt()
+            expirationYear = card.expiry.yyyy.toInt(),
         )
         val authResponse = vcSimulatorClient.simulateAuthorization(authInput)
         with(authResponse) {
@@ -743,7 +743,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
         when (
             val transactions = vcClient.listTransactionsByCardIdAndType(
                 cardId = card.id,
-                transactionType = TransactionType.REFUND
+                transactionType = TransactionType.REFUND,
             )
         ) {
             is ListAPIResult.Success -> {
@@ -774,19 +774,19 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             testCard.address.state,
             testCard.address.postalCode,
             testCard.address.country,
-            TestData.VerifiedUser.fullName
+            TestData.VerifiedUser.fullName,
         )
         val fundingSource = createCardFundingSource(
             vcClient,
             input,
-            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse))
+            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse)),
         )
         fundingSource shouldNotBe null
 
         vcClient.createKeysIfAbsent()
 
         val sudo = createSudo(
-            TestData.sudo
+            TestData.sudo,
         )
         sudo.id shouldNotBe null
 
@@ -802,7 +802,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             state = TestData.ProvisionCardInput.state,
             postalCode = TestData.ProvisionCardInput.postalCode,
             country = TestData.ProvisionCardInput.country,
-            currency = TestData.ProvisionCardInput.currency
+            currency = TestData.ProvisionCardInput.currency,
         )
         val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
@@ -815,7 +815,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             merchantId = merchant.id,
             securityCode = card.securityCode,
             expirationMonth = card.expiry.mm.toInt(),
-            expirationYear = card.expiry.yyyy.toInt()
+            expirationYear = card.expiry.yyyy.toInt(),
         )
         val authResponse = vcSimulatorClient.simulateAuthorization(authInput)
         with(authResponse) {
@@ -874,19 +874,19 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             testCard.address.state,
             testCard.address.postalCode,
             testCard.address.country,
-            TestData.VerifiedUser.fullName
+            TestData.VerifiedUser.fullName,
         )
         val fundingSource = createCardFundingSource(
             vcClient,
             input,
-            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse))
+            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse)),
         )
         fundingSource shouldNotBe null
 
         vcClient.createKeysIfAbsent()
 
         val sudo = createSudo(
-            TestData.sudo
+            TestData.sudo,
         )
         sudo.id shouldNotBe null
 
@@ -902,7 +902,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             state = TestData.ProvisionCardInput.state,
             postalCode = TestData.ProvisionCardInput.postalCode,
             country = TestData.ProvisionCardInput.country,
-            currency = TestData.ProvisionCardInput.currency
+            currency = TestData.ProvisionCardInput.currency,
         )
         val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
@@ -944,19 +944,19 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             testCard.address.state,
             testCard.address.postalCode,
             testCard.address.country,
-            TestData.VerifiedUser.fullName
+            TestData.VerifiedUser.fullName,
         )
         val fundingSource = createCardFundingSource(
             vcClient,
             input,
-            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse))
+            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse)),
         )
         fundingSource shouldNotBe null
 
         vcClient.createKeysIfAbsent()
 
         val sudo = createSudo(
-            TestData.sudo
+            TestData.sudo,
         )
         sudo.id shouldNotBe null
 
@@ -972,7 +972,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             state = TestData.ProvisionCardInput.state,
             postalCode = TestData.ProvisionCardInput.postalCode,
             country = TestData.ProvisionCardInput.country,
-            currency = TestData.ProvisionCardInput.currency
+            currency = TestData.ProvisionCardInput.currency,
         )
         val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null
@@ -982,12 +982,12 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
         val transactionsWithLimit = await.atMost(
             Duration(
                 12,
-                TimeUnit.SECONDS
-            )
+                TimeUnit.SECONDS,
+            ),
         ) withPollInterval Duration.TWO_HUNDRED_MILLISECONDS untilCallTo {
             runBlocking {
                 vcClient.listTransactions(
-                    limit = 1
+                    limit = 1,
                 )
             }
         } has {
@@ -1005,7 +1005,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             }
         }
         val pagedTransactions = vcClient.listTransactions(
-            nextToken = (transactionsWithLimit as ListAPIResult.Success<Transaction>).result.nextToken
+            nextToken = (transactionsWithLimit as ListAPIResult.Success<Transaction>).result.nextToken,
         )
         when (pagedTransactions) {
             is ListAPIResult.Success -> {
@@ -1036,19 +1036,19 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             testCard.address.state,
             testCard.address.postalCode,
             testCard.address.country,
-            TestData.VerifiedUser.fullName
+            TestData.VerifiedUser.fullName,
         )
         val fundingSource = createCardFundingSource(
             vcClient,
             input,
-            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse))
+            CreateCardFundingSourceOptions(supportedProviders = listOf(providerToUse)),
         )
         fundingSource shouldNotBe null
 
         vcClient.createKeysIfAbsent()
 
         val sudo = createSudo(
-            TestData.sudo
+            TestData.sudo,
         )
         sudo.id shouldNotBe null
 
@@ -1064,7 +1064,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
             state = TestData.ProvisionCardInput.state,
             postalCode = TestData.ProvisionCardInput.postalCode,
             country = TestData.ProvisionCardInput.country,
-            currency = TestData.ProvisionCardInput.currency
+            currency = TestData.ProvisionCardInput.currency,
         )
         val card = provisionVirtualCard(vcClient, provisionCardInput)
         card shouldNotBe null

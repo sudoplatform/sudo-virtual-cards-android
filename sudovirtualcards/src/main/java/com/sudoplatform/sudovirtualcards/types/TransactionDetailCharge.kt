@@ -29,5 +29,5 @@ data class TransactionDetailCharge(
     val fundingSourceAmount: CurrencyAmount,
     val fundingSourceId: String,
     val description: String,
-    val state: ChargeDetailState
+    val state: ChargeDetailState,
 ) : Parcelable

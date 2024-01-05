@@ -14,7 +14,8 @@ import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType as Fundi
  */
 enum class FundingSourceType {
     CREDIT_CARD,
-    BANK_ACCOUNT;
+    BANK_ACCOUNT,
+    ;
 
     fun toFundingSourceTypeInput(fundingSourceType: FundingSourceType): FundingSourceTypeInput {
         return when (fundingSourceType) {

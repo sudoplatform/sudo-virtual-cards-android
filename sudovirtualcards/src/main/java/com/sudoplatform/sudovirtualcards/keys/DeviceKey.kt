@@ -14,7 +14,7 @@ package com.sudoplatform.sudovirtualcards.keys
  */
 internal data class DeviceKey(
     val keyId: String,
-    val publicKey: ByteArray
+    val publicKey: ByteArray,
 ) {
     override fun toString(): String {
         val clz = this@DeviceKey.javaClass.simpleName

@@ -7,10 +7,6 @@
 package com.sudoplatform.sudovirtualcards.keys
 
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.BaseTests
@@ -23,7 +19,11 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import timber.log.Timber
@@ -58,7 +58,7 @@ class PublicKeyServiceExceptionTest : BaseTests() {
             userClient = mockUserClient,
             deviceKeyManager = mockDeviceKeyManager,
             appSyncClient = mockAppSyncClient,
-            logger = mock<Logger>()
+            logger = mock<Logger>(),
         )
     }
 

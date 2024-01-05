@@ -35,7 +35,7 @@ class DeviceKeyManagerTest : BaseIntegrationTest() {
 
     private val deviceKeyManager by lazy {
         DefaultDeviceKeyManager(
-            keyManager = keyManager
+            keyManager = keyManager,
         )
     }
 
@@ -76,12 +76,12 @@ class DeviceKeyManagerTest : BaseIntegrationTest() {
         var secretData = keyManager.encryptWithPublicKey(
             generated.keyId,
             clearData,
-            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1
+            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
         )
         var decryptedData = deviceKeyManager.decryptWithPrivateKey(
             secretData,
             generated.keyId,
-            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1
+            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
         )
         decryptedData shouldBe clearData
 
@@ -109,12 +109,12 @@ class DeviceKeyManagerTest : BaseIntegrationTest() {
         var secretData = keyManager.encryptWithPublicKey(
             keyPair.keyId,
             clearData,
-            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1
+            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
         )
         var decryptedData = deviceKeyManager.decryptWithPrivateKey(
             secretData,
             keyPair.keyId,
-            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1
+            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
         )
         decryptedData shouldBe clearData
 
@@ -134,14 +134,14 @@ class DeviceKeyManagerTest : BaseIntegrationTest() {
             keyManager.encryptWithPublicKey(
                 keyPair.keyId,
                 clearData,
-                KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1
+                KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
             )
         }
         deviceKeyManager.importKeys(exportedKeys)
         decryptedData = deviceKeyManager.decryptWithPrivateKey(
             secretData,
             keyPair.keyId,
-            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1
+            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
         )
         decryptedData shouldBe clearData
     }

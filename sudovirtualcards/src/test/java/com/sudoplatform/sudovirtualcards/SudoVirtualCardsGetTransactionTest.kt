@@ -10,14 +10,6 @@ import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
@@ -28,7 +20,6 @@ import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedMarkupAttribute
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedTransaction
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedTransactionDetailChargeAttribute
 import com.sudoplatform.sudovirtualcards.graphql.type.TransactionType
-import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
@@ -47,7 +38,16 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import java.net.HttpURLConnection
+import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
 
 /**
  * Test the correct operation of [SudoVirtualCardsClient.getTransaction]
@@ -80,9 +80,9 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
                             SealedCurrencyAmountAttribute(
                                 "CurrencyAmount",
                                 mockSeal("USD"),
-                                mockSeal("billedAmount")
-                            )
-                        )
+                                mockSeal("billedAmount"),
+                            ),
+                        ),
                     ),
                     SealedTransaction.TransactedAmount(
                         "TransactedAmount",
@@ -90,9 +90,9 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
                             SealedCurrencyAmountAttribute(
                                 "CurrencyAmount",
                                 mockSeal("USD"),
-                                mockSeal("transactedAmount")
-                            )
-                        )
+                                mockSeal("transactedAmount"),
+                            ),
+                        ),
                     ),
                     mockSeal("description"),
                     null,
@@ -108,9 +108,9 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
                                             SealedCurrencyAmountAttribute(
                                                 "CurrencyAmount",
                                                 mockSeal("USD"),
-                                                mockSeal("virtualCardAmount")
-                                            )
-                                        )
+                                                mockSeal("virtualCardAmount"),
+                                            ),
+                                        ),
                                     ),
                                     SealedTransactionDetailChargeAttribute.Markup(
                                         "Markup",
@@ -119,9 +119,9 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
                                                 "SealedMarkupAttribute",
                                                 mockSeal("1"),
                                                 mockSeal("2"),
-                                                mockSeal("3")
-                                            )
-                                        )
+                                                mockSeal("3"),
+                                            ),
+                                        ),
                                     ),
                                     SealedTransactionDetailChargeAttribute.MarkupAmount(
                                         "MarkupAmount",
@@ -129,9 +129,9 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
                                             SealedCurrencyAmountAttribute(
                                                 "CurrencyAmount",
                                                 mockSeal("USD"),
-                                                mockSeal("markupAmount")
-                                            )
-                                        )
+                                                mockSeal("markupAmount"),
+                                            ),
+                                        ),
                                     ),
                                     SealedTransactionDetailChargeAttribute.FundingSourceAmount(
                                         "FundingSourceAmount",
@@ -139,19 +139,19 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
                                             SealedCurrencyAmountAttribute(
                                                 "CurrencyAmount",
                                                 mockSeal("USD"),
-                                                mockSeal("fundingSourceAmount")
-                                            )
-                                        )
+                                                mockSeal("fundingSourceAmount"),
+                                            ),
+                                        ),
                                     ),
                                     "fundingSourceId",
                                     mockSeal("description"),
-                                    mockSeal("CLEARED")
-                                )
-                            )
-                        )
-                    )
-                )
-            )
+                                    mockSeal("CLEARED"),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
         )
     }
 
@@ -175,7 +175,7 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
 
     private val currentKey = PublicKey(
         keyId = "keyId",
-        publicKey = "publicKey".toByteArray()
+        publicKey = "publicKey".toByteArray(),
     )
 
     private val mockPublicKeyService by before {

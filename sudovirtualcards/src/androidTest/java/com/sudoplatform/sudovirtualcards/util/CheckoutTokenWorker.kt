@@ -26,7 +26,7 @@ import kotlin.coroutines.suspendCoroutine
  * confirmation.
  */
 internal class CheckoutTokenWorker(
-    private val checkoutClient: CheckoutAPIClient
+    private val checkoutClient: CheckoutAPIClient,
 ) {
     /**
      * Processes the payment details to return the data needed to complete
@@ -35,7 +35,7 @@ internal class CheckoutTokenWorker(
      * @param input The credit card input required to build the card and billing details.
      */
     suspend fun generatePaymentToken(
-        input: CreditCardFundingSourceInput
+        input: CreditCardFundingSourceInput,
     ): CheckoutCardProviderCompletionData {
         val tokenisationRequest = CardTokenisationRequest(
             input.cardNumber,
@@ -49,21 +49,21 @@ internal class CheckoutTokenWorker(
                 city = input.city,
                 state = input.state,
                 zip = input.postalCode,
-                country = input.country
+                country = input.country,
             ),
-            PhoneModel(country_code = "1", number = "1111111111")
+            PhoneModel(country_code = "1", number = "1111111111"),
         )
         val tokenisationResponse = waitForTokenResponse(checkoutClient, tokenisationRequest)
 
         return CheckoutCardProviderCompletionData(
             paymentToken = tokenisationResponse?.token
-                ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException("Unexpected empty tokenisation response")
+                ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException("Unexpected empty tokenisation response"),
         )
     }
 
     private suspend fun waitForTokenResponse(
         checkoutClient: CheckoutAPIClient,
-        request: CardTokenisationRequest
+        request: CardTokenisationRequest,
     ): CardTokenisationResponse? =
         suspendCoroutine { cont ->
             val tokenListener = object : OnTokenGenerated {

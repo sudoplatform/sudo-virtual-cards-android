@@ -59,7 +59,7 @@ sealed class ProviderProvisioningData : ProviderCommonData(), Parcelable
 data class BaseProvisioningData(
     override val provider: String = ProviderDefaults.checkoutProvider,
     override val version: Int,
-    override val type: FundingSourceType
+    override val type: FundingSourceType,
 ) : ProviderProvisioningData(), Parcelable
 
 /**
@@ -79,7 +79,7 @@ data class StripeCardProvisioningData(
     val intent: String,
     @SerializedName("client_secret")
     val clientSecret: String,
-    override val type: FundingSourceType = FundingSourceType.CREDIT_CARD
+    override val type: FundingSourceType = FundingSourceType.CREDIT_CARD,
 ) : ProviderProvisioningData()
 
 /**
@@ -94,7 +94,7 @@ data class StripeCardProvisioningData(
 data class CheckoutCardProvisioningData(
     override val provider: String = ProviderDefaults.checkoutProvider,
     override val version: Int = ProviderDefaults.version,
-    override val type: FundingSourceType = FundingSourceType.CREDIT_CARD
+    override val type: FundingSourceType = FundingSourceType.CREDIT_CARD,
 ) : ProviderProvisioningData()
 
 /**
@@ -115,7 +115,7 @@ data class CheckoutBankAccountProvisioningData(
     override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
     @SerializedName("plaidLinkToken")
     val linkToken: LinkToken,
-    val authorizationText: List<AuthorizationText>
+    val authorizationText: List<AuthorizationText>,
 ) : ProviderProvisioningData()
 
 /**
@@ -132,7 +132,7 @@ data class LinkToken(
     val linkToken: String,
     val expiration: String,
     @SerializedName("request_id")
-    val requestId: String
+    val requestId: String,
 ) : Parcelable
 
 /**
@@ -160,7 +160,7 @@ data class StripeCardProviderCompletionData(
     @SerializedName("payment_method")
     val paymentMethod: String,
     // Odd ordering for backwards compatibility
-    override val type: FundingSourceType = FundingSourceType.CREDIT_CARD
+    override val type: FundingSourceType = FundingSourceType.CREDIT_CARD,
 ) : ProviderCompletionData()
 
 /**
@@ -181,7 +181,7 @@ data class CheckoutCardProviderCompletionData(
     override val version: Int = ProviderDefaults.version,
     override val type: FundingSourceType = FundingSourceType.CREDIT_CARD,
     @SerializedName("payment_token")
-    val paymentToken: String?
+    val paymentToken: String?,
 ) : ProviderCompletionData()
 
 /**
@@ -205,7 +205,7 @@ data class CheckoutBankAccountProviderCompletionData(
     val publicToken: String,
     val accountId: String,
     val institutionId: String,
-    val authorizationText: AuthorizationText
+    val authorizationText: AuthorizationText,
 ) : ProviderCompletionData()
 
 /**
@@ -233,13 +233,13 @@ internal data class SerializedCheckoutBankAccountCompletionData(
     val accountId: String,
     @SerializedName("institution_id")
     val institutionId: String,
-    val authorizationTextSignature: Signature
+    val authorizationTextSignature: Signature,
 ) : ProviderCommonData()
 
 @Keep
 @Parcelize
 internal data class ProviderSetupData(
-    val applicationName: String
+    val applicationName: String,
 ) : Parcelable
 
 sealed class ProviderRefreshData : ProviderCommonData(), Parcelable
@@ -261,7 +261,7 @@ data class CheckoutBankAccountProviderRefreshData(
     override val version: Int = ProviderDefaults.version,
     override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
     val accountId: String? = null,
-    val authorizationText: AuthorizationText? = null
+    val authorizationText: AuthorizationText? = null,
 ) : ProviderRefreshData()
 
 /**
@@ -281,7 +281,7 @@ internal data class SerializedCheckoutBankAccountRefreshData(
     override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
     val applicationName: String,
     val keyId: String,
-    val authorizationTextSignature: Signature? = null
+    val authorizationTextSignature: Signature? = null,
 ) : ProviderCommonData()
 
 sealed class ProviderUserInteractionData : ProviderCommonData(), Parcelable
@@ -299,7 +299,7 @@ sealed class ProviderUserInteractionData : ProviderCommonData(), Parcelable
 data class BaseUserInteractionData(
     override val provider: String = ProviderDefaults.checkoutProvider,
     override val version: Int,
-    override val type: FundingSourceType
+    override val type: FundingSourceType,
 ) : ProviderUserInteractionData()
 
 /**
@@ -317,7 +317,7 @@ data class CheckoutCardUserInteractionData(
     override val provider: String = ProviderDefaults.checkoutProvider,
     override val version: Int = ProviderDefaults.version,
     override val type: FundingSourceType = FundingSourceType.CREDIT_CARD,
-    val redirectUrl: String
+    val redirectUrl: String,
 ) : ProviderUserInteractionData()
 
 /**
@@ -339,5 +339,5 @@ data class CheckoutBankAccountRefreshUserInteractionData(
     override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
     @SerializedName("plaidLinkToken")
     val linkToken: LinkToken,
-    val authorizationText: List<AuthorizationText>
+    val authorizationText: List<AuthorizationText>,
 ) : ProviderUserInteractionData()

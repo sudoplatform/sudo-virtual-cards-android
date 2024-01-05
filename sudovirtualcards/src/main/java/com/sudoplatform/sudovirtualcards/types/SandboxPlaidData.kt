@@ -17,5 +17,5 @@ package com.sudoplatform.sudovirtualcards.types
  */
 data class SandboxPlaidData(
     val accountMetadata: List<PlaidAccountMetadata>,
-    val publicToken: String
+    val publicToken: String,
 )

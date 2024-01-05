@@ -11,15 +11,6 @@ import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
 import com.sudoplatform.sudokeymanager.KeyManagerException
-import org.mockito.kotlin.any
-import org.mockito.kotlin.check
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
@@ -32,7 +23,6 @@ import com.sudoplatform.sudovirtualcards.graphql.type.TransactionType
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
 import com.sudoplatform.sudovirtualcards.types.ListAPIResult
 import com.sudoplatform.sudovirtualcards.types.Transaction
-import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -50,9 +40,19 @@ import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.check
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import java.net.HttpURLConnection
 import java.util.Date
 import java.util.concurrent.CancellationException
+import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
 
 /**
  * Test the correct operation of [SudoVirtualCardsClient.listTransactionsByCardIdAndType] using mocks
@@ -67,9 +67,9 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
                 SealedCurrencyAmountAttribute(
                     "CurrencyAmount",
                     mockSeal("USD"),
-                    mockSeal("billedAmount")
-                )
-            )
+                    mockSeal("billedAmount"),
+                ),
+            ),
         )
     }
 
@@ -80,9 +80,9 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
                 SealedCurrencyAmountAttribute(
                     "CurrencyAmount",
                     mockSeal("USD"),
-                    mockSeal("transactedAmount")
-                )
-            )
+                    mockSeal("transactedAmount"),
+                ),
+            ),
         )
     }
 
@@ -121,9 +121,9 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
                                             SealedCurrencyAmountAttribute(
                                                 "CurrencyAmount",
                                                 mockSeal("USD"),
-                                                mockSeal("virtualCardAmount")
-                                            )
-                                        )
+                                                mockSeal("virtualCardAmount"),
+                                            ),
+                                        ),
                                     ),
                                     SealedTransactionDetailChargeAttribute.Markup(
                                         "Markup",
@@ -132,9 +132,9 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
                                                 "SealedMarkupAttribute",
                                                 mockSeal("1"),
                                                 mockSeal("2"),
-                                                mockSeal("3")
-                                            )
-                                        )
+                                                mockSeal("3"),
+                                            ),
+                                        ),
                                     ),
                                     SealedTransactionDetailChargeAttribute.MarkupAmount(
                                         "MarkupAmount",
@@ -142,9 +142,9 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
                                             SealedCurrencyAmountAttribute(
                                                 "CurrencyAmount",
                                                 mockSeal("USD"),
-                                                mockSeal("markupAmount")
-                                            )
-                                        )
+                                                mockSeal("markupAmount"),
+                                            ),
+                                        ),
                                     ),
                                     SealedTransactionDetailChargeAttribute.FundingSourceAmount(
                                         "FundingSourceAmount",
@@ -152,19 +152,19 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
                                             SealedCurrencyAmountAttribute(
                                                 "CurrencyAmount",
                                                 mockSeal("USD"),
-                                                mockSeal("fundingSourceAmount")
-                                            )
-                                        )
+                                                mockSeal("fundingSourceAmount"),
+                                            ),
+                                        ),
                                     ),
                                     "fundingSourceId",
                                     mockSeal("description"),
-                                    mockSeal("CLEARED")
-                                )
-                            )
-                        )
-                    )
-                )
-            )
+                                    mockSeal("CLEARED"),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
         )
     }
 
@@ -172,7 +172,7 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
         ListTransactionsByCardIdAndTypeQuery.ListTransactionsByCardIdAndType(
             "ListTransactionsByCardIdAndType",
             listOf(queryResultItem),
-            null
+            null,
         )
     }
 
@@ -182,8 +182,8 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
                 "cardId",
                 TransactionType.PENDING,
                 null,
-                null
-            )
+                null,
+            ),
         )
             .data(ListTransactionsByCardIdAndTypeQuery.Data(queryResult))
             .build()
@@ -246,7 +246,7 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
                 cardId = "cardId",
                 transactionType = TransactionTypeEntity.PENDING,
                 limit = 1,
-                nextToken = null
+                nextToken = null,
             )
         }
         deferredResult.start()
@@ -275,14 +275,14 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
             .query<
                 ListTransactionsByCardIdAndTypeQuery.Data,
                 ListTransactionsByCardIdAndTypeQuery,
-                ListTransactionsByCardIdAndTypeQuery.Variables
+                ListTransactionsByCardIdAndTypeQuery.Variables,
                 >(
                 check {
                     it.variables().cardId() shouldBe "cardId"
                     it.variables().transactionType() shouldBe TransactionType.PENDING
                     it.variables().limit() shouldBe 1
                     it.variables().nextToken() shouldBe null
-                }
+                },
             )
         verify(mockKeyManager, times(17)).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockKeyManager, times(17)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
@@ -321,14 +321,14 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
             .query<
                 ListTransactionsByCardIdAndTypeQuery.Data,
                 ListTransactionsByCardIdAndTypeQuery,
-                ListTransactionsByCardIdAndTypeQuery.Variables
+                ListTransactionsByCardIdAndTypeQuery.Variables,
                 >(
                 check {
                     it.variables().cardId() shouldBe "cardId"
                     it.variables().transactionType() shouldBe TransactionType.PENDING
                     it.variables().limit() shouldBe 100
                     it.variables().nextToken() shouldBe null
-                }
+                },
             )
         verify(mockKeyManager, times(17)).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockKeyManager, times(17)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
@@ -342,7 +342,7 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
             ListTransactionsByCardIdAndTypeQuery.ListTransactionsByCardIdAndType(
                 "ListTransactionsByCardIdAndType",
                 listOf(queryResultItem),
-                "dummyNextToken"
+                "dummyNextToken",
             )
         }
 
@@ -352,8 +352,8 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
                     "cardId",
                     TransactionType.PENDING,
                     1,
-                    "dummyNextToken"
-                )
+                    "dummyNextToken",
+                ),
             )
                 .data(ListTransactionsByCardIdAndTypeQuery.Data(queryResultWithNextToken))
                 .build()
@@ -388,14 +388,14 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
             .query<
                 ListTransactionsByCardIdAndTypeQuery.Data,
                 ListTransactionsByCardIdAndTypeQuery,
-                ListTransactionsByCardIdAndTypeQuery.Variables
+                ListTransactionsByCardIdAndTypeQuery.Variables,
                 >(
                 check {
                     it.variables().cardId() shouldBe "cardId"
                     it.variables().transactionType() shouldBe TransactionType.PENDING
                     it.variables().limit() shouldBe 1
                     it.variables().nextToken() shouldBe "dummyNextToken"
-                }
+                },
             )
         verify(mockKeyManager, times(17)).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockKeyManager, times(17)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
@@ -409,13 +409,13 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
             ListTransactionsByCardIdAndTypeQuery.ListTransactionsByCardIdAndType(
                 "ListTransactionsByCardIdAndType",
                 emptyList(),
-                null
+                null,
             )
         }
 
         val responseWithEmptyList by before {
             Response.builder<ListTransactionsByCardIdAndTypeQuery.Data>(
-                ListTransactionsByCardIdAndTypeQuery("cardId", TransactionType.PENDING, null, null)
+                ListTransactionsByCardIdAndTypeQuery("cardId", TransactionType.PENDING, null, null),
             )
                 .data(ListTransactionsByCardIdAndTypeQuery.Data(queryResultWithEmptyList))
                 .build()
@@ -448,14 +448,14 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
             .query<
                 ListTransactionsByCardIdAndTypeQuery.Data,
                 ListTransactionsByCardIdAndTypeQuery,
-                ListTransactionsByCardIdAndTypeQuery.Variables
+                ListTransactionsByCardIdAndTypeQuery.Variables,
                 >(
                 check {
                     it.variables().cardId() shouldBe "cardId"
                     it.variables().transactionType() shouldBe TransactionType.PENDING
                     it.variables().limit() shouldBe 100
                     it.variables().nextToken() shouldBe null
-                }
+                },
             )
     }
 
@@ -465,7 +465,7 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
 
         val nullQueryResponse by before {
             Response.builder<ListTransactionsByCardIdAndTypeQuery.Data>(
-                ListTransactionsByCardIdAndTypeQuery("cardId", TransactionType.PENDING, null, null)
+                ListTransactionsByCardIdAndTypeQuery("cardId", TransactionType.PENDING, null, null),
             )
                 .data(null)
                 .build()
@@ -498,14 +498,14 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
             .query<
                 ListTransactionsByCardIdAndTypeQuery.Data,
                 ListTransactionsByCardIdAndTypeQuery,
-                ListTransactionsByCardIdAndTypeQuery.Variables
+                ListTransactionsByCardIdAndTypeQuery.Variables,
                 >(
                 check {
                     it.variables().cardId() shouldBe "cardId"
                     it.variables().transactionType() shouldBe TransactionType.PENDING
                     it.variables().limit() shouldBe 100
                     it.variables().nextToken() shouldBe null
-                }
+                },
             )
     }
 
@@ -519,13 +519,13 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
             ListTransactionsByCardIdAndTypeQuery.ListTransactionsByCardIdAndType(
                 "ListTransactionsByCardIdAndType",
                 listOf(queryResultItem1, queryResultItem2, queryResultItem3),
-                null
+                null,
             )
         }
 
         val queryResponse by before {
             Response.builder<ListTransactionsByCardIdAndTypeQuery.Data>(
-                ListTransactionsByCardIdAndTypeQuery("cardId", TransactionType.COMPLETE, null, null)
+                ListTransactionsByCardIdAndTypeQuery("cardId", TransactionType.COMPLETE, null, null),
             )
                 .data(ListTransactionsByCardIdAndTypeQuery.Data(queryResult))
                 .build()
@@ -560,14 +560,14 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
             .query<
                 ListTransactionsByCardIdAndTypeQuery.Data,
                 ListTransactionsByCardIdAndTypeQuery,
-                ListTransactionsByCardIdAndTypeQuery.Variables
+                ListTransactionsByCardIdAndTypeQuery.Variables,
                 >(
                 check {
                     it.variables().cardId() shouldBe "cardId"
                     it.variables().transactionType() shouldBe TransactionType.COMPLETE
                     it.variables().limit() shouldBe 100
                     it.variables().nextToken() shouldBe null
-                }
+                },
             )
         verify(mockKeyManager, times(18)).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockKeyManager, times(18)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
@@ -634,14 +634,14 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
             .query<
                 ListTransactionsByCardIdAndTypeQuery.Data,
                 ListTransactionsByCardIdAndTypeQuery,
-                ListTransactionsByCardIdAndTypeQuery.Variables
+                ListTransactionsByCardIdAndTypeQuery.Variables,
                 >(
                 check {
                     it.variables().cardId() shouldBe "cardId"
                     it.variables().transactionType() shouldBe TransactionType.PENDING
                     it.variables().limit() shouldBe 100
                     it.variables().nextToken() shouldBe null
-                }
+                },
             )
     }
 
@@ -679,14 +679,14 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
             .query<
                 ListTransactionsByCardIdAndTypeQuery.Data,
                 ListTransactionsByCardIdAndTypeQuery,
-                ListTransactionsByCardIdAndTypeQuery.Variables
+                ListTransactionsByCardIdAndTypeQuery.Variables,
                 >(
                 check {
                     it.variables().cardId() shouldBe "cardId"
                     it.variables().transactionType() shouldBe TransactionType.PENDING
                     it.variables().limit() shouldBe 100
                     it.variables().nextToken() shouldBe null
-                }
+                },
             )
     }
 
@@ -712,14 +712,14 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
             .query<
                 ListTransactionsByCardIdAndTypeQuery.Data,
                 ListTransactionsByCardIdAndTypeQuery,
-                ListTransactionsByCardIdAndTypeQuery.Variables
+                ListTransactionsByCardIdAndTypeQuery.Variables,
                 >(
                 check {
                     it.variables().cardId() shouldBe "cardId"
                     it.variables().transactionType() shouldBe TransactionType.PENDING
                     it.variables().limit() shouldBe 100
                     it.variables().nextToken() shouldBe null
-                }
+                },
             )
     }
 
@@ -737,14 +737,14 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
             .query<
                 ListTransactionsByCardIdAndTypeQuery.Data,
                 ListTransactionsByCardIdAndTypeQuery,
-                ListTransactionsByCardIdAndTypeQuery.Variables
+                ListTransactionsByCardIdAndTypeQuery.Variables,
                 >(
                 check {
                     it.variables().cardId() shouldBe "cardId"
                     it.variables().transactionType() shouldBe TransactionType.PENDING
                     it.variables().limit() shouldBe 100
                     it.variables().nextToken() shouldBe null
-                }
+                },
             )
     }
 
@@ -771,9 +771,9 @@ class SudoVirtualCardsListTransactionsByCardIdAndTypeTest : BaseTests() {
                     transactedAmount,
                     mockSeal("description"),
                     null,
-                    emptyList()
-                )
-            )
+                    emptyList(),
+                ),
+            ),
         )
     }
 

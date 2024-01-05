@@ -10,22 +10,13 @@ import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
-import com.sudoplatform.sudovirtualcards.graphql.fragment.CreditCardFundingSource as CreditCardFundingSourceGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as FundingSourceStateGraphQL
 import com.sudoplatform.sudovirtualcards.types.CachePolicy
 import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
@@ -43,7 +34,16 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import java.net.HttpURLConnection
+import com.sudoplatform.sudovirtualcards.graphql.fragment.CreditCardFundingSource as CreditCardFundingSourceGraphQL
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as FundingSourceStateGraphQL
 
 /**
  * Test the correct operation of [SudoVirtualCardsClient.listFundingSources]
@@ -72,18 +72,18 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
                                 CreditCardFundingSourceGraphQL.TransactionVelocity(
                                     "TransactionVelocity",
                                     10000,
-                                    listOf("10000/P1D")
+                                    listOf("10000/P1D"),
                                 ),
                                 "last4",
                                 CreditCardNetwork.VISA,
-                                CardType.CREDIT
-                            )
-                        )
+                                CardType.CREDIT,
+                            ),
+                        ),
                     ),
-                    null
-                )
+                    null,
+                ),
             ),
-            null
+            null,
         )
     }
 
@@ -192,18 +192,18 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
                                     CreditCardFundingSourceGraphQL.TransactionVelocity(
                                         "TransactionVelocity",
                                         10000,
-                                        listOf("10000/P1D")
+                                        listOf("10000/P1D"),
                                     ),
                                     "last4",
                                     CreditCardNetwork.VISA,
-                                    CardType.CREDIT
-                                )
-                            )
+                                    CardType.CREDIT,
+                                ),
+                            ),
                         ),
-                        null
-                    )
+                        null,
+                    ),
                 ),
-                "dummyNextToken"
+                "dummyNextToken",
             )
         }
 
@@ -251,7 +251,7 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
             ListFundingSourcesQuery.ListFundingSources(
                 "typename",
                 emptyList(),
-                null
+                null,
             )
         }
 
@@ -362,8 +362,7 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
     }
 
     @Test
-    fun `listFundingSources() should not suppress CancellationException`
-    () = runBlocking<Unit> {
+    fun `listFundingSources() should not suppress CancellationException`() = runBlocking<Unit> {
         holder.callback shouldBe null
 
         mockAppSyncClient.stub {

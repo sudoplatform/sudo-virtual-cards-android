@@ -16,7 +16,6 @@ import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.SetupFundingSourceMutation
-import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalFundingSource as ProvisionalFundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceState
 import com.sudoplatform.sudovirtualcards.graphql.type.SetupFundingSourceRequest
@@ -25,10 +24,9 @@ import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningDa
 import com.sudoplatform.sudovirtualcards.types.CheckoutCardProvisioningData
 import com.sudoplatform.sudovirtualcards.types.ClientApplicationData
 import com.sudoplatform.sudovirtualcards.types.LinkToken
-import com.sudoplatform.sudovirtualcards.types.ProvisioningData
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
+import com.sudoplatform.sudovirtualcards.types.ProvisioningData
 import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
-import com.sudoplatform.sudovirtualcards.types.FundingSourceType as FundingSourceTypeEntity
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -56,6 +54,8 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import java.net.HttpURLConnection
 import java.util.concurrent.CancellationException
+import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalFundingSource as ProvisionalFundingSourceFragment
+import com.sudoplatform.sudovirtualcards.types.FundingSourceType as FundingSourceTypeEntity
 
 /**
  * Test the correct operation of [SudoVirtualCardsClient.setupFundingSource]
@@ -70,7 +70,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             return listOf(
                 "stripe",
                 "checkoutCard",
-                "checkoutBankAccount"
+                "checkoutBankAccount",
             )
         }
     }
@@ -81,21 +81,21 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                 "USD",
                 FundingSourceTypeEntity.CREDIT_CARD,
                 ClientApplicationData("system-test-app"),
-                listOf("stripe")
+                listOf("stripe"),
             ),
             "checkoutCard" to SetupFundingSourceInput(
                 "USD",
                 FundingSourceTypeEntity.CREDIT_CARD,
                 ClientApplicationData("system-test-app"),
-                listOf("checkout")
+                listOf("checkout"),
             ),
             "checkoutBankAccount" to SetupFundingSourceInput(
                 "USD",
                 FundingSourceTypeEntity.BANK_ACCOUNT,
                 ClientApplicationData("system-test-app"),
                 listOf("checkout"),
-                "en-US"
-            )
+                "en-US",
+            ),
         )
     }
 
@@ -108,10 +108,10 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                 com.amazonaws.util.Base64.encode(
                     Gson().toJson(
                         ClientApplicationData(
-                            "system-test-app"
-                        )
-                    ).toByteArray()
-                ).toString(Charsets.UTF_8)
+                            "system-test-app",
+                        ),
+                    ).toByteArray(),
+                ).toString(Charsets.UTF_8),
             )
             .build(),
         "checkoutCard" to SetupFundingSourceRequest.builder()
@@ -122,10 +122,10 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                 com.amazonaws.util.Base64.encode(
                     Gson().toJson(
                         ClientApplicationData(
-                            "system-test-app"
-                        )
-                    ).toByteArray()
-                ).toString(Charsets.UTF_8)
+                            "system-test-app",
+                        ),
+                    ).toByteArray(),
+                ).toString(Charsets.UTF_8),
             )
             .build(),
         "checkoutBankAccount" to SetupFundingSourceRequest.builder()
@@ -136,12 +136,12 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                 com.amazonaws.util.Base64.encode(
                     Gson().toJson(
                         ClientApplicationData(
-                            "system-test-app"
-                        )
-                    ).toByteArray()
-                ).toString(Charsets.UTF_8)
+                            "system-test-app",
+                        ),
+                    ).toByteArray(),
+                ).toString(Charsets.UTF_8),
             )
-            .build()
+            .build(),
     )
 
     // Compile-time test of backwards compatibility.
@@ -152,7 +152,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
         "content",
         "contentType",
         "hash",
-        "hashAlgorithm"
+        "hashAlgorithm",
     )
     private val expectedProvisioningData = mapOf(
         "stripe" to StripeCardProvisioningData("stripe", 1, "intent", "clientSecret", FundingSourceTypeEntity.CREDIT_CARD),
@@ -164,10 +164,10 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             LinkToken(
                 "linkToken",
                 "expiration",
-                "requestId"
+                "requestId",
             ),
-            listOf(authorizationText)
-        )
+            listOf(authorizationText),
+        ),
     )
 
     private val mutationResult by before {
@@ -180,9 +180,9 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             LinkToken(
                 "linkToken",
                 "expiration",
-                "requestId"
+                "requestId",
             ),
-            listOf(authorizationText)
+            listOf(authorizationText),
         )
 
         mapOf(
@@ -199,9 +199,9 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                             10.0,
                             FundingSourceType.CREDIT_CARD,
                             Base64.encodeBase64String(Gson().toJson(stripeSetupData).toByteArray()),
-                            ProvisionalFundingSourceState.PROVISIONING
-                        )
-                    )
+                            ProvisionalFundingSourceState.PROVISIONING,
+                        ),
+                    ),
                 ),
             "checkoutCard" to
                 SetupFundingSourceMutation.SetupFundingSource(
@@ -216,9 +216,9 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                             10.0,
                             FundingSourceType.CREDIT_CARD,
                             Base64.encodeBase64String(Gson().toJson(checkoutCardSetupData).toByteArray()),
-                            ProvisionalFundingSourceState.PROVISIONING
-                        )
-                    )
+                            ProvisionalFundingSourceState.PROVISIONING,
+                        ),
+                    ),
                 ),
             "checkoutBankAccount" to
                 SetupFundingSourceMutation.SetupFundingSource(
@@ -233,10 +233,10 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                             10.0,
                             FundingSourceType.BANK_ACCOUNT,
                             Base64.encodeBase64String(Gson().toJson(checkoutBankAccountSetupData).toByteArray()),
-                            ProvisionalFundingSourceState.PROVISIONING
-                        )
-                    )
-                )
+                            ProvisionalFundingSourceState.PROVISIONING,
+                        ),
+                    ),
+                ),
         )
     }
 
@@ -260,7 +260,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             "checkoutBankAccount" to
                 Response.builder<SetupFundingSourceMutation.Data>(SetupFundingSourceMutation(checkoutBankAccountRequest))
                     .data(SetupFundingSourceMutation.Data(checkoutBankAccountResult))
-                    .build()
+                    .build(),
         )
     }
 
@@ -305,7 +305,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             mockContext,
             mockUserClient,
             mockKeyManager,
-            mockAppSyncClient
+            mockAppSyncClient,
         )
     }
 
@@ -338,11 +338,12 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
         verify(mockAppSyncClient).mutate<
             SetupFundingSourceMutation.Data,
             SetupFundingSourceMutation,
-            SetupFundingSourceMutation.Variables>(
+            SetupFundingSourceMutation.Variables,
+            >(
             check {
                 it.variables().input().currency() shouldBe "USD"
                 it.variables().input().type() shouldBe mutationRequest[provider]?.type()
-            }
+            },
         )
     }
 
@@ -353,7 +354,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
         val nullMutationResponse by before {
             Response
                 .builder<SetupFundingSourceMutation.Data>(
-                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider(provider))
+                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider(provider)),
                 )
                 .data(null)
                 .build()
@@ -373,11 +374,12 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
         verify(mockAppSyncClient).mutate<
             SetupFundingSourceMutation.Data,
             SetupFundingSourceMutation,
-            SetupFundingSourceMutation.Variables>(
+            SetupFundingSourceMutation.Variables,
+            >(
             check {
                 it.variables().input().currency() shouldBe "USD"
                 it.variables().input().type() shouldBe mutationRequest[provider]?.type()
-            }
+            },
         )
     }
 
@@ -389,7 +391,7 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             SetupFundingSourceInput(
                 "AUD",
                 FundingSourceTypeEntity.CREDIT_CARD,
-                ClientApplicationData("system-test-app")
+                ClientApplicationData("system-test-app"),
             )
         }
 
@@ -397,11 +399,11 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "UnsupportedCurrencyError")
+                mapOf("errorType" to "UnsupportedCurrencyError"),
             )
             Response
                 .builder<SetupFundingSourceMutation.Data>(
-                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider(provider))
+                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider(provider)),
                 )
                 .errors(listOf(error))
                 .data(null)
@@ -422,11 +424,12 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
         verify(mockAppSyncClient).mutate<
             SetupFundingSourceMutation.Data,
             SetupFundingSourceMutation,
-            SetupFundingSourceMutation.Variables>(
+            SetupFundingSourceMutation.Variables,
+            >(
             check {
                 it.variables().input().currency() shouldBe "AUD"
                 it.variables().input().type() shouldBe FundingSourceType.CREDIT_CARD
-            }
+            },
         )
     }
 
@@ -438,11 +441,11 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "AccountLockedError")
+                mapOf("errorType" to "AccountLockedError"),
             )
             Response
                 .builder<SetupFundingSourceMutation.Data>(
-                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider(provider))
+                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider(provider)),
                 )
                 .errors(listOf(error))
                 .data(null)
@@ -463,11 +466,12 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
         verify(mockAppSyncClient).mutate<
             SetupFundingSourceMutation.Data,
             SetupFundingSourceMutation,
-            SetupFundingSourceMutation.Variables>(
+            SetupFundingSourceMutation.Variables,
+            >(
             check {
                 it.variables().input().currency() shouldBe "USD"
                 it.variables().input().type() shouldBe mutationRequest[provider]?.type()
-            }
+            },
         )
     }
 
@@ -479,11 +483,11 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "EntitlementExceededError")
+                mapOf("errorType" to "EntitlementExceededError"),
             )
             Response
                 .builder<SetupFundingSourceMutation.Data>(
-                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider(provider))
+                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider(provider)),
                 )
                 .errors(listOf(error))
                 .data(null)
@@ -504,11 +508,12 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
         verify(mockAppSyncClient).mutate<
             SetupFundingSourceMutation.Data,
             SetupFundingSourceMutation,
-            SetupFundingSourceMutation.Variables>(
+            SetupFundingSourceMutation.Variables,
+            >(
             check {
                 it.variables().input().currency() shouldBe "USD"
                 it.variables().input().type() shouldBe mutationRequest[provider]?.type()
-            }
+            },
         )
     }
 
@@ -520,11 +525,11 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "VelocityExceededError")
+                mapOf("errorType" to "VelocityExceededError"),
             )
             Response
                 .builder<SetupFundingSourceMutation.Data>(
-                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider(provider))
+                    SetupFundingSourceMutation(mutationRequest[provider] ?: throw missingProvider(provider)),
                 )
                 .errors(listOf(error))
                 .data(null)
@@ -545,11 +550,12 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
         verify(mockAppSyncClient).mutate<
             SetupFundingSourceMutation.Data,
             SetupFundingSourceMutation,
-            SetupFundingSourceMutation.Variables>(
+            SetupFundingSourceMutation.Variables,
+            >(
             check {
                 it.variables().input().currency() shouldBe "USD"
                 it.variables().input().type() shouldBe mutationRequest[provider]?.type()
-            }
+            },
         )
     }
 
@@ -586,11 +592,12 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
         verify(mockAppSyncClient).mutate<
             SetupFundingSourceMutation.Data,
             SetupFundingSourceMutation,
-            SetupFundingSourceMutation.Variables>(
+            SetupFundingSourceMutation.Variables,
+            >(
             check {
                 it.variables().input().currency() shouldBe "USD"
                 it.variables().input().type() shouldBe mutationRequest[provider]?.type()
-            }
+            },
         )
     }
 
@@ -615,11 +622,12 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
         verify(mockAppSyncClient).mutate<
             SetupFundingSourceMutation.Data,
             SetupFundingSourceMutation,
-            SetupFundingSourceMutation.Variables>(
+            SetupFundingSourceMutation.Variables,
+            >(
             check {
                 it.variables().input().currency() shouldBe "USD"
                 it.variables().input().type() shouldBe mutationRequest[provider]?.type()
-            }
+            },
         )
     }
 
@@ -644,11 +652,12 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
         verify(mockAppSyncClient).mutate<
             SetupFundingSourceMutation.Data,
             SetupFundingSourceMutation,
-            SetupFundingSourceMutation.Variables>(
+            SetupFundingSourceMutation.Variables,
+            >(
             check {
                 it.variables().input().currency() shouldBe "USD"
                 it.variables().input().type() shouldBe mutationRequest[provider]?.type()
-            }
+            },
         )
     }
 }

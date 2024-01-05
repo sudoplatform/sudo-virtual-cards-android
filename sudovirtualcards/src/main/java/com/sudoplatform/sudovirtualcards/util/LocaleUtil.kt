@@ -63,6 +63,6 @@ class LocaleUtil private constructor() {
     @Keep
     private data class Iso3166Map(
         val cc3to2: Map<String, String>,
-        val cc2to3: Map<String, String>
+        val cc2to3: Map<String, String>,
     )
 }

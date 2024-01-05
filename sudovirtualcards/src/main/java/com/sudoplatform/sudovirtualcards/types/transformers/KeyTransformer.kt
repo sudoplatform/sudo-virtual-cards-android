@@ -30,9 +30,9 @@ internal object KeyTransformer {
             publicKey = PublicKey(
                 keyId = publicKeyWithKeyRingId.keyId(),
                 publicKey = Base64.decode(publicKeyWithKeyRingId.publicKey()),
-                algorithm = publicKeyWithKeyRingId.algorithm()
+                algorithm = publicKeyWithKeyRingId.algorithm(),
             ),
-            keyRingId = publicKeyWithKeyRingId.keyRingId()
+            keyRingId = publicKeyWithKeyRingId.keyRingId(),
         )
     }
 
@@ -48,9 +48,9 @@ internal object KeyTransformer {
             publicKey = PublicKey(
                 keyId = publicKeyWithKeyRingId.keyId(),
                 publicKey = Base64.decode(publicKeyWithKeyRingId.publicKey()),
-                algorithm = publicKeyWithKeyRingId.algorithm()
+                algorithm = publicKeyWithKeyRingId.algorithm(),
             ),
-            keyRingId = publicKeyWithKeyRingId.keyRingId()
+            keyRingId = publicKeyWithKeyRingId.keyRingId(),
         )
     }
 }

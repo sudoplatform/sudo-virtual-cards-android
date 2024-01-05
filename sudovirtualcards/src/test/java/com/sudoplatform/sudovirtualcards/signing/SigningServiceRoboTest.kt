@@ -37,7 +37,7 @@ class SigningServiceRoboTest : BaseTests() {
 
     private val signingService by before {
         DefaultSigningService(
-            deviceKeyManager = mockDeviceKeyManager
+            deviceKeyManager = mockDeviceKeyManager,
         )
     }
 

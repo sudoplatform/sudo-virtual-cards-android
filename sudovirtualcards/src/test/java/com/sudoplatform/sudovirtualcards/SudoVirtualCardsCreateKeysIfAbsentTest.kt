@@ -10,8 +10,8 @@ import android.content.Context
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
-import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
 import com.sudoplatform.sudovirtualcards.keys.DeviceKey
+import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyWithKeyRingId
 import io.kotlintest.shouldBe
@@ -44,7 +44,7 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
     private val deviceKeyResult by before {
         DeviceKey(
             keyId = keyId,
-            publicKey = ByteArray(42)
+            publicKey = ByteArray(42),
         )
     }
 
@@ -52,9 +52,9 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
         PublicKeyWithKeyRingId(
             publicKey = PublicKey(
                 keyId = keyId,
-                publicKey = ByteArray(42)
+                publicKey = ByteArray(42),
             ),
-            keyRingId = keyRingId
+            keyRingId = keyRingId,
         )
     }
 
@@ -87,7 +87,7 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
         mock<PublicKeyService>().stub {
             onBlocking { get(anyString(), any()) } doReturn PublicKeyWithKeyRingId(
                 publicKey = publicKey,
-                keyRingId = keyRingId
+                keyRingId = keyRingId,
             )
             onBlocking { getCurrentKey() } doReturn publicKey
             onBlocking { getCurrentRegisteredKey() } doReturn publicKeyWithKeyRingIdResult
@@ -101,7 +101,7 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
             mockUserClient,
             mockLogger,
             mockDeviceKeyManager,
-            mockPublicKeyService
+            mockPublicKeyService,
         )
     }
 
@@ -112,7 +112,7 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
             mockUserClient,
             mockAppSyncClient,
             mockDeviceKeyManager,
-            mockPublicKeyService
+            mockPublicKeyService,
         )
     }
 

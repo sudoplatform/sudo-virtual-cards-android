@@ -11,15 +11,6 @@ import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
 import com.sudoplatform.sudokeymanager.KeyManagerException
-import org.mockito.kotlin.any
-import org.mockito.kotlin.check
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
@@ -29,12 +20,11 @@ import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAddressAttribute
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCard
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCardWithLastTransaction
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedExpiryAttribute
-import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.graphql.type.AddressInput
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
 import com.sudoplatform.sudovirtualcards.graphql.type.CardUpdateRequest
+import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
-import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
 import io.kotlintest.fail
@@ -53,8 +43,18 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.check
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import java.net.HttpURLConnection
 import java.util.Date
+import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 
 /**
  * Test the correct operation of [SudoVirtualCardsClient.updateVirtualCard]
@@ -84,9 +84,9 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                     mockSeal("city"),
                     mockSeal("state"),
                     mockSeal("postalCode"),
-                    mockSeal("country")
-                )
-            )
+                    mockSeal("country"),
+                ),
+            ),
         )
     }
 
@@ -97,9 +97,9 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 SealedExpiryAttribute(
                     "SealedExpiryAttribute",
                     mockSeal("01"),
-                    mockSeal("2021")
-                )
-            )
+                    mockSeal("2021"),
+                ),
+            ),
         )
     }
 
@@ -115,7 +115,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             "city",
             "state",
             "postalCode",
-            "country"
+            "country",
         )
     }
 
@@ -161,11 +161,11 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                             mockSeal("csc"),
                             billingAddress,
                             expiry,
-                            null
-                        )
-                    )
-                )
-            )
+                            null,
+                        ),
+                    ),
+                ),
+            ),
         )
     }
 
@@ -189,7 +189,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
     private val currentKey = PublicKey(
         keyId = "keyId",
-        publicKey = "publicKey".toByteArray()
+        publicKey = "publicKey".toByteArray(),
     )
 
     private val mockPublicKeyService by before {
@@ -237,7 +237,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             mockUserClient,
             mockKeyManager,
             mockPublicKeyService,
-            mockAppSyncClient
+            mockAppSyncClient,
         )
     }
 
@@ -294,7 +294,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.state() shouldBe "state"
                 it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
                 it.variables().input().billingAddress()?.country() shouldBe "country"
-            }
+            },
         )
         verify(mockPublicKeyService).getCurrentKey()
         verify(mockKeyManager, times(12)).decryptWithPrivateKey(anyString(), any(), any())
@@ -351,7 +351,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.state() shouldBe "state"
                 it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
                 it.variables().input().billingAddress()?.country() shouldBe "country"
-            }
+            },
         )
         verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockPublicKeyService).getCurrentKey()
@@ -390,7 +390,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.state() shouldBe "state"
                 it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
                 it.variables().input().billingAddress()?.country() shouldBe "country"
-            }
+            },
         )
         verify(mockPublicKeyService).getCurrentKey()
     }
@@ -403,7 +403,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "IdentityVerificationNotVerifiedError")
+                mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
             )
             Response.builder<UpdateVirtualCardMutation.Data>(UpdateVirtualCardMutation(mutationRequest))
                 .errors(listOf(error))
@@ -434,7 +434,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.state() shouldBe "state"
                 it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
                 it.variables().input().billingAddress()?.country() shouldBe "country"
-            }
+            },
         )
         verify(mockPublicKeyService).getCurrentKey()
     }
@@ -447,7 +447,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "CardNotFoundError")
+                mapOf("errorType" to "CardNotFoundError"),
             )
             Response.builder<UpdateVirtualCardMutation.Data>(UpdateVirtualCardMutation(mutationRequest))
                 .errors(listOf(error))
@@ -478,7 +478,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.state() shouldBe "state"
                 it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
                 it.variables().input().billingAddress()?.country() shouldBe "country"
-            }
+            },
         )
         verify(mockPublicKeyService).getCurrentKey()
     }
@@ -491,7 +491,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "CardStateError")
+                mapOf("errorType" to "CardStateError"),
             )
             Response.builder<UpdateVirtualCardMutation.Data>(UpdateVirtualCardMutation(mutationRequest))
                 .errors(listOf(error))
@@ -522,7 +522,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.state() shouldBe "state"
                 it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
                 it.variables().input().billingAddress()?.country() shouldBe "country"
-            }
+            },
         )
         verify(mockPublicKeyService).getCurrentKey()
     }
@@ -544,7 +544,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
     fun `updateVirtualCard() should throw when unsealing fails`() = runBlocking<Unit> {
         mockAppSyncClient.stub {
             on { mutate(any<UpdateVirtualCardMutation>()) } doThrow Unsealer.UnsealerException.SealedDataTooShortException(
-                "Mock Unsealer Exception"
+                "Mock Unsealer Exception",
             )
         }
 
@@ -564,7 +564,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.state() shouldBe "state"
                 it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
                 it.variables().input().billingAddress()?.country() shouldBe "country"
-            }
+            },
         )
         verify(mockPublicKeyService).getCurrentKey()
     }
@@ -611,7 +611,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.state() shouldBe "state"
                 it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
                 it.variables().input().billingAddress()?.country() shouldBe "country"
-            }
+            },
         )
         verify(mockPublicKeyService).getCurrentKey()
     }
@@ -646,7 +646,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.state() shouldBe "state"
                 it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
                 it.variables().input().billingAddress()?.country() shouldBe "country"
-            }
+            },
         )
         verify(mockPublicKeyService).getCurrentKey()
     }
@@ -673,7 +673,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 it.variables().input().billingAddress()?.state() shouldBe "state"
                 it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
                 it.variables().input().billingAddress()?.country() shouldBe "country"
-            }
+            },
         )
         verify(mockPublicKeyService).getCurrentKey()
     }

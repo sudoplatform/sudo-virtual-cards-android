@@ -12,20 +12,20 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
 import com.sudoplatform.sudovirtualcards.graphql.GetVirtualCardsConfigQuery
-import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSourceSupportInfo
 import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSourceSupportDetail
+import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSourceSupportInfo
 import com.sudoplatform.sudovirtualcards.graphql.fragment.VirtualCardsConfig
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.types.ClientApplicationConfiguration
-import com.sudoplatform.sudovirtualcards.types.CardType as CardTypeEntity
-import com.sudoplatform.sudovirtualcards.types.CurrencyVelocity
 import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
+import com.sudoplatform.sudovirtualcards.types.CurrencyVelocity
 import com.sudoplatform.sudovirtualcards.types.FundingSourceClientConfiguration
 import com.sudoplatform.sudovirtualcards.types.FundingSourceTypes
 import com.sudoplatform.sudovirtualcards.types.PricingPolicy
 import java.lang.Exception
-import com.sudoplatform.sudovirtualcards.types.FundingSourceSupportInfo as FundingSourceSupportInfoEntity
+import com.sudoplatform.sudovirtualcards.types.CardType as CardTypeEntity
 import com.sudoplatform.sudovirtualcards.types.FundingSourceSupportDetail as FundingSourceSupportDetailEntity
+import com.sudoplatform.sudovirtualcards.types.FundingSourceSupportInfo as FundingSourceSupportInfoEntity
 import com.sudoplatform.sudovirtualcards.types.VirtualCardsConfig as VirtualCardsConfigEntity
 
 /**
@@ -41,7 +41,7 @@ internal object VirtualCardsConfigTransformer {
      * @return The [VirtualCardsConfig] entity type.
      */
     fun toEntityFromGetVirtualCardsConfigQueryResult(
-        result: VirtualCardsConfig
+        result: VirtualCardsConfig,
     ): VirtualCardsConfigEntity {
         return VirtualCardsConfigEntity(
             maxFundingSourceVelocity = result.maxFundingSourceVelocity(),
@@ -53,7 +53,7 @@ internal object VirtualCardsConfigTransformer {
             virtualCardCurrencies = result.virtualCardCurrencies(),
             fundingSourceSupportInfo = result.fundingSourceSupportInfo().map {
                 toEntityFromFundingSourceSupportInfo(
-                    it.fragments().fundingSourceSupportInfo()
+                    it.fragments().fundingSourceSupportInfo(),
                 )
             },
             bankAccountFundingSourceExpendableEnabled = result.bankAccountFundingSourceExpendableEnabled(),
@@ -78,12 +78,12 @@ internal object VirtualCardsConfigTransformer {
                 } else {
                     null
                 }
-            }
+            },
         )
     }
 
     private fun toEntityFromMaxTransactionVelocity(
-        maxTransactionVelocity: List<VirtualCardsConfig.MaxTransactionVelocity>
+        maxTransactionVelocity: List<VirtualCardsConfig.MaxTransactionVelocity>,
     ): List<CurrencyVelocity> {
         return maxTransactionVelocity.map {
             CurrencyVelocity(it.currency(), it.velocity())
@@ -91,7 +91,7 @@ internal object VirtualCardsConfigTransformer {
     }
 
     private fun toEntityFromMaxTransactionAmount(
-        maxTransactionAmount: List<VirtualCardsConfig.MaxTransactionAmount>
+        maxTransactionAmount: List<VirtualCardsConfig.MaxTransactionAmount>,
     ): List<CurrencyAmount> {
         return maxTransactionAmount.map {
             CurrencyAmount(it.currency(), it.amount())
@@ -99,7 +99,7 @@ internal object VirtualCardsConfigTransformer {
     }
 
     private fun toEntityFromFundingSourceSupportInfo(
-        fundingSourceSupportInfo: FundingSourceSupportInfo
+        fundingSourceSupportInfo: FundingSourceSupportInfo,
     ): FundingSourceSupportInfoEntity {
         return FundingSourceSupportInfoEntity(
             fundingSourceSupportInfo.providerType(),
@@ -107,7 +107,7 @@ internal object VirtualCardsConfigTransformer {
             fundingSourceSupportInfo.network(),
             fundingSourceSupportInfo.detail().map {
                 it.fragments().fundingSourceSupportDetail().toFundingSourceDetailEntity()
-            }
+            },
         )
     }
 
@@ -140,7 +140,7 @@ internal fun decodePricingPolicy(policyData: String): PricingPolicy {
         decodedString = String(Base64.decode(policyData), Charsets.UTF_8)
     } catch (e: Exception) {
         throw SudoVirtualCardsClient.VirtualCardException.FailedException(
-            "$msg: Base64 decoding failed: $policyData: $e"
+            "$msg: Base64 decoding failed: $policyData: $e",
         )
     }
 
@@ -149,7 +149,7 @@ internal fun decodePricingPolicy(policyData: String): PricingPolicy {
         pricingPolicy = Gson().fromJson(decodedString, PricingPolicy::class.java)
     } catch (e: Exception) {
         throw SudoVirtualCardsClient.VirtualCardException.FailedException(
-            "$msg: JSON parsing failed: $decodedString: $e"
+            "$msg: JSON parsing failed: $decodedString: $e",
         )
     }
     return pricingPolicy
@@ -170,7 +170,7 @@ internal fun decodeFundingSourceClientConfiguration(configData: String): List<Fu
         decodedString = String(Base64.decode(configData), Charsets.UTF_8)
     } catch (e: Exception) {
         throw SudoVirtualCardsClient.VirtualCardException.FailedException(
-            "$msg: Base64 decoding failed: $configData: $e"
+            "$msg: Base64 decoding failed: $configData: $e",
         )
     }
 
@@ -179,7 +179,7 @@ internal fun decodeFundingSourceClientConfiguration(configData: String): List<Fu
         fundingSourceClientConfiguration = Gson().fromJson(decodedString, FundingSourceTypes::class.java).fundingSourceTypes
     } catch (e: Exception) {
         throw SudoVirtualCardsClient.VirtualCardException.FailedException(
-            "$msg: JSON parsing failed: $decodedString: $e"
+            "$msg: JSON parsing failed: $decodedString: $e",
         )
     }
     return fundingSourceClientConfiguration
@@ -202,7 +202,7 @@ internal fun decodeClientApplicationConfiguration(configData: String): Map<Strin
         decodedString = String(Base64.decode(configData), Charsets.UTF_8)
     } catch (e: Exception) {
         throw SudoVirtualCardsClient.VirtualCardException.FailedException(
-            "$msg: Base64 decoding failed: $configData: $e"
+            "$msg: Base64 decoding failed: $configData: $e",
         )
     }
 
@@ -211,7 +211,7 @@ internal fun decodeClientApplicationConfiguration(configData: String): Map<Strin
         decodedObject = Gson().fromJson(decodedString, JsonObject::class.java)
     } catch (e: Exception) {
         throw SudoVirtualCardsClient.VirtualCardException.FailedException(
-            "$msg: JSON parsing failed: $decodedString: $e"
+            "$msg: JSON parsing failed: $decodedString: $e",
         )
     }
 

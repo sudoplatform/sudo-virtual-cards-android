@@ -13,30 +13,19 @@ import com.apollographql.apollo.exception.ApolloHttpException
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceClientConfigurationQuery
 import com.sudoplatform.sudovirtualcards.graphql.GetVirtualCardsConfigQuery
-import com.sudoplatform.sudovirtualcards.graphql.fragment.VirtualCardsConfig
-import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSourceSupportInfo
 import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSourceSupportDetail
+import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSourceSupportInfo
+import com.sudoplatform.sudovirtualcards.graphql.fragment.VirtualCardsConfig
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
-import com.sudoplatform.sudovirtualcards.types.CurrencyVelocity
-import com.sudoplatform.sudovirtualcards.types.FundingSourceSupportInfo as FundingSourceSupportInfoEntity
-import com.sudoplatform.sudovirtualcards.types.FundingSourceSupportDetail as FundingSourceSupportDetailEntity
-import com.sudoplatform.sudovirtualcards.types.FundingSourceClientConfiguration as FundingSourceClientConfigurationEntity
-import com.sudoplatform.sudovirtualcards.types.CardType as CardTypeEntity
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.types.CheckoutPricingPolicy
 import com.sudoplatform.sudovirtualcards.types.ClientApplicationConfiguration
 import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
+import com.sudoplatform.sudovirtualcards.types.CurrencyVelocity
 import com.sudoplatform.sudovirtualcards.types.FundingSourceProviders
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.FundingSourceTypes
@@ -49,9 +38,9 @@ import com.sudoplatform.sudovirtualcards.types.TieredMarkupPolicy
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
-import kotlinx.coroutines.async
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
@@ -61,7 +50,18 @@ import org.apache.commons.codec.binary.Base64
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import java.net.HttpURLConnection
+import com.sudoplatform.sudovirtualcards.types.CardType as CardTypeEntity
+import com.sudoplatform.sudovirtualcards.types.FundingSourceClientConfiguration as FundingSourceClientConfigurationEntity
+import com.sudoplatform.sudovirtualcards.types.FundingSourceSupportDetail as FundingSourceSupportDetailEntity
+import com.sudoplatform.sudovirtualcards.types.FundingSourceSupportInfo as FundingSourceSupportInfoEntity
 
 /**
  * Test the correct operation of [SudoVirtualCardsClient.getVirtualCardsConfig]
@@ -71,7 +71,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
 
     data class SerializedClientApplicationConfiguration(
         @SerializedName("client_application_configuration")
-        val clientApplicationConfiguration: ClientApplicationConfiguration
+        val clientApplicationConfiguration: ClientApplicationConfiguration,
     )
 
     private val queryResult by before {
@@ -79,19 +79,19 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
             listOf(
                 FundingSourceClientConfigurationEntity(
                     apiKey = "test-key",
-                    fundingSourceType = FundingSourceType.CREDIT_CARD
+                    fundingSourceType = FundingSourceType.CREDIT_CARD,
                 ),
                 FundingSourceClientConfigurationEntity(
                     apiKey = "test-key",
-                    fundingSourceType = FundingSourceType.BANK_ACCOUNT
-                )
-            )
+                    fundingSourceType = FundingSourceType.BANK_ACCOUNT,
+                ),
+            ),
         )
         val fsConfigStr = Gson().toJson(fsConfig)
         val encodedFsConfigData = Base64.encodeBase64String(fsConfigStr.toByteArray())
         GetFundingSourceClientConfigurationQuery.GetFundingSourceClientConfiguration(
             "typename",
-            encodedFsConfigData
+            encodedFsConfigData,
         )
 
         val appConfig = SerializedClientApplicationConfiguration(
@@ -99,10 +99,10 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                 fundingSourceProviders = FundingSourceProviders(
                     plaid = PlaidApplicationConfiguration(
                         clientName = "client-name",
-                        androidPackageName = "android-package-name"
-                    )
-                )
-            )
+                        androidPackageName = "android-package-name",
+                    ),
+                ),
+            ),
         )
         val appConfigStr = Gson().toJson(appConfig)
         val encodedAppConfigData = Base64.encodeBase64String(appConfigStr.toByteArray())
@@ -117,14 +117,14 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                                 TieredMarkup(
                                     markup = Markup(
                                         flat = 1000,
-                                        percent = 10
+                                        percent = 10,
                                     ),
-                                    minThreshold = 0
-                                )
-                            )
-                        )
-                    )
-                )
+                                    minThreshold = 0,
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
             ),
             checkout = CheckoutPricingPolicy(
                 creditCard = mapOf(
@@ -135,13 +135,13 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                                 TieredMarkup(
                                     markup = Markup(
                                         flat = 2500,
-                                        percent = 25
+                                        percent = 25,
                                     ),
-                                    minThreshold = 0
-                                )
-                            )
-                        )
-                    )
+                                    minThreshold = 0,
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
                 bankAccount = mapOf(
                     Pair(
@@ -152,21 +152,21 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                                     minThreshold = 0,
                                     markup = Markup(
                                         flat = 1000,
-                                        percent = 0
-                                    )
+                                        percent = 0,
+                                    ),
                                 ),
                                 TieredMarkup(
                                     minThreshold = 10000,
                                     markup = Markup(
                                         flat = 2000,
-                                        percent = 0
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-            )
+                                        percent = 0,
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
         )
         val pricingPolicyStr = Gson().toJson(pricingPolicy)
         val encodedPricingPolicy = Base64.encodeBase64String((pricingPolicyStr.toByteArray()))
@@ -184,15 +184,15 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                         VirtualCardsConfig.MaxTransactionVelocity(
                             "maxTransactionVelocity",
                             "USD",
-                            listOf("velocity")
-                        )
+                            listOf("velocity"),
+                        ),
                     ),
                     listOf(
                         VirtualCardsConfig.MaxTransactionAmount(
                             "maxTransactionAmount",
                             "USD",
-                            100
-                        )
+                            100,
+                        ),
                     ),
                     listOf("virtualCardCurrencies"),
                     listOf(
@@ -210,31 +210,31 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                                             FundingSourceSupportInfo.Detail.Fragments(
                                                 FundingSourceSupportDetail(
                                                     "CardType",
-                                                    CardType.PREPAID
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
+                                                    CardType.PREPAID,
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
                     ),
                     true,
                     true,
                     VirtualCardsConfig.FundingSourceClientConfiguration(
                         "typename",
-                        encodedFsConfigData
+                        encodedFsConfigData,
                     ),
                     VirtualCardsConfig.ClientApplicationsConfiguration(
                         "typename",
-                        encodedAppConfigData
+                        encodedAppConfigData,
                     ),
                     VirtualCardsConfig.PricingPolicy(
                         "typename",
-                        encodedPricingPolicy
-                    )
-                )
-            )
+                        encodedPricingPolicy,
+                    ),
+                ),
+            ),
         )
     }
 
@@ -291,7 +291,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
             mockUserClient,
             mockAppSyncClient,
             mockKeyManager,
-            mockPublicKeyService
+            mockPublicKeyService,
         )
     }
 
@@ -326,14 +326,14 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
             maxTransactionVelocity shouldBe listOf(
                 CurrencyVelocity(
                     "USD",
-                    listOf("velocity")
-                )
+                    listOf("velocity"),
+                ),
             )
             maxTransactionAmount shouldBe listOf(
                 CurrencyAmount(
                     "USD",
-                    100
-                )
+                    100,
+                ),
             )
             virtualCardCurrencies shouldBe listOf("virtualCardCurrencies")
             fundingSourceSupportInfo shouldBe listOf(
@@ -343,10 +343,10 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                     "network",
                     listOf(
                         FundingSourceSupportDetailEntity(
-                            CardTypeEntity.PREPAID
-                        )
-                    )
-                )
+                            CardTypeEntity.PREPAID,
+                        ),
+                    ),
+                ),
             )
             clientApplicationConfiguration shouldBe mapOf(
                 Pair(
@@ -355,11 +355,11 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                         FundingSourceProviders(
                             PlaidApplicationConfiguration(
                                 "client-name",
-                                "android-package-name"
-                            )
-                        )
-                    )
-                )
+                                "android-package-name",
+                            ),
+                        ),
+                    ),
+                ),
             )
             pricingPolicy shouldBe PricingPolicy(
                 StripePricingPolicy(
@@ -371,14 +371,14 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                                     TieredMarkup(
                                         Markup(
                                             10,
-                                            1000
+                                            1000,
                                         ),
-                                        0
-                                    )
-                                )
-                            )
-                        )
-                    )
+                                        0,
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
                 CheckoutPricingPolicy(
                     mapOf(
@@ -389,13 +389,13 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                                     TieredMarkup(
                                         Markup(
                                             25,
-                                            2500
+                                            2500,
                                         ),
-                                        0
-                                    )
-                                )
-                            )
-                        )
+                                        0,
+                                    ),
+                                ),
+                            ),
+                        ),
                     ),
                     mapOf(
                         Pair(
@@ -405,22 +405,22 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                                     TieredMarkup(
                                         Markup(
                                             0,
-                                            1000
+                                            1000,
                                         ),
-                                        0
+                                        0,
                                     ),
                                     TieredMarkup(
                                         Markup(
                                             0,
-                                            2000
+                                            2000,
                                         ),
-                                        10000
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
+                                        10000,
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
             )
         }
         verify(mockAppSyncClient).query(any<GetVirtualCardsConfigQuery>())
@@ -459,7 +459,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "IdentityVerificationNotVerifiedError")
+                mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
             )
             Response.builder<GetVirtualCardsConfigQuery.Data>(GetVirtualCardsConfigQuery())
                 .errors(listOf(error))

@@ -159,7 +159,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
             val appSyncClient = appSyncClient ?: ApiClientManager.getClient(this@Builder.context!!, this@Builder.sudoUserClient!!)
 
             val deviceKeyManager = DefaultDeviceKeyManager(
-                keyManager = keyManager ?: KeyManagerFactory(context!!).createAndroidKeyManager(this.namespace, this.databaseName)
+                keyManager = keyManager ?: KeyManagerFactory(context!!).createAndroidKeyManager(this.namespace, this.databaseName),
             )
 
             val publicKeyService = publicKeyService ?: DefaultPublicKeyService(
@@ -167,7 +167,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
                 userClient = sudoUserClient!!,
                 deviceKeyManager = deviceKeyManager,
                 appSyncClient = appSyncClient,
-                logger = logger
+                logger = logger,
             )
 
             return DefaultSudoVirtualCardsClient(
@@ -176,7 +176,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
                 sudoUserClient = sudoUserClient!!,
                 logger = logger,
                 deviceKeyManager = deviceKeyManager,
-                publicKeyService = publicKeyService
+                publicKeyService = publicKeyService,
             )
         }
     }
@@ -240,7 +240,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
             FundingSourceException(message = message, cause = cause)
         class FundingSourceRequiresUserInteractionException(
             message: String? = null,
-            val interactionData: ProviderUserInteractionData
+            val interactionData: ProviderUserInteractionData,
         ) : FundingSourceException(message = message)
         class UnknownException(cause: Throwable) :
             FundingSourceException(cause = cause)
@@ -318,7 +318,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
      */
     sealed class VirtualCardCryptographicKeysException(
         message: String? = null,
-        cause: Throwable? = null
+        cause: Throwable? = null,
     ) : RuntimeException(message, cause) {
         class SecureKeyArchiveException(message: String? = null, cause: Throwable? = null) :
             VirtualCardCryptographicKeysException(message = message, cause = cause)
@@ -416,7 +416,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
     suspend fun listFundingSources(
         limit: Int = DEFAULT_FUNDING_SOURCE_LIMIT,
         nextToken: String? = null,
-        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY
+        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,
     ): ListOutput<FundingSource>
 
     /**
@@ -518,7 +518,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
     suspend fun listVirtualCards(
         limit: Int = DEFAULT_CARD_LIMIT,
         nextToken: String? = null,
-        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY
+        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,
     ): ListAPIResult<VirtualCard, PartialVirtualCard>
 
     /**
@@ -613,7 +613,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
         nextToken: String? = null,
         cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,
         dateRange: DateRange? = null,
-        sortOrder: SortOrder = SortOrder.DESC
+        sortOrder: SortOrder = SortOrder.DESC,
     ): ListAPIResult<Transaction, PartialTransaction>
 
     /**
@@ -652,7 +652,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
         transactionType: TransactionType,
         limit: Int = DEFAULT_TRANSACTION_LIMIT,
         nextToken: String? = null,
-        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY
+        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,
     ): ListAPIResult<Transaction, PartialTransaction>
 
     /**
@@ -691,7 +691,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
         nextToken: String? = null,
         cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,
         dateRange: DateRange? = null,
-        sortOrder: SortOrder = SortOrder.DESC
+        sortOrder: SortOrder = SortOrder.DESC,
     ): ListAPIResult<Transaction, PartialTransaction>
 
     /**
@@ -805,7 +805,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
 suspend fun SudoVirtualCardsClient.subscribeToFundingSources(
     id: String,
     onConnectionChange: (status: Subscriber.ConnectionState) -> Unit = {},
-    onFundingSourceChanged: (fundingSource: FundingSource) -> Unit
+    onFundingSourceChanged: (fundingSource: FundingSource) -> Unit,
 ) =
     subscribeToFundingSources(
         id,
@@ -816,7 +816,7 @@ suspend fun SudoVirtualCardsClient.subscribeToFundingSources(
             override fun fundingSourceChanged(fundingSource: FundingSource) {
                 onFundingSourceChanged.invoke(fundingSource)
             }
-        }
+        },
     )
 
 /**
@@ -830,7 +830,7 @@ suspend fun SudoVirtualCardsClient.subscribeToFundingSources(
 suspend fun SudoVirtualCardsClient.subscribeToTransactions(
     id: String,
     onConnectionChange: (status: TransactionSubscriber.ConnectionState) -> Unit = {},
-    onTransactionChange: (transaction: Transaction) -> Unit
+    onTransactionChange: (transaction: Transaction) -> Unit,
 ) =
     subscribeToTransactions(
         id,
@@ -841,5 +841,5 @@ suspend fun SudoVirtualCardsClient.subscribeToTransactions(
             override fun transactionChanged(transaction: Transaction) {
                 onTransactionChange.invoke(transaction)
             }
-        }
+        },
     )

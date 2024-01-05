@@ -29,7 +29,7 @@ import com.sudoplatform.sudovirtualcards.types.SymmetricKeyEncryptionAlgorithm
  */
 internal class Unsealer(
     private val deviceKeyManager: DeviceKeyManager,
-    private val keyInfo: KeyInfo
+    private val keyInfo: KeyInfo,
 ) {
     companion object {
         /** Size of the AES symmetric key. */
@@ -96,7 +96,7 @@ internal class Unsealer(
             city = unseal(billingAddress.city()),
             state = unseal(billingAddress.state()),
             postalCode = unseal(billingAddress.postalCode()),
-            country = unseal(billingAddress.country())
+            country = unseal(billingAddress.country()),
         )
     }
 
@@ -108,7 +108,7 @@ internal class Unsealer(
         val expiry = value.fragments().sealedExpiryAttribute()
         return Expiry(
             mm = unseal(expiry.mm()),
-            yyyy = unseal(expiry.yyyy())
+            yyyy = unseal(expiry.yyyy()),
         )
     }
 
@@ -128,7 +128,7 @@ internal class Unsealer(
         val sealedAttribute = value.fragments().sealedAttribute()
         if (sealedAttribute.plainTextType() != "string") {
             throw UnsealerException.UnsupportedDataTypeException(
-                "institutionName plain text type ${sealedAttribute.plainTextType()} is invalid"
+                "institutionName plain text type ${sealedAttribute.plainTextType()} is invalid",
             )
         }
         return unseal(sealedAttribute.base64EncodedSealedData())
@@ -142,14 +142,14 @@ internal class Unsealer(
         val sealedAttribute = value?.fragments()?.sealedAttribute() ?: return null
         if (sealedAttribute.plainTextType() != "json-string") {
             throw UnsealerException.UnsupportedDataTypeException(
-                "institutionLogo plain text type ${sealedAttribute.plainTextType()} is invalid"
+                "institutionLogo plain text type ${sealedAttribute.plainTextType()} is invalid",
             )
         }
         val unsealedLogo = unseal(sealedAttribute.base64EncodedSealedData())
         val decodedLogo = Gson().fromJson(unsealedLogo, InstitutionLogo::class.java)
         return InstitutionLogo(
             type = decodedLogo.type,
-            data = decodedLogo.data
+            data = decodedLogo.data,
         )
     }
 
@@ -160,7 +160,7 @@ internal class Unsealer(
     fun unsealAmount(sealedAmount: SealedCurrencyAmountAttribute): CurrencyAmount {
         return CurrencyAmount(
             currency = unseal(sealedAmount.currency()),
-            amount = unseal(sealedAmount.amount()).toInt()
+            amount = unseal(sealedAmount.amount()).toInt(),
         )
     }
 

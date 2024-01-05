@@ -43,7 +43,7 @@ sealed class ListAPIResult<out T, out P> {
      */
     data class ListSuccessResult<T>(
         val items: List<T>,
-        val nextToken: String?
+        val nextToken: String?,
     )
 
     /**
@@ -56,7 +56,7 @@ sealed class ListAPIResult<out T, out P> {
     data class ListPartialResult<T, P>(
         val items: List<T>,
         val failed: List<PartialResult<P>>,
-        val nextToken: String?
+        val nextToken: String?,
     )
 }
 
@@ -68,5 +68,5 @@ sealed class ListAPIResult<out T, out P> {
  */
 data class PartialResult<P>(
     val partial: P,
-    val cause: Exception
+    val cause: Exception,
 )

@@ -14,7 +14,7 @@ package com.sudoplatform.sudovirtualcards.types
  */
 data class KeyResult(
     val created: Boolean,
-    val keyId: String
+    val keyId: String,
 )
 
 /**
@@ -27,5 +27,5 @@ data class KeyResult(
  */
 data class CreateKeysIfAbsentResult(
     val symmetricKey: KeyResult,
-    val keyPair: KeyResult
+    val keyPair: KeyResult,
 )

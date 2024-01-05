@@ -17,5 +17,5 @@ import com.sudoplatform.sudouser.PublicKey
 internal data class PublicKeyWithKeyRingId(
     val publicKey: PublicKey,
     val keyRingId: String,
-    val created: Boolean = false
+    val created: Boolean = false,
 )

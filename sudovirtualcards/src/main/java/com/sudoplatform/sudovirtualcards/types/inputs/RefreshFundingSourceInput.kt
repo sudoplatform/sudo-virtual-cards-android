@@ -28,5 +28,5 @@ data class RefreshFundingSourceInput(
     val id: String,
     val refreshData: RefreshDataInput,
     val applicationData: ClientApplicationData,
-    val language: String? = null
+    val language: String? = null,
 )

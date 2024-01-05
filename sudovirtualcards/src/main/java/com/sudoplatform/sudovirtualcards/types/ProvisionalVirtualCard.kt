@@ -32,7 +32,7 @@ data class ProvisionalVirtualCard(
     val updatedAt: Date,
     val clientRefId: String,
     val provisioningState: ProvisioningState,
-    val card: VirtualCard? = null
+    val card: VirtualCard? = null,
 ) : Parcelable {
     /** State of the provisional card. */
     enum class ProvisioningState {
@@ -49,6 +49,6 @@ data class ProvisionalVirtualCard(
         FAILED,
 
         /** API Evolution - if this occurs, it may mean you need to update the library. */
-        UNKNOWN
+        UNKNOWN,
     }
 }

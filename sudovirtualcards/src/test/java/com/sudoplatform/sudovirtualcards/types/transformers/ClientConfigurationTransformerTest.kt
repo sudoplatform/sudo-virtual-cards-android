@@ -37,13 +37,13 @@ class ClientConfigurationTransformerTest {
             listOf(
                 FundingSourceClientConfiguration(
                     apiKey = "test-key",
-                    fundingSourceType = FundingSourceType.CREDIT_CARD
+                    fundingSourceType = FundingSourceType.CREDIT_CARD,
                 ),
                 FundingSourceClientConfiguration(
                     apiKey = "test-key",
-                    fundingSourceType = FundingSourceType.BANK_ACCOUNT
-                )
-            )
+                    fundingSourceType = FundingSourceType.BANK_ACCOUNT,
+                ),
+            ),
         )
         val fsConfigStr = Gson().toJson(fsConfig)
         val encodedFsConfigData = Base64.encodeBase64String(fsConfigStr.toByteArray())
@@ -54,14 +54,14 @@ class ClientConfigurationTransformerTest {
                 "string",
                 FundingSourceType.CREDIT_CARD,
                 1,
-                "test-key"
+                "test-key",
             ),
             FundingSourceClientConfiguration(
                 "string",
                 FundingSourceType.BANK_ACCOUNT,
                 1,
-                "test-key"
-            )
+                "test-key",
+            ),
         )
     }
 
@@ -79,10 +79,10 @@ class ClientConfigurationTransformerTest {
                 fundingSourceProviders = FundingSourceProviders(
                     plaid = PlaidApplicationConfiguration(
                         clientName = "client-name",
-                        androidPackageName = "android-package-name"
-                    )
-                )
-            )
+                        androidPackageName = "android-package-name",
+                    ),
+                ),
+            ),
         )
         val appConfigStr = Gson().toJson(appConfig)
         val encodedAppConfigData = Base64.encodeBase64String(appConfigStr.toByteArray())
@@ -95,11 +95,11 @@ class ClientConfigurationTransformerTest {
                     FundingSourceProviders(
                         PlaidApplicationConfiguration(
                             "client-name",
-                            "android-package-name"
-                        )
-                    )
-                )
-            )
+                            "android-package-name",
+                        ),
+                    ),
+                ),
+            ),
         )
     }
 
@@ -122,14 +122,14 @@ class ClientConfigurationTransformerTest {
                                 TieredMarkup(
                                     markup = Markup(
                                         flat = 1000,
-                                        percent = 10
+                                        percent = 10,
                                     ),
-                                    minThreshold = 0
-                                )
-                            )
-                        )
-                    )
-                )
+                                    minThreshold = 0,
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
             ),
             checkout = CheckoutPricingPolicy(
                 creditCard = mapOf(
@@ -140,13 +140,13 @@ class ClientConfigurationTransformerTest {
                                 TieredMarkup(
                                     markup = Markup(
                                         flat = 2500,
-                                        percent = 25
+                                        percent = 25,
                                     ),
-                                    minThreshold = 0
-                                )
-                            )
-                        )
-                    )
+                                    minThreshold = 0,
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
                 bankAccount = mapOf(
                     Pair(
@@ -157,21 +157,21 @@ class ClientConfigurationTransformerTest {
                                     minThreshold = 0,
                                     markup = Markup(
                                         flat = 1000,
-                                        percent = 0
-                                    )
+                                        percent = 0,
+                                    ),
                                 ),
                                 TieredMarkup(
                                     minThreshold = 10000,
                                     markup = Markup(
                                         flat = 2000,
-                                        percent = 0
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-            )
+                                        percent = 0,
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
         )
         val pricingPolicyStr = Gson().toJson(pricingPolicy)
         val encodedPricingPolicy = Base64.encodeBase64String(pricingPolicyStr.toByteArray())

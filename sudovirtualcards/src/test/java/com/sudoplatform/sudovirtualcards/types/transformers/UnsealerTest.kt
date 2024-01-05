@@ -19,26 +19,24 @@ import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSour
 import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalCard
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAddressAttribute
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAttribute
-import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedExpiryAttribute
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCard
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCardWithLastTransaction
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCurrencyAmountAttribute
+import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedExpiryAttribute
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedMarkupAttribute
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedTransaction
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedTransactionDetailChargeAttribute
-import com.sudoplatform.sudovirtualcards.graphql.fragment.Owner as OwnerFragment
-import com.sudoplatform.sudovirtualcards.keys.DefaultDeviceKeyManager
-import com.sudoplatform.sudovirtualcards.keys.DefaultPublicKeyService
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisioningState
 import com.sudoplatform.sudovirtualcards.graphql.type.TransactionType
+import com.sudoplatform.sudovirtualcards.keys.DefaultDeviceKeyManager
+import com.sudoplatform.sudovirtualcards.keys.DefaultPublicKeyService
 import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
 import com.sudoplatform.sudovirtualcards.types.Expiry
 import com.sudoplatform.sudovirtualcards.types.InstitutionLogo
 import com.sudoplatform.sudovirtualcards.types.JsonValue
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
 import com.sudoplatform.sudovirtualcards.types.SymmetricKeyEncryptionAlgorithm
-import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -52,6 +50,8 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import timber.log.Timber
 import java.util.UUID
+import com.sudoplatform.sudovirtualcards.graphql.fragment.Owner as OwnerFragment
+import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 
 /**
  * Test the operation of [Unsealer] under Robolectric.
@@ -68,7 +68,7 @@ class UnsealerTest : BaseTests() {
 
     private val deviceKeyManager by before {
         DefaultDeviceKeyManager(
-            keyManager = keyManager
+            keyManager = keyManager,
         )
     }
 
@@ -80,14 +80,14 @@ class UnsealerTest : BaseTests() {
     private val unsealer by before {
         Unsealer(
             deviceKeyManager,
-            keyInfo
+            keyInfo,
         )
     }
 
     private val metadataUnsealer by before {
         Unsealer(
             deviceKeyManager,
-            keyInfo2
+            keyInfo2,
         )
     }
 
@@ -95,14 +95,14 @@ class UnsealerTest : BaseTests() {
         val encryptedSymmetricKeyBytes = keyManager.encryptWithPublicKey(
             publicKeyId,
             keyManager.getSymmetricKeyData(symmetricKeyId),
-            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1
+            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
         )
         encryptedSymmetricKeyBytes.size shouldBe Unsealer.KEY_SIZE_AES
 
         val encryptedData = keyManager.encryptWithSymmetricKey(
             symmetricKeyId,
             value.toByteArray(),
-            KeyManagerInterface.SymmetricEncryptionAlgorithm.AES_CBC_PKCS7_256
+            KeyManagerInterface.SymmetricEncryptionAlgorithm.AES_CBC_PKCS7_256,
         )
 
         val data = ByteArray(encryptedSymmetricKeyBytes.size + encryptedData.size)
@@ -152,8 +152,8 @@ class UnsealerTest : BaseTests() {
             SealedCurrencyAmountAttribute(
                 "SealedCurrencyAmount",
                 sealedCurrency,
-                sealedAmount
-            )
+                sealedAmount,
+            ),
         ) shouldBe CurrencyAmount("USD", 100)
     }
 
@@ -167,9 +167,9 @@ class UnsealerTest : BaseTests() {
                     symmetricKeyId,
                     "unsupported algorithm",
                     "json-string",
-                    sealMetadata(JsonValue.JsonString("metadata"))
-                )
-            )
+                    sealMetadata(JsonValue.JsonString("metadata")),
+                ),
+            ),
         )
 
         shouldThrow<Unsealer.UnsealerException.UnsupportedAlgorithmException> {
@@ -187,9 +187,9 @@ class UnsealerTest : BaseTests() {
                     symmetricKeyId,
                     SymmetricKeyEncryptionAlgorithm.AES_CBC_PKCS7PADDING.toString(),
                     "json-string",
-                    sealMetadata(JsonValue.JsonString("metadata"))
-                )
-            )
+                    sealMetadata(JsonValue.JsonString("metadata")),
+                ),
+            ),
         )
 
         val metadata = metadataUnsealer.unseal(sealedMetadata)
@@ -211,9 +211,9 @@ class UnsealerTest : BaseTests() {
                     seal("Menlo Park"),
                     seal("CA"),
                     seal("94025"),
-                    seal("US")
-                )
-            )
+                    seal("US"),
+                ),
+            ),
         )
 
         val billingAddress = unsealer.unseal(sealedBillingAddress)
@@ -239,9 +239,9 @@ class UnsealerTest : BaseTests() {
                 SealedExpiryAttribute(
                     "SealedExpiryAttribute",
                     seal("12"),
-                    seal("2020")
-                )
-            )
+                    seal("2020"),
+                ),
+            ),
         )
 
         val expiry = unsealer.unseal(sealedExpiry)
@@ -273,9 +273,9 @@ class UnsealerTest : BaseTests() {
                     seal("Menlo Park"),
                     seal("CA"),
                     seal("94025"),
-                    seal("US")
-                )
-            )
+                    seal("US"),
+                ),
+            ),
         )
 
         val sealedCard = SealedCard(
@@ -291,8 +291,8 @@ class UnsealerTest : BaseTests() {
             listOf(
                 SealedCard.Owner(
                     "Owner",
-                    SealedCard.Owner.Fragments(OwnerFragment("Owner", "id", "issuer"))
-                )
+                    SealedCard.Owner.Fragments(OwnerFragment("Owner", "id", "issuer")),
+                ),
             ),
             "fundingSourceId",
             "currency",
@@ -311,11 +311,11 @@ class UnsealerTest : BaseTests() {
                     SealedExpiryAttribute(
                         "SealedExpiryAttribute",
                         seal("01"),
-                        seal("2021")
-                    )
-                )
+                        seal("2021"),
+                    ),
+                ),
             ),
-            null
+            null,
         )
 
         val card = VirtualCardTransformer.toEntity(deviceKeyManager, sealedCard)
@@ -365,9 +365,9 @@ class UnsealerTest : BaseTests() {
                     seal("Menlo Park"),
                     seal("CA"),
                     seal("94025"),
-                    seal("US")
-                )
-            )
+                    seal("US"),
+                ),
+            ),
         )
 
         val sealedCard = ProvisionalCard.Card(
@@ -386,8 +386,8 @@ class UnsealerTest : BaseTests() {
                     listOf(
                         SealedCard.Owner(
                             "Owner",
-                            SealedCard.Owner.Fragments(OwnerFragment("Owner", "id", "issuer"))
-                        )
+                            SealedCard.Owner.Fragments(OwnerFragment("Owner", "id", "issuer")),
+                        ),
                     ),
                     "fundingSourceId",
                     "currency",
@@ -406,13 +406,13 @@ class UnsealerTest : BaseTests() {
                             SealedExpiryAttribute(
                                 "SealedExpiryAttribute",
                                 seal("01"),
-                                seal("2021")
-                            )
-                        )
+                                seal("2021"),
+                            ),
+                        ),
                     ),
-                    null
-                )
-            )
+                    null,
+                ),
+            ),
         )
 
         val sealedCardProvision = ProvisionVirtualCardMutation.CardProvision(
@@ -427,9 +427,9 @@ class UnsealerTest : BaseTests() {
                     1.0,
                     "clientRefId",
                     ProvisioningState.COMPLETED,
-                    listOf(sealedCard)
-                )
-            )
+                    listOf(sealedCard),
+                ),
+            ),
         )
 
         val provisionalCard = VirtualCardTransformer.toEntity(deviceKeyManager, sealedCardProvision.fragments().provisionalCard())
@@ -483,9 +483,9 @@ class UnsealerTest : BaseTests() {
                     seal("Menlo Park"),
                     seal("CA"),
                     seal("94025"),
-                    seal("US")
-                )
-            )
+                    seal("US"),
+                ),
+            ),
         )
 
         val sealedTransaction = SealedTransaction(
@@ -509,9 +509,9 @@ class UnsealerTest : BaseTests() {
                     SealedCurrencyAmountAttribute(
                         "SealedCurrencyAmountAttribute",
                         seal("USD"),
-                        seal("300")
-                    )
-                )
+                        seal("300"),
+                    ),
+                ),
             ),
             SealedTransaction.TransactedAmount(
                 "TransactedAmount",
@@ -519,9 +519,9 @@ class UnsealerTest : BaseTests() {
                     SealedCurrencyAmountAttribute(
                         "SealedCurrencyAmountAttribute",
                         seal("AUD"),
-                        seal("400")
-                    )
-                )
+                        seal("400"),
+                    ),
+                ),
             ),
             seal("description"),
             null,
@@ -537,9 +537,9 @@ class UnsealerTest : BaseTests() {
                                     SealedCurrencyAmountAttribute(
                                         "SealedCurrencyAmountAttribute",
                                         seal("USD"),
-                                        seal("1")
-                                    )
-                                )
+                                        seal("1"),
+                                    ),
+                                ),
                             ),
                             SealedTransactionDetailChargeAttribute.Markup(
                                 "Markup",
@@ -548,9 +548,9 @@ class UnsealerTest : BaseTests() {
                                         "SealedMarkupAttribute",
                                         seal("1.0"),
                                         seal("2.0"),
-                                        seal("3.0")
-                                    )
-                                )
+                                        seal("3.0"),
+                                    ),
+                                ),
                             ),
                             SealedTransactionDetailChargeAttribute.MarkupAmount(
                                 "MarkupAmount",
@@ -558,9 +558,9 @@ class UnsealerTest : BaseTests() {
                                     SealedCurrencyAmountAttribute(
                                         "SealedCurrencyAmountAttribute",
                                         seal("USD"),
-                                        seal("4")
-                                    )
-                                )
+                                        seal("4"),
+                                    ),
+                                ),
                             ),
                             SealedTransactionDetailChargeAttribute.FundingSourceAmount(
                                 "FundingSourceAmount",
@@ -568,24 +568,24 @@ class UnsealerTest : BaseTests() {
                                     SealedCurrencyAmountAttribute(
                                         "SealedCurrencyAmountAttribute",
                                         seal("USD"),
-                                        seal("2")
-                                    )
-                                )
+                                        seal("2"),
+                                    ),
+                                ),
                             ),
                             "fundingSourceId",
                             seal("description"),
-                            seal("CLEARED")
-                        )
-                    )
-                )
-            )
+                            seal("CLEARED"),
+                        ),
+                    ),
+                ),
+            ),
         )
 
         val sealedCard = SealedCardWithLastTransaction(
             "SealedCard",
             SealedCardWithLastTransaction.LastTransaction(
                 "LastTransaction",
-                SealedCardWithLastTransaction.LastTransaction.Fragments(sealedTransaction)
+                SealedCardWithLastTransaction.LastTransaction.Fragments(sealedTransaction),
             ),
             SealedCardWithLastTransaction.Fragments(
                 SealedCard(
@@ -601,8 +601,8 @@ class UnsealerTest : BaseTests() {
                     listOf(
                         SealedCard.Owner(
                             "Owner",
-                            SealedCard.Owner.Fragments(OwnerFragment("Owner", "id", "issuer"))
-                        )
+                            SealedCard.Owner.Fragments(OwnerFragment("Owner", "id", "issuer")),
+                        ),
                     ),
                     "fundingSourceId",
                     "currency",
@@ -621,13 +621,13 @@ class UnsealerTest : BaseTests() {
                             SealedExpiryAttribute(
                                 "SealedExpiryAttribute",
                                 seal("01"),
-                                seal("2021")
-                            )
-                        )
+                                seal("2021"),
+                            ),
+                        ),
                     ),
-                    null
-                )
-            )
+                    null,
+                ),
+            ),
         )
 
         val card = VirtualCardTransformer.toEntity(deviceKeyManager, sealedCard)
@@ -680,9 +680,9 @@ class UnsealerTest : BaseTests() {
                     "keyId",
                     "algorithm",
                     "string",
-                    seal("FooBar Institution")
-                )
-            )
+                    seal("FooBar Institution"),
+                ),
+            ),
         )
         unsealer.unseal(sealedInstitutionName) shouldBe "FooBar Institution"
     }
@@ -697,9 +697,9 @@ class UnsealerTest : BaseTests() {
                     "keyId",
                     "algorithm",
                     "invalid",
-                    seal("FooBar Institution")
-                )
-            )
+                    seal("FooBar Institution"),
+                ),
+            ),
         )
         shouldThrow<Unsealer.UnsealerException.UnsupportedDataTypeException> {
             unsealer.unseal(sealedInstitutionName)
@@ -717,9 +717,9 @@ class UnsealerTest : BaseTests() {
                     "keyId",
                     "algorithm",
                     "json-string",
-                    seal(logo)
-                )
-            )
+                    seal(logo),
+                ),
+            ),
         )
         unsealer.unseal(sealedInstitutionLogo) shouldBe InstitutionLogo("image/png", "FooBar Institution")
     }
@@ -734,9 +734,9 @@ class UnsealerTest : BaseTests() {
                     "keyId",
                     "algorithm",
                     "invalid",
-                    seal("FooBar Institution")
-                )
-            )
+                    seal("FooBar Institution"),
+                ),
+            ),
         )
         shouldThrow<Unsealer.UnsealerException.UnsupportedDataTypeException> {
             unsealer.unseal(sealedInstitutionLogo)

@@ -33,7 +33,7 @@ data class ProvisionVirtualCardInput(
     val alias: String? = null,
     val metadata: JsonValue<Any>? = null,
     val billingAddress: BillingAddress? = null,
-    val currency: String
+    val currency: String,
 ) {
     constructor(
         clientRefId: String = UUID.randomUUID().toString(),
@@ -48,7 +48,7 @@ data class ProvisionVirtualCardInput(
         state: String,
         postalCode: String,
         country: String,
-        currency: String
+        currency: String,
     ) : this(
         clientRefId = clientRefId,
         ownershipProofs = ownershipProofs,
@@ -57,6 +57,6 @@ data class ProvisionVirtualCardInput(
         alias = alias,
         metadata = metadata,
         billingAddress = BillingAddress(addressLine1, addressLine2, city, state, postalCode, country),
-        currency = currency
+        currency = currency,
     )
 }

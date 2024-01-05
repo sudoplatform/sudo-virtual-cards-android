@@ -12,19 +12,13 @@ import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
 import com.google.gson.Gson
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
-import com.sudoplatform.sudouser.SudoUserClient
-import com.sudoplatform.sudovirtualcards.graphql.type.RefreshFundingSourceRequest
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as FundingSourceStateGraphQL
-import com.sudoplatform.sudovirtualcards.types.inputs.RefreshFundingSourceInput
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.PublicKey
+import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.RefreshFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAttribute
-import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType as BankAccountTypeGraphQL
-import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource.Authorization as AuthorizationGraphQL
-import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource as BankAccountFundingSourceGraphQL
-import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource.InstitutionName as InstitutionNameGraphQL
+import com.sudoplatform.sudovirtualcards.graphql.type.RefreshFundingSourceRequest
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.types.AuthorizationText
 import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
@@ -34,6 +28,7 @@ import com.sudoplatform.sudovirtualcards.types.ClientApplicationData
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.LinkToken
+import com.sudoplatform.sudovirtualcards.types.inputs.RefreshFundingSourceInput
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
@@ -61,6 +56,11 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import java.net.HttpURLConnection
 import java.util.concurrent.CancellationException
+import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource as BankAccountFundingSourceGraphQL
+import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource.Authorization as AuthorizationGraphQL
+import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource.InstitutionName as InstitutionNameGraphQL
+import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType as BankAccountTypeGraphQL
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as FundingSourceStateGraphQL
 
 /**
  * Test the correct operation of [SudoVirtualCardsClient.refreshFundingSource]
@@ -73,7 +73,7 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
         @Parameterized.Parameters(name = "{0}")
         fun data(): Collection<String> {
             return listOf(
-                "checkoutBankAccount"
+                "checkoutBankAccount",
             )
         }
     }
@@ -82,7 +82,7 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
         "content",
         "contentType",
         "hash",
-        "hashAlgorithm"
+        "hashAlgorithm",
     )
     private val providerRefreshData =
         mapOf(
@@ -91,8 +91,8 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
                 1,
                 FundingSourceType.BANK_ACCOUNT,
                 "account_id",
-                authorizationText
-            )
+                authorizationText,
+            ),
         )
 
     private val input by before {
@@ -100,7 +100,7 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
             "id",
             providerRefreshData[provider] ?: throw missingProvider(provider),
             ClientApplicationData("system-test-app"),
-            "en-us"
+            "en-us",
         )
     }
 
@@ -129,7 +129,7 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
                         BankAccountFundingSourceGraphQL.TransactionVelocity(
                             "TransactionVelocity",
                             10000,
-                            listOf("10000/P1D")
+                            listOf("10000/P1D"),
                         ),
                         BankAccountTypeGraphQL.CHECKING,
                         AuthorizationGraphQL(
@@ -140,7 +140,7 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
                             "signature",
                             "keyId",
                             "algorithm",
-                            "data"
+                            "data",
                         ),
                         "last4",
                         InstitutionNameGraphQL(
@@ -151,14 +151,14 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
                                     "keyId",
                                     "algorithm",
                                     "string",
-                                    mockSeal("base64EncodedSealedData")
-                                )
-                            )
+                                    mockSeal("base64EncodedSealedData"),
+                                ),
+                            ),
                         ),
-                        null
-                    )
-                )
-            )
+                        null,
+                    ),
+                ),
+            ),
         )
     }
 
@@ -170,7 +170,7 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
 
     private val mutationResponse by before {
         mapOf(
-            "checkoutBankAccount" to bankAccountResponse
+            "checkoutBankAccount" to bankAccountResponse,
         )
     }
 
@@ -200,7 +200,7 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
 
     private val currentKey = PublicKey(
         keyId = "keyId",
-        publicKey = "publicKey".toByteArray()
+        publicKey = "publicKey".toByteArray(),
     )
 
     private val mockPublicKeyService by before {
@@ -231,7 +231,7 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
             mockContext,
             mockUserClient,
             mockKeyManager,
-            mockAppSyncClient
+            mockAppSyncClient,
         )
     }
 
@@ -319,7 +319,7 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "FundingSourceNotFoundError")
+                mapOf("errorType" to "FundingSourceNotFoundError"),
             )
             Response.builder<RefreshFundingSourceMutation.Data>(RefreshFundingSourceMutation(mutationRequest))
                 .errors(listOf(error))
@@ -353,7 +353,7 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "FundingSourceStateError")
+                mapOf("errorType" to "FundingSourceStateError"),
             )
             Response.builder<RefreshFundingSourceMutation.Data>(RefreshFundingSourceMutation(mutationRequest))
                 .errors(listOf(error))
@@ -387,7 +387,7 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
             val error = com.apollographql.apollo.api.Error(
                 "mock",
                 emptyList(),
-                mapOf("errorType" to "FundingSourceCompletionDataInvalidError")
+                mapOf("errorType" to "FundingSourceCompletionDataInvalidError"),
             )
             Response.builder<RefreshFundingSourceMutation.Data>(RefreshFundingSourceMutation(mutationRequest))
                 .errors(listOf(error))
@@ -418,10 +418,10 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
         mutationHolder.callback shouldBe null
         val providerInteractionData = CheckoutBankAccountRefreshUserInteractionData(
             linkToken = LinkToken("link-token", "expiration", "request-id"),
-            authorizationText = listOf(authorizationText)
+            authorizationText = listOf(authorizationText),
         )
         val interactionData = SudoVirtualCardsClient.FundingSourceInteractionData(
-            Base64.encode(Gson().toJson(providerInteractionData).toByteArray()).toString(Charsets.UTF_8)
+            Base64.encode(Gson().toJson(providerInteractionData).toByteArray()).toString(Charsets.UTF_8),
         )
 
         val errorResponse by before {
@@ -430,8 +430,8 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
                 emptyList(),
                 mapOf(
                     "errorType" to "FundingSourceRequiresUserInteractionError",
-                    "errorInfo" to interactionData
-                )
+                    "errorInfo" to interactionData,
+                ),
             )
             Response.builder<RefreshFundingSourceMutation.Data>(RefreshFundingSourceMutation(mutationRequest))
                 .errors(listOf(error))

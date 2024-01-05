@@ -22,7 +22,7 @@ data class PlaidApplicationConfiguration(
     @SerializedName("client_name")
     val clientName: String,
     @SerializedName("android_package_name")
-    val androidPackageName: String
+    val androidPackageName: String,
 ) : Parcelable
 
 /**
@@ -32,7 +32,7 @@ data class PlaidApplicationConfiguration(
  */
 @Parcelize
 data class FundingSourceProviders(
-    val plaid: PlaidApplicationConfiguration
+    val plaid: PlaidApplicationConfiguration,
 ) : Parcelable
 
 /**
@@ -43,5 +43,5 @@ data class FundingSourceProviders(
 @Parcelize
 data class ClientApplicationConfiguration(
     @SerializedName("funding_source_providers")
-    val fundingSourceProviders: FundingSourceProviders
+    val fundingSourceProviders: FundingSourceProviders,
 ) : Parcelable
