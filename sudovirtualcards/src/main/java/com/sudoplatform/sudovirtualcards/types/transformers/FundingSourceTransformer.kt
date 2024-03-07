@@ -21,6 +21,7 @@ import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.types.CardType
 import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSource
+import com.sudoplatform.sudovirtualcards.types.FundingSourceFlags
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
@@ -30,8 +31,9 @@ import com.sudoplatform.sudovirtualcards.graphql.fragment.CreditCardFundingSourc
 import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalFundingSource as ProvisionalFundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType as GraphqlBankAccountType
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType as GraphqlCardType
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceFlags as GraphqlFundingSourceFlags
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as GraphqlFundingSourceState
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType as GraphqlTypeFundingSourceType
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType as GraphqlFundingSourceType
 
 const val FUNDING_SOURCE_NULL_ERROR_MSG = "Unexpected null funding source"
 const val UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG = "Unsupported funding source type"
@@ -273,6 +275,7 @@ internal object FundingSourceTransformer {
             createdAt = fundingSource.createdAtEpochMs().toDate(),
             updatedAt = fundingSource.updatedAtEpochMs().toDate(),
             state = fundingSource.state().toEntityState(),
+            flags = fundingSource.flags().map { toEntityFlags(it) },
             currency = fundingSource.currency(),
             transactionVelocity = fundingSource.transactionVelocity()?.toEntityTransactionVelocity(),
             bankAccountType = fundingSource.bankAccountType().toEntityBankAccountType(),
@@ -300,6 +303,7 @@ internal object FundingSourceTransformer {
             createdAt = fundingSource.createdAtEpochMs().toDate(),
             updatedAt = fundingSource.updatedAtEpochMs().toDate(),
             state = fundingSource.state().toEntityState(),
+            flags = fundingSource.flags().map { toEntityFlags(it) },
             currency = fundingSource.currency(),
             transactionVelocity = fundingSource.transactionVelocity()?.toEntityTransactionVelocity(),
             last4 = fundingSource.last4(),
@@ -325,6 +329,14 @@ internal object FundingSourceTransformer {
         }
         return FundingSourceState.UNKNOWN
     }
+    private fun toEntityFlags(input: GraphqlFundingSourceFlags): FundingSourceFlags {
+        for (value in FundingSourceFlags.values()) {
+            if (value.name == input.name) {
+                return value
+            }
+        }
+        return FundingSourceFlags.UNKNOWN
+    }
 
     private fun CreditCardNetwork.toEntityNetwork(): CreditCardFundingSource.CreditCardNetwork {
         for (value in CreditCardFundingSource.CreditCardNetwork.values()) {
@@ -344,7 +356,7 @@ internal object FundingSourceTransformer {
         return CardType.UNKNOWN
     }
 
-    private fun GraphqlTypeFundingSourceType.toEntityFundingSourceType(): FundingSourceType {
+    private fun GraphqlFundingSourceType.toEntityFundingSourceType(): FundingSourceType {
         for (value in FundingSourceType.values()) {
             if (value.name == this.name) {
                 return value

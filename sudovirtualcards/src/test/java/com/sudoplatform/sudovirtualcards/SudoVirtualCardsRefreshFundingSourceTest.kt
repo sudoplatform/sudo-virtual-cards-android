@@ -15,6 +15,7 @@ import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
+import com.sudoplatform.sudovirtualcards.extensions.isUnfunded
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.RefreshFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAttribute
@@ -25,6 +26,7 @@ import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderRefreshData
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountRefreshUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.ClientApplicationData
+import com.sudoplatform.sudovirtualcards.types.FundingSourceFlags
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.LinkToken
@@ -60,6 +62,7 @@ import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSour
 import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource.Authorization as AuthorizationGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource.InstitutionName as InstitutionNameGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType as BankAccountTypeGraphQL
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceFlags as FundingSourceFlagsGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as FundingSourceStateGraphQL
 
 /**
@@ -125,6 +128,7 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
                         1.0,
                         10.0,
                         FundingSourceStateGraphQL.ACTIVE,
+                        listOf(FundingSourceFlagsGraphQL.UNFUNDED),
                         "USD",
                         BankAccountFundingSourceGraphQL.TransactionVelocity(
                             "TransactionVelocity",
@@ -260,6 +264,7 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
                     createdAt shouldNotBe null
                     updatedAt shouldNotBe null
                     state shouldBe FundingSourceState.ACTIVE
+                    flags shouldBe listOf(FundingSourceFlags.UNFUNDED)
                     currency shouldBe "USD"
                     transactionVelocity?.maximum shouldBe 10000
                     transactionVelocity?.velocity shouldBe listOf("10000/P1D")
@@ -268,6 +273,7 @@ class SudoVirtualCardsRefreshFundingSourceTest(private val provider: String) : B
                     institutionName shouldNotBe null
                     institutionLogo shouldBe null
                 }
+                result.isUnfunded() shouldBe true
             }
             else -> {
                 fail("Unexpected FundingSource type")

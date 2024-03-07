@@ -21,6 +21,7 @@ import java.util.Date
  * @property createdAt [Date] Date when the funding source was created.
  * @property updatedAt [Date] Date when the funding source was last updated.
  * @property state [FundingSourceState] Current state of the funding source.
+ * @property flags [List<FundingSourceFlags>] Any flags currently associated with the funding source.
  * @property currency [String] Billing currency of the funding source as a 3 character ISO 4217 currency code.
  * @property transactionVelocity [TransactionVelocity] Effective transaction velocity, if any, applied to
  *  virtual card transactions funded by this funding source. This is the combined result of all velocity
@@ -34,6 +35,7 @@ abstract class BaseFundingSource {
     abstract val createdAt: Date
     abstract val updatedAt: Date
     abstract val state: FundingSourceState
+    abstract val flags: List<FundingSourceFlags>
     abstract val currency: String
     abstract val transactionVelocity: TransactionVelocity?
     abstract val type: FundingSourceType
@@ -50,6 +52,7 @@ sealed class FundingSource : BaseFundingSource(), Parcelable
  * @property createdAt See [BaseFundingSource.createdAt].
  * @property updatedAt See [BaseFundingSource.updatedAt].
  * @property state See [BaseFundingSource.state].
+ * @property flags See [BaseFundingSource.flags].
  * @property currency See [BaseFundingSource.currency].
  * @property transactionVelocity [BaseFundingSource.transactionVelocity].
  * @property type See [BaseFundingSource.type].
@@ -65,6 +68,7 @@ data class CreditCardFundingSource(
     override val createdAt: Date,
     override val updatedAt: Date,
     override val state: FundingSourceState,
+    override val flags: List<FundingSourceFlags>,
     override val currency: String,
     override val transactionVelocity: TransactionVelocity? = null,
     override val type: FundingSourceType = FundingSourceType.CREDIT_CARD,
@@ -96,6 +100,7 @@ data class CreditCardFundingSource(
  * @property createdAt See [BaseFundingSource.createdAt].
  * @property updatedAt See [BaseFundingSource.updatedAt].
  * @property state See [BaseFundingSource.state].
+ * @property flags See [BaseFundingSource.flags].
  * @property currency See [BaseFundingSource.currency].
  * @property transactionVelocity [BaseFundingSource.transactionVelocity].
  * @property type See [BaseFundingSource.type].
@@ -113,6 +118,7 @@ data class BankAccountFundingSource(
     override val createdAt: Date,
     override val updatedAt: Date,
     override val state: FundingSourceState,
+    override val flags: List<FundingSourceFlags>,
     override val currency: String,
     override val transactionVelocity: TransactionVelocity? = null,
     override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
@@ -157,5 +163,20 @@ enum class FundingSourceState {
     REFRESH,
 
     /** Unknown state. Please check you have the correct (latest) version of this SDK. */
+    UNKNOWN,
+}
+
+/**
+ * Representation of an enumeration depicting the possible funding source flags in the
+ * Sudo Platform Virtual Cards SDK.
+ */
+enum class FundingSourceFlags {
+    /**
+     * Funding source is active but has exceeded the maximum allowable value of deferred transactions.
+     * Limited velocity constraints will apply.
+     **/
+    UNFUNDED,
+
+    /** Unknown flag. Please check you have the correct (latest) version of this SDK. */
     UNKNOWN,
 }

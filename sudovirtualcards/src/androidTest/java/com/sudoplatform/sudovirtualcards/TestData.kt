@@ -79,7 +79,7 @@ object TestData {
         "stripe" to mapOf(
             "Visa-3DS2-1" to TestCard("4000000000003220", "123", DefaultTestCardBillingAddress["stripe"]!!),
             "Visa-No3DS-1" to TestCard("4242424242424242", "123", DefaultTestCardBillingAddress["stripe"]!!),
-            "MC-No3DS-1" to TestCard("5555555555554444", "123", DefaultTestCardBillingAddress["stripe"]!!),
+            "MC-No3DS-1" to TestCard("5200828282828210", "123", DefaultTestCardBillingAddress["stripe"]!!),
         ),
         /** Checkout Funding source test data.
          *

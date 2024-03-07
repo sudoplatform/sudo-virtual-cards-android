@@ -89,6 +89,7 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
                         1.0,
                         10.0,
                         FundingSourceStateGraphQL.INACTIVE,
+                        emptyList(),
                         "USD",
                         CreditCardFundingSourceGraphQL.TransactionVelocity(
                             "TransactionVelocity",
@@ -120,6 +121,7 @@ class SudoVirtualCardsCancelFundingSourceTest(private val provider: String) : Ba
                         1.0,
                         10.0,
                         FundingSourceStateGraphQL.INACTIVE,
+                        emptyList(),
                         "USD",
                         BankAccountFundingSourceGraphQL.TransactionVelocity(
                             "TransactionVelocity",

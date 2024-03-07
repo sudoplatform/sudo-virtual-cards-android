@@ -72,6 +72,7 @@ class SudoVirtualCardsSandboxSetFundingSourceToRequireRefreshTest : BaseTests() 
                         1.0,
                         10.0,
                         FundingSourceStateGraphQL.INACTIVE,
+                        emptyList(),
                         "USD",
                         BankAccountFundingSourceGraphQL.TransactionVelocity(
                             "TransactionVelocity",
@@ -183,6 +184,7 @@ class SudoVirtualCardsSandboxSetFundingSourceToRequireRefreshTest : BaseTests() 
                     createdAt shouldNotBe null
                     updatedAt shouldNotBe null
                     state shouldBe FundingSourceState.INACTIVE
+                    flags shouldBe emptyList()
                     currency shouldBe "USD"
                     transactionVelocity?.maximum shouldBe 10000
                     transactionVelocity?.velocity shouldBe listOf("10000/P1D")

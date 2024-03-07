@@ -84,6 +84,7 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
                         1.0,
                         10.0,
                         FundingSourceStateGraphQL.ACTIVE,
+                        emptyList(),
                         "USD",
                         CreditCardFundingSourceGraphQL.TransactionVelocity(
                             "TransactionVelocity",
@@ -115,6 +116,7 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
                         1.0,
                         10.0,
                         FundingSourceStateGraphQL.ACTIVE,
+                        emptyList(),
                         "USD",
                         BankAccountFundingSourceGraphQL.TransactionVelocity(
                             "TransactionVelocity",

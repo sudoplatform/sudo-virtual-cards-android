@@ -63,4 +63,11 @@
         <cve>CVE-2020-8908</cve>
         <cve>CVE-2023-2976</cve>
     </suppress>
+    <suppress  until="2024-06-30">
+        <notes><![CDATA[
+   file name: nimbus-jose-jwt-9.31.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.nimbusds/nimbus\-jose\-jwt@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-52428</vulnerabilityName>
+    </suppress>
 </suppressions>

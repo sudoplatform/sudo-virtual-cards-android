@@ -68,6 +68,7 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
                                 1.0,
                                 10.0,
                                 FundingSourceStateGraphQL.ACTIVE,
+                                emptyList(),
                                 "USD",
                                 CreditCardFundingSourceGraphQL.TransactionVelocity(
                                     "TransactionVelocity",
@@ -188,6 +189,7 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
                                     1.0,
                                     10.0,
                                     FundingSourceStateGraphQL.ACTIVE,
+                                    emptyList(),
                                     "USD",
                                     CreditCardFundingSourceGraphQL.TransactionVelocity(
                                         "TransactionVelocity",
