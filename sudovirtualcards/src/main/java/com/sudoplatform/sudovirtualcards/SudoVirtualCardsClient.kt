@@ -156,7 +156,8 @@ interface SudoVirtualCardsClient : AutoCloseable {
             Objects.requireNonNull(context, "Context must be provided.")
             Objects.requireNonNull(sudoUserClient, "SudoUserClient must be provided.")
 
-            val appSyncClient = appSyncClient ?: ApiClientManager.getClient(this@Builder.context!!, this@Builder.sudoUserClient!!)
+            val appSyncClient = appSyncClient
+                ?: ApiClientManager.getClient(this@Builder.context!!, this@Builder.sudoUserClient!!, "vcService")
 
             val deviceKeyManager = DefaultDeviceKeyManager(
                 keyManager = keyManager ?: KeyManagerFactory(context!!).createAndroidKeyManager(this.namespace, this.databaseName),
@@ -211,6 +212,8 @@ interface SudoVirtualCardsClient : AutoCloseable {
         class RefreshFailedException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
         class CancelFailedException(message: String? = null, cause: Throwable? = null) :
+            FundingSourceException(message = message, cause = cause)
+        class ReviewFailedException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
         class DuplicateFundingSourceException(message: String? = null, cause: Throwable? = null) :
             FundingSourceException(message = message, cause = cause)
@@ -429,6 +432,17 @@ interface SudoVirtualCardsClient : AutoCloseable {
      */
     @Throws(FundingSourceException::class)
     suspend fun cancelFundingSource(id: String): FundingSource
+
+    /**
+     * Review an unfunded [FundingSource] using the [id] parameter.
+     *
+     * @param id [String] Identifier of the [FundingSource] to review.
+     * @return The reviewed [FundingSource].
+     *
+     * @throws [FundingSourceException].
+     */
+    @Throws(FundingSourceException::class)
+    suspend fun reviewUnfundedFundingSource(id: String): FundingSource
 
     /**
      * Provision a [VirtualCard].

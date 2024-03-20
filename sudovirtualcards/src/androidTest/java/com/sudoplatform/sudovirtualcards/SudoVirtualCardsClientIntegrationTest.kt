@@ -331,6 +331,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                     fundingSource.currency shouldBe "USD"
                     fundingSource.bankAccountType shouldBe BankAccountFundingSource.BankAccountType.CHECKING
                     fundingSource.institutionName shouldBe "First Platypus Bank"
+                    fundingSource.unfundedAmount shouldBe null
                 }
 
                 else -> {
@@ -928,6 +929,53 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
 
         shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceNotFoundException> {
             vcClient.cancelFundingSource("NonExistentId")
+        }
+    }
+
+    @Test
+    fun reviewFundingSourceShouldReturnFundingSourceResult() = runBlocking {
+        val config = retrieveVirtualCardsConfig(vcClient)
+        registerSignInAndEntitle(config)
+        verifyTestUserIdentity()
+        if (isCheckoutBankAccountEnabled(vcClient)) {
+            vcClient.createKeysIfAbsent()
+            val fundingSource = createBankAccountFundingSource(
+                vcClient,
+                CreateBankAccountFundingSourceOptions(
+                    supportedProviders = listOf("checkout"),
+                    username = TestData.TestBankAccountUsername.customChecking,
+                ),
+            )
+            fundingSource shouldNotBe null
+            fundingSource.state shouldBe FundingSourceState.ACTIVE
+
+            when (val reviewedFundingSource = vcClient.reviewUnfundedFundingSource(fundingSource.id)) {
+                is BankAccountFundingSource -> {
+                    with(reviewedFundingSource) {
+                        id shouldNotBe null
+                        owner shouldBe userClient.getSubject()
+                        version shouldBe 1
+                        createdAt.time shouldBeGreaterThan 0L
+                        updatedAt.time shouldBeGreaterThan 0L
+                        state shouldBe FundingSourceState.ACTIVE
+                        flags shouldBe emptyList()
+                        currency shouldBe "USD"
+                    }
+                }
+
+                else -> {
+                    fail("Unexpected FundingSource type")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun reviewFundingSourceShouldThrowWithNonExistentId() = runBlocking<Unit> {
+        registerSignInAndEntitle()
+
+        shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceNotFoundException> {
+            vcClient.reviewUnfundedFundingSource("NonExistentId")
         }
     }
 

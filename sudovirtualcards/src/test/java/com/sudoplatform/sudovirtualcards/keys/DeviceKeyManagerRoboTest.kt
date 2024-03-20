@@ -92,6 +92,7 @@ class DeviceKeyManagerRoboTest : BaseTests() {
 
         keyManager.generateSymmetricKey("symmetricKey")
         val symmetricKey = keyManager.getSymmetricKeyData("symmetricKey")
+            ?: throw AssertionError("Missing symmetricKey")
         secretData = keyManager.encryptWithSymmetricKey("symmetricKey", clearData)
 
         decryptedData = deviceKeyManager.decryptWithSymmetricKey(symmetricKey, secretData)

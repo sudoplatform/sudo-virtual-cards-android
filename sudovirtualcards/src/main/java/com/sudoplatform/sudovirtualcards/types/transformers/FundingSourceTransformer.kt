@@ -13,6 +13,7 @@ import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
 import com.sudoplatform.sudovirtualcards.graphql.OnFundingSourceUpdateSubscription
 import com.sudoplatform.sudovirtualcards.graphql.RefreshFundingSourceMutation
+import com.sudoplatform.sudovirtualcards.graphql.ReviewUnfundedFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.SandboxSetFundingSourceToRequireRefreshMutation
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceState
@@ -20,6 +21,7 @@ import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
 import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.types.CardType
 import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
+import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceFlags
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
@@ -110,6 +112,34 @@ internal object FundingSourceTransformer {
     fun toEntityFromCancelFundingSourceMutationResult(
         deviceKeyManager: DeviceKeyManager,
         result: CancelFundingSourceMutation.CancelFundingSource,
+    ): FundingSource {
+        return when (result.__typename()) {
+            "CreditCardFundingSource" -> {
+                val fundingSource = result.asCreditCardFundingSource()?.fragments()?.creditCardFundingSource()
+                    ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
+                this.toEntity(fundingSource)
+            }
+            "BankAccountFundingSource" -> {
+                val fundingSource = result.asBankAccountFundingSource()?.fragments()?.bankAccountFundingSource()
+                    ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
+                this.toEntity(deviceKeyManager, fundingSource)
+            }
+            else -> {
+                throw SudoVirtualCardsClient.FundingSourceException.FailedException(UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG)
+            }
+        }
+    }
+
+    /**
+     * Transform the results of the review unfunded funding source mutation.
+     *
+     * @param deviceKeyManager [DeviceKeyManager] Used to retrieve keys to unseal data.
+     * @param result [ReviewUnfundedFundingSourceMutation.ReviewUnfundedFundingSource] The GraphQL mutation results.
+     * @return The [FundingSource] entity type.
+     */
+    fun toEntityFromReviewUnfundedFundingSourceMutationResult(
+        deviceKeyManager: DeviceKeyManager,
+        result: ReviewUnfundedFundingSourceMutation.ReviewUnfundedFundingSource,
     ): FundingSource {
         return when (result.__typename()) {
             "CreditCardFundingSource" -> {
@@ -286,6 +316,7 @@ internal object FundingSourceTransformer {
                 val logoUnsealer = Unsealer(deviceKeyManager, logoKeyInfo)
                 logoUnsealer.unseal(fundingSource.institutionLogo())
             },
+            unfundedAmount = fundingSource.unfundedAmount()?.toCurrencyAmount(),
         )
     }
 
@@ -386,5 +417,9 @@ internal object FundingSourceTransformer {
             return null
         }
         return TransactionVelocity(this.maximum(), this.velocity())
+    }
+
+    private fun BankAccountFundingSourceFragment.UnfundedAmount.toCurrencyAmount(): CurrencyAmount {
+        return CurrencyAmount(this.currency(), this.amount())
     }
 }

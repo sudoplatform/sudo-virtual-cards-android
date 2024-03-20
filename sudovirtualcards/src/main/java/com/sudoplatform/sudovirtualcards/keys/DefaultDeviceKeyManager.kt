@@ -98,6 +98,7 @@ internal class DefaultDeviceKeyManager(
             keyManager.generateKeyPair(keyId, true)
 
             val publicKey = keyManager.getPublicKeyData(keyId)
+                ?: throw DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException("Failed to extract public key data")
             return DeviceKey(
                 keyId = keyId,
                 publicKey = publicKey,

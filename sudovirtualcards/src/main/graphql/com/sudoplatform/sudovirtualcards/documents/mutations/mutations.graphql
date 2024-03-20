@@ -50,6 +50,17 @@ mutation CancelFundingSource($input: IdInput!) {
   }
 }
 
+mutation ReviewUnfundedFundingSource($input: IdInput!) {
+  reviewUnfundedFundingSource(input: $input) {
+    ... on CreditCardFundingSource {
+      ...CreditCardFundingSource
+    }
+    ... on BankAccountFundingSource {
+      ...BankAccountFundingSource
+    }
+  }
+}
+
 mutation ProvisionVirtualCard($input: CardProvisionRequest!) {
   cardProvision(input: $input) {
     ...ProvisionalCard

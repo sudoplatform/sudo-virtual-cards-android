@@ -89,6 +89,10 @@ fragment BankAccountFundingSource on BankAccountFundingSource {
   institutionLogo {
     ...SealedAttribute
   }
+  unfundedAmount {
+    currency
+    amount
+  }
 }
 
 fragment ProvisionalCard on ProvisionalCard {

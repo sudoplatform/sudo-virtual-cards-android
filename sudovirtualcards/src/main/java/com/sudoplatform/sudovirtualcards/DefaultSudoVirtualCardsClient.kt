@@ -35,6 +35,7 @@ import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsByCardIdQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsQuery
 import com.sudoplatform.sudovirtualcards.graphql.ProvisionVirtualCardMutation
 import com.sudoplatform.sudovirtualcards.graphql.RefreshFundingSourceMutation
+import com.sudoplatform.sudovirtualcards.graphql.ReviewUnfundedFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.SandboxGetPlaidDataQuery
 import com.sudoplatform.sudovirtualcards.graphql.SandboxSetFundingSourceToRequireRefreshMutation
 import com.sudoplatform.sudovirtualcards.graphql.SetupFundingSourceMutation
@@ -529,6 +530,38 @@ internal class DefaultSudoVirtualCardsClient(
             logger.error("unexpected error $e")
             when (e) {
                 is ApolloException -> throw SudoVirtualCardsClient.FundingSourceException.CancelFailedException(cause = e)
+                else -> throw interpretFundingSourceException(e)
+            }
+        }
+    }
+
+    @Throws(SudoVirtualCardsClient.FundingSourceException::class)
+    override suspend fun reviewUnfundedFundingSource(id: String): FundingSource {
+        try {
+            val mutationInput = IdInput.builder()
+                .id(id)
+                .build()
+            val mutation = ReviewUnfundedFundingSourceMutation.builder()
+                .input(mutationInput)
+                .build()
+
+            val mutationResponse = appSyncClient.mutate(mutation)
+                .enqueue()
+
+            if (mutationResponse.hasErrors()) {
+                logger.error("errors = ${mutationResponse.errors()}")
+                throw interpretFundingSourceError(mutationResponse.errors().first())
+            }
+
+            val result = mutationResponse.data()?.reviewUnfundedFundingSource()
+            result?.let {
+                return FundingSourceTransformer.toEntityFromReviewUnfundedFundingSourceMutationResult(deviceKeyManager, result)
+            }
+            throw SudoVirtualCardsClient.FundingSourceException.ReviewFailedException(NO_RESULT_ERROR_MSG)
+        } catch (e: Throwable) {
+            logger.error("unexpected error $e")
+            when (e) {
+                is ApolloException -> throw SudoVirtualCardsClient.FundingSourceException.ReviewFailedException(cause = e)
                 else -> throw interpretFundingSourceException(e)
             }
         }

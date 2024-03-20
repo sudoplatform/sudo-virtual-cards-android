@@ -98,7 +98,7 @@ dependencies {
     implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
 
     // Sudo Platform
-    implementation "com.sudoplatform:sudokeymanager:7.0.0"
+    implementation "com.sudoplatform:sudokeymanager:7.2.0"
     implementation "com.sudoplatform:sudologging:4.0.0"
     implementation "com.sudoplatform:sudoconfigmanager:7.0.2"
     implementation 'com.sudoplatform:sudouser:18.0.0'

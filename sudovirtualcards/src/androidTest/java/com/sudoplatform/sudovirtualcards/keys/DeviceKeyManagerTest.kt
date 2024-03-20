@@ -86,7 +86,7 @@ class DeviceKeyManagerTest : BaseIntegrationTest() {
         decryptedData shouldBe clearData
 
         keyManager.generateSymmetricKey("symmetricKey")
-        val symmetricKey = keyManager.getSymmetricKeyData("symmetricKey")
+        val symmetricKey = keyManager.getSymmetricKeyData("symmetricKey") ?: throw AssertionError("Symmetric key data should not be null")
         secretData = keyManager.encryptWithSymmetricKey("symmetricKey", clearData)
 
         decryptedData = deviceKeyManager.decryptWithSymmetricKey(symmetricKey, secretData)
@@ -120,7 +120,7 @@ class DeviceKeyManagerTest : BaseIntegrationTest() {
 
         keyManager.deleteSymmetricKey("symmetricKey")
         keyManager.generateSymmetricKey("symmetricKey")
-        val symmetricKey = keyManager.getSymmetricKeyData("symmetricKey")
+        val symmetricKey = keyManager.getSymmetricKeyData("symmetricKey") ?: throw AssertionError("Symmetric key data should not be null")
         val symmetricSecretData = keyManager.encryptWithSymmetricKey("symmetricKey", clearData)
 
         decryptedData = deviceKeyManager.decryptWithSymmetricKey(symmetricKey, symmetricSecretData)

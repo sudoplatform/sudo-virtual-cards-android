@@ -109,6 +109,8 @@ data class CreditCardFundingSource(
  * @property institutionName [String] The name of the institution at which the bank account is held.
  * @property institutionLogo [InstitutionLogo] The Mime type and the Base64 encoded image data of the
  *  institution logo if any.
+ * @property unfundedAmount [CurrencyAmount] The amount by which this funding source is unfunded in the
+ *  currency of the funding source, if unfunded. Otherwise null.
  */
 @Parcelize
 data class BankAccountFundingSource(
@@ -126,6 +128,7 @@ data class BankAccountFundingSource(
     val last4: String,
     val institutionName: String,
     val institutionLogo: InstitutionLogo?,
+    val unfundedAmount: CurrencyAmount?,
 ) : FundingSource() {
     enum class BankAccountType {
         SAVING,

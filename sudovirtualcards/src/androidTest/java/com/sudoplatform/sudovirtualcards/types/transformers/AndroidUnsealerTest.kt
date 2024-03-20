@@ -62,6 +62,7 @@ class AndroidUnsealerTest : BaseIntegrationTest() {
 
         keyManager.generateSymmetricKey(symmetricKeyId, true)
         val symmetricKeyData = keyManager.getSymmetricKeyData(symmetricKeyId)
+            ?: throw AssertionError("symmetric key data should not be null")
 
         val encryptedKeyData = keyManager.encryptWithPublicKey(
             keyPair.keyId,
@@ -95,6 +96,7 @@ class AndroidUnsealerTest : BaseIntegrationTest() {
             val symmetricKeyId = UUID.randomUUID().toString()
             keyManager.generateSymmetricKey(symmetricKeyId, true)
             val symmetricKeyData = keyManager.getSymmetricKeyData(symmetricKeyId)
+                ?: throw AssertionError("symmetric key data should not be null")
 
             val encryptedKeyData = keyManager.encryptWithPublicKey(
                 keyPair.keyId,
