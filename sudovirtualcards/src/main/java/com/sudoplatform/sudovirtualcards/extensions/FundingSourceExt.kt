@@ -12,3 +12,7 @@ import com.sudoplatform.sudovirtualcards.types.FundingSourceFlags
 fun FundingSource.isUnfunded(): Boolean {
     return this.flags.contains(FundingSourceFlags.UNFUNDED)
 }
+
+fun FundingSource.needsRefresh(): Boolean {
+    return this.flags.contains(FundingSourceFlags.REFRESH)
+}

@@ -162,9 +162,6 @@ enum class FundingSourceState {
     /** Funding source is inactive and cannot be used. */
     INACTIVE,
 
-    /** Funding source is active but may become inactive if user intervention does not occur. */
-    REFRESH,
-
     /** Unknown state. Please check you have the correct (latest) version of this SDK. */
     UNKNOWN,
 }
@@ -179,6 +176,12 @@ enum class FundingSourceFlags {
      * Limited velocity constraints will apply.
      **/
     UNFUNDED,
+
+    /**
+     * Funding source is active but requires a refresh to re-link with the financial
+     * institution.
+     **/
+    REFRESH,
 
     /** Unknown flag. Please check you have the correct (latest) version of this SDK. */
     UNKNOWN,

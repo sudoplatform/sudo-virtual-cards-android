@@ -329,11 +329,11 @@ enum ProvisionalFundingSourceState {
 enum FundingSourceState {
   ACTIVE
   INACTIVE
-  REFRESH
 }
 
 enum FundingSourceFlags {
   UNFUNDED
+  REFRESH
 }
 
 enum FundingSourceType {

@@ -647,7 +647,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun refreshFundingSourceShouldThrowWithFundingSourceStateExceptionForInactiveFundingSource() = runBlocking {
+    fun refreshFundingSourceShouldReturnBankAccountFundingSourceForInactiveFundingSource() = runBlocking {
         val config = retrieveVirtualCardsConfig(vcClient)
         registerSignInAndEntitle(config)
         verifyTestUserIdentity()
@@ -682,9 +682,8 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 ClientApplicationData("androidApplication"),
                 "en-US",
             )
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceStateException> {
-                vcClient.refreshFundingSource(refreshInput)
-            }
+            val refreshedFundingSource = vcClient.refreshFundingSource(refreshInput)
+            refreshedFundingSource shouldBe cancelledFundingSource
         }
     }
 

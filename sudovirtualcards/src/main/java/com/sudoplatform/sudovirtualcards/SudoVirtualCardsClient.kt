@@ -366,7 +366,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
     suspend fun completeFundingSource(input: CompleteFundingSourceInput): FundingSource
 
     /**
-     * Refresh a [FundingSource] currently in REFRESH state.
+     * Refresh a [FundingSource] with the REFRESH flag set.
      *
      * @param input [RefreshFundingSourceInput] Parameters used to complete the creation of a funding source.
      * @return The refreshed [FundingSource].
@@ -785,7 +785,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
     /**
      * Import cryptographic keys from a key archive.
      *
-     * @param archiveData [Data] Key archive data to import the keys from.
+     * @param archiveData [ByteArray] Key archive data to import the keys from.
      *
      * @throws [VirtualCardCryptographicKeysException]
      */

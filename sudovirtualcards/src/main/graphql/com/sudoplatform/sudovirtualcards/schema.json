@@ -1743,6 +1743,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "REFRESH",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "UNFUNDED",
             "description": null,
             "isDeprecated": false,
@@ -1767,12 +1773,6 @@
           },
           {
             "name": "INACTIVE",
-            "description": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "REFRESH",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null

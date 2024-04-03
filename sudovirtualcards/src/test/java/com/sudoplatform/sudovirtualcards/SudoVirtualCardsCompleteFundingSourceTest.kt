@@ -16,6 +16,7 @@ import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.extensions.isUnfunded
+import com.sudoplatform.sudovirtualcards.extensions.needsRefresh
 import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.CompleteFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAttribute
@@ -335,6 +336,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
                     network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
                 }
                 result.isUnfunded() shouldBe false
+                result.needsRefresh() shouldBe false
             }
             is BankAccountFundingSource -> {
                 with(result) {
@@ -354,6 +356,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
                     institutionLogo shouldBe null
                 }
                 result.isUnfunded() shouldBe true
+                result.needsRefresh() shouldBe false
             }
             else -> {
                 fail("Unexpected FundingSource type")
