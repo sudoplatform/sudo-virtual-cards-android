@@ -63,11 +63,22 @@
         <cve>CVE-2020-8908</cve>
         <cve>CVE-2023-2976</cve>
     </suppress>
-    <suppress  until="2024-06-30">
+    <suppress until="2024-06-30">
         <notes><![CDATA[
    file name: nimbus-jose-jwt-9.31.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.nimbusds/nimbus\-jose\-jwt@.*$</packageUrl>
         <vulnerabilityName>CVE-2023-52428</vulnerabilityName>
     </suppress>
+    <suppress until="2024-06-30">
+        <notes><![CDATA[
+   file name: bcprov-jdk15to18-1.76.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bcprov\-jdk15to18@.*$</packageUrl>
+        <cve>CVE-2024-34447</cve>
+        <cve>CVE-2024-30171</cve>
+        <cve>CVE-2024-29857</cve>
+        <cve>CVE-2024-30172</cve>
+    </suppress>
+
 </suppressions>

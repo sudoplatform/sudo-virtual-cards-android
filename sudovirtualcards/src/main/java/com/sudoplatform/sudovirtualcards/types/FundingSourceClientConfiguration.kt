@@ -7,6 +7,7 @@
 package com.sudoplatform.sudovirtualcards.types
 
 import android.os.Parcelable
+import androidx.annotation.Keep
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -18,6 +19,7 @@ import kotlinx.parcelize.Parcelize
  * @property apiKey [String] API key for configuring calls to the provider.
  */
 @Parcelize
+@Keep
 data class FundingSourceClientConfiguration(
     val type: String = ProviderDefaults.configurationType,
     val fundingSourceType: FundingSourceType,
@@ -31,6 +33,7 @@ data class FundingSourceClientConfiguration(
  * @property fundingSourceTypes [List<FundingSourceType>] A list of funding source type configuration data.
  */
 @Parcelize
+@Keep
 data class FundingSourceTypes(
     val fundingSourceTypes: List<FundingSourceClientConfiguration>,
 ) : Parcelable
