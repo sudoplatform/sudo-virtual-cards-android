@@ -7,6 +7,7 @@
 package com.sudoplatform.sudovirtualcards
 
 import android.content.Context
+import androidx.annotation.Keep
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.google.gson.Gson
 import com.sudoplatform.sudoapiclient.ApiClientManager
@@ -185,6 +186,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
     /**
      * Returned with a FundingSourceRequiresUserInteraction error to provide feedback to the client.
      */
+    @Keep
     data class FundingSourceInteractionData(val provisioningData: String) {
         companion object {
             fun decode(errorInfo: Any?): FundingSourceInteractionData {

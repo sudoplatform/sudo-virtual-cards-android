@@ -6,6 +6,7 @@
 
 package com.sudoplatform.sudovirtualcards.signing
 
+import androidx.annotation.Keep
 import java.util.Date
 
 /**
@@ -31,6 +32,7 @@ data class Signature(
  * @property signedAt [Date] The date in which the signing has occurred.
  * @property account [String] Data to be signed.
  */
+@Keep
 internal data class SignatureData(
     val hash: String,
     val hashAlgorithm: String,

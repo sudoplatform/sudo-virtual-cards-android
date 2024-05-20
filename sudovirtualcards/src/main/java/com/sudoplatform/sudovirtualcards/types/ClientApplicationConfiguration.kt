@@ -7,6 +7,7 @@
 package com.sudoplatform.sudovirtualcards.types
 
 import android.os.Parcelable
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
@@ -18,6 +19,7 @@ import kotlinx.parcelize.Parcelize
  *  redirect flows.
  */
 @Parcelize
+@Keep
 data class PlaidApplicationConfiguration(
     @SerializedName("client_name")
     val clientName: String,
@@ -31,6 +33,7 @@ data class PlaidApplicationConfiguration(
  * @property plaid [PlaidApplicationConfiguration] The Plaid specific configuration.
  */
 @Parcelize
+@Keep
 data class FundingSourceProviders(
     val plaid: PlaidApplicationConfiguration,
 ) : Parcelable
@@ -41,6 +44,7 @@ data class FundingSourceProviders(
  * @property fundingSourceProviders [FundingSourceProviders] The configuration for each funding source provider.
  */
 @Parcelize
+@Keep
 data class ClientApplicationConfiguration(
     @SerializedName("funding_source_providers")
     val fundingSourceProviders: FundingSourceProviders,

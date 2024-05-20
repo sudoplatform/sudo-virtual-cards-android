@@ -7,6 +7,7 @@
 package com.sudoplatform.sudovirtualcards.types
 
 import android.os.Parcelable
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
@@ -15,18 +16,21 @@ import kotlinx.parcelize.Parcelize
  * which make up a component of the virtual cards configuration.
  */
 @Parcelize
+@Keep
 data class PricingPolicy(
     val stripe: StripePricingPolicy? = null,
     val checkout: CheckoutPricingPolicy? = null,
 ) : Parcelable
 
 @Parcelize
+@Keep
 data class StripePricingPolicy(
     @SerializedName("CREDIT_CARD")
     val creditCard: Map<String, TieredMarkupPolicy>,
 ) : Parcelable
 
 @Parcelize
+@Keep
 data class CheckoutPricingPolicy(
     @SerializedName("CREDIT_CARD")
     val creditCard: Map<String, TieredMarkupPolicy>,
@@ -35,12 +39,14 @@ data class CheckoutPricingPolicy(
 ) : Parcelable
 
 @Parcelize
+@Keep
 data class TieredMarkup(
     val markup: Markup,
     val minThreshold: Int? = null,
 ) : Parcelable
 
 @Parcelize
+@Keep
 data class TieredMarkupPolicy(
     val tiers: List<TieredMarkup>,
 ) : Parcelable
