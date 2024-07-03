@@ -28,6 +28,7 @@ import org.awaitility.kotlin.untilCallTo
 import org.awaitility.kotlin.withPollInterval
 import org.junit.After
 import org.junit.Assert
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -74,6 +75,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun listTransactionsByCardIdShouldReturnSingleTransactionListOutputResult() = runBlocking {
+        assumeTrue(isTransactionSimulatorAvailable())
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
@@ -174,6 +176,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun listTransactionsByCardIdShouldReturnMultipleTransactionListOutputResult() = runBlocking {
+        assumeTrue(isTransactionSimulatorAvailable())
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
@@ -244,6 +247,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun listTransactionsByCardIdShouldRespectLimit() = runBlocking {
+        assumeTrue(isTransactionSimulatorAvailable())
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
@@ -341,6 +345,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun listTransactionsByCardIdShouldReturnEmptyList() = runBlocking {
+        assumeTrue(isTransactionSimulatorAvailable())
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
@@ -429,6 +434,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun listTransactionsByCardIdAndTypeShouldReturnSingleTransactionListOutputResult() = runBlocking {
+        assumeTrue(isTransactionSimulatorAvailable())
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
@@ -519,6 +525,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun listTransactionsByCardIdAndTypeShouldReturnMultipleTransactionListOutputResult() = runBlocking {
+        assumeTrue(isTransactionSimulatorAvailable())
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
@@ -590,6 +597,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun listTransactionsByCardIdAndTypeShouldRespectLimit() = runBlocking {
+        assumeTrue(isTransactionSimulatorAvailable())
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
@@ -671,6 +679,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun listTransactionsByCardIdAndTypeShouldReturnEmptyList() = runBlocking {
+        assumeTrue(isTransactionSimulatorAvailable())
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
@@ -758,6 +767,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun listTransactionsShouldReturnSingleTransactionListOutputResult() = runBlocking {
+        assumeTrue(isTransactionSimulatorAvailable())
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
@@ -858,6 +868,8 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun listTransactionsShouldReturnMultipleTransactionListOutputResult() = runBlocking {
+        assumeTrue(isTransactionSimulatorAvailable())
+
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
@@ -928,6 +940,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun listTransactionsShouldRespectLimit() = runBlocking {
+        assumeTrue(isTransactionSimulatorAvailable())
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 
@@ -1020,6 +1033,7 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun listTransactionsShouldReturnEmptyList() = runBlocking {
+        assumeTrue(isTransactionSimulatorAvailable())
         registerSignInAndEntitle()
         verifyTestUserIdentity()
 

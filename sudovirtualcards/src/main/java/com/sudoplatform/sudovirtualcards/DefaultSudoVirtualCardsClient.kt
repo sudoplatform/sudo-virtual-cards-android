@@ -17,9 +17,11 @@ import com.sudoplatform.sudologging.AndroidUtilsLogDriver
 import com.sudoplatform.sudologging.LogLevel
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
+import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient.FundingSourceException
 import com.sudoplatform.sudovirtualcards.extensions.enqueue
 import com.sudoplatform.sudovirtualcards.extensions.enqueueFirst
 import com.sudoplatform.sudovirtualcards.graphql.CancelFundingSourceMutation
+import com.sudoplatform.sudovirtualcards.graphql.CancelProvisionalFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.CancelVirtualCardMutation
 import com.sudoplatform.sudovirtualcards.graphql.CompleteFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.GetCardQuery
@@ -30,6 +32,7 @@ import com.sudoplatform.sudovirtualcards.graphql.GetTransactionQuery
 import com.sudoplatform.sudovirtualcards.graphql.GetVirtualCardsConfigQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListCardsQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
+import com.sudoplatform.sudovirtualcards.graphql.ListProvisionalFundingSourcesQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsByCardIdAndTypeQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsByCardIdQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsQuery
@@ -91,11 +94,13 @@ import com.sudoplatform.sudovirtualcards.types.VirtualCard
 import com.sudoplatform.sudovirtualcards.types.VirtualCardsConfig
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
+import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.types.inputs.RefreshFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.transformers.DateRangeTransformer.toDateRangeInput
 import com.sudoplatform.sudovirtualcards.types.transformers.FundingSourceTransformer
+import com.sudoplatform.sudovirtualcards.types.transformers.FundingSourceTransformer.toProvisionalFundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.types.transformers.KeyType
 import com.sudoplatform.sudovirtualcards.types.transformers.ProviderDataTransformer
 import com.sudoplatform.sudovirtualcards.types.transformers.TransactionTransformer
@@ -247,6 +252,41 @@ internal class DefaultSudoVirtualCardsClient(
             logger.error("unexpected error $e")
             when (e) {
                 is ApolloException -> throw SudoVirtualCardsClient.FundingSourceException.SetupFailedException(cause = e)
+                else -> throw interpretFundingSourceException(e)
+            }
+        }
+    }
+
+    @Throws(SudoVirtualCardsClient.FundingSourceException::class)
+    override suspend fun listProvisionalFundingSources(
+        filter: ProvisionalFundingSourceFilterInput?,
+        limit: Int,
+        nextToken: String?,
+        cachePolicy: CachePolicy,
+    ): ListOutput<ProvisionalFundingSource> {
+        try {
+            val query = ListProvisionalFundingSourcesQuery.builder()
+                .filter(filter.toProvisionalFundingSourceFilterInput())
+                .limit(limit)
+                .nextToken(nextToken)
+                .build()
+
+            val queryResponse = appSyncClient.query(query)
+                .responseFetcher(cachePolicy.toResponseFetcher(cachePolicy))
+                .enqueueFirst()
+
+            if (queryResponse.hasErrors()) {
+                logger.error("errors = ${queryResponse.errors()}")
+                throw interpretFundingSourceError(queryResponse.errors().first())
+            }
+
+            val result = queryResponse.data()?.listProvisionalFundingSources() ?: return ListOutput(emptyList(), null)
+            val fundingSources = FundingSourceTransformer.toEntity(result.items())
+            return ListOutput(fundingSources, result.nextToken())
+        } catch (e: Throwable) {
+            logger.error("unexpected error $e")
+            when (e) {
+                is ApolloException -> throw SudoVirtualCardsClient.FundingSourceException.FailedException(cause = e)
                 else -> throw interpretFundingSourceException(e)
             }
         }
@@ -524,6 +564,38 @@ internal class DefaultSudoVirtualCardsClient(
             val result = mutationResponse.data()?.cancelFundingSource()
             result?.let {
                 return FundingSourceTransformer.toEntityFromCancelFundingSourceMutationResult(deviceKeyManager, result)
+            }
+            throw SudoVirtualCardsClient.FundingSourceException.CancelFailedException(NO_RESULT_ERROR_MSG)
+        } catch (e: Throwable) {
+            logger.error("unexpected error $e")
+            when (e) {
+                is ApolloException -> throw SudoVirtualCardsClient.FundingSourceException.CancelFailedException(cause = e)
+                else -> throw interpretFundingSourceException(e)
+            }
+        }
+    }
+
+    @Throws(FundingSourceException::class)
+    override suspend fun cancelProvisionalFundingSource(id: String): ProvisionalFundingSource {
+        try {
+            val mutationInput = IdInput.builder()
+                .id(id)
+                .build()
+            val mutation = CancelProvisionalFundingSourceMutation.builder()
+                .input(mutationInput)
+                .build()
+
+            val mutationResponse = appSyncClient.mutate(mutation)
+                .enqueue()
+
+            if (mutationResponse.hasErrors()) {
+                logger.error("errors = ${mutationResponse.errors()}")
+                throw interpretFundingSourceError(mutationResponse.errors().first())
+            }
+
+            val result = mutationResponse.data()?.cancelProvisionalFundingSource()
+            result?.let {
+                return FundingSourceTransformer.toEntityFromCancelProvisionalFundingSourceMutationResult(result)
             }
             throw SudoVirtualCardsClient.FundingSourceException.CancelFailedException(NO_RESULT_ERROR_MSG)
         } catch (e: Throwable) {

@@ -10,6 +10,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
+import com.sudoplatform.sudoapiclient.ApiClientManager
 import com.sudoplatform.sudoentitlements.SudoEntitlementsClient
 import com.sudoplatform.sudoentitlementsadmin.SudoEntitlementsAdminClient
 import com.sudoplatform.sudoentitlementsadmin.types.Entitlement
@@ -341,6 +342,9 @@ abstract class BaseIntegrationTest {
     }
 
     protected suspend fun simulateTransactions(virtualCard: VirtualCard) {
+        if (!isTransactionSimulatorAvailable()) {
+            throw AssertionError("Transaction simulation is not available in this environment")
+        }
         // Create an authorization for a purchase (debit)
         val merchant = vcSimulatorClient.getSimulatorMerchants().first()
         val originalAmount = 75
@@ -389,6 +393,28 @@ abstract class BaseIntegrationTest {
             createdAt.time shouldBeGreaterThan 0L
             updatedAt.time shouldBeGreaterThan 0L
         }
+    }
+
+    /**
+     * Any tests which use simulateTransactions must call this first and exit out if the simulator
+     * is not available.
+     */
+    protected fun isTransactionSimulatorAvailable(): Boolean {
+        try {
+            // Note that if the config section is not present, the getClient method will fall
+            // back to the default.
+            // In a correctly configured system, the vcSimulator does not stitch
+            // in with the 'real' services so if the items are the same, then the vcSimulator getClient
+            // has returned the default and the section - and thus the service - is not present.
+            val client = ApiClientManager.getClient(context, userClient, "vcSimulator")
+            val defaultClient = ApiClientManager.getClient(context, userClient)
+            if (client == defaultClient) {
+                return false
+            }
+        } catch (e: Exception) {
+            return false
+        }
+        return true
     }
 
     protected suspend fun getProvidersList(client: SudoVirtualCardsClient): List<String> {

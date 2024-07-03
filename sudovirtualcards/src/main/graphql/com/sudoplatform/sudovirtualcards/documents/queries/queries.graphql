@@ -62,6 +62,22 @@ query ListFundingSources($limit: Int, $nextToken: String) {
     nextToken
   }
 }
+query ListProvisionalFundingSources(
+  $filter: ProvisionalFundingSourceFilterInput
+  $limit: Int
+  $nextToken: String
+  ) {
+    listProvisionalFundingSources(
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        ...ProvisionalFundingSource
+      }
+      nextToken
+    }
+  }
 
 query GetProvisionalCard($id: ID!) {
   getProvisionalCard(id: $id) {

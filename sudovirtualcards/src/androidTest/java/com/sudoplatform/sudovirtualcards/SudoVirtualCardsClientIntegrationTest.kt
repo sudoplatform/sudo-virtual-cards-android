@@ -36,7 +36,10 @@ import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
 import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInput
+import com.sudoplatform.sudovirtualcards.types.inputs.IdFilterInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
+import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceFilterInput
+import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceStateFilterInput
 import com.sudoplatform.sudovirtualcards.types.inputs.RefreshFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
@@ -975,6 +978,467 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
 
         shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceNotFoundException> {
             vcClient.reviewUnfundedFundingSource("NonExistentId")
+        }
+    }
+
+    @Test
+    fun listProvisionalFundingSourcesShouldReturnAllProvisional() = runBlocking {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        var stripeProvisionalFundingSource: ProvisionalFundingSource? = null
+        var checkoutCardProvisionalFundingSource: ProvisionalFundingSource? = null
+        var checkoutBankAccountProvisionalFundingSource: ProvisionalFundingSource? = null
+        var provisionalFundingSourcesCount = 0
+
+        if (isStripeEnabled(vcClient)) {
+            val setupStripeInput = SetupFundingSourceInput(
+                "USD",
+                FundingSourceType.CREDIT_CARD,
+                ClientApplicationData("system-test-app"),
+                listOf("stripe"),
+            )
+            stripeProvisionalFundingSource = vcClient.setupFundingSource(setupStripeInput)
+
+            with(stripeProvisionalFundingSource) {
+                id shouldNotBe null
+                owner shouldBe userClient.getSubject()
+                version shouldBe 1
+                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
+                provisioningData.provider shouldBe "stripe"
+                provisioningData.version shouldBe 1
+                val stripeProvisioningData = provisioningData as StripeCardProvisioningData
+                stripeProvisioningData.clientSecret shouldNotBe null
+                stripeProvisioningData.intent shouldNotBe null
+            }
+            ++provisionalFundingSourcesCount
+        }
+
+        if (isCheckoutCardEnabled(vcClient)) {
+            val setupCheckoutCardInput = SetupFundingSourceInput(
+                "USD",
+                FundingSourceType.CREDIT_CARD,
+                ClientApplicationData("system-test-app"),
+                listOf("checkout"),
+            )
+            checkoutCardProvisionalFundingSource = vcClient.setupFundingSource(setupCheckoutCardInput)
+
+            with(checkoutCardProvisionalFundingSource) {
+                id shouldNotBe null
+                owner shouldBe userClient.getSubject()
+                version shouldBe 1
+                type shouldBe FundingSourceType.CREDIT_CARD
+                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
+                provisioningData.provider shouldBe "checkout"
+                provisioningData.version shouldBe 1
+                val checkoutProvisioningData = provisioningData as CheckoutCardProvisioningData
+                checkoutProvisioningData shouldNotBe null
+            }
+            ++provisionalFundingSourcesCount
+        }
+
+        if (isCheckoutBankAccountEnabled(vcClient)) {
+            val setupCheckoutBankAccountInput = SetupFundingSourceInput(
+                "USD",
+                FundingSourceType.BANK_ACCOUNT,
+                ClientApplicationData("system-test-app"),
+                listOf("checkout"),
+            )
+            checkoutBankAccountProvisionalFundingSource = vcClient.setupFundingSource(setupCheckoutBankAccountInput)
+
+            with(checkoutBankAccountProvisionalFundingSource) {
+                id shouldNotBe null
+                owner shouldBe userClient.getSubject()
+                version shouldBe 1
+                type shouldBe FundingSourceType.BANK_ACCOUNT
+                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
+                provisioningData.provider shouldBe "checkout"
+                provisioningData.version shouldBe 1
+                val checkoutProvisioningData = provisioningData as CheckoutBankAccountProvisioningData
+                checkoutProvisioningData shouldNotBe null
+            }
+            ++provisionalFundingSourcesCount
+        }
+        val provisionalFundingSources = vcClient.listProvisionalFundingSources()
+        provisionalFundingSources.items.size shouldBe provisionalFundingSourcesCount
+        if (stripeProvisionalFundingSource != null) {
+            val returnedStripe = provisionalFundingSources.items.first { it.id == stripeProvisionalFundingSource.id }
+            returnedStripe shouldNotBe null
+            with(returnedStripe) {
+                id shouldNotBe null
+                owner shouldBe userClient.getSubject()
+                version shouldBe 1
+                last4 shouldNotBe null
+                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
+                provisioningData.provider shouldBe "stripe"
+                provisioningData.version shouldBe 1
+                val stripeProvisioningData = provisioningData as StripeCardProvisioningData
+                stripeProvisioningData.clientSecret shouldNotBe null
+                stripeProvisioningData.intent shouldNotBe null
+            }
+        }
+        if (checkoutCardProvisionalFundingSource != null) {
+            val returnedCheckoutCard = provisionalFundingSources.items.first { it.id == checkoutCardProvisionalFundingSource.id }
+            returnedCheckoutCard shouldNotBe null
+            with(returnedCheckoutCard) {
+                id shouldNotBe null
+                owner shouldBe userClient.getSubject()
+                version shouldBe 1
+                last4 shouldNotBe null
+                type shouldBe FundingSourceType.CREDIT_CARD
+                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
+                provisioningData.provider shouldBe "checkout"
+                provisioningData.version shouldBe 1
+                val checkoutProvisioningData = provisioningData as CheckoutCardProvisioningData
+                checkoutProvisioningData shouldNotBe null
+            }
+        }
+        if (checkoutBankAccountProvisionalFundingSource != null) {
+            val returnedCheckoutBankAccount = provisionalFundingSources.items.first {
+                it.id == checkoutBankAccountProvisionalFundingSource.id
+            }
+            returnedCheckoutBankAccount shouldNotBe null
+            with(returnedCheckoutBankAccount) {
+                id shouldNotBe null
+                owner shouldBe userClient.getSubject()
+                version shouldBe 1
+                last4 shouldNotBe null
+                type shouldBe FundingSourceType.BANK_ACCOUNT
+                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
+                provisioningData.provider shouldBe "checkout"
+                provisioningData.version shouldBe 1
+                val checkoutProvisioningData = provisioningData as CheckoutBankAccountProvisioningData
+                checkoutProvisioningData shouldNotBe null
+            }
+        }
+    }
+
+    @Test
+    fun listProvisionalFundingSourcesFiltersShouldBehaveCorrectly() = runBlocking<Unit> {
+        registerSignInAndEntitle()
+        verifyTestUserIdentity()
+
+        var provisionalCount = 0
+
+        if (isStripeEnabled(vcClient)) {
+            val setupStripeInput = SetupFundingSourceInput(
+                "USD",
+                FundingSourceType.CREDIT_CARD,
+                ClientApplicationData("system-test-app"),
+                listOf("stripe"),
+            )
+            val stripeProvisionalFundingSource = vcClient.setupFundingSource(setupStripeInput)
+
+            with(stripeProvisionalFundingSource) {
+                id shouldNotBe null
+                owner shouldBe userClient.getSubject()
+                version shouldBe 1
+                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
+                provisioningData.provider shouldBe "stripe"
+                provisioningData.version shouldBe 1
+                val stripeProvisioningData = provisioningData as StripeCardProvisioningData
+                stripeProvisioningData.clientSecret shouldNotBe null
+                stripeProvisioningData.intent shouldNotBe null
+            }
+            ++provisionalCount
+        }
+
+        if (isCheckoutCardEnabled(vcClient)) {
+            val setupCheckoutCardInput = SetupFundingSourceInput(
+                "USD",
+                FundingSourceType.CREDIT_CARD,
+                ClientApplicationData("system-test-app"),
+                listOf("checkout"),
+            )
+            val checkoutCardProvisionalFundingSource = vcClient.setupFundingSource(setupCheckoutCardInput)
+
+            with(checkoutCardProvisionalFundingSource) {
+                id shouldNotBe null
+                owner shouldBe userClient.getSubject()
+                version shouldBe 1
+                type shouldBe FundingSourceType.CREDIT_CARD
+                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
+                provisioningData.provider shouldBe "checkout"
+                provisioningData.version shouldBe 1
+                val checkoutProvisioningData = provisioningData as CheckoutCardProvisioningData
+                checkoutProvisioningData shouldNotBe null
+            }
+            ++provisionalCount
+        }
+
+        if (isCheckoutBankAccountEnabled(vcClient)) {
+            val setupCheckoutBankAccountInput = SetupFundingSourceInput(
+                "USD",
+                FundingSourceType.BANK_ACCOUNT,
+                ClientApplicationData("system-test-app"),
+                listOf("checkout"),
+            )
+            val checkoutBankAccountProvisionalFundingSource = vcClient.setupFundingSource(setupCheckoutBankAccountInput)
+
+            with(checkoutBankAccountProvisionalFundingSource) {
+                id shouldNotBe null
+                owner shouldBe userClient.getSubject()
+                version shouldBe 1
+                type shouldBe FundingSourceType.BANK_ACCOUNT
+                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
+                provisioningData.provider shouldBe "checkout"
+                provisioningData.version shouldBe 1
+                val checkoutProvisioningData = provisioningData as CheckoutBankAccountProvisioningData
+                checkoutProvisioningData shouldNotBe null
+            }
+            ++provisionalCount
+        }
+        provisionalCount shouldBeGreaterThan 0
+        val provisionalFundingSources = vcClient.listProvisionalFundingSources()
+        provisionalFundingSources.items.size shouldBe provisionalCount
+
+        val randomOffset = (0 until provisionalCount).random()
+        val idToGet = provisionalFundingSources.items[randomOffset].id
+        val filteredProvisionalFundingSources = vcClient.listProvisionalFundingSources(
+            ProvisionalFundingSourceFilterInput(IdFilterInput(null, idToGet)),
+        )
+        filteredProvisionalFundingSources.items.size shouldBe 1
+        filteredProvisionalFundingSources.items[0].id shouldBe idToGet
+
+        val neFilteredProvisionalFundingSources = vcClient.listProvisionalFundingSources(
+            ProvisionalFundingSourceFilterInput(IdFilterInput(idToGet)),
+        )
+        neFilteredProvisionalFundingSources.items.size shouldBe provisionalCount - 1
+        shouldThrow<NoSuchElementException> {
+            neFilteredProvisionalFundingSources.items.first { it.id == idToGet }
+        }
+
+        val orFiltered = vcClient.listProvisionalFundingSources(
+            ProvisionalFundingSourceFilterInput(
+                null,
+                null,
+                null,
+                arrayListOf(
+                    ProvisionalFundingSourceFilterInput(IdFilterInput(null, idToGet)),
+                    ProvisionalFundingSourceFilterInput(
+                        null,
+                        ProvisionalFundingSourceStateFilterInput(
+                            ProvisionalFundingSource.ProvisioningState.PROVISIONING,
+                        ),
+                    ),
+                ),
+            ),
+        )
+        orFiltered.items.size shouldBe provisionalCount
+        val andFiltered = vcClient.listProvisionalFundingSources(
+            ProvisionalFundingSourceFilterInput(
+                null,
+                null,
+                arrayListOf(
+                    ProvisionalFundingSourceFilterInput(IdFilterInput(null, idToGet)),
+                    ProvisionalFundingSourceFilterInput(
+                        null,
+                        ProvisionalFundingSourceStateFilterInput(
+                            ProvisionalFundingSource.ProvisioningState.PROVISIONING,
+                        ),
+                    ),
+                ),
+            ),
+        )
+        andFiltered.items.size shouldBe 1
+    }
+
+    @Test
+    fun listProvisionalFundingSourcesCanListCompleted() = runBlocking<Unit> {
+        val config = retrieveVirtualCardsConfig(vcClient)
+        registerSignInAndEntitle(config)
+        verifyTestUserIdentity()
+
+        var provisionalCount = 0
+
+        if (isStripeEnabled(vcClient)) {
+            val testCard = TestData.TestCards["stripe"]?.get("Visa-No3DS-1") ?: throw AssertionError("Unable to locate test card")
+
+            val input = CreditCardFundingSourceInput(
+                testCard.creditCardNumber,
+                expirationMonth(),
+                expirationYear(),
+                testCard.securityCode,
+                testCard.address.addressLine1,
+                testCard.address.addressLine2,
+                testCard.address.city,
+                testCard.address.state,
+                testCard.address.postalCode,
+                testCard.address.country,
+                TestData.VerifiedUser.fullName,
+            )
+
+            createCardFundingSource(
+                vcClient,
+                input,
+                CreateCardFundingSourceOptions(supportedProviders = listOf("stripe")),
+            )
+            ++provisionalCount
+        }
+
+        if (isCheckoutBankAccountEnabled(vcClient)) {
+            vcClient.createKeysIfAbsent()
+
+            createBankAccountFundingSource(
+                vcClient,
+                CreateBankAccountFundingSourceOptions(
+                    supportedProviders = listOf("checkout"),
+                    username = TestData.TestBankAccountUsername.customChecking,
+                ),
+            )
+            ++provisionalCount
+        }
+        provisionalCount shouldBeGreaterThan 0
+        val provisionalFundingSources = vcClient.listProvisionalFundingSources()
+        provisionalFundingSources.items.size shouldBe provisionalCount
+
+        val randomOffset = (0 until provisionalCount).random()
+        val idToGet = provisionalFundingSources.items[randomOffset].id
+        val filteredProvisionalFundingSources = vcClient.listProvisionalFundingSources(
+            ProvisionalFundingSourceFilterInput(IdFilterInput(null, idToGet)),
+        )
+        filteredProvisionalFundingSources.items.size shouldBe 1
+        filteredProvisionalFundingSources.items[0].id shouldBe idToGet
+
+        val neFilteredProvisionalFundingSources = vcClient.listProvisionalFundingSources(
+            ProvisionalFundingSourceFilterInput(IdFilterInput(idToGet)),
+        )
+        neFilteredProvisionalFundingSources.items.size shouldBe provisionalCount - 1
+        shouldThrow<NoSuchElementException> {
+            neFilteredProvisionalFundingSources.items.first { it.id == idToGet }
+        }
+
+        val orFiltered = vcClient.listProvisionalFundingSources(
+            ProvisionalFundingSourceFilterInput(
+                null,
+                null,
+                null,
+                arrayListOf(
+                    ProvisionalFundingSourceFilterInput(IdFilterInput(null, idToGet)),
+                    ProvisionalFundingSourceFilterInput(
+                        null,
+                        ProvisionalFundingSourceStateFilterInput(
+                            ProvisionalFundingSource.ProvisioningState.COMPLETED,
+                        ),
+                    ),
+                ),
+            ),
+        )
+        orFiltered.items.size shouldBe provisionalCount
+        val andFiltered = vcClient.listProvisionalFundingSources(
+            ProvisionalFundingSourceFilterInput(
+                null,
+                null,
+                arrayListOf(
+                    ProvisionalFundingSourceFilterInput(IdFilterInput(null, idToGet)),
+                    ProvisionalFundingSourceFilterInput(
+                        null,
+                        ProvisionalFundingSourceStateFilterInput(
+                            ProvisionalFundingSource.ProvisioningState.COMPLETED,
+                        ),
+                    ),
+                ),
+            ),
+        )
+        andFiltered.items.size shouldBe 1
+    }
+
+    @Test
+    fun cancelProvisionalFundingSourceShouldCancel() = runBlocking {
+        val config = retrieveVirtualCardsConfig(vcClient)
+        registerSignInAndEntitle(config)
+        verifyTestUserIdentity()
+
+        var provisionalFundingSourcesCount = 0
+
+        // todo: once service bug is fixed, uncomment these sections
+//        if (isStripeEnabled(vcClient)) {
+//            val setupStripeInput = SetupFundingSourceInput(
+//                "USD",
+//                FundingSourceType.CREDIT_CARD,
+//                ClientApplicationData("system-test-app"),
+//                listOf("stripe"),
+//            )
+//            stripeProvisionalFundingSource = vcClient.setupFundingSource(setupStripeInput)
+//
+//            with(stripeProvisionalFundingSource) {
+//                id shouldNotBe null
+//                owner shouldBe userClient.getSubject()
+//                version shouldBe 1
+//                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
+//                provisioningData.provider shouldBe "stripe"
+//                provisioningData.version shouldBe 1
+//                val stripeProvisioningData = provisioningData as StripeCardProvisioningData
+//                stripeProvisioningData.clientSecret shouldNotBe null
+//                stripeProvisioningData.intent shouldNotBe null
+//            }
+//            ++provisionalFundingSourcesCount
+//        }
+//
+//        if (isCheckoutCardEnabled(vcClient)) {
+//            val setupCheckoutCardInput = SetupFundingSourceInput(
+//                "USD",
+//                FundingSourceType.CREDIT_CARD,
+//                ClientApplicationData("system-test-app"),
+//                listOf("checkout"),
+//            )
+//            checkoutCardProvisionalFundingSource = vcClient.setupFundingSource(setupCheckoutCardInput)
+//
+//            with(checkoutCardProvisionalFundingSource) {
+//                id shouldNotBe null
+//                owner shouldBe userClient.getSubject()
+//                version shouldBe 1
+//                type shouldBe FundingSourceType.CREDIT_CARD
+//                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
+//                provisioningData.provider shouldBe "checkout"
+//                provisioningData.version shouldBe 1
+//                val checkoutProvisioningData = provisioningData as CheckoutCardProvisioningData
+//                checkoutProvisioningData shouldNotBe null
+//            }
+//            ++provisionalFundingSourcesCount
+//        }
+
+        if (isCheckoutBankAccountEnabled(vcClient)) {
+            vcClient.createKeysIfAbsent()
+            shouldThrow<SudoVirtualCardsClient.FundingSourceException.IdentityVerificationException> {
+                createBankAccountFundingSource(
+                    vcClient,
+                    CreateBankAccountFundingSourceOptions(
+                        supportedProviders = listOf("checkout"),
+                        username = TestData.TestBankAccountUsername.customIdentityMismatch,
+                    ),
+                )
+            }
+        }
+        ++provisionalFundingSourcesCount
+
+        val provisionalFundingSources = vcClient.listProvisionalFundingSources()
+        provisionalFundingSources.items.size shouldBe provisionalFundingSourcesCount
+
+        val randomOffset = (0 until provisionalFundingSourcesCount).random()
+        val idToCancel = provisionalFundingSources.items[randomOffset].id
+
+        val cancelled = vcClient.cancelProvisionalFundingSource(idToCancel)
+        cancelled.id shouldBe idToCancel
+        cancelled.state shouldBe ProvisionalFundingSource.ProvisioningState.FAILED
+        cancelled.last4 shouldBe provisionalFundingSources.items[randomOffset].last4
+
+        val failedFundingSources = vcClient.listProvisionalFundingSources(
+            ProvisionalFundingSourceFilterInput(
+                null,
+                ProvisionalFundingSourceStateFilterInput(ProvisionalFundingSource.ProvisioningState.FAILED),
+            ),
+        )
+        failedFundingSources.items.size shouldBe 1
+        failedFundingSources.items[0].id shouldBe idToCancel
+    }
+
+    @Test
+    fun cancelProvisionalFundingSourceShouldThrowIfNoSuchProvisional() = runBlocking<Unit> {
+        registerSignInAndEntitle()
+
+        shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceNotFoundException> {
+            vcClient.cancelProvisionalFundingSource("invalidId")
         }
     }
 

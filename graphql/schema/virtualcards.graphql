@@ -195,6 +195,7 @@ type ProvisionalFundingSource implements CommonObject {
   updatedAtEpochMs: Float!
   type: FundingSourceType!
   state: ProvisionalFundingSourceState!
+  last4: String
   provisioningData: ID!
 }
 
@@ -341,6 +342,18 @@ enum FundingSourceType {
   BANK_ACCOUNT
 }
 
+enum StateReason {
+  USER
+  ADMIN
+  ENTITLEMENT
+  LOCKED
+  UNLOCKED
+  SUSPICIOUS
+  PROCESSING
+  DELETION
+  UNKNOWN
+}
+
 enum ProvisioningState {
   PROVISIONING
   COMPLETED
@@ -380,6 +393,19 @@ input AddressInput {
   country: String!
 }
 
+input ProvisionalFundingSourceStateFilterInput {
+  eq: ProvisionalFundingSourceState
+  ne: ProvisionalFundingSourceState
+}
+
+input ProvisionalFundingSourceFilterInput {
+  id: IDFilterInput
+  state: ProvisionalFundingSourceStateFilterInput
+  and: [ProvisionalFundingSourceFilterInput!]
+  or: [ProvisionalFundingSourceFilterInput!]
+  not: ProvisionalFundingSourceFilterInput
+}
+
 input CardProvisionRequest {
   clientRefId: String!
   ownerProofs: [ID!]!
@@ -414,6 +440,11 @@ input CardCancelRequest {
 
 type FundingSourceConnection {
   items: [FundingSource!]!
+  nextToken: String
+}
+
+type ProvisionalFundingSourceConnection {
+  items: [ProvisionalFundingSource!]!
   nextToken: String
 }
 
@@ -462,6 +493,11 @@ type Query {
   getFundingSourceClientConfiguration: FundingSourceClientConfiguration!
   getFundingSource(id: ID!): FundingSource
   listFundingSources(limit: Int, nextToken: String): FundingSourceConnection!
+  listProvisionalFundingSources(
+    filter: ProvisionalFundingSourceFilterInput
+    limit: Int
+    nextToken: String
+  ): ProvisionalFundingSourceConnection!
   getProvisionalCard(id: ID!): ProvisionalCard
   listProvisionalCards(
     filter: ProvisionalCardFilterInput
@@ -498,6 +534,7 @@ type Mutation {
   setupFundingSource(
     input: SetupFundingSourceRequest!
   ): ProvisionalFundingSource!
+  cancelProvisionalFundingSource(input: IdInput!): ProvisionalFundingSource!
   completeFundingSource(input: CompleteFundingSourceRequest!): FundingSource!
   refreshFundingSource(input: RefreshFundingSourceRequest!): FundingSource!
   cancelFundingSource(input: IdInput!): FundingSource!

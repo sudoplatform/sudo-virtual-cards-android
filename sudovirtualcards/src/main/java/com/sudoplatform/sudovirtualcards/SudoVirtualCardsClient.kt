@@ -46,6 +46,7 @@ import com.sudoplatform.sudovirtualcards.types.VirtualCard
 import com.sudoplatform.sudovirtualcards.types.VirtualCardsConfig
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
+import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.types.inputs.RefreshFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
@@ -357,6 +358,34 @@ interface SudoVirtualCardsClient : AutoCloseable {
     suspend fun setupFundingSource(input: SetupFundingSourceInput): ProvisionalFundingSource
 
     /**
+     * Get a [ListOutput] of [ProvisionalFundingSource]s.
+     * If no [ProvisionalFundingSource]s can be found, the [ListOutput] will contain null for the
+     * [ListOutput.nextToken] field and contain an empty [ListOutput.items] list.
+     *
+     * @param filter [ProvisionalFundingSourceFilterInput] Optional parameters used to filter the set
+     *  of provisional funding sources returned. If omitted, no filter is applied.
+     * @param limit [Int] Maximum number of [ProvisionalFundingSource]s to return. If omitted the
+     *  limit defaults to 10.
+     * @param nextToken [String] A token generated from previous calls to [listProvisionalFundingSources].
+     *  This is to allow for pagination. This value should be generated from a
+     *  previous pagination call, otherwise it will throw an exception. The same
+     *  arguments should be supplied to this method if using a previously generated [nextToken].
+     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
+     *  be aware that this will only return cached results of identical API calls.
+     * @return A list of [ProvisionalFundingSource]s or an empty list if no matching provisional
+     *  funding sources can be found.
+     *
+     * @throws [FundingSourceException].
+     */
+    @Throws(FundingSourceException::class)
+    suspend fun listProvisionalFundingSources(
+        filter: ProvisionalFundingSourceFilterInput? = null,
+        limit: Int = DEFAULT_FUNDING_SOURCE_LIMIT,
+        nextToken: String? = null,
+        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,
+    ): ListOutput<ProvisionalFundingSource>
+
+    /**
      * Complete the creation of a [FundingSource].
      *
      * @param input [CompleteFundingSourceInput] Parameters used to complete the creation of a funding source.
@@ -434,6 +463,17 @@ interface SudoVirtualCardsClient : AutoCloseable {
      */
     @Throws(FundingSourceException::class)
     suspend fun cancelFundingSource(id: String): FundingSource
+
+    /**
+     * Cancel a [ProvisionalFundingSource] using the [id] parameter.
+     *
+     * @param id [String] Identifier of the [ProvisionalFundingSource] to cancel.
+     * @return The [ProvisionalFundingSource] that has been cancelled and is in a failed state.
+     *
+     * @throws [FundingSourceException].
+     */
+    @Throws(FundingSourceException::class)
+    suspend fun cancelProvisionalFundingSource(id: String): ProvisionalFundingSource
 
     /**
      * Review an unfunded [FundingSource] using the [id] parameter.

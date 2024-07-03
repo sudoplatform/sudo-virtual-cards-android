@@ -8,14 +8,17 @@ package com.sudoplatform.sudovirtualcards.types.transformers
 
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
 import com.sudoplatform.sudovirtualcards.graphql.CancelFundingSourceMutation
+import com.sudoplatform.sudovirtualcards.graphql.CancelProvisionalFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.CompleteFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
+import com.sudoplatform.sudovirtualcards.graphql.ListProvisionalFundingSourcesQuery
 import com.sudoplatform.sudovirtualcards.graphql.OnFundingSourceUpdateSubscription
 import com.sudoplatform.sudovirtualcards.graphql.RefreshFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.ReviewUnfundedFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.SandboxSetFundingSourceToRequireRefreshMutation
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
+import com.sudoplatform.sudovirtualcards.graphql.type.IDFilterInput
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceState
 import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
 import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
@@ -28,6 +31,9 @@ import com.sudoplatform.sudovirtualcards.types.FundingSourceState
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.TransactionVelocity
+import com.sudoplatform.sudovirtualcards.types.inputs.IdFilterInput
+import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceFilterInput
+import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceStateFilterInput
 import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource as BankAccountFundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.fragment.CreditCardFundingSource as CreditCardFundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalFundingSource as ProvisionalFundingSourceFragment
@@ -36,6 +42,8 @@ import com.sudoplatform.sudovirtualcards.graphql.type.CardType as GraphqlCardTyp
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceFlags as GraphqlFundingSourceFlags
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as GraphqlFundingSourceState
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType as GraphqlFundingSourceType
+import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceFilterInput as GraphQlProvisionalFundingSourceFilterInput
+import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceStateFilterInput as GraphQlProvisionalFundingSourceStateFilterInput
 
 const val FUNDING_SOURCE_NULL_ERROR_MSG = "Unexpected null funding source"
 const val UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG = "Unsupported funding source type"
@@ -128,6 +136,30 @@ internal object FundingSourceTransformer {
                 throw SudoVirtualCardsClient.FundingSourceException.FailedException(UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG)
             }
         }
+    }
+
+    /**
+     * Transform the results of the cancel provisional funding source mutation.
+     *
+     * @param result [CancelProvisionalFundingSourceMutation.CancelProvisionalFundingSource] The GraphQL mutation results.
+     * @return The [ProvisionalFundingSource] entity type.
+     */
+    fun toEntityFromCancelProvisionalFundingSourceMutationResult(
+        result: CancelProvisionalFundingSourceMutation.CancelProvisionalFundingSource,
+    ): ProvisionalFundingSource {
+        val provisionalFundingSource = result.fragments().provisionalFundingSource()
+        val provisioningData = ProviderDataTransformer.toProvisioningData(provisionalFundingSource.provisioningData())
+        return ProvisionalFundingSource(
+            id = provisionalFundingSource.id(),
+            owner = provisionalFundingSource.owner(),
+            version = provisionalFundingSource.version(),
+            createdAt = provisionalFundingSource.createdAtEpochMs().toDate(),
+            updatedAt = provisionalFundingSource.updatedAtEpochMs().toDate(),
+            type = provisionalFundingSource.type().toEntityFundingSourceType(),
+            state = provisionalFundingSource.state().toEntityProvisioningState(),
+            last4 = provisionalFundingSource.last4() ?: "",
+            provisioningData = provisioningData,
+        )
     }
 
     /**
@@ -253,8 +285,33 @@ internal object FundingSourceTransformer {
             updatedAt = provisionalFundingSource.updatedAtEpochMs().toDate(),
             type = provisionalFundingSource.type().toEntityFundingSourceType(),
             state = provisionalFundingSource.state().toEntityProvisioningState(),
+            last4 = provisionalFundingSource.last4() ?: "",
             provisioningData = provisioningData,
         )
+    }
+
+    /**
+     * Transform the results of the list provisional funding sources query.
+     *
+     * @param result [List<ListProvisionalFundingSourcesQuery.Item>] The GraphQL type.
+     * @return The list of [ProvisionalFundingSource]s entity type.
+     */
+    fun toEntity(result: List<ListProvisionalFundingSourcesQuery.Item>): List<ProvisionalFundingSource> {
+        return result.map {
+            val provisionalFundingSource = it.fragments().provisionalFundingSource()
+            val provisioningData = ProviderDataTransformer.toProvisioningData(provisionalFundingSource.provisioningData())
+            ProvisionalFundingSource(
+                id = provisionalFundingSource.id(),
+                owner = provisionalFundingSource.owner(),
+                version = provisionalFundingSource.version(),
+                createdAt = provisionalFundingSource.createdAtEpochMs().toDate(),
+                updatedAt = provisionalFundingSource.updatedAtEpochMs().toDate(),
+                type = provisionalFundingSource.type().toEntityFundingSourceType(),
+                state = provisionalFundingSource.state().toEntityProvisioningState(),
+                last4 = provisionalFundingSource.last4() ?: "",
+                provisioningData = provisioningData,
+            )
+        }.toList()
     }
 
     /**
@@ -281,6 +338,66 @@ internal object FundingSourceTransformer {
                 }
             }
         }.toList()
+    }
+
+    /**
+     * Transform the input type [ProvisionalFundingSourceFilterInput] into the corresponding GraphQL
+     * type [GraphQlProvisionalFundingSourceFilterInput].
+     */
+    fun ProvisionalFundingSourceFilterInput?.toProvisionalFundingSourceFilterInput(): GraphQlProvisionalFundingSourceFilterInput? {
+        if (this == null) {
+            return null
+        }
+        return GraphQlProvisionalFundingSourceFilterInput.builder()
+            .id(id?.toIDFilterIput())
+            .state(state?.toProvisionalFundingSourceStateFilterInput())
+            .not(
+                not?.toProvisionalFundingSourceFilterInput(),
+            )
+            .and(
+                and?.map {
+                    it.toProvisionalFundingSourceFilterInput()
+                },
+            )
+            .or(or?.map { it.toProvisionalFundingSourceFilterInput() })
+            .build()
+    }
+
+    /**
+     * Transform the input type [IdFilterInput] into the corresponding GraphQL
+     * type [IDFilterInput].
+     */
+    fun IdFilterInput?.toIDFilterIput(): IDFilterInput? {
+        if (this == null) {
+            return null
+        }
+        return IDFilterInput.builder()
+            .eq(eq)
+            .ne(ne)
+            .ge(ge)
+            .gt(gt)
+            .le(le)
+            .lt(lt)
+            .contains(contains)
+            .notContains(notContains)
+            .between(between?.map { it })
+            .beginsWith(beginsWith)
+            .build()
+    }
+
+    /**
+     * Transform the input type [ProvisionalFundingSourceStateFilterInput] into the corresponding GraphQL
+     * type [GraphQlProvisionalFundingSourceStateFilterInput].
+     */
+    private fun ProvisionalFundingSourceStateFilterInput?.toProvisionalFundingSourceStateFilterInput():
+        GraphQlProvisionalFundingSourceStateFilterInput? {
+        if (this == null) {
+            return null
+        }
+        return GraphQlProvisionalFundingSourceStateFilterInput.builder()
+            .eq(eq?.toGraphQlProvisioningState())
+            .ne(ne?.toGraphQlProvisioningState())
+            .build()
     }
 
     /**
@@ -350,6 +467,14 @@ internal object FundingSourceTransformer {
             }
         }
         return ProvisionalFundingSource.ProvisioningState.UNKNOWN
+    }
+    private fun ProvisionalFundingSource.ProvisioningState.toGraphQlProvisioningState(): ProvisionalFundingSourceState {
+        for (value in ProvisionalFundingSourceState.values()) {
+            if (value.name == this.name) {
+                return value
+            }
+        }
+        throw IllegalArgumentException("Unrecognized Provisioning State")
     }
 
     private fun GraphqlFundingSourceState.toEntityState(): FundingSourceState {

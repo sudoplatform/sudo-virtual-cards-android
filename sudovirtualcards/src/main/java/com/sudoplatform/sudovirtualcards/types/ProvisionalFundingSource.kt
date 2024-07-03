@@ -33,6 +33,7 @@ data class ProvisionalFundingSource(
     val updatedAt: Date,
     val type: FundingSourceType,
     val state: ProvisioningState,
+    val last4: String,
     val provisioningData: ProviderProvisioningData,
 ) : Parcelable {
     enum class ProvisioningState {

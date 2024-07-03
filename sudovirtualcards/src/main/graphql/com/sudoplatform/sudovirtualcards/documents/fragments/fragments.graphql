@@ -39,6 +39,7 @@ fragment ProvisionalFundingSource on ProvisionalFundingSource {
   type
   provisioningData
   state
+  last4
 }
 
 fragment CreditCardFundingSource on CreditCardFundingSource {
