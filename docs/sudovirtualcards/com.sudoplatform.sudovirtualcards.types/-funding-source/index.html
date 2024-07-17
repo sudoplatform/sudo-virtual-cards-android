@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html class="no-js">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>FundingSource</title>
     <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
     <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
     <script>const storage = localStorage.getItem("dokka-dark-mode")
     if (storage == null) {
         const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -18,12 +19,13 @@
         }
     }
     </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
 <script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
 <link href="../../../styles/style.css" rel="Stylesheet">
-<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
 <link href="../../../styles/main.css" rel="Stylesheet">
 <link href="../../../styles/prism.css" rel="Stylesheet">
 <link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
 <script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
 <script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
 <script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
@@ -32,28 +34,33 @@
 <script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
 </head>
 <body>
-<div class="navigation-wrapper" id="navigation-wrapper">
-    <div id="leftToggler"><span class="icon-toggler"></span></div>
-    <div class="library-name">
-            <a href="../../../index.html">
-                    <span>sudovirtualcards</span>
-            </a>
-    </div>
-    <div>
-    </div>
-    <div class="pull-right d-flex">
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+                    <a class="library-name--link" href="../../../index.html">
+                            sudovirtualcards
+                    </a>
+            </div>
+            <div class="library-version">
+            </div>
+        </div>
         <div class="filter-section" id="filter-section">
                 <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":sudovirtualcards:dokkaHtml/release">androidJvm</button>
         </div>
-        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
-        <div id="searchBar"></div>
     </div>
-</div>
-<div id="container">
-    <div id="leftColumn">
-        <div id="sideMenu"></div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
     </div>
-    <div id="main">
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
 <div class="main-content" data-page-type="classlike" id="content" pageIds="sudovirtualcards::com.sudoplatform.sudovirtualcards.types/FundingSource///PointingToDeclaration//-2124582697">
   <div class="breadcrumbs"><a href="../../../index.html">sudovirtualcards</a><span class="delimiter">/</span><a href="../index.html">com.sudoplatform.sudovirtualcards.types</a><span class="delimiter">/</span><span class="current">FundingSource</span></div>
   <div class="cover ">
@@ -61,72 +68,8 @@
     <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">sealed </span><span class="token keyword">class </span><a href="index.html">FundingSource</a> : <a href="../-base-funding-source/index.html">BaseFundingSource</a>, <a href="https://developer.android.com/reference/kotlin/android/os/Parcelable.html">Parcelable</a></div><h4 class="">Inheritors</h4><div class="table"><div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-credit-card-funding-source/index.html">CreditCardFundingSource</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-bank-account-funding-source/index.html">BankAccountFundingSource</a></div></span></div><div></div></div></div></div></div></div>
   </div>
   <div class="tabbedcontent">
-    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,FUNCTION,PROPERTY">Members</button><button class="section-tab" data-togglable="CONSTRUCTOR,TYPE,FUNCTION,PROPERTY,EXTENSION_PROPERTY,EXTENSION_FUNCTION">Members &amp; Extensions</button></div>
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button><button class="section-tab" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION,EXTENSION_PROPERTY,EXTENSION_FUNCTION">Members &amp; Extensions</button></div>
     <div class="tabs-section-body">
-      <div data-togglable="FUNCTION">
-        <h2 class="">Functions</h2>
-        <div class="table"><a data-name="-1578325224%2FFunctions%2F-2124582697" anchor-label="describeContents" id="-1578325224%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-            <div class="main-subrow keyValue ">
-              <div class=""><span class="inline-flex">
-                  <div><a href="../-funding-source-support-detail/index.html#-1578325224%2FFunctions%2F-2124582697"><span>describe</span><wbr></wbr><span><span>Contents</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1578325224%2FFunctions%2F-2124582697"></span>
-                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                  </span></span></div>
-              <div>
-                <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="../-funding-source-support-detail/index.html#-1578325224%2FFunctions%2F-2124582697"><span class="token function">describeContents</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div></div></div>
-                </div>
-              </div>
-            </div>
-          </div>
-<a data-name="1315543389%2FFunctions%2F-2124582697" anchor-label="isUnfunded" id="1315543389%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-            <div class="main-subrow keyValue ">
-              <div class=""><span class="inline-flex">
-                  <div><a href="../../com.sudoplatform.sudovirtualcards.extensions/is-unfunded.html"><span>is</span><wbr></wbr><span><span>Unfunded</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1315543389%2FFunctions%2F-2124582697"></span>
-                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                  </span></span></div>
-              <div>
-                <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="index.html">FundingSource</a><span class="token punctuation">.</span><a href="../../com.sudoplatform.sudovirtualcards.extensions/is-unfunded.html"><span class="token function">isUnfunded</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
-                </div>
-              </div>
-            </div>
-          </div>
-<a data-name="-2001464748%2FFunctions%2F-2124582697" anchor-label="needsRefresh" id="-2001464748%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-            <div class="main-subrow keyValue ">
-              <div class=""><span class="inline-flex">
-                  <div><a href="../../com.sudoplatform.sudovirtualcards.extensions/needs-refresh.html"><span>needs</span><wbr></wbr><span><span>Refresh</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2001464748%2FFunctions%2F-2124582697"></span>
-                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                  </span></span></div>
-              <div>
-                <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="index.html">FundingSource</a><span class="token punctuation">.</span><a href="../../com.sudoplatform.sudovirtualcards.extensions/needs-refresh.html"><span class="token function">needsRefresh</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
-                </div>
-              </div>
-            </div>
-          </div>
-<a data-name="-1754457655%2FFunctions%2F-2124582697" anchor-label="writeToParcel" id="-1754457655%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
-          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
-            <div class="main-subrow keyValue ">
-              <div class=""><span class="inline-flex">
-                  <div><a href="../-funding-source-support-detail/index.html#-1754457655%2FFunctions%2F-2124582697"><span>write</span><wbr></wbr><span>To</span><wbr></wbr><span><span>Parcel</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1754457655%2FFunctions%2F-2124582697"></span>
-                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                  </span></span></div>
-              <div>
-                <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="../-funding-source-support-detail/index.html#-1754457655%2FFunctions%2F-2124582697"><span class="token function">writeToParcel</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">p0<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/os/Parcel.html">Parcel</a><span class="token punctuation">, </span></span><span class="parameter ">p1<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span></div></div></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       <div data-togglable="PROPERTY">
         <h2 class="">Properties</h2>
         <div class="table"><a data-name="503271912%2FProperties%2F-2124582697" anchor-label="createdAt" id="503271912%2FProperties%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
@@ -139,7 +82,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">val </span><a href="../-base-funding-source/created-at.html">createdAt</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a></div><div class="brief "><p class="paragraph"><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a> Date when the funding source was created.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-base-funding-source/created-at.html">createdAt</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a></div><div class="brief "><p class="paragraph"><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a> Date when the funding source was created.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -154,7 +97,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">val </span><a href="../-base-funding-source/currency.html">currency</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> Billing currency of the funding source as a 3 character ISO 4217 currency code.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-base-funding-source/currency.html">currency</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> Billing currency of the funding source as a 3 character ISO 4217 currency code.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -169,7 +112,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">val </span><a href="../-base-funding-source/flags.html">flags</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../-funding-source-flags/index.html">FundingSourceFlags</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">List Any flags currently associated with the funding source.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-base-funding-source/flags.html">flags</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../-funding-source-flags/index.html">FundingSourceFlags</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">List<FundingSourceFlags> Any flags currently associated with the funding source.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -184,7 +127,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">val </span><a href="../-base-funding-source/id.html">id</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> Identifier of the funding source.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-base-funding-source/id.html">id</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> Identifier of the funding source.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -199,7 +142,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">val </span><a href="../-base-funding-source/owner.html">owner</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> Identifier of the user that owns the funding source.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-base-funding-source/owner.html">owner</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a> Identifier of the user that owns the funding source.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -214,7 +157,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">val </span><a href="../-base-funding-source/state.html">state</a><span class="token operator">: </span><a href="../-funding-source-state/index.html">FundingSourceState</a></div><div class="brief "><p class="paragraph"><a href="../-funding-source-state/index.html">FundingSourceState</a> Current state of the funding source.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-base-funding-source/state.html">state</a><span class="token operator">: </span><a href="../-funding-source-state/index.html">FundingSourceState</a></div><div class="brief "><p class="paragraph"><a href="../-funding-source-state/index.html">FundingSourceState</a> Current state of the funding source.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -229,7 +172,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">val </span><a href="../-base-funding-source/transaction-velocity.html">transactionVelocity</a><span class="token operator">: </span><a href="../-transaction-velocity/index.html">TransactionVelocity</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph"><a href="../-transaction-velocity/index.html">TransactionVelocity</a> Effective transaction velocity, if any, applied to virtual card transactions funded by this funding source. This is the combined result of all velocity policies (global and funding source specific) as at the time this funding source was retrieved.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-base-funding-source/transaction-velocity.html">transactionVelocity</a><span class="token operator">: </span><a href="../-transaction-velocity/index.html">TransactionVelocity</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph"><a href="../-transaction-velocity/index.html">TransactionVelocity</a> Effective transaction velocity, if any, applied to virtual card transactions funded by this funding source. This is the combined result of all velocity policies (global and funding source specific) as at the time this funding source was retrieved.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -244,7 +187,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">val </span><a href="../-base-funding-source/type.html">type</a><span class="token operator">: </span><a href="../-funding-source-type/index.html">FundingSourceType</a></div><div class="brief "><p class="paragraph"><a href="../-funding-source-type/index.html">FundingSourceType</a> The type of funding source.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-base-funding-source/type.html">type</a><span class="token operator">: </span><a href="../-funding-source-type/index.html">FundingSourceType</a></div><div class="brief "><p class="paragraph"><a href="../-funding-source-type/index.html">FundingSourceType</a> The type of funding source.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -259,7 +202,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">val </span><a href="../-base-funding-source/updated-at.html">updatedAt</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a></div><div class="brief "><p class="paragraph"><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a> Date when the funding source was last updated.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-base-funding-source/updated-at.html">updatedAt</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a></div><div class="brief "><p class="paragraph"><a href="https://developer.android.com/reference/kotlin/java/util/Date.html">Date</a> Date when the funding source was last updated.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -274,7 +217,71 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">val </span><a href="../-base-funding-source/version.html">version</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a> Current version of the funding source.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-base-funding-source/version.html">version</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div><div class="brief "><p class="paragraph"><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a> Current version of the funding source.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="-1578325224%2FFunctions%2F-2124582697" anchor-label="describeContents" id="-1578325224%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-funding-source-support-detail/index.html#-1578325224%2FFunctions%2F-2124582697"><span>describe</span><wbr></wbr><span><span>Contents</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1578325224%2FFunctions%2F-2124582697"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-funding-source-support-detail/index.html#-1578325224%2FFunctions%2F-2124582697"><span class="token function">describeContents</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1315543389%2FFunctions%2F-2124582697" anchor-label="isUnfunded" id="1315543389%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../com.sudoplatform.sudovirtualcards.extensions/is-unfunded.html"><span>is</span><wbr></wbr><span><span>Unfunded</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1315543389%2FFunctions%2F-2124582697"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html">FundingSource</a><span class="token punctuation">.</span><a href="../../com.sudoplatform.sudovirtualcards.extensions/is-unfunded.html"><span class="token function">isUnfunded</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2001464748%2FFunctions%2F-2124582697" anchor-label="needsRefresh" id="-2001464748%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../com.sudoplatform.sudovirtualcards.extensions/needs-refresh.html"><span>needs</span><wbr></wbr><span><span>Refresh</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2001464748%2FFunctions%2F-2124582697"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html">FundingSource</a><span class="token punctuation">.</span><a href="../../com.sudoplatform.sudovirtualcards.extensions/needs-refresh.html"><span class="token function">needsRefresh</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1754457655%2FFunctions%2F-2124582697" anchor-label="writeToParcel" id="-1754457655%2FFunctions%2F-2124582697" data-filterable-set=":sudovirtualcards:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":sudovirtualcards:dokkaHtml/release" data-filterable-set=":sudovirtualcards:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-funding-source-support-detail/index.html#-1754457655%2FFunctions%2F-2124582697"><span>write</span><wbr></wbr><span>To</span><wbr></wbr><span><span>Parcel</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1754457655%2FFunctions%2F-2124582697"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":sudovirtualcards:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-funding-source-support-detail/index.html#-1754457655%2FFunctions%2F-2124582697"><span class="token function">writeToParcel</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">p0<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/os/Parcel.html">Parcel</a><span class="token punctuation">, </span></span><span class="parameter ">p1<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span></div></div></div>
                 </div>
               </div>
             </div>
@@ -289,7 +296,8 @@
                 class="pull-right"><span>Generated by </span><a
                 href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
       </div>
+            </div>
+        </div>
     </div>
-</div>
 </body>
 </html>

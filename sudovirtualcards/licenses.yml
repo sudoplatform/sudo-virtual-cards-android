@@ -118,12 +118,6 @@
   license: The Apache Software License, Version 2.0
   licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.txt
   url: https://developer.android.com/jetpack/androidx
-- artifact: org.jetbrains.kotlin:kotlin-stdlib-common:+
-  name: org.jetbrains.kotlin:kotlin-stdlib-common
-  copyrightHolder: JetBrains s.r.o.
-  license: The Apache License, Version 2.0
-  licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.txt
-  url: https://kotlinlang.org/
 - artifact: org.checkerframework:checker-compat-qual:+
   name: Checker Qual
   copyrightHolder: checkerframework
@@ -261,18 +255,6 @@
   license: Apache License, Version 2.0
   licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.txt
   url: http://stephenc.github.com/jcip-annotations
-- artifact: org.bouncycastle:bcprov-jdk15to18:+
-  name: Bouncy Castle Provider
-  copyrightHolder: The JSR-330 Expert Group
-  license: Bouncy Castle Licence
-  licenseUrl: http://www.bouncycastle.org/licence.html
-  url: http://www.bouncycastle.org/java.html
-- artifact: org.bouncycastle:bcpkix-jdk15to18:+
-  name: Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs
-  license: Bouncy Castle Licence
-  copyrightHolder: The JSR-330 Expert Group
-  licenseUrl: http://www.bouncycastle.org/licence.html
-  url: http://www.bouncycastle.org/java.html
 - artifact: org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:+
   name: kotlinx-coroutines-core
   copyrightHolder: Jetbrains, Inc.
@@ -309,12 +291,6 @@
   license: Eclipse Public License 1.0
   licenseUrl: http://www.eclipse.org/legal/epl-v10.html
   url: http://junit.org
-- artifact: org.bouncycastle:bcutil-jdk15to18:+
-  name: Bouncy Castle ASN.1 Extension and Utility APIs
-  copyrightHolder: The JSR-330 Expert Group
-  license: Bouncy Castle Licence
-  licenseUrl: http://www.bouncycastle.org/licence.html
-  url: http://www.bouncycastle.org/java.html
 - artifact: org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:+
   name: kotlinx-serialization-core
   copyrightHolder: JetBrains, Inc.
