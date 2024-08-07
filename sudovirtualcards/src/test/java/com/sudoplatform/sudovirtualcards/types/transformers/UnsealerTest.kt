@@ -735,11 +735,32 @@ class UnsealerTest : BaseTests() {
                     "keyId",
                     "algorithm",
                     "invalid",
-                    seal("FooBar Institution"),
+                    seal("{type: 'image/png', data: 'FooBar Institution'}"),
                 ),
             ),
         )
         shouldThrow<Unsealer.UnsealerException.UnsupportedDataTypeException> {
+            unsealer.unseal(sealedInstitutionLogo)
+        }
+    }
+
+    // TODO: modify this test to return null if unexpected structure. For the purposes of investigation,
+    // we are expecting an UnsealerException.
+    @Test
+    fun `unseal BankAccountFundingSource InstitutionLogo should return null if unexpected structure`() {
+        val sealedInstitutionLogo = BankAccountFundingSource.InstitutionLogo(
+            "InstitutionLogo",
+            BankAccountFundingSource.InstitutionLogo.Fragments(
+                SealedAttribute(
+                    "InstitutionLogo",
+                    "keyId",
+                    "algorithm",
+                    "json-string",
+                    seal("{'invalid': 'Invalid Institution Logo'}"),
+                ),
+            ),
+        )
+        shouldThrow<Unsealer.UnsealerException.UnexpectedFormatException> {
             unsealer.unseal(sealedInstitutionLogo)
         }
     }
