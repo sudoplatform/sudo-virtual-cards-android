@@ -7,6 +7,7 @@
 package com.sudoplatform.sudovirtualcards.types
 
 import android.os.Parcelable
+import androidx.annotation.Keep
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
 import kotlinx.parcelize.Parcelize
 
@@ -24,6 +25,7 @@ import kotlinx.parcelize.Parcelize
  *  is currently used.
  */
 @Parcelize
+@Keep
 data class AuthorizationText(
     val language: String,
     val content: String,

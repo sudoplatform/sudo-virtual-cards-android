@@ -7,6 +7,7 @@
 package com.sudoplatform.sudovirtualcards.types
 
 import android.os.Parcelable
+import androidx.annotation.Keep
 import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource.BankAccountType
 import kotlinx.parcelize.Parcelize
 import java.util.Date
@@ -146,6 +147,7 @@ data class BankAccountFundingSource(
  * @property data [String] Base64 encoded image data of institution logo if any.
  */
 @Parcelize
+@Keep
 data class InstitutionLogo(
     val type: String,
     val data: String,

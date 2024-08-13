@@ -744,8 +744,6 @@ class UnsealerTest : BaseTests() {
         }
     }
 
-    // TODO: modify this test to return null if unexpected structure. For the purposes of investigation,
-    // we are expecting an UnsealerException.
     @Test
     fun `unseal BankAccountFundingSource InstitutionLogo should return null if unexpected structure`() {
         val sealedInstitutionLogo = BankAccountFundingSource.InstitutionLogo(
@@ -760,8 +758,6 @@ class UnsealerTest : BaseTests() {
                 ),
             ),
         )
-        shouldThrow<Unsealer.UnsealerException.UnexpectedFormatException> {
-            unsealer.unseal(sealedInstitutionLogo)
-        }
+        unsealer.unseal(sealedInstitutionLogo) shouldBe null
     }
 }

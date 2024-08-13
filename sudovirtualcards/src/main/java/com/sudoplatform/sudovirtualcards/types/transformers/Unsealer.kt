@@ -49,8 +49,6 @@ internal class Unsealer(
             UnsealerException(message, cause)
         class UnsupportedAlgorithmException(message: String? = null, cause: Throwable? = null) :
             UnsealerException(message, cause)
-        class UnexpectedFormatException(message: String? = null, cause: Throwable? = null) :
-            UnsealerException(message, cause)
     }
 
     /**
@@ -149,12 +147,8 @@ internal class Unsealer(
         }
         val unsealedLogo = unseal(sealedAttribute.base64EncodedSealedData())
         val decodedLogo = Gson().fromJson(unsealedLogo, InstitutionLogo::class.java)
-        // TODO: modify this behaviour to return null if unexpected structure. For the purposes of investigation,
-        // we are throwing an UnsealerException.
         if (decodedLogo?.type == null) {
-            throw UnsealerException.UnexpectedFormatException(
-                "institutionLogo invalid or unable to be interpreted: $unsealedLogo",
-            )
+            return null
         }
         return InstitutionLogo(
             type = decodedLogo.type,
