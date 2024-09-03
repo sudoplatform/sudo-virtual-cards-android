@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -25,14 +25,14 @@ internal object KeyTransformer {
      * @return The [PublicKey] entity type.
      */
     fun toPublicKeyWithKeyRingId(result: CreatePublicKeyMutation.CreatePublicKeyForVirtualCards): PublicKeyWithKeyRingId {
-        val publicKeyWithKeyRingId = result.fragments().publicKey()
+        val publicKeyWithKeyRingId = result.publicKey
         return PublicKeyWithKeyRingId(
             publicKey = PublicKey(
-                keyId = publicKeyWithKeyRingId.keyId(),
-                publicKey = Base64.decode(publicKeyWithKeyRingId.publicKey()),
-                algorithm = publicKeyWithKeyRingId.algorithm(),
+                keyId = publicKeyWithKeyRingId.keyId,
+                publicKey = Base64.decode(publicKeyWithKeyRingId.publicKey),
+                algorithm = publicKeyWithKeyRingId.algorithm,
             ),
-            keyRingId = publicKeyWithKeyRingId.keyRingId(),
+            keyRingId = publicKeyWithKeyRingId.keyRingId,
         )
     }
 
@@ -43,14 +43,14 @@ internal object KeyTransformer {
      * @return The [PublicKey] entity type.
      */
     fun toPublicKeyWithKeyRingId(result: GetPublicKeyQuery.GetPublicKeyForVirtualCards): PublicKeyWithKeyRingId {
-        val publicKeyWithKeyRingId = result.fragments().publicKey()
+        val publicKeyWithKeyRingId = result.publicKey
         return PublicKeyWithKeyRingId(
             publicKey = PublicKey(
-                keyId = publicKeyWithKeyRingId.keyId(),
-                publicKey = Base64.decode(publicKeyWithKeyRingId.publicKey()),
-                algorithm = publicKeyWithKeyRingId.algorithm(),
+                keyId = publicKeyWithKeyRingId.keyId,
+                publicKey = Base64.decode(publicKeyWithKeyRingId.publicKey),
+                algorithm = publicKeyWithKeyRingId.algorithm,
             ),
-            keyRingId = publicKeyWithKeyRingId.keyRingId(),
+            keyRingId = publicKeyWithKeyRingId.keyRingId,
         )
     }
 }

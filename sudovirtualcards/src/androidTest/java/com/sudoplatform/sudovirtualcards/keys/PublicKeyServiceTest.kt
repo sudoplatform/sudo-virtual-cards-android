@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -39,7 +39,7 @@ class PublicKeyServiceTest : BaseIntegrationTest() {
             keyRingServiceName = keyRingServiceName,
             userClient = userClient,
             deviceKeyManager = deviceKeyManager,
-            appSyncClient = ApiClientManager.getClient(context, userClient),
+            graphQLClient = ApiClientManager.getClient(context, userClient),
         )
     }
 

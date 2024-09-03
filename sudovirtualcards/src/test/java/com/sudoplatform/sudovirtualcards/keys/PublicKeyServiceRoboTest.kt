@@ -1,35 +1,42 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.sudoplatform.sudovirtualcards.keys
 
-import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
-import com.apollographql.apollo.api.Response
+import com.amplifyframework.api.ApiCategory
+import com.amplifyframework.api.graphql.GraphQLOperation
+import com.amplifyframework.api.graphql.GraphQLRequest
+import com.amplifyframework.api.graphql.GraphQLResponse
+import com.amplifyframework.core.Consumer
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
+import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.BaseTests
-import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.CreatePublicKeyMutation
 import com.sudoplatform.sudovirtualcards.graphql.GetPublicKeyQuery
 import com.sudoplatform.sudovirtualcards.graphql.type.CreatePublicKeyInput
 import com.sudoplatform.sudovirtualcards.graphql.type.KeyFormat
 import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.bouncycastle.util.encoders.Base64
+import org.json.JSONObject
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argThat
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.check
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.stub
@@ -38,7 +45,6 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import timber.log.Timber
-import com.sudoplatform.sudovirtualcards.graphql.fragment.PublicKey as PublicKeyFragment
 
 /**
  * Test the operation of [DefaultPublicKeyService] under exceptional conditions using mocks.
@@ -60,8 +66,8 @@ class PublicKeyServiceRoboTest : BaseTests() {
         mock<DeviceKeyManager>()
     }
 
-    private val mockAppSyncClient by before {
-        mock<AWSAppSyncClient>()
+    private val mockApiCategory by before {
+        mock<ApiCategory>()
     }
 
     private val publicKeyService by before {
@@ -69,7 +75,7 @@ class PublicKeyServiceRoboTest : BaseTests() {
             keyRingServiceName = keyRingServiceName,
             userClient = mockUserClient,
             deviceKeyManager = mockDeviceKeyManager,
-            appSyncClient = mockAppSyncClient,
+            graphQLClient = GraphQLClient(mockApiCategory),
             logger = mock<Logger>(),
         )
     }
@@ -80,92 +86,62 @@ class PublicKeyServiceRoboTest : BaseTests() {
         publicKey = publicKey,
     )
 
-    private val queryResult by before {
-        GetPublicKeyQuery.GetPublicKeyForVirtualCards(
-            "GetPublicKey",
-            GetPublicKeyQuery.GetPublicKeyForVirtualCards.Fragments(
-                PublicKeyFragment(
-                    "PublicKey",
-                    "owner-keyId",
-                    "keyId",
-                    "keyRingId",
-                    "algoirithm",
-                    KeyFormat.RSA_PUBLIC_KEY,
-                    Base64.toBase64String(publicKey),
-                    "owner",
-                    1,
-                    1.0,
-                    1.0,
-                ),
-            ),
-        )
-    }
-
     private val queryResponse by before {
-        Response.builder<GetPublicKeyQuery.Data>(GetPublicKeyQuery("id"))
-            .data(GetPublicKeyQuery.Data(queryResult))
-            .build()
-    }
-
-    private val nullQueryResponse by before {
-        Response.builder<GetPublicKeyQuery.Data>(GetPublicKeyQuery("id"))
-            .data(GetPublicKeyQuery.Data(null))
-            .build()
-    }
-
-    private val queryHolder = CallbackHolder<GetPublicKeyQuery.Data>()
-
-    private val mutationResult by before {
-        CreatePublicKeyMutation.CreatePublicKeyForVirtualCards(
-            "CreatePublicKeyForVirtualCards",
-            CreatePublicKeyMutation.CreatePublicKeyForVirtualCards.Fragments(
-                PublicKeyFragment(
-                    "PublicKey",
-                    "owner-keyId",
-                    "keyId",
-                    "$keyRingServiceName.$owner",
-                    "algoirithm",
-                    KeyFormat.RSA_PUBLIC_KEY,
-                    Base64.toBase64String(publicKey),
-                    "owner",
-                    1,
-                    1.0,
-                    1.0,
-                ),
-            ),
+        JSONObject(
+            """
+                {
+                    'getPublicKeyForVirtualCards':
+                        {
+                            '__typename': 'PublicKey',
+                            'id':'owner-keyId',
+                            'keyId': 'keyId',
+                            'keyRingId': 'keyRingId',
+                            'algorithm': 'algoirithm',
+                            'keyFormat': '${KeyFormat.RSA_PUBLIC_KEY}',
+                            'publicKey': '${Base64.toBase64String(publicKey)}',
+                            'version': 1,
+                            'createdAtEpochMs': 1.0,
+                            'updatedAtEpochMs': 1.0,
+                            'owner': '$owner'
+                        }
+                }
+            """.trimIndent(),
         )
     }
 
     private val mutationResponse by before {
-        Response.builder<CreatePublicKeyMutation.Data>(
-            CreatePublicKeyMutation(
-                CreatePublicKeyInput.builder()
-                    .keyId("keyId")
-                    .keyRingId("$keyRingServiceName.$owner")
-                    .algorithm("algorithm")
-                    .publicKey(Base64.toBase64String(publicKey))
-                    .build(),
-
-            ),
+        JSONObject(
+            """
+                {
+                    'createPublicKeyForVirtualCards':
+                        {
+                            '__typename': 'PublicKey',
+                            'id':'owner-keyId',
+                            'keyId': 'keyId',
+                            'keyRingId': 'keyRingId',
+                            'algorithm': 'algoirithm',
+                            'keyFormat': '${KeyFormat.RSA_PUBLIC_KEY}',
+                            'publicKey': '${Base64.toBase64String(publicKey)}',
+                            'version': 1,
+                            'createdAtEpochMs': 1.0,
+                            'updatedAtEpochMs': 1.0,
+                            'owner': '$owner'
+                        }
+                }
+            """.trimIndent(),
         )
-            .data(CreatePublicKeyMutation.Data(mutationResult))
-            .build()
     }
-
-    private val mutationHolder = CallbackHolder<CreatePublicKeyMutation.Data>()
 
     @Before
     fun init() {
         Timber.plant(Timber.DebugTree())
-        queryHolder.callback = null
-        mutationHolder.callback = null
     }
 
     @After
     fun fini() = runBlocking {
         Timber.uprootAll()
 
-        verifyNoMoreInteractions(mockAppSyncClient, mockDeviceKeyManager, mockUserClient)
+        verifyNoMoreInteractions(mockApiCategory, mockDeviceKeyManager, mockUserClient)
     }
 
     @Test
@@ -195,13 +171,23 @@ class PublicKeyServiceRoboTest : BaseTests() {
 
     @Test
     fun `getCurrentRegisteredKey() should return key if present in key manager with key ring id from service`() = runBlocking<Unit> {
-        queryHolder.callback shouldBe null
-
         mockDeviceKeyManager.stub {
             on { getCurrentKey() } doReturn deviceKeyPair
         }
-        mockAppSyncClient.stub {
-            on { query(any<GetPublicKeyQuery>()) } doReturn queryHolder.queryOperation
+        mockApiCategory.stub {
+            on {
+                query<String>(
+                    argThat { this.query.equals(GetPublicKeyQuery.OPERATION_DOCUMENT) },
+                    any(), any(),
+                )
+            } doAnswer {
+                val mockOperation: GraphQLOperation<String> = mock()
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(queryResponse.toString(), null),
+                )
+                mockOperation
+            }
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -209,13 +195,9 @@ class PublicKeyServiceRoboTest : BaseTests() {
         }
 
         deferredResult.start()
-
         delay(100)
-
-        queryHolder.callback shouldNotBe null
-        queryHolder.callback?.onResponse(queryResponse)
-
         val result = deferredResult.await()
+
         with(result) {
             publicKey shouldBe publicKey
             keyRingId shouldBe "keyRingId"
@@ -224,20 +206,35 @@ class PublicKeyServiceRoboTest : BaseTests() {
 
         verify(mockUserClient).getSubject()
         verify(mockDeviceKeyManager).getCurrentKey()
-        verify(mockAppSyncClient).query(any<GetPublicKeyQuery>())
+        verify(mockApiCategory).query<String>(
+            check {
+                assertEquals(GetPublicKeyQuery.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
     }
 
     @Test
     fun `getCurrentRegisteredKey() should create key if not present in key manager`() = runBlocking<Unit> {
-        queryHolder.callback shouldBe null
-        mutationHolder.callback shouldBe null
-
         mockDeviceKeyManager.stub {
             on { getCurrentKey() } doReturn null
             on { generateNewCurrentKeyPair() } doReturn deviceKeyPair
         }
-        mockAppSyncClient.stub {
-            on { mutate(any<CreatePublicKeyMutation>()) } doReturn mutationHolder.mutationOperation
+        mockApiCategory.stub {
+            on {
+                mutate<String>(
+                    argThat { this.query.equals(CreatePublicKeyMutation.OPERATION_DOCUMENT) },
+                    any(), any(),
+                )
+            } doAnswer {
+                val mockOperation: GraphQLOperation<String> = mock()
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(mutationResponse.toString(), null),
+                )
+                mockOperation
+            }
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -245,13 +242,9 @@ class PublicKeyServiceRoboTest : BaseTests() {
         }
 
         deferredResult.start()
-
         delay(100)
-
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(mutationResponse)
-
         val result = deferredResult.await()
+
         with(result) {
             publicKey shouldBe publicKey
             keyRingId shouldBe "$keyRingServiceName.$owner"
@@ -261,24 +254,46 @@ class PublicKeyServiceRoboTest : BaseTests() {
         verify(mockDeviceKeyManager).getCurrentKey()
         verify(mockDeviceKeyManager).generateNewCurrentKeyPair()
 
-        val mutationCaptor = argumentCaptor<CreatePublicKeyMutation>()
-        verify(mockAppSyncClient).mutate(mutationCaptor.capture())
-        mutationCaptor.firstValue.variables().input().keyRingId() shouldBe "$keyRingServiceName.$owner"
+        val mutationCaptor = argumentCaptor<GraphQLRequest<String>>()
+        verify(mockApiCategory).mutate<String>(mutationCaptor.capture(), any(), any())
+        val input = mutationCaptor.firstValue.variables["input"] as CreatePublicKeyInput?
+        input?.keyRingId shouldBe "$keyRingServiceName.$owner"
 
         verify(mockUserClient).getSubject()
     }
 
     @Test
     fun `getCurrentRegisteredKey() should register key if present in key manager and not registered`() = runBlocking<Unit> {
-        queryHolder.callback shouldBe null
-        mutationHolder.callback shouldBe null
-
         mockDeviceKeyManager.stub {
             on { getCurrentKey() } doReturn deviceKeyPair
         }
-        mockAppSyncClient.stub {
-            on { query(any<GetPublicKeyQuery>()) } doReturn queryHolder.queryOperation
-            on { mutate(any<CreatePublicKeyMutation>()) } doReturn mutationHolder.mutationOperation
+        mockApiCategory.stub {
+            on {
+                query<String>(
+                    argThat { this.query.equals(GetPublicKeyQuery.OPERATION_DOCUMENT) },
+                    any(), any(),
+                )
+            } doAnswer {
+                val mockOperation: GraphQLOperation<String> = mock()
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, null),
+                )
+                mockOperation
+            }
+            on {
+                mutate<String>(
+                    argThat { this.query.equals(CreatePublicKeyMutation.OPERATION_DOCUMENT) },
+                    any(), any(),
+                )
+            } doAnswer {
+                val mockOperation: GraphQLOperation<String> = mock()
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(mutationResponse.toString(), null),
+                )
+                mockOperation
+            }
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -286,15 +301,7 @@ class PublicKeyServiceRoboTest : BaseTests() {
         }
 
         deferredResult.start()
-
         delay(100)
-        queryHolder.callback shouldNotBe null
-        queryHolder.callback?.onResponse(nullQueryResponse)
-
-        delay(100)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(mutationResponse)
-
         val result = deferredResult.await()
         with(result) {
             publicKey shouldBe publicKey
@@ -303,11 +310,18 @@ class PublicKeyServiceRoboTest : BaseTests() {
         }
 
         verify(mockDeviceKeyManager).getCurrentKey()
-        verify(mockAppSyncClient).query(any<GetPublicKeyQuery>())
+        verify(mockApiCategory).query<String>(
+            check {
+                assertEquals(GetPublicKeyQuery.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
 
-        val mutationCaptor = argumentCaptor<CreatePublicKeyMutation>()
-        verify(mockAppSyncClient).mutate(mutationCaptor.capture())
-        mutationCaptor.firstValue.variables().input().keyRingId() shouldBe "$keyRingServiceName.$owner"
+        val mutationCaptor = argumentCaptor<GraphQLRequest<String>>()
+        verify(mockApiCategory).mutate(mutationCaptor.capture(), any(), any())
+        val input = mutationCaptor.firstValue.variables["input"] as CreatePublicKeyInput?
+        input?.keyRingId shouldBe "$keyRingServiceName.$owner"
 
         verify(mockUserClient).getSubject()
     }

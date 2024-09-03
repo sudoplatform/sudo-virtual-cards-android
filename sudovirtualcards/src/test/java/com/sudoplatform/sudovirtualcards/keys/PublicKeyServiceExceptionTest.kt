@@ -1,25 +1,27 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.sudoplatform.sudovirtualcards.keys
 
-import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
+import com.amplifyframework.api.ApiCategory
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
+import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.BaseTests
 import com.sudoplatform.sudovirtualcards.graphql.CreatePublicKeyMutation
 import com.sudoplatform.sudovirtualcards.graphql.GetPublicKeyQuery
-import com.sudoplatform.sudovirtualcards.types.CachePolicy
 import io.kotlintest.shouldThrow
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
+import org.mockito.kotlin.check
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
@@ -27,7 +29,6 @@ import org.mockito.kotlin.stub
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import timber.log.Timber
-import java.lang.RuntimeException
 
 /**
  * Test the operation of [DefaultPublicKeyService] under exceptional conditions using mocks.
@@ -48,8 +49,8 @@ class PublicKeyServiceExceptionTest : BaseTests() {
         mock<DeviceKeyManager>()
     }
 
-    private val mockAppSyncClient by before {
-        mock<AWSAppSyncClient>()
+    private val mockApiCategory by before {
+        mock<ApiCategory>()
     }
 
     private val publicKeyService by before {
@@ -57,7 +58,7 @@ class PublicKeyServiceExceptionTest : BaseTests() {
             keyRingServiceName = keyRingServiceName,
             userClient = mockUserClient,
             deviceKeyManager = mockDeviceKeyManager,
-            appSyncClient = mockAppSyncClient,
+            graphQLClient = GraphQLClient(mockApiCategory),
             logger = mock<Logger>(),
         )
     }
@@ -106,18 +107,32 @@ class PublicKeyServiceExceptionTest : BaseTests() {
 
     @Test
     fun shouldThrowIfAppSyncThrows1() = runBlocking<Unit> {
-        mockAppSyncClient.stub {
-            on { query(any<GetPublicKeyQuery>()) } doThrow RuntimeException("mock")
+        mockApiCategory.stub {
+            on {
+                query<String>(
+                    check {
+                        assertEquals(GetPublicKeyQuery.OPERATION_DOCUMENT, it.query)
+                    },
+                    any(), any(),
+                )
+            } doThrow RuntimeException("mock")
         }
         shouldThrow<PublicKeyService.PublicKeyServiceException.UnknownException> {
-            publicKeyService.get("id", CachePolicy.REMOTE_ONLY)
+            publicKeyService.get("id")
         }
     }
 
     @Test
     fun shouldThrowIfAppSyncThrows2() = runBlocking<Unit> {
-        mockAppSyncClient.stub {
-            on { mutate(any<CreatePublicKeyMutation>()) } doThrow RuntimeException("mock")
+        mockApiCategory.stub {
+            on {
+                mutate<String> (
+                    check {
+                        assertEquals(CreatePublicKeyMutation.OPERATION_DOCUMENT, it.query)
+                    },
+                    any(), any(),
+                )
+            } doThrow RuntimeException("mock")
         }
         shouldThrow<PublicKeyService.PublicKeyServiceException.UnknownException> {
             publicKeyService.create("id", "ringId", ByteArray(42))

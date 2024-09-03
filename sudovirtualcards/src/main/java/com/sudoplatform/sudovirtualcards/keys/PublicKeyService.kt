@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -7,8 +7,6 @@
 package com.sudoplatform.sudovirtualcards.keys
 
 import com.sudoplatform.sudouser.PublicKey
-import com.sudoplatform.sudovirtualcards.types.CachePolicy
-import java.lang.RuntimeException
 
 /**
  * Responsible for managing the storage and lifecycle of key pairs locally and remotely in the virtual cards service.
@@ -58,10 +56,9 @@ internal interface PublicKeyService {
      * Get the [PublicKey] by ID
      *
      * @param id The key identifier
-     * @param cachePolicy Controls if the results come from cache or server
      */
     @Throws(PublicKeyServiceException::class)
-    suspend fun get(id: String, cachePolicy: CachePolicy): PublicKeyWithKeyRingId?
+    suspend fun get(id: String): PublicKeyWithKeyRingId?
 
     /**
      * Create/Register a new public key. Although a key pair is passed in, only the public key is

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -88,15 +88,15 @@ internal class Unsealer(
             return null
         }
 
-        val billingAddress = value.fragments().sealedAddressAttribute()
+        val billingAddress = value.sealedAddressAttribute
 
         return BillingAddress(
-            addressLine1 = unseal(billingAddress.addressLine1()),
-            addressLine2 = billingAddress.addressLine2()?.let { unseal(it) },
-            city = unseal(billingAddress.city()),
-            state = unseal(billingAddress.state()),
-            postalCode = unseal(billingAddress.postalCode()),
-            country = unseal(billingAddress.country()),
+            addressLine1 = unseal(billingAddress.addressLine1),
+            addressLine2 = billingAddress.addressLine2?.let { unseal(it) },
+            city = unseal(billingAddress.city),
+            state = unseal(billingAddress.state),
+            postalCode = unseal(billingAddress.postalCode),
+            country = unseal(billingAddress.country),
         )
     }
 
@@ -105,10 +105,10 @@ internal class Unsealer(
      * [Expiry].
      */
     fun unseal(value: SealedCard.Expiry): Expiry {
-        val expiry = value.fragments().sealedExpiryAttribute()
+        val expiry = value.sealedExpiryAttribute
         return Expiry(
-            mm = unseal(expiry.mm()),
-            yyyy = unseal(expiry.yyyy()),
+            mm = unseal(expiry.mm),
+            yyyy = unseal(expiry.yyyy),
         )
     }
 
@@ -117,21 +117,21 @@ internal class Unsealer(
      * to a [Metadata] type.
      */
     fun unseal(value: SealedCard.Metadata): JsonValue<Any> {
-        val metadata = value.fragments().sealedAttribute()
-        return unsealJsonValue(metadata.algorithm(), metadata.base64EncodedSealedData())
+        val metadata = value.sealedAttribute
+        return unsealJsonValue(metadata.algorithm, metadata.base64EncodedSealedData)
     }
 
     /**
      * Unseal the fields of the GraphQL [BankAccountFundingSource.InstitutionName] type.
      */
     fun unseal(value: BankAccountFundingSource.InstitutionName): String {
-        val sealedAttribute = value.fragments().sealedAttribute()
-        if (sealedAttribute.plainTextType() != "string") {
+        val sealedAttribute = value.sealedAttribute
+        if (sealedAttribute.plainTextType != "string") {
             throw UnsealerException.UnsupportedDataTypeException(
-                "institutionName plain text type ${sealedAttribute.plainTextType()} is invalid",
+                "institutionName plain text type ${sealedAttribute.plainTextType} is invalid",
             )
         }
-        return unseal(sealedAttribute.base64EncodedSealedData())
+        return unseal(sealedAttribute.base64EncodedSealedData)
     }
 
     /**
@@ -139,13 +139,13 @@ internal class Unsealer(
      * to an [InstitutionLogo] type.
      */
     fun unseal(value: BankAccountFundingSource.InstitutionLogo?): InstitutionLogo? {
-        val sealedAttribute = value?.fragments()?.sealedAttribute() ?: return null
-        if (sealedAttribute.plainTextType() != "json-string") {
+        val sealedAttribute = value?.sealedAttribute ?: return null
+        if (sealedAttribute.plainTextType != "json-string") {
             throw UnsealerException.UnsupportedDataTypeException(
-                "institutionLogo plain text type ${sealedAttribute.plainTextType()} is invalid",
+                "institutionLogo plain text type ${sealedAttribute.plainTextType} is invalid",
             )
         }
-        val unsealedLogo = unseal(sealedAttribute.base64EncodedSealedData())
+        val unsealedLogo = unseal(sealedAttribute.base64EncodedSealedData)
         val decodedLogo = Gson().fromJson(unsealedLogo, InstitutionLogo::class.java)
         if (decodedLogo?.type == null) {
             return null
@@ -162,8 +162,8 @@ internal class Unsealer(
      */
     fun unsealAmount(sealedAmount: SealedCurrencyAmountAttribute): CurrencyAmount {
         return CurrencyAmount(
-            currency = unseal(sealedAmount.currency()),
-            amount = unseal(sealedAmount.amount()).toInt(),
+            currency = unseal(sealedAmount.currency),
+            amount = unseal(sealedAmount.amount).toInt(),
         )
     }
 

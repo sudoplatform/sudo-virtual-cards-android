@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -35,27 +35,28 @@ internal object TransactionTransformer {
         deviceKeyManager: DeviceKeyManager,
         transaction: SealedTransaction,
     ): Transaction {
-        val keyInfo = KeyInfo(transaction.keyId(), KeyType.PRIVATE_KEY, transaction.algorithm())
+        val keyInfo = KeyInfo(transaction.keyId, KeyType.PRIVATE_KEY, transaction.algorithm)
         val unsealer = Unsealer(deviceKeyManager, keyInfo)
         return transaction.toTransaction(unsealer)
     }
 
     private fun SealedTransaction.toTransaction(unsealer: Unsealer): Transaction {
         return Transaction(
-            id = id(),
-            owner = owner(),
-            version = version(),
-            cardId = cardId(),
-            sequenceId = sequenceId(),
-            type = type().toTransactionType(),
-            billedAmount = unsealer.unsealAmount(billedAmount().fragments().sealedCurrencyAmountAttribute()),
-            transactedAmount = unsealer.unsealAmount(transactedAmount().fragments().sealedCurrencyAmountAttribute()),
-            description = unsealer.unseal(description()),
-            declineReason = declineReason()?.let { unsealer.unseal(it).toDeclineReason() },
-            details = toEntityFromTransactionDetail(unsealer, detail()),
-            transactedAt = unsealer.unseal(transactedAtEpochMs()).toDouble().toDate(),
-            createdAt = createdAtEpochMs().toDate(),
-            updatedAt = updatedAtEpochMs().toDate(),
+            id = id,
+            owner = owner,
+            version = version,
+            cardId = cardId,
+            sequenceId = sequenceId,
+            type = type.toTransactionType(),
+            billedAmount = unsealer.unsealAmount(billedAmount.sealedCurrencyAmountAttribute),
+            transactedAmount = unsealer.unsealAmount(transactedAmount.sealedCurrencyAmountAttribute),
+            description = unsealer.unseal(description),
+            declineReason = declineReason?.let { unsealer.unseal(it).toDeclineReason() },
+            details = toEntityFromTransactionDetail(unsealer, detail),
+            transactedAt = unsealer.unseal(transactedAtEpochMs).toDouble().toDate(),
+            settledAt = settledAtEpochMs?.let { unsealer.unseal(settledAtEpochMs).toDouble().toDate() },
+            createdAt = createdAtEpochMs.toDate(),
+            updatedAt = updatedAtEpochMs.toDate(),
         )
     }
 
@@ -67,19 +68,19 @@ internal object TransactionTransformer {
      */
     fun toPartialEntity(transaction: SealedTransaction): PartialTransaction {
         return PartialTransaction(
-            id = transaction.id(),
-            owner = transaction.owner(),
-            version = transaction.version(),
-            cardId = transaction.cardId(),
-            sequenceId = transaction.sequenceId(),
-            type = transaction.type().toTransactionType(),
-            createdAt = transaction.createdAtEpochMs().toDate(),
-            updatedAt = transaction.updatedAtEpochMs().toDate(),
+            id = transaction.id,
+            owner = transaction.owner,
+            version = transaction.version,
+            cardId = transaction.cardId,
+            sequenceId = transaction.sequenceId,
+            type = transaction.type.toTransactionType(),
+            createdAt = transaction.createdAtEpochMs.toDate(),
+            updatedAt = transaction.updatedAtEpochMs.toDate(),
         )
     }
 
     private fun TransactionType.toTransactionType(): TransactionTypeEntity {
-        for (txnType in TransactionTypeEntity.values()) {
+        for (txnType in TransactionTypeEntity.entries) {
             if (txnType.name == this.name) {
                 return txnType
             }
@@ -97,33 +98,33 @@ internal object TransactionTransformer {
     }
 
     private fun SealedTransaction.Detail.toTransactionDetailCharge(unsealer: Unsealer): TransactionDetailCharge {
-        val sealedDetail = fragments().sealedTransactionDetailChargeAttribute()
-        val sealedMarkup = fragments().sealedTransactionDetailChargeAttribute().markup().fragments().sealedMarkupAttribute()
+        val sealedDetail = sealedTransactionDetailChargeAttribute
+        val sealedMarkup = sealedTransactionDetailChargeAttribute.markup.sealedMarkupAttribute
         return TransactionDetailCharge(
             virtualCardAmount = unsealer.unsealAmount(
-                sealedDetail.virtualCardAmount().fragments().sealedCurrencyAmountAttribute(),
+                sealedDetail.virtualCardAmount.sealedCurrencyAmountAttribute,
             ),
             markup = Markup(
-                percent = unsealer.unseal(sealedMarkup.percent()).toInt(),
-                flat = unsealer.unseal(sealedMarkup.flat()).toInt(),
-                minCharge = sealedMarkup.minCharge()?.let { unsealer.unseal(it).toInt() } ?: 0,
+                percent = unsealer.unseal(sealedMarkup.percent).toInt(),
+                flat = unsealer.unseal(sealedMarkup.flat).toInt(),
+                minCharge = sealedMarkup.minCharge?.let { unsealer.unseal(it).toInt() } ?: 0,
             ),
             markupAmount = unsealer.unsealAmount(
-                sealedDetail.markupAmount().fragments().sealedCurrencyAmountAttribute(),
+                sealedDetail.markupAmount.sealedCurrencyAmountAttribute,
             ),
             fundingSourceAmount = unsealer.unsealAmount(
-                sealedDetail.fundingSourceAmount().fragments().sealedCurrencyAmountAttribute(),
+                sealedDetail.fundingSourceAmount.sealedCurrencyAmountAttribute,
             ),
-            fundingSourceId = sealedDetail.fundingSourceId(),
-            description = unsealer.unseal(sealedDetail.description()),
-            state = sealedDetail.state()?.let { unsealer.unseal(it).toChargeDetailState() } ?: ChargeDetailStateEntity.CLEARED,
+            fundingSourceId = sealedDetail.fundingSourceId,
+            description = unsealer.unseal(sealedDetail.description),
+            state = sealedDetail.state?.let { unsealer.unseal(it).toChargeDetailState() } ?: ChargeDetailStateEntity.CLEARED,
         )
     }
 }
 
 @VisibleForTesting
 internal fun String.toDeclineReason(): DeclineReason {
-    for (value in DeclineReason.values()) {
+    for (value in DeclineReason.entries) {
         if (value.name == this) {
             return value
         }
@@ -133,7 +134,7 @@ internal fun String.toDeclineReason(): DeclineReason {
 
 @VisibleForTesting
 internal fun String.toChargeDetailState(): ChargeDetailStateEntity {
-    for (value in ChargeDetailStateEntity.values()) {
+    for (value in ChargeDetailStateEntity.entries) {
         if (value.name == this) {
             return value
         }

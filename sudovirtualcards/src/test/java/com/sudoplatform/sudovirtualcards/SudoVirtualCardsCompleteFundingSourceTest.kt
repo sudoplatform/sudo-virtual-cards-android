@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -7,19 +7,20 @@
 package com.sudoplatform.sudovirtualcards
 
 import android.content.Context
-import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
-import com.apollographql.apollo.api.Response
-import com.apollographql.apollo.exception.ApolloHttpException
+import com.amplifyframework.api.ApiCategory
+import com.amplifyframework.api.graphql.GraphQLOperation
+import com.amplifyframework.api.graphql.GraphQLResponse
+import com.amplifyframework.core.Consumer
 import com.google.gson.Gson
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
+import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.extensions.isUnfunded
 import com.sudoplatform.sudovirtualcards.extensions.needsRefresh
-import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
 import com.sudoplatform.sudovirtualcards.graphql.CompleteFundingSourceMutation
-import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAttribute
+import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.graphql.type.CompleteFundingSourceRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
@@ -42,32 +43,28 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.Protocol
-import okhttp3.ResponseBody.Companion.toResponseBody
 import org.bouncycastle.util.encoders.Base64
+import org.json.JSONObject
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argThat
 import org.mockito.kotlin.check
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.stub
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 import java.net.HttpURLConnection
 import java.util.concurrent.CancellationException
-import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource as BankAccountFundingSourceGraphQL
-import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource.Authorization as AuthorizationGraphQL
-import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource.InstitutionName as InstitutionNameGraphQL
-import com.sudoplatform.sudovirtualcards.graphql.fragment.CreditCardFundingSource as CreditCardFundingSourceGraphQL
-import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType as BankAccountTypeGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceFlags as FundingSourceFlagsGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as FundingSourceStateGraphQL
 
@@ -129,110 +126,81 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
     }
 
     private val encodedCompletionData by before {
-        val encodedCompletionDataString = Gson().toJson(input.completionData)
-        Base64.encode(encodedCompletionDataString.toByteArray()).toString(Charsets.UTF_8)
-    }
-
-    private val mutationRequest = CompleteFundingSourceRequest.builder()
-        .id("id")
-        .completionData("completionData")
-        .build()
-
-    private val creditCardResult by before {
-        CompleteFundingSourceMutation.CompleteFundingSource(
-            "CreditCardFundingSource",
-            CompleteFundingSourceMutation.AsCreditCardFundingSource(
-                "CreditCardFundingSource",
-                CompleteFundingSourceMutation.AsCreditCardFundingSource.Fragments(
-                    CreditCardFundingSourceGraphQL(
-                        "CreditCardFundingSource",
-                        "id",
-                        "owner",
-                        1,
-                        1.0,
-                        10.0,
-                        FundingSourceStateGraphQL.ACTIVE,
-                        emptyList(),
-                        "USD",
-                        CreditCardFundingSourceGraphQL.TransactionVelocity(
-                            "TransactionVelocity",
-                            10000,
-                            listOf("10000/P1D"),
-                        ),
-                        "last4",
-                        CreditCardNetwork.VISA,
-                        CardType.CREDIT,
-                    ),
-                ),
-            ),
-            null,
-        )
-    }
-
-    private val bankAccountResult by before {
-        CompleteFundingSourceMutation.CompleteFundingSource(
-            "BankAccountFundingSource",
-            null,
-            CompleteFundingSourceMutation.AsBankAccountFundingSource(
-                "BankAccountFundingSource",
-                CompleteFundingSourceMutation.AsBankAccountFundingSource.Fragments(
-                    BankAccountFundingSourceGraphQL(
-                        "BankAccountFundingSource",
-                        "id",
-                        "owner",
-                        1,
-                        1.0,
-                        10.0,
-                        FundingSourceStateGraphQL.ACTIVE,
-                        listOf(FundingSourceFlagsGraphQL.UNFUNDED),
-                        "USD",
-                        BankAccountFundingSourceGraphQL.TransactionVelocity(
-                            "TransactionVelocity",
-                            10000,
-                            listOf("10000/P1D"),
-                        ),
-                        BankAccountTypeGraphQL.CHECKING,
-                        AuthorizationGraphQL(
-                            "Authorization",
-                            "language",
-                            "content",
-                            "contentType",
-                            "signature",
-                            "keyId",
-                            "algorithm",
-                            "data",
-                        ),
-                        "last4",
-                        InstitutionNameGraphQL(
-                            "InstitutionName",
-                            InstitutionNameGraphQL.Fragments(
-                                SealedAttribute(
-                                    "typename",
-                                    "keyId",
-                                    "algorithm",
-                                    "string",
-                                    mockSeal("base64EncodedSealedData"),
-                                ),
-                            ),
-                        ),
-                        null,
-                        null,
-                    ),
-                ),
-            ),
-        )
+        if (provider == "checkoutBankAccount") {
+            null
+        } else {
+            val encodedCompletionDataString = Gson().toJson(input.completionData)
+            Base64.encode(encodedCompletionDataString.toByteArray()).toString(Charsets.UTF_8)
+        }
     }
 
     private val creditCardResponse by before {
-        Response.builder<CompleteFundingSourceMutation.Data>(CompleteFundingSourceMutation(mutationRequest))
-            .data(CompleteFundingSourceMutation.Data(creditCardResult))
-            .build()
+        JSONObject(
+            """
+                {
+                    'completeFundingSource': {
+                            '__typename': 'CreditCardFundingSource',
+                            'id':'id',
+                            'owner': 'owner',
+                            'version': 1,
+                            'createdAtEpochMs': 1.0,
+                            'updatedAtEpochMs': 10.0,
+                            'state': '${FundingSourceStateGraphQL.ACTIVE}',
+                            'flags': [],
+                            'currency':'USD',
+                            'transactionVelocity': {
+                                'maximum': 10000,
+                                'velocity': ['10000/P1D']
+                            },
+                            'last4':'last4',
+                            'network':'${CreditCardNetwork.VISA}',
+                            'cardType': '${CardType.CREDIT}'
+                        }
+                }
+            """.trimIndent(),
+        )
     }
 
     private val bankAccountResponse by before {
-        Response.builder<CompleteFundingSourceMutation.Data>(CompleteFundingSourceMutation(mutationRequest))
-            .data(CompleteFundingSourceMutation.Data(bankAccountResult))
-            .build()
+        JSONObject(
+            """
+                {
+                    'completeFundingSource': {
+                        '__typename': 'BankAccountFundingSource',
+                        'id':'id',
+                        'owner': 'owner',
+                        'version': 1,
+                        'createdAtEpochMs': 1.0,
+                        'updatedAtEpochMs': 10.0,
+                        'state': '${FundingSourceStateGraphQL.ACTIVE}',
+                        'flags': ['${FundingSourceFlagsGraphQL.UNFUNDED}'],
+                        'currency':'USD',
+                        'transactionVelocity': {
+                            'maximum': 10000,
+                            'velocity': ['10000/P1D']
+                        },
+                        'bankAccountType': '${BankAccountType.CHECKING}',
+                        'authorization': {
+                            'language': 'language',
+                            'content': 'content',
+                            'algorithm': 'algorithm',
+                            'contentType': 'contentType',
+                            'signature': 'signature',
+                            'keyId': 'keyId',
+                            'data': 'data'
+                        },
+                        'last4':'last4',
+                        'institutionName': {
+                            '__typename': 'InstitutionName',
+                            'algorithm': 'algorithm',
+                            'plainTextType': 'string',
+                            'keyId': 'keyId',
+                            'base64EncodedSealedData': '${mockSeal("base64EncodedSealedData")}'
+                        }
+                    }
+                }
+            """.trimIndent(),
+        )
     }
 
     private val mutationResponse by before {
@@ -243,8 +211,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         )
     }
 
-    private val mutationHolder = CallbackHolder<CompleteFundingSourceMutation.Data>()
-
     private val mockContext by before {
         mock<Context>()
     }
@@ -253,9 +219,22 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         mock<SudoUserClient>()
     }
 
-    private val mockAppSyncClient by before {
-        mock<AWSAppSyncClient>().stub {
-            on { mutate(any<CompleteFundingSourceMutation>()) } doReturn mutationHolder.mutationOperation
+    private val mockApiCategory by before {
+        mock<ApiCategory>().stub {
+            on {
+                mutate<String>(
+                    argThat { this.query.equals(CompleteFundingSourceMutation.OPERATION_DOCUMENT) },
+                    any(), any(),
+                )
+            } doAnswer {
+                val mockOperation: GraphQLOperation<String> = mock()
+                val responseToUse = mutationResponse[provider] ?: throw missingProvider(provider)
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(responseToUse.toString(), null),
+                )
+                mockOperation
+            }
         }
     }
 
@@ -282,16 +261,11 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         SudoVirtualCardsClient.builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
-            .setAppSyncClient(mockAppSyncClient)
+            .setGraphQLClient(GraphQLClient(mockApiCategory))
             .setKeyManager(mockKeyManager)
             .setPublicKeyService(mockPublicKeyService)
             .setLogger(mock<Logger>())
             .build()
-    }
-
-    @Before
-    fun init() {
-        mutationHolder.callback = null
     }
 
     @After
@@ -300,22 +274,18 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
             mockContext,
             mockUserClient,
             mockKeyManager,
-            mockAppSyncClient,
+            mockApiCategory,
         )
     }
 
     @Test
     fun `completeFundingSource() should return results when no error present`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
         val deferredResult = async(Dispatchers.IO) {
             client.completeFundingSource(input)
         }
         deferredResult.start()
 
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(mutationResponse[provider] ?: throw missingProvider(provider))
 
         val result = deferredResult.await()
         result shouldNotBe null
@@ -363,21 +333,9 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
             }
         }
 
-        if (provider == "stripe" || provider == "checkoutCard") {
-            verify(mockAppSyncClient).mutate<
-                CompleteFundingSourceMutation.Data,
-                CompleteFundingSourceMutation,
-                CompleteFundingSourceMutation.Variables,
-                >(
-                check {
-                    it.variables().input().id() shouldBe "id"
-                    it.variables().input().completionData() shouldBe encodedCompletionData
-                    it.variables().input().updateCardFundingSource() shouldBe null
-                },
-            )
-        }
+        verifyCompleteFundingSourceMutation()
+
         if (provider == "checkoutBankAccount") {
-            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
             verify(mockPublicKeyService).getCurrentKey()
             verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
             verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
@@ -387,12 +345,19 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when response is null`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        val nullMutationResponse by before {
-            Response.builder<CompleteFundingSourceMutation.Data>(CompleteFundingSourceMutation(mutationRequest))
-                .data(null)
-                .build()
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(CompleteFundingSourceMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, null),
+            )
+            mockOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -401,26 +366,11 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
             }
         }
         deferredResult.start()
-
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(nullMutationResponse)
+        deferredResult.await()
 
-        if (provider == "stripe" || provider == "checkoutCard") {
-            verify(mockAppSyncClient).mutate<
-                CompleteFundingSourceMutation.Data,
-                CompleteFundingSourceMutation,
-                CompleteFundingSourceMutation.Variables,
-                >(
-                check {
-                    it.variables().input().id() shouldBe "id"
-                    it.variables().input().completionData() shouldBe encodedCompletionData
-                    it.variables().input().updateCardFundingSource() shouldBe null
-                },
-            )
-        }
+        verifyCompleteFundingSourceMutation()
         if (provider == "checkoutBankAccount") {
-            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
             verify(mockPublicKeyService).getCurrentKey()
             verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
         }
@@ -428,18 +378,27 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when a provisional funding source not found error occurs`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        val errorResponse by before {
-            val error = com.apollographql.apollo.api.Error(
+        val errors = listOf(
+            GraphQLResponse.Error(
                 "mock",
-                emptyList(),
+                null,
+                null,
                 mapOf("errorType" to "ProvisionalFundingSourceNotFoundError"),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(CompleteFundingSourceMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
             )
-            Response.builder<CompleteFundingSourceMutation.Data>(CompleteFundingSourceMutation(mutationRequest))
-                .errors(listOf(error))
-                .data(null)
-                .build()
+            mockOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -450,24 +409,10 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         deferredResult.start()
 
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(errorResponse)
+        deferredResult.await()
 
-        if (provider == "stripe" || provider == "checkoutCard") {
-            verify(mockAppSyncClient).mutate<
-                CompleteFundingSourceMutation.Data,
-                CompleteFundingSourceMutation,
-                CompleteFundingSourceMutation.Variables,
-                >(
-                check {
-                    it.variables().input().id() shouldBe "id"
-                    it.variables().input().completionData() shouldBe encodedCompletionData
-                    it.variables().input().updateCardFundingSource() shouldBe null
-                },
-            )
-        }
+        verifyCompleteFundingSourceMutation()
         if (provider == "checkoutBankAccount") {
-            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
             verify(mockPublicKeyService).getCurrentKey()
             verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
         }
@@ -475,18 +420,27 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when a funding source state error occurs`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        val errorResponse by before {
-            val error = com.apollographql.apollo.api.Error(
+        val errors = listOf(
+            GraphQLResponse.Error(
                 "mock",
-                emptyList(),
+                null,
+                null,
                 mapOf("errorType" to "FundingSourceStateError"),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(CompleteFundingSourceMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
             )
-            Response.builder<CompleteFundingSourceMutation.Data>(CompleteFundingSourceMutation(mutationRequest))
-                .errors(listOf(error))
-                .data(null)
-                .build()
+            mockOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -497,24 +451,10 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         deferredResult.start()
 
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(errorResponse)
+        deferredResult.await()
 
-        if (provider == "stripe" || provider == "checkoutCard") {
-            verify(mockAppSyncClient).mutate<
-                CompleteFundingSourceMutation.Data,
-                CompleteFundingSourceMutation,
-                CompleteFundingSourceMutation.Variables,
-                >(
-                check {
-                    it.variables().input().id() shouldBe "id"
-                    it.variables().input().completionData() shouldBe encodedCompletionData
-                    it.variables().input().updateCardFundingSource() shouldBe null
-                },
-            )
-        }
+        verifyCompleteFundingSourceMutation()
         if (provider == "checkoutBankAccount") {
-            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
             verify(mockPublicKeyService).getCurrentKey()
             verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
         }
@@ -522,18 +462,27 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when a funding source not setup error occurs`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        val errorResponse by before {
-            val error = com.apollographql.apollo.api.Error(
+        val errors = listOf(
+            GraphQLResponse.Error(
                 "mock",
-                emptyList(),
+                null,
+                null,
                 mapOf("errorType" to "FundingSourceNotSetupErrorCode"),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(CompleteFundingSourceMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
             )
-            Response.builder<CompleteFundingSourceMutation.Data>(CompleteFundingSourceMutation(mutationRequest))
-                .errors(listOf(error))
-                .data(null)
-                .build()
+            mockOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -544,24 +493,10 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         deferredResult.start()
 
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(errorResponse)
+        deferredResult.await()
 
-        if (provider == "stripe" || provider == "checkoutCard") {
-            verify(mockAppSyncClient).mutate<
-                CompleteFundingSourceMutation.Data,
-                CompleteFundingSourceMutation,
-                CompleteFundingSourceMutation.Variables,
-                >(
-                check {
-                    it.variables().input().id() shouldBe "id"
-                    it.variables().input().completionData() shouldBe encodedCompletionData
-                    it.variables().input().updateCardFundingSource() shouldBe null
-                },
-            )
-        }
+        verifyCompleteFundingSourceMutation()
         if (provider == "checkoutBankAccount") {
-            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
             verify(mockPublicKeyService).getCurrentKey()
             verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
         }
@@ -569,18 +504,27 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when a completion data invalid error occurs`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        val errorResponse by before {
-            val error = com.apollographql.apollo.api.Error(
+        val errors = listOf(
+            GraphQLResponse.Error(
                 "mock",
-                emptyList(),
+                null,
+                null,
                 mapOf("errorType" to "FundingSourceCompletionDataInvalidError"),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(CompleteFundingSourceMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
             )
-            Response.builder<CompleteFundingSourceMutation.Data>(CompleteFundingSourceMutation(mutationRequest))
-                .errors(listOf(error))
-                .data(null)
-                .build()
+            mockOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -589,26 +533,11 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
             }
         }
         deferredResult.start()
-
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(errorResponse)
+        deferredResult.await()
 
-        if (provider == "stripe" || provider == "checkoutCard") {
-            verify(mockAppSyncClient).mutate<
-                CompleteFundingSourceMutation.Data,
-                CompleteFundingSourceMutation,
-                CompleteFundingSourceMutation.Variables,
-                >(
-                check {
-                    it.variables().input().id() shouldBe "id"
-                    it.variables().input().completionData() shouldBe encodedCompletionData
-                    it.variables().input().updateCardFundingSource() shouldBe null
-                },
-            )
-        }
+        verifyCompleteFundingSourceMutation()
         if (provider == "checkoutBankAccount") {
-            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
             verify(mockPublicKeyService).getCurrentKey()
             verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
         }
@@ -616,18 +545,27 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when an unacceptable funding source error occurs`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        val errorResponse by before {
-            val error = com.apollographql.apollo.api.Error(
+        val errors = listOf(
+            GraphQLResponse.Error(
                 "mock",
-                emptyList(),
+                null,
+                null,
                 mapOf("errorType" to "UnacceptableFundingSourceError"),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(CompleteFundingSourceMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
             )
-            Response.builder<CompleteFundingSourceMutation.Data>(CompleteFundingSourceMutation(mutationRequest))
-                .errors(listOf(error))
-                .data(null)
-                .build()
+            mockOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -638,24 +576,10 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         deferredResult.start()
 
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(errorResponse)
+        deferredResult.await()
 
-        if (provider == "stripe" || provider == "checkoutCard") {
-            verify(mockAppSyncClient).mutate<
-                CompleteFundingSourceMutation.Data,
-                CompleteFundingSourceMutation,
-                CompleteFundingSourceMutation.Variables,
-                >(
-                check {
-                    it.variables().input().id() shouldBe "id"
-                    it.variables().input().completionData() shouldBe encodedCompletionData
-                    it.variables().input().updateCardFundingSource() shouldBe null
-                },
-            )
-        }
+        verifyCompleteFundingSourceMutation()
         if (provider == "checkoutBankAccount") {
-            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
             verify(mockPublicKeyService).getCurrentKey()
             verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
         }
@@ -663,25 +587,34 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when a user interaction required funding source error occurs`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
         val providerInteractionData = CheckoutCardUserInteractionData(redirectUrl = "https://some.url.com/session")
         val interactionData = SudoVirtualCardsClient.FundingSourceInteractionData(
             Base64.encode(Gson().toJson(providerInteractionData).toByteArray()).toString(Charsets.UTF_8),
         )
-
-        val errorResponse by before {
-            val error = com.apollographql.apollo.api.Error(
+        val errors = listOf(
+            GraphQLResponse.Error(
                 "mock",
-                emptyList(),
+                null,
+                null,
                 mapOf(
                     "errorType" to "FundingSourceRequiresUserInteractionError",
                     "errorInfo" to interactionData,
                 ),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(CompleteFundingSourceMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
             )
-            Response.builder<CompleteFundingSourceMutation.Data>(CompleteFundingSourceMutation(mutationRequest))
-                .errors(listOf(error))
-                .data(null)
-                .build()
+            mockOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -693,24 +626,10 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         deferredResult.start()
 
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(errorResponse)
+        deferredResult.await()
 
-        if (provider == "stripe" || provider == "checkoutCard") {
-            verify(mockAppSyncClient).mutate<
-                CompleteFundingSourceMutation.Data,
-                CompleteFundingSourceMutation,
-                CompleteFundingSourceMutation.Variables,
-                >(
-                check {
-                    it.variables().input().id() shouldBe "id"
-                    it.variables().input().completionData() shouldBe encodedCompletionData
-                    it.variables().input().updateCardFundingSource() shouldBe null
-                },
-            )
-        }
+        verifyCompleteFundingSourceMutation()
         if (provider == "checkoutBankAccount") {
-            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
             verify(mockPublicKeyService).getCurrentKey()
             verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
         }
@@ -718,8 +637,28 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when http error occurs`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
+        val errors = listOf(
+            GraphQLResponse.Error(
+                "mock",
+                null,
+                null,
+                mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(CompleteFundingSourceMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
+            )
+            mockOperation
+        }
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<SudoVirtualCardsClient.FundingSourceException.CompletionFailedException> {
                 client.completeFundingSource(input)
@@ -727,40 +666,10 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         }
         deferredResult.start()
         delay(100L)
-
-        val request = okhttp3.Request.Builder()
-            .get()
-            .url("http://www.smh.com.au")
-            .build()
-        val responseBody = "{}".toResponseBody("application/json; charset=utf-8".toMediaType())
-        val forbidden = okhttp3.Response.Builder()
-            .protocol(Protocol.HTTP_1_1)
-            .code(HttpURLConnection.HTTP_FORBIDDEN)
-            .request(request)
-            .message("Forbidden")
-            .body(responseBody)
-            .build()
-
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onHttpError(ApolloHttpException(forbidden))
-
         deferredResult.await()
 
-        if (provider == "stripe" || provider == "checkoutCard") {
-            verify(mockAppSyncClient).mutate<
-                CompleteFundingSourceMutation.Data,
-                CompleteFundingSourceMutation,
-                CompleteFundingSourceMutation.Variables,
-                >(
-                check {
-                    it.variables().input().id() shouldBe "id"
-                    it.variables().input().completionData() shouldBe encodedCompletionData
-                    it.variables().input().updateCardFundingSource() shouldBe null
-                },
-            )
-        }
+        verifyCompleteFundingSourceMutation()
         if (provider == "checkoutBankAccount") {
-            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
             verify(mockPublicKeyService).getCurrentKey()
             verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
         }
@@ -768,10 +677,14 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should throw when unknown error occurs`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        mockAppSyncClient.stub {
-            on { mutate(any<CompleteFundingSourceMutation>()) } doThrow RuntimeException("Mock Runtime Exception")
+        mockApiCategory.stub {
+            on {
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(CompleteFundingSourceMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                )
+            } doThrow RuntimeException("Mock Runtime Exception")
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -784,21 +697,8 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
         deferredResult.await()
 
-        if (provider == "stripe" || provider == "checkoutCard") {
-            verify(mockAppSyncClient).mutate<
-                CompleteFundingSourceMutation.Data,
-                CompleteFundingSourceMutation,
-                CompleteFundingSourceMutation.Variables,
-                >(
-                check {
-                    it.variables().input().id() shouldBe "id"
-                    it.variables().input().completionData() shouldBe encodedCompletionData
-                    it.variables().input().updateCardFundingSource() shouldBe null
-                },
-            )
-        }
+        verifyCompleteFundingSourceMutation()
         if (provider == "checkoutBankAccount") {
-            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
             verify(mockPublicKeyService).getCurrentKey()
             verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
         }
@@ -806,10 +706,14 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
 
     @Test
     fun `completeFundingSource() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        mockAppSyncClient.stub {
-            on { mutate(any<CompleteFundingSourceMutation>()) } doThrow CancellationException("Mock Cancellation Exception")
+        mockApiCategory.stub {
+            on {
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(CompleteFundingSourceMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                )
+            } doThrow CancellationException("Mock Cancellation Exception")
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -819,26 +723,30 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         }
         deferredResult.start()
         delay(100L)
-
         deferredResult.await()
 
-        if (provider == "stripe" || provider == "checkoutCard") {
-            verify(mockAppSyncClient).mutate<
-                CompleteFundingSourceMutation.Data,
-                CompleteFundingSourceMutation,
-                CompleteFundingSourceMutation.Variables,
-                >(
-                check {
-                    it.variables().input().id() shouldBe "id"
-                    it.variables().input().completionData() shouldBe encodedCompletionData
-                    it.variables().input().updateCardFundingSource() shouldBe null
-                },
-            )
-        }
+        verifyCompleteFundingSourceMutation()
+
         if (provider == "checkoutBankAccount") {
-            verify(mockAppSyncClient).mutate(any<CompleteFundingSourceMutation>())
             verify(mockPublicKeyService).getCurrentKey()
             verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
         }
+    }
+
+    private fun verifyCompleteFundingSourceMutation() {
+        verify(mockApiCategory).mutate<String>(
+            check {
+                assertEquals(CompleteFundingSourceMutation.OPERATION_DOCUMENT, it.query)
+                val input = it.variables["input"] as CompleteFundingSourceRequest?
+                input?.id shouldBe "id"
+                if (encodedCompletionData != null) {
+                    // we are not recreating the bank account completion data in any of these tests...
+                    input?.completionData shouldBe encodedCompletionData
+                }
+                input?.updateCardFundingSource?.getOrNull() shouldBe null
+            },
+            any(),
+            any(),
+        )
     }
 }

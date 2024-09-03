@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -7,19 +7,16 @@
 package com.sudoplatform.sudovirtualcards
 
 import android.content.Context
-import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
-import com.apollographql.apollo.api.Response
-import com.apollographql.apollo.exception.ApolloHttpException
+import com.amplifyframework.api.ApiCategory
+import com.amplifyframework.api.graphql.GraphQLOperation
+import com.amplifyframework.api.graphql.GraphQLResponse
+import com.amplifyframework.core.Consumer
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudouser.SudoUserClient
-import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
-import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceClientConfigurationQuery
+import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.graphql.GetVirtualCardsConfigQuery
-import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSourceSupportDetail
-import com.sudoplatform.sudovirtualcards.graphql.fragment.FundingSourceSupportInfo
-import com.sudoplatform.sudovirtualcards.graphql.fragment.VirtualCardsConfig
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.types.CheckoutPricingPolicy
@@ -43,20 +40,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.Protocol
-import okhttp3.ResponseBody.Companion.toResponseBody
 import org.apache.commons.codec.binary.Base64
+import org.json.JSONObject
 import org.junit.After
-import org.junit.Before
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.argThat
+import org.mockito.kotlin.check
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.stub
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 import java.net.HttpURLConnection
 import com.sudoplatform.sudovirtualcards.types.CardType as CardTypeEntity
 import com.sudoplatform.sudovirtualcards.types.FundingSourceClientConfiguration as FundingSourceClientConfigurationEntity
@@ -74,7 +72,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
         val clientApplicationConfiguration: ClientApplicationConfiguration,
     )
 
-    private val queryResult by before {
+    private val queryResponse by before {
         val fsConfig = FundingSourceTypes(
             listOf(
                 FundingSourceClientConfigurationEntity(
@@ -89,10 +87,6 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
         )
         val fsConfigStr = Gson().toJson(fsConfig)
         val encodedFsConfigData = Base64.encodeBase64String(fsConfigStr.toByteArray())
-        GetFundingSourceClientConfigurationQuery.GetFundingSourceClientConfiguration(
-            "typename",
-            encodedFsConfigData,
-        )
 
         val appConfig = SerializedClientApplicationConfiguration(
             clientApplicationConfiguration = ClientApplicationConfiguration(
@@ -171,80 +165,44 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
         val pricingPolicyStr = Gson().toJson(pricingPolicy)
         val encodedPricingPolicy = Base64.encodeBase64String((pricingPolicyStr.toByteArray()))
 
-        GetVirtualCardsConfigQuery.GetVirtualCardsConfig(
-            "typename",
-            GetVirtualCardsConfigQuery.GetVirtualCardsConfig.Fragments(
-                VirtualCardsConfig(
-                    "VirtualCardsConfig",
-                    listOf("maxFundingSourceVelocity"),
-                    listOf("maxFundingSourceFailureVelocity"),
-                    listOf("maxFundingSourcePendingVelocity"),
-                    listOf("maxCardCreationVelocity"),
-                    listOf(
-                        VirtualCardsConfig.MaxTransactionVelocity(
-                            "maxTransactionVelocity",
-                            "USD",
-                            listOf("velocity"),
-                        ),
-                    ),
-                    listOf(
-                        VirtualCardsConfig.MaxTransactionAmount(
-                            "maxTransactionAmount",
-                            "USD",
-                            100,
-                        ),
-                    ),
-                    listOf("virtualCardCurrencies"),
-                    listOf(
-                        VirtualCardsConfig.FundingSourceSupportInfo(
-                            "FundingSourceSupportInfo",
-                            VirtualCardsConfig.FundingSourceSupportInfo.Fragments(
-                                FundingSourceSupportInfo(
-                                    "FundingSourceSupportInfo",
-                                    "providerType",
-                                    "fundingSourceType",
-                                    "network",
-                                    listOf(
-                                        FundingSourceSupportInfo.Detail(
-                                            "Detail",
-                                            FundingSourceSupportInfo.Detail.Fragments(
-                                                FundingSourceSupportDetail(
-                                                    "CardType",
-                                                    CardType.PREPAID,
-                                                ),
-                                            ),
-                                        ),
-                                    ),
-                                ),
-                            ),
-                        ),
-                    ),
-                    true,
-                    true,
-                    VirtualCardsConfig.FundingSourceClientConfiguration(
-                        "typename",
-                        encodedFsConfigData,
-                    ),
-                    VirtualCardsConfig.ClientApplicationsConfiguration(
-                        "typename",
-                        encodedAppConfigData,
-                    ),
-                    VirtualCardsConfig.PricingPolicy(
-                        "typename",
-                        encodedPricingPolicy,
-                    ),
-                ),
-            ),
+        JSONObject(
+            """
+                {
+                    'getVirtualCardsConfig': {
+                            '__typename': 'VirtualCardsConfig',
+                            'maxFundingSourceVelocity': ['maxFundingSourceVelocity'],
+                            'maxFundingSourceFailureVelocity':['maxFundingSourceFailureVelocity'],
+                            'maxFundingSourcePendingVelocity':['maxFundingSourcePendingVelocity'],
+                            'maxCardCreationVelocity':['maxCardCreationVelocity'],
+                            'maxTransactionVelocity':[{
+                                'currency': 'USD',
+                                'velocity': ['velocity']
+                            }],
+                            'maxTransactionAmount':[{
+                                'currency': 'USD',
+                                'amount': 100
+                            }],
+                            'virtualCardCurrencies': ['virtualCardCurrencies'],
+                            'fundingSourceSupportInfo': [{
+                                '__typename': 'FundingSourceSupportInfo',
+                                'providerType': 'providerType',
+                                'fundingSourceType': 'fundingSourceType',
+                                'network': 'network',
+                                'detail': [{
+                                    '__typename': 'Detail',
+                                    'cardType': '${CardType.PREPAID}'
+                                }]
+                            }],
+                            'bankAccountFundingSourceExpendableEnabled': true,
+                            'bankAccountFundingSourceCreationEnabled': true,
+                            'fundingSourceClientConfiguration': {'data': '$encodedFsConfigData'},
+                            'clientApplicationsConfiguration': {'data': '$encodedAppConfigData'},
+                            'pricingPolicy': {'data': '$encodedPricingPolicy'},
+                        }
+                }
+            """.trimIndent(),
         )
     }
-
-    private val queryResponse by before {
-        Response.builder<GetVirtualCardsConfigQuery.Data>(GetVirtualCardsConfigQuery())
-            .data(GetVirtualCardsConfigQuery.Data(queryResult))
-            .build()
-    }
-
-    private val queryHolder = CallbackHolder<GetVirtualCardsConfigQuery.Data>()
 
     private val mockContext by before {
         mock<Context>()
@@ -254,9 +212,21 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
         mock<SudoUserClient>()
     }
 
-    private val mockAppSyncClient by before {
-        mock<AWSAppSyncClient>().stub {
-            on { query(any<GetVirtualCardsConfigQuery>()) } doReturn queryHolder.queryOperation
+    private val mockApiCategory by before {
+        mock<ApiCategory>().stub {
+            on {
+                query<String>(
+                    argThat { this.query.equals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT) },
+                    any(), any(),
+                )
+            } doAnswer {
+                val mockOperation: GraphQLOperation<String> = mock()
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(queryResponse.toString(), null),
+                )
+                mockOperation
+            }
         }
     }
 
@@ -272,16 +242,11 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
         SudoVirtualCardsClient.builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
-            .setAppSyncClient(mockAppSyncClient)
+            .setGraphQLClient(GraphQLClient(mockApiCategory))
             .setKeyManager(mockKeyManager)
             .setLogger(mock())
             .setPublicKeyService(mockPublicKeyService)
             .build()
-    }
-
-    @Before
-    fun init() {
-        queryHolder.callback = null
     }
 
     @After
@@ -289,7 +254,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
         verifyNoMoreInteractions(
             mockContext,
             mockUserClient,
-            mockAppSyncClient,
+            mockApiCategory,
             mockKeyManager,
             mockPublicKeyService,
         )
@@ -297,17 +262,11 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
 
     @Test
     fun `getVirtualCardsConfig() should return results when no error present`() = runBlocking<Unit> {
-        queryHolder.callback shouldBe null
-
         val deferredResult = async(Dispatchers.IO) {
             client.getVirtualCardsConfig()
         }
         deferredResult.start()
-
         delay(100L)
-        queryHolder.callback shouldNotBe null
-        queryHolder.callback?.onResponse(queryResponse)
-
         val result = deferredResult.await()
         result shouldNotBe null
 
@@ -423,48 +382,72 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                 ),
             )
         }
-        verify(mockAppSyncClient).query(any<GetVirtualCardsConfigQuery>())
+        verify(mockApiCategory).query<String>(
+            check {
+                assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
     }
 
     @Test
     fun `getVirtualCardsConfig() should return null result when query response is null`() = runBlocking<Unit> {
-        queryHolder.callback shouldBe null
-
-        val nullQueryResponse by before {
-            Response.builder<GetVirtualCardsConfigQuery.Data>(GetVirtualCardsConfigQuery())
-                .data(null)
-                .build()
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.query<String>(
+                argThat { this.query.equals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, null),
+            )
+            mockOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
             client.getVirtualCardsConfig()
         }
         deferredResult.start()
-
         delay(100L)
-        queryHolder.callback shouldNotBe null
-        queryHolder.callback?.onResponse(nullQueryResponse)
-
         val result = deferredResult.await()
         result shouldBe null
 
-        verify(mockAppSyncClient).query(any<GetVirtualCardsConfigQuery>())
+        verify(mockApiCategory).query<String>(
+            check {
+                assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
     }
 
     @Test
     fun `getVirtualCardsConfig() should throw when query response has errors`() = runBlocking<Unit> {
-        queryHolder.callback shouldBe null
-
-        val errorQueryResponse by before {
-            val error = com.apollographql.apollo.api.Error(
+        val errors = listOf(
+            GraphQLResponse.Error(
                 "mock",
-                emptyList(),
+                null,
+                null,
                 mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.query<String>(
+                argThat { this.query.equals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
             )
-            Response.builder<GetVirtualCardsConfigQuery.Data>(GetVirtualCardsConfigQuery())
-                .errors(listOf(error))
-                .data(null)
-                .build()
+            mockOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -474,17 +457,40 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
         }
         deferredResult.start()
         delay(100L)
-
-        queryHolder.callback shouldNotBe null
-        queryHolder.callback?.onResponse(errorQueryResponse)
-
-        verify(mockAppSyncClient).query(any<GetVirtualCardsConfigQuery>())
+        deferredResult.await()
+        verify(mockApiCategory).query<String>(
+            check {
+                assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
     }
 
     @Test
     fun `getVirtualCardsConfig() should throw when http error occurs`() = runBlocking<Unit> {
-        queryHolder.callback shouldBe null
-
+        val errors = listOf(
+            GraphQLResponse.Error(
+                "mock",
+                null,
+                null,
+                mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.query<String>(
+                argThat { this.query.equals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
+            )
+            mockOperation
+        }
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<SudoVirtualCardsClient.VirtualCardException.FailedException> {
                 client.getVirtualCardsConfig()
@@ -492,34 +498,27 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
         }
         deferredResult.start()
         delay(100L)
-
-        val request = okhttp3.Request.Builder()
-            .get()
-            .url("http://www.smh.com.au")
-            .build()
-        val responseBody = "{}".toResponseBody("application/json; charset=utf-8".toMediaType())
-        val forbidden = okhttp3.Response.Builder()
-            .protocol(Protocol.HTTP_1_1)
-            .code(HttpURLConnection.HTTP_FORBIDDEN)
-            .request(request)
-            .message("Forbidden")
-            .body(responseBody)
-            .build()
-
-        queryHolder.callback shouldNotBe null
-        queryHolder.callback?.onHttpError(ApolloHttpException(forbidden))
-
         deferredResult.await()
 
-        verify(mockAppSyncClient).query(any<GetVirtualCardsConfigQuery>())
+        verify(mockApiCategory).query<String>(
+            check {
+                assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
     }
 
     @Test
     fun `getVirtualCardsConfig() should throw when unknown error occurs()`() = runBlocking<Unit> {
-        queryHolder.callback shouldBe null
-
-        mockAppSyncClient.stub {
-            on { query(any<GetVirtualCardsConfigQuery>()) } doThrow RuntimeException("Mock Runtime Exception")
+        mockApiCategory.stub {
+            on {
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                )
+            } doThrow RuntimeException("Mock Runtime Exception")
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -532,19 +531,37 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
 
         deferredResult.await()
 
-        verify(mockAppSyncClient).query(any<GetVirtualCardsConfigQuery>())
+        verify(mockApiCategory).query<String>(
+            check {
+                assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
     }
 
     @Test
     fun `getVirtualCardsConfig() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-        mockAppSyncClient.stub {
-            on { query(any<GetVirtualCardsConfigQuery>()) } doThrow CancellationException("Mock Cancellation Exception")
+        mockApiCategory.stub {
+            on {
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                )
+            } doThrow CancellationException("Mock Cancellation Exception")
         }
 
         shouldThrow<CancellationException> {
             client.getVirtualCardsConfig()
         }
 
-        verify(mockAppSyncClient).query(any<GetVirtualCardsConfigQuery>())
+        verify(mockApiCategory).query<String>(
+            check {
+                assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
     }
 }

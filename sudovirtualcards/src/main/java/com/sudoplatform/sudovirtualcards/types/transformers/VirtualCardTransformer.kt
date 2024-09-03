@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -7,6 +7,7 @@
 package com.sudoplatform.sudovirtualcards.types.transformers
 
 import com.amazonaws.util.Base64
+import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCard
@@ -44,14 +45,14 @@ internal object VirtualCardTransformer {
         if (this == null) {
             return null
         }
-        return AddressInput.builder()
-            .addressLine1(addressLine1)
-            .addressLine2(addressLine2)
-            .city(city)
-            .state(state)
-            .postalCode(postalCode)
-            .country(country)
-            .build()
+        return AddressInput(
+            addressLine1 = addressLine1,
+            addressLine2 = Optional.presentIfNotNull(addressLine2),
+            city = city,
+            country = country,
+            postalCode = postalCode,
+            state = state,
+        )
     }
 
     /**
@@ -68,12 +69,12 @@ internal object VirtualCardTransformer {
         val serializedMetadata = Gson().toJson(this.unwrap()).toByteArray(Charsets.UTF_8)
         val encryptedMetadata = deviceKeyManager.encryptWithSymmetricKeyId(symmetricKeyId, serializedMetadata)
         val base64EncodedEncryptedMetadata = String(Base64.encode(encryptedMetadata), Charsets.UTF_8)
-        return SealedAttributeInput.builder()
-            .algorithm(SymmetricKeyEncryptionAlgorithm.AES_CBC_PKCS7PADDING.toString())
-            .base64EncodedSealedData(base64EncodedEncryptedMetadata)
-            .keyId(symmetricKeyId)
-            .plainTextType("json-string")
-            .build()
+        return SealedAttributeInput(
+            algorithm = SymmetricKeyEncryptionAlgorithm.AES_CBC_PKCS7PADDING.toString(),
+            base64EncodedSealedData = base64EncodedEncryptedMetadata,
+            keyId = symmetricKeyId,
+            plainTextType = "json-string",
+        )
     }
 
     /**
@@ -88,14 +89,14 @@ internal object VirtualCardTransformer {
         provisionalCard: ProvisionalCardFragment,
     ): ProvisionalVirtualCard {
         return ProvisionalVirtualCard(
-            id = provisionalCard.id(),
-            clientRefId = provisionalCard.clientRefId(),
-            owner = provisionalCard.owner(),
-            version = provisionalCard.version(),
-            provisioningState = provisionalCard.provisioningState().toProvisionalCardState(),
-            card = provisionalCard.card()?.firstOrNull()?.let { toEntity(deviceKeyManager, it.fragments().sealedCard()) },
-            createdAt = provisionalCard.createdAtEpochMs().toDate(),
-            updatedAt = provisionalCard.updatedAtEpochMs().toDate(),
+            id = provisionalCard.id,
+            clientRefId = provisionalCard.clientRefId,
+            owner = provisionalCard.owner,
+            version = provisionalCard.version,
+            provisioningState = provisionalCard.provisioningState.toProvisionalCardState(),
+            card = provisionalCard.card?.firstOrNull()?.let { toEntity(deviceKeyManager, it.sealedCard) },
+            createdAt = provisionalCard.createdAtEpochMs.toDate(),
+            updatedAt = provisionalCard.updatedAtEpochMs.toDate(),
         )
     }
 
@@ -110,14 +111,10 @@ internal object VirtualCardTransformer {
         deviceKeyManager: DeviceKeyManager,
         sealedCardWithLastTransaction: SealedCardWithLastTransaction,
     ): VirtualCard {
-        val sealedCard = sealedCardWithLastTransaction.fragments().sealedCard()
-            ?: throw SudoVirtualCardsClient.VirtualCardException.FailedException(
-                "unexpected null SealedCard in SealedCardWithLastTransaction",
-            )
         return toEntity(
             deviceKeyManager,
-            sealedCard,
-            sealedCardWithLastTransaction.lastTransaction()?.fragments()?.sealedTransaction(),
+            sealedCardWithLastTransaction.sealedCard,
+            sealedCardWithLastTransaction.lastTransaction?.sealedTransaction,
         )
     }
 
@@ -134,35 +131,35 @@ internal object VirtualCardTransformer {
         sealedCard: SealedCard,
         sealedLastTransaction: SealedTransaction? = null,
     ): VirtualCard {
-        val keyInfo = KeyInfo(sealedCard.keyId(), KeyType.PRIVATE_KEY, sealedCard.algorithm())
+        val keyInfo = KeyInfo(sealedCard.keyId, KeyType.PRIVATE_KEY, sealedCard.algorithm)
         val unsealer = Unsealer(deviceKeyManager, keyInfo)
 
-        val owners = sealedCard.owners().toOwners()
+        val owners = sealedCard.owners.toOwners()
         return VirtualCard(
-            id = sealedCard.id(),
-            owner = sealedCard.owner(),
+            id = sealedCard.id,
+            owner = sealedCard.owner,
             owners = owners,
-            version = sealedCard.version(),
-            fundingSourceId = sealedCard.fundingSourceId(),
-            state = sealedCard.state().toState(),
-            cardHolder = unsealer.unseal(sealedCard.cardHolder()),
-            alias = sealedCard.alias()?.let { unsealer.unseal(it) },
-            metadata = sealedCard.metadata()?.let {
-                val sealedAttribute = it.fragments().sealedAttribute()
-                val symmetricKeyInfo = KeyInfo(sealedAttribute.keyId(), KeyType.SYMMETRIC_KEY, sealedAttribute.algorithm())
+            version = sealedCard.version,
+            fundingSourceId = sealedCard.fundingSourceId,
+            state = sealedCard.state.toState(),
+            cardHolder = unsealer.unseal(sealedCard.cardHolder),
+            alias = sealedCard.alias?.let { unsealer.unseal(it) },
+            metadata = sealedCard.metadata?.let {
+                val sealedAttribute = it.sealedAttribute
+                val symmetricKeyInfo = KeyInfo(sealedAttribute.keyId, KeyType.SYMMETRIC_KEY, sealedAttribute.algorithm)
                 val metadataUnsealer = Unsealer(deviceKeyManager, symmetricKeyInfo)
                 metadataUnsealer.unseal(it)
             },
-            last4 = sealedCard.last4(),
-            cardNumber = unsealer.unseal(sealedCard.pan()),
-            securityCode = unsealer.unseal(sealedCard.csc()),
-            billingAddress = unsealer.unseal(sealedCard.billingAddress()),
-            expiry = unsealer.unseal(sealedCard.expiry()),
-            currency = sealedCard.currency(),
-            activeTo = sealedCard.activeToEpochMs().toDate(),
-            cancelledAt = sealedCard.cancelledAtEpochMs()?.toDate(),
-            createdAt = sealedCard.createdAtEpochMs().toDate(),
-            updatedAt = sealedCard.updatedAtEpochMs().toDate(),
+            last4 = sealedCard.last4,
+            cardNumber = unsealer.unseal(sealedCard.pan),
+            securityCode = unsealer.unseal(sealedCard.csc),
+            billingAddress = unsealer.unseal(sealedCard.billingAddress),
+            expiry = unsealer.unseal(sealedCard.expiry),
+            currency = sealedCard.currency,
+            activeTo = sealedCard.activeToEpochMs.toDate(),
+            cancelledAt = sealedCard.cancelledAtEpochMs?.toDate(),
+            createdAt = sealedCard.createdAtEpochMs.toDate(),
+            updatedAt = sealedCard.updatedAtEpochMs.toDate(),
             lastTransaction = sealedLastTransaction?.toTransaction(deviceKeyManager),
         )
     }
@@ -174,11 +171,7 @@ internal object VirtualCardTransformer {
      * @return The [PartialVirtualCard] entity type.
      */
     fun toPartialEntity(sealedCardWithLastTransaction: SealedCardWithLastTransaction): PartialVirtualCard {
-        val sealedCard = sealedCardWithLastTransaction.fragments().sealedCard()
-            ?: throw SudoVirtualCardsClient.VirtualCardException.FailedException(
-                "unexpected null SealedCard in SealedCardWithLastTransaction",
-            )
-        return toPartialEntity(sealedCard)
+        return toPartialEntity(sealedCardWithLastTransaction.sealedCard)
     }
 
     /**
@@ -189,18 +182,18 @@ internal object VirtualCardTransformer {
      */
     private fun toPartialEntity(sealedCard: SealedCard): PartialVirtualCard {
         return PartialVirtualCard(
-            id = sealedCard.id(),
-            owners = sealedCard.owners().toOwners(),
-            owner = sealedCard.owner(),
-            version = sealedCard.version(),
-            fundingSourceId = sealedCard.fundingSourceId(),
-            state = sealedCard.state().toState(),
-            last4 = sealedCard.last4(),
-            currency = sealedCard.currency(),
-            activeTo = sealedCard.activeToEpochMs().toDate(),
-            cancelledAt = sealedCard.cancelledAtEpochMs()?.toDate(),
-            createdAt = sealedCard.createdAtEpochMs().toDate(),
-            updatedAt = sealedCard.updatedAtEpochMs().toDate(),
+            id = sealedCard.id,
+            owners = sealedCard.owners.toOwners(),
+            owner = sealedCard.owner,
+            version = sealedCard.version,
+            fundingSourceId = sealedCard.fundingSourceId,
+            state = sealedCard.state.toState(),
+            last4 = sealedCard.last4,
+            currency = sealedCard.currency,
+            activeTo = sealedCard.activeToEpochMs.toDate(),
+            cancelledAt = sealedCard.cancelledAtEpochMs?.toDate(),
+            createdAt = sealedCard.createdAtEpochMs.toDate(),
+            updatedAt = sealedCard.updatedAtEpochMs.toDate(),
         )
     }
 
@@ -210,6 +203,9 @@ internal object VirtualCardTransformer {
             CardState.SUSPENDED -> CardStateEntity.SUSPENDED
             CardState.CLOSED -> CardStateEntity.CLOSED
             CardState.FAILED -> CardStateEntity.FAILED
+            CardState.UNKNOWN__ -> throw SudoVirtualCardsClient.VirtualCardException.FailedException(
+                "Unknown CardState",
+            )
         }
     }
 
@@ -218,11 +214,14 @@ internal object VirtualCardTransformer {
             ProvisioningState.PROVISIONING -> ProvisionalVirtualCard.ProvisioningState.PROVISIONING
             ProvisioningState.FAILED -> ProvisionalVirtualCard.ProvisioningState.FAILED
             ProvisioningState.COMPLETED -> ProvisionalVirtualCard.ProvisioningState.COMPLETED
+            ProvisioningState.UNKNOWN__ -> throw SudoVirtualCardsClient.VirtualCardException.FailedException(
+                "Unknown ProvisionalCardState",
+            )
         }
     }
 
     private fun SealedCard.Owner.toOwner(): Owner {
-        return Owner(id = fragments().owner().id(), issuer = fragments().owner().issuer())
+        return Owner(id = owner.id, issuer = owner.issuer)
     }
 
     private fun List<SealedCard.Owner>.toOwners(): List<Owner> {
@@ -232,27 +231,27 @@ internal object VirtualCardTransformer {
     }
 
     private fun SealedTransaction.toTransaction(deviceKeyManager: DeviceKeyManager): Transaction {
-        val keyInfo = KeyInfo(keyId(), KeyType.PRIVATE_KEY, algorithm())
+        val keyInfo = KeyInfo(keyId, KeyType.PRIVATE_KEY, algorithm)
         val unsealer = Unsealer(deviceKeyManager, keyInfo)
         return Transaction(
-            id = id(),
-            owner = owner(),
-            version = version(),
-            cardId = cardId(),
-            sequenceId = sequenceId(),
-            type = type().toTransactionType(),
-            billedAmount = unsealer.unsealAmount(billedAmount().fragments().sealedCurrencyAmountAttribute()),
-            transactedAmount = unsealer.unsealAmount(transactedAmount().fragments().sealedCurrencyAmountAttribute()),
-            description = unsealer.unseal(description()),
-            declineReason = declineReason()?.let { unsealer.unseal(it).toDeclineReason() },
-            transactedAt = unsealer.unseal(transactedAtEpochMs()).toDouble().toDate(),
-            createdAt = createdAtEpochMs().toDate(),
-            updatedAt = updatedAtEpochMs().toDate(),
+            id = id,
+            owner = owner,
+            version = version,
+            cardId = cardId,
+            sequenceId = sequenceId,
+            type = type.toTransactionType(),
+            billedAmount = unsealer.unsealAmount(billedAmount.sealedCurrencyAmountAttribute),
+            transactedAmount = unsealer.unsealAmount(transactedAmount.sealedCurrencyAmountAttribute),
+            description = unsealer.unseal(description),
+            declineReason = declineReason?.let { unsealer.unseal(it).toDeclineReason() },
+            transactedAt = unsealer.unseal(transactedAtEpochMs).toDouble().toDate(),
+            createdAt = createdAtEpochMs.toDate(),
+            updatedAt = updatedAtEpochMs.toDate(),
         )
     }
 
     private fun TransactionType.toTransactionType(): TransactionTypeEntity {
-        for (txnType in TransactionTypeEntity.values()) {
+        for (txnType in TransactionTypeEntity.entries) {
             if (txnType.name == this.name) {
                 return txnType
             }
@@ -261,7 +260,7 @@ internal object VirtualCardTransformer {
     }
 
     private fun String.toDeclineReason(): DeclineReason {
-        for (value in DeclineReason.values()) {
+        for (value in DeclineReason.entries) {
             if (value.name == this) {
                 return value
             }

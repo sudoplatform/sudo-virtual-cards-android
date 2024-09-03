@@ -1,12 +1,7 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.amazonaws.appsync'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 apply plugin: "org.owasp.dependencycheck"
-
-node {
-    version = "16.18.0"
-}
 
 android {
     compileSdk 34
@@ -17,7 +12,7 @@ android {
         minSdkVersion 26
         targetSdkVersion 34
         versionCode = 1
-        versionName = "15.0.0"
+        versionName = "16.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testApplicationId = "com.sudoplatform.sudovirtualcards.test"
         consumerProguardFiles 'consumer-rules.pro'
@@ -87,7 +82,6 @@ dependencies {
     // Follow the process at https://anonyome.atlassian.net/wiki/spaces/PLA/pages/840073287/AWS+Android+SDK+versions+to+use+for+platform+SDKs
     // for updating AWS SDK versions.
     implementation "com.amazonaws:aws-android-sdk-core:$aws_version!!"
-    implementation "com.amazonaws:aws-android-sdk-appsync:$appsync_version!!"
     constraints {
         implementation("com.google.android.gms:play-services-basement:18.1.0") {
             because("Versions < 18.1.0 have CVE-2022-1799")
@@ -100,8 +94,9 @@ dependencies {
     implementation "com.sudoplatform:sudokeymanager:8.0.0"
     implementation "com.sudoplatform:sudologging:5.0.0"
     implementation "com.sudoplatform:sudoconfigmanager:8.0.0"
-    implementation 'com.sudoplatform:sudouser:19.0.0'
-    implementation 'com.sudoplatform:sudoapiclient:10.0.0'
+    implementation "com.sudoplatform:sudouser:20.0.0"
+    implementation "com.sudoplatform:sudoapiclient:11.1.1"
+
 
     // Testing
     testImplementation "junit:junit:4.13.2"
@@ -115,9 +110,10 @@ dependencies {
     testImplementation "com.jakewharton.timber:timber:5.0.1"
     testImplementation "commons-codec:commons-codec:1.17.0"
     testImplementation 'org.bouncycastle:bcpkix-jdk15to18:1.76'
+    testImplementation "org.json:json:20240303"
+
     // Stripe
-    // Version > 20.5.0 require a minimum compile SDK version of 32
-    androidTestImplementation 'com.stripe:stripe-android:20.5.0'
+    androidTestImplementation 'com.stripe:stripe-android:20.48.1'
 
     // Checkout.com
     androidTestImplementation 'com.github.checkout:frames-android:3.1.2'
@@ -132,16 +128,16 @@ dependencies {
     }
 
     androidTestImplementation "androidx.test.ext:junit:1.2.1"
-    androidTestImplementation "androidx.test:runner:1.6.1"
+    androidTestImplementation "androidx.test:runner:1.6.2"
     androidTestImplementation "androidx.test:core:1.6.1"
     androidTestImplementation "io.kotlintest:kotlintest-assertions:$kotlintest_version"
     androidTestImplementation "com.jakewharton.timber:timber:5.0.1"
     androidTestImplementation 'org.awaitility:awaitility-kotlin:3.1.6'
-    androidTestImplementation 'com.sudoplatform:sudoidentityverification:13.0.0'
-    androidTestImplementation 'com.sudoplatform:sudoentitlements:11.0.0'
-    androidTestImplementation 'com.sudoplatform:sudoentitlementsadmin:9.0.0'
-    androidTestImplementation 'com.sudoplatform:sudovirtualcardssimulator:8.0.0'
-    androidTestImplementation "com.sudoplatform:sudoprofiles:15.0.0"
+    androidTestImplementation 'com.sudoplatform:sudoidentityverification:16.0.0'
+    androidTestImplementation 'com.sudoplatform:sudoentitlements:12.0.2'
+    androidTestImplementation 'com.sudoplatform:sudoentitlementsadmin:10.0.0'
+    androidTestImplementation 'com.sudoplatform:sudovirtualcardssimulator:10.0.0'
+    androidTestImplementation "com.sudoplatform:sudoprofiles:16.0.0"
 }
 
 // Returns a list of `configurations` which should not be scanned for vulnerabilities
@@ -186,6 +182,9 @@ afterEvaluate {
                 warnOnlyOnRemoteErrors = true
             }
         }
+    }
+    tasks.named("sourceReleaseJar") {
+        dependsOn("generateServiceApolloSources")
     }
 }
 
@@ -232,10 +231,21 @@ kotlinter {
     ignoreFailures = false
     reporters = ['checkstyle', 'plain']
 }
+// Exclude the apollographql-generated classes from linting
+tasks.formatKotlinMain {
+    exclude { it.file.path.contains("generated/")}
+}
+
+tasks.lintKotlinMain {
+    exclude { it.file.path.contains("generated/")}
+}
 
 // Apollo Code Generation
+apply plugin: "com.apollographql.apollo3"
 apollo {
-    outputPackageName = "com.sudoplatform.sudovirtualcards.graphql"
+    service("service") {
+        packageName.set("com.sudoplatform.sudovirtualcards.graphql")
+    }
 }
 
 // Jacoco test coverage

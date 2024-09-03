@@ -1,12 +1,12 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.sudoplatform.sudovirtualcards.subscription
 
-import com.amazonaws.mobileconnectors.appsync.AppSyncSubscriptionCall
+import com.amplifyframework.api.graphql.GraphQLOperation
 
 /**
  * Manages subscriptions for a specific GraphQL subscription.
@@ -21,19 +21,7 @@ internal open class SubscriptionManager<T, S : Subscriber> {
     /**
      * AppSync subscription watcher.
      */
-    internal var watcher: AppSyncSubscriptionCall<T>? = null
-
-    /**
-     * Watcher that has not been fully initialized yet. We need to make this
-     * distinction because there's a bug in AWSAppSync SDK that causes a crash
-     * when a partially initialized watcher is used. This can happen if the
-     * subscription creation fails due to a network error. Although the watcher
-     * is valid in this situation, it's possible that some internal state is
-     * yet to be set by the time the control is returned to the consumer via a
-     * callback. We will remove this once AWS has fixed the issue. We are using
-     * a separate variable to make the removal easier in the future.
-     */
-    internal var pendingWatcher: AppSyncSubscriptionCall<T>? = null
+    internal var watcher: GraphQLOperation<T>? = null
 
     protected fun getSubscribers(): MutableMap<String, S> {
         return this.subscribers
@@ -63,7 +51,6 @@ internal open class SubscriptionManager<T, S : Subscriber> {
             if (subscribers.isEmpty()) {
                 watcher?.cancel()
                 watcher = null
-                pendingWatcher = null
             }
         }
     }
@@ -76,7 +63,6 @@ internal open class SubscriptionManager<T, S : Subscriber> {
             subscribers.clear()
             watcher?.cancel()
             watcher = null
-            pendingWatcher = null
         }
     }
 
@@ -95,11 +81,10 @@ internal open class SubscriptionManager<T, S : Subscriber> {
             // If the subscription was disconnected then remove all subscribers.
             if (state == Subscriber.ConnectionState.DISCONNECTED) {
                 subscribers.clear()
-                if (watcher?.isCanceled == false) {
+                if (watcher != null) {
                     watcher?.cancel()
                 }
                 watcher = null
-                pendingWatcher = null
             }
         }
 

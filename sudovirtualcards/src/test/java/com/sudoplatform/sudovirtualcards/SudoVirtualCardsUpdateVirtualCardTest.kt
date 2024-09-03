@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -7,20 +7,16 @@
 package com.sudoplatform.sudovirtualcards
 
 import android.content.Context
-import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
-import com.apollographql.apollo.api.Response
-import com.apollographql.apollo.exception.ApolloHttpException
+import com.amplifyframework.api.ApiCategory
+import com.amplifyframework.api.graphql.GraphQLOperation
+import com.amplifyframework.api.graphql.GraphQLResponse
+import com.amplifyframework.core.Consumer
 import com.sudoplatform.sudokeymanager.KeyManagerException
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
-import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
+import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.graphql.UpdateVirtualCardMutation
-import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAddressAttribute
-import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCard
-import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCardWithLastTransaction
-import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedExpiryAttribute
-import com.sudoplatform.sudovirtualcards.graphql.type.AddressInput
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
 import com.sudoplatform.sudovirtualcards.graphql.type.CardUpdateRequest
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
@@ -36,15 +32,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.Protocol
-import okhttp3.ResponseBody.Companion.toResponseBody
+import org.json.JSONObject
 import org.junit.After
-import org.junit.Before
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argThat
 import org.mockito.kotlin.check
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
@@ -52,6 +48,7 @@ import org.mockito.kotlin.stub
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 import java.net.HttpURLConnection
 import java.util.Date
 import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
@@ -61,47 +58,6 @@ import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
  * using mocks and spies.
  */
 class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
-
-    private val address by before {
-        AddressInput.builder()
-            .addressLine1("addressLine1")
-            .addressLine2("addressLine2")
-            .city("city")
-            .state("state")
-            .postalCode("postalCode")
-            .country("country")
-            .build()
-    }
-
-    private val billingAddress by before {
-        SealedCard.BillingAddress(
-            "BillingAddress",
-            SealedCard.BillingAddress.Fragments(
-                SealedAddressAttribute(
-                    "SealedAddressAttribute",
-                    mockSeal("addressLine1"),
-                    mockSeal("addressLine2"),
-                    mockSeal("city"),
-                    mockSeal("state"),
-                    mockSeal("postalCode"),
-                    mockSeal("country"),
-                ),
-            ),
-        )
-    }
-
-    private val expiry by before {
-        SealedCard.Expiry(
-            "Expiry",
-            SealedCard.Expiry.Fragments(
-                SealedExpiryAttribute(
-                    "SealedExpiryAttribute",
-                    mockSeal("01"),
-                    mockSeal("2021"),
-                ),
-            ),
-        )
-    }
 
     private val input by before {
         UpdateVirtualCardInput(
@@ -119,63 +75,50 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         )
     }
 
-    private val mutationRequest by before {
-        CardUpdateRequest.builder()
-            .id("id")
-            .keyId("keyId")
-            .expectedVersion(1)
-            .cardHolder("cardHolder")
-            .alias("alias")
-            .billingAddress(address)
-            .build()
-    }
-
-    private val mutationResult by before {
-        UpdateVirtualCardMutation.UpdateCard(
-            "UpdateCard",
-            UpdateVirtualCardMutation.UpdateCard.Fragments(
-                SealedCardWithLastTransaction(
-                    "SealedCardWithLastTransaction",
-                    null,
-                    SealedCardWithLastTransaction.Fragments(
-                        SealedCard(
-                            "SealedCard",
-                            "id",
-                            "owner",
-                            2,
-                            1.0,
-                            1.0,
-                            "algorithm",
-                            "keyId",
-                            "keyRingId",
-                            emptyList(),
-                            "fundingSourceId",
-                            "currency",
-                            CardState.ISSUED,
-                            1.0,
-                            null,
-                            "last4",
-                            mockSeal("newCardHolder"),
-                            mockSeal("newAlias"),
-                            mockSeal("pan"),
-                            mockSeal("csc"),
-                            billingAddress,
-                            expiry,
-                            null,
-                        ),
-                    ),
-                ),
-            ),
+    private val mutationResponse by before {
+        JSONObject(
+            """
+                {
+                    'updateCard': {
+                        '__typename': 'SealedCard',
+                        'id':'id',
+                        'owner': 'owner',
+                        'version': 2,
+                        'createdAtEpochMs': 1.0,
+                        'updatedAtEpochMs': 1.0,
+                        'algorithm': 'algorithm',
+                        'keyId': 'keyId',
+                        'keyRingId': 'keyRingId',
+                        'owners': [],
+                        'fundingSourceId': 'fundingSourceId',
+                        'currency': 'currency',
+                        'state': '${CardState.ISSUED}',
+                        'activeToEpochMs': 1.0,
+                        'cancelledAtEpochMs': null,
+                        'last4': 'last4',
+                        'cardHolder': '${mockSeal("cardHolder")}',
+                        'alias': '${mockSeal("newAlias")}',
+                        'pan': '${mockSeal("pan")}',
+                        'csc': '${mockSeal("csc")}',
+                        'billingAddress':  {
+                            '__typename': 'BillingAddress',
+                            'addressLine1': '${mockSeal("addressLine1")}',
+                            'addressLine2': '${mockSeal("addressLine2")}',
+                            'city': '${mockSeal("city")}',
+                            'state': '${mockSeal("state")}',
+                            'postalCode': '${mockSeal("postalCode")}',
+                            'country': '${mockSeal("country")}'
+                        },
+                        'expiry': {
+                            '__typename': 'Expiry',
+                            'mm': '${mockSeal("01")}',
+                            'yyyy': '${mockSeal("2021")}'
+                        },
+                    }
+                }
+            """.trimIndent(),
         )
     }
-
-    private val mutationResponse by before {
-        Response.builder<UpdateVirtualCardMutation.Data>(UpdateVirtualCardMutation(mutationRequest))
-            .data(UpdateVirtualCardMutation.Data(mutationResult))
-            .build()
-    }
-
-    private val mutationHolder = CallbackHolder<UpdateVirtualCardMutation.Data>()
 
     private val mockContext by before {
         mock<Context>()
@@ -198,9 +141,21 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         }
     }
 
-    private val mockAppSyncClient by before {
-        mock<AWSAppSyncClient>().stub {
-            on { mutate(any<UpdateVirtualCardMutation>()) } doReturn mutationHolder.mutationOperation
+    private val mockApiCategory by before {
+        mock<ApiCategory>().stub {
+            on {
+                mutate<String>(
+                    argThat { this.query.equals(UpdateVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(), any(),
+                )
+            } doAnswer {
+                val mockOperation: GraphQLOperation<String> = mock()
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(mutationResponse.toString(), null),
+                )
+                mockOperation
+            }
         }
     }
 
@@ -218,16 +173,11 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         SudoVirtualCardsClient.builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
-            .setAppSyncClient(mockAppSyncClient)
+            .setGraphQLClient(GraphQLClient(mockApiCategory))
             .setKeyManager(mockKeyManager)
             .setLogger(mock())
             .setPublicKeyService(mockPublicKeyService)
             .build()
-    }
-
-    @Before
-    fun init() {
-        mutationHolder.callback = null
     }
 
     @After
@@ -237,23 +187,18 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             mockUserClient,
             mockKeyManager,
             mockPublicKeyService,
-            mockAppSyncClient,
+            mockApiCategory,
         )
     }
 
     @Test
     fun `updateVirtualCard() should return success result when no error present`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
         val deferredResult = async(Dispatchers.IO) {
             client.updateVirtualCard(input)
         }
         deferredResult.start()
 
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(mutationResponse)
-
         val updateCard = deferredResult.await()
         updateCard shouldNotBe null
 
@@ -282,20 +227,8 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             }
         }
 
-        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().expectedVersion() shouldBe 10
-                it.variables().input().cardHolder() shouldBe "newCardHolder"
-                it.variables().input().alias() shouldBe "newAlias"
-                it.variables().input().billingAddress()?.addressLine1() shouldBe "addressLine1"
-                it.variables().input().billingAddress()?.addressLine2() shouldBe "addressLine2"
-                it.variables().input().billingAddress()?.city() shouldBe "city"
-                it.variables().input().billingAddress()?.state() shouldBe "state"
-                it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
-                it.variables().input().billingAddress()?.country() shouldBe "country"
-            },
-        )
+        verifyUpdateVirtualCardMutation()
+
         verify(mockPublicKeyService).getCurrentKey()
         verify(mockKeyManager, times(12)).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockKeyManager, times(12)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
@@ -313,8 +246,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         deferredResult.start()
 
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(mutationResponse)
+        deferredResult.await()
 
         val updateCard = deferredResult.await()
         updateCard shouldNotBe null
@@ -339,32 +271,27 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             }
         }
 
-        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().expectedVersion() shouldBe 10
-                it.variables().input().cardHolder() shouldBe "newCardHolder"
-                it.variables().input().alias() shouldBe "newAlias"
-                it.variables().input().billingAddress()?.addressLine1() shouldBe "addressLine1"
-                it.variables().input().billingAddress()?.addressLine2() shouldBe "addressLine2"
-                it.variables().input().billingAddress()?.city() shouldBe "city"
-                it.variables().input().billingAddress()?.state() shouldBe "state"
-                it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
-                it.variables().input().billingAddress()?.country() shouldBe "country"
-            },
-        )
+        verifyUpdateVirtualCardMutation()
+
         verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
     fun `updateVirtualCard() should throw when response is null`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        val nullMutationResponse by before {
-            Response.builder<UpdateVirtualCardMutation.Data>(UpdateVirtualCardMutation(mutationRequest))
-                .data(null)
-                .build()
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(UpdateVirtualCardMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, null),
+            )
+            mockOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -375,42 +302,37 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         deferredResult.start()
 
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(nullMutationResponse)
+        deferredResult.await()
 
-        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().expectedVersion() shouldBe 10
-                it.variables().input().cardHolder() shouldBe "newCardHolder"
-                it.variables().input().alias() shouldBe "newAlias"
-                it.variables().input().billingAddress()?.addressLine1() shouldBe "addressLine1"
-                it.variables().input().billingAddress()?.addressLine2() shouldBe "addressLine2"
-                it.variables().input().billingAddress()?.city() shouldBe "city"
-                it.variables().input().billingAddress()?.state() shouldBe "state"
-                it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
-                it.variables().input().billingAddress()?.country() shouldBe "country"
-            },
-        )
+        verifyUpdateVirtualCardMutation()
+
         verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
     fun `updateVirtualCard() should throw when mutation response has an identity verification error`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        val errorMutationResponse by before {
-            val error = com.apollographql.apollo.api.Error(
+        val errors = listOf(
+            GraphQLResponse.Error(
                 "mock",
-                emptyList(),
+                null,
+                null,
                 mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(UpdateVirtualCardMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
             )
-            Response.builder<UpdateVirtualCardMutation.Data>(UpdateVirtualCardMutation(mutationRequest))
-                .errors(listOf(error))
-                .data(null)
-                .build()
+            mockOperation
         }
-
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<SudoVirtualCardsClient.VirtualCardException.IdentityVerificationException> {
                 client.updateVirtualCard(input)
@@ -419,40 +341,36 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         deferredResult.start()
 
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(errorMutationResponse)
+        deferredResult.await()
 
-        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().expectedVersion() shouldBe 10
-                it.variables().input().cardHolder() shouldBe "newCardHolder"
-                it.variables().input().alias() shouldBe "newAlias"
-                it.variables().input().billingAddress()?.addressLine1() shouldBe "addressLine1"
-                it.variables().input().billingAddress()?.addressLine2() shouldBe "addressLine2"
-                it.variables().input().billingAddress()?.city() shouldBe "city"
-                it.variables().input().billingAddress()?.state() shouldBe "state"
-                it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
-                it.variables().input().billingAddress()?.country() shouldBe "country"
-            },
-        )
+        verifyUpdateVirtualCardMutation()
+
         verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
     fun `updateVirtualCard() should throw when response has a card not found error`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        val errorMutationResponse by before {
-            val error = com.apollographql.apollo.api.Error(
+        val errors = listOf(
+            GraphQLResponse.Error(
                 "mock",
-                emptyList(),
+                null,
+                null,
                 mapOf("errorType" to "CardNotFoundError"),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(UpdateVirtualCardMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
             )
-            Response.builder<UpdateVirtualCardMutation.Data>(UpdateVirtualCardMutation(mutationRequest))
-                .errors(listOf(error))
-                .data(null)
-                .build()
+            mockOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -463,42 +381,37 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         deferredResult.start()
 
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(errorMutationResponse)
+        deferredResult.await()
 
-        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().expectedVersion() shouldBe 10
-                it.variables().input().cardHolder() shouldBe "newCardHolder"
-                it.variables().input().alias() shouldBe "newAlias"
-                it.variables().input().billingAddress()?.addressLine1() shouldBe "addressLine1"
-                it.variables().input().billingAddress()?.addressLine2() shouldBe "addressLine2"
-                it.variables().input().billingAddress()?.city() shouldBe "city"
-                it.variables().input().billingAddress()?.state() shouldBe "state"
-                it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
-                it.variables().input().billingAddress()?.country() shouldBe "country"
-            },
-        )
+        verifyUpdateVirtualCardMutation()
+
         verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
     fun `updateVirtualCard() should throw when response has an invalid card state error`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        val errorMutationResponse by before {
-            val error = com.apollographql.apollo.api.Error(
+        val errors = listOf(
+            GraphQLResponse.Error(
                 "mock",
-                emptyList(),
+                null,
+                null,
                 mapOf("errorType" to "CardStateError"),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(UpdateVirtualCardMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
             )
-            Response.builder<UpdateVirtualCardMutation.Data>(UpdateVirtualCardMutation(mutationRequest))
-                .errors(listOf(error))
-                .data(null)
-                .build()
+            mockOperation
         }
-
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<SudoVirtualCardsClient.VirtualCardException.CardStateException> {
                 client.updateVirtualCard(input)
@@ -507,23 +420,9 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         deferredResult.start()
 
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(errorMutationResponse)
+        deferredResult.await()
+        verifyUpdateVirtualCardMutation()
 
-        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().expectedVersion() shouldBe 10
-                it.variables().input().cardHolder() shouldBe "newCardHolder"
-                it.variables().input().alias() shouldBe "newAlias"
-                it.variables().input().billingAddress()?.addressLine1() shouldBe "addressLine1"
-                it.variables().input().billingAddress()?.addressLine2() shouldBe "addressLine2"
-                it.variables().input().billingAddress()?.city() shouldBe "city"
-                it.variables().input().billingAddress()?.state() shouldBe "state"
-                it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
-                it.variables().input().billingAddress()?.country() shouldBe "country"
-            },
-        )
         verify(mockPublicKeyService).getCurrentKey()
     }
 
@@ -542,8 +441,14 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
     @Test
     fun `updateVirtualCard() should throw when unsealing fails`() = runBlocking<Unit> {
-        mockAppSyncClient.stub {
-            on { mutate(any<UpdateVirtualCardMutation>()) } doThrow Unsealer.UnsealerException.SealedDataTooShortException(
+        mockApiCategory.stub {
+            on {
+                mutate<String>(
+                    argThat { this.query.equals(UpdateVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                )
+            } doThrow Unsealer.UnsealerException.SealedDataTooShortException(
                 "Mock Unsealer Exception",
             )
         }
@@ -552,27 +457,35 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             client.updateVirtualCard(input)
         }
 
-        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().expectedVersion() shouldBe 10
-                it.variables().input().cardHolder() shouldBe "newCardHolder"
-                it.variables().input().alias() shouldBe "newAlias"
-                it.variables().input().billingAddress()?.addressLine1() shouldBe "addressLine1"
-                it.variables().input().billingAddress()?.addressLine2() shouldBe "addressLine2"
-                it.variables().input().billingAddress()?.city() shouldBe "city"
-                it.variables().input().billingAddress()?.state() shouldBe "state"
-                it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
-                it.variables().input().billingAddress()?.country() shouldBe "country"
-            },
-        )
+        verifyUpdateVirtualCardMutation()
+
         verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
     fun `updateVirtualCard() should throw when http error occurs`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
+        val errors = listOf(
+            GraphQLResponse.Error(
+                "mock",
+                null,
+                null,
+                mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(UpdateVirtualCardMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
+            )
+            mockOperation
+        }
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<SudoVirtualCardsClient.VirtualCardException.UpdateFailedException> {
                 client.updateVirtualCard(input)
@@ -580,48 +493,23 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         }
         deferredResult.start()
         delay(100L)
-
-        val request = okhttp3.Request.Builder()
-            .get()
-            .url("http://www.smh.com.au")
-            .build()
-        val responseBody = "{}".toResponseBody("application/json; charset=utf-8".toMediaType())
-        val forbidden = okhttp3.Response.Builder()
-            .protocol(Protocol.HTTP_1_1)
-            .code(HttpURLConnection.HTTP_FORBIDDEN)
-            .request(request)
-            .message("Forbidden")
-            .body(responseBody)
-            .build()
-
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onHttpError(ApolloHttpException(forbidden))
-
         deferredResult.await()
 
-        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().expectedVersion() shouldBe 10
-                it.variables().input().cardHolder() shouldBe "newCardHolder"
-                it.variables().input().alias() shouldBe "newAlias"
-                it.variables().input().billingAddress()?.addressLine1() shouldBe "addressLine1"
-                it.variables().input().billingAddress()?.addressLine2() shouldBe "addressLine2"
-                it.variables().input().billingAddress()?.city() shouldBe "city"
-                it.variables().input().billingAddress()?.state() shouldBe "state"
-                it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
-                it.variables().input().billingAddress()?.country() shouldBe "country"
-            },
-        )
+        verifyUpdateVirtualCardMutation()
+
         verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
     fun `updateVirtualCard() should throw when unknown error occurs()`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        mockAppSyncClient.stub {
-            on { mutate(any<UpdateVirtualCardMutation>()) } doThrow RuntimeException("Mock Runtime Exception")
+        mockApiCategory.stub {
+            on {
+                mutate<String>(
+                    argThat { this.query.equals(UpdateVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                )
+            } doThrow RuntimeException("Mock Runtime Exception")
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -634,47 +522,49 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
 
         deferredResult.await()
 
-        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().expectedVersion() shouldBe 10
-                it.variables().input().cardHolder() shouldBe "newCardHolder"
-                it.variables().input().alias() shouldBe "newAlias"
-                it.variables().input().billingAddress()?.addressLine1() shouldBe "addressLine1"
-                it.variables().input().billingAddress()?.addressLine2() shouldBe "addressLine2"
-                it.variables().input().billingAddress()?.city() shouldBe "city"
-                it.variables().input().billingAddress()?.state() shouldBe "state"
-                it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
-                it.variables().input().billingAddress()?.country() shouldBe "country"
-            },
-        )
+        verifyUpdateVirtualCardMutation()
+
         verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
     fun `updateVirtualCard() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-        mockAppSyncClient.stub {
-            on { mutate(any<UpdateVirtualCardMutation>()) } doThrow CancellationException("Mock Cancellation Exception")
+        mockApiCategory.stub {
+            on {
+                mutate<String>(
+                    argThat { this.query.equals(UpdateVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                )
+            } doThrow CancellationException("Mock Cancellation Exception")
         }
 
         shouldThrow<CancellationException> {
             client.updateVirtualCard(input)
         }
 
-        verify(mockAppSyncClient).mutate<UpdateVirtualCardMutation.Data, UpdateVirtualCardMutation, UpdateVirtualCardMutation.Variables>(
-            check {
-                it.variables().input().id() shouldBe "id"
-                it.variables().input().expectedVersion() shouldBe 10
-                it.variables().input().cardHolder() shouldBe "newCardHolder"
-                it.variables().input().alias() shouldBe "newAlias"
-                it.variables().input().billingAddress()?.addressLine1() shouldBe "addressLine1"
-                it.variables().input().billingAddress()?.addressLine2() shouldBe "addressLine2"
-                it.variables().input().billingAddress()?.city() shouldBe "city"
-                it.variables().input().billingAddress()?.state() shouldBe "state"
-                it.variables().input().billingAddress()?.postalCode() shouldBe "postalCode"
-                it.variables().input().billingAddress()?.country() shouldBe "country"
-            },
-        )
+        verifyUpdateVirtualCardMutation()
         verify(mockPublicKeyService).getCurrentKey()
+    }
+
+    private fun verifyUpdateVirtualCardMutation() {
+        verify(mockApiCategory).mutate<String>(
+            check {
+                assertEquals(UpdateVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+                val mutationInput = it.variables["input"] as CardUpdateRequest?
+                mutationInput?.id shouldBe "id"
+                mutationInput?.expectedVersion?.getOrNull() shouldBe 10
+                mutationInput?.cardHolder?.getOrNull() shouldBe "newCardHolder"
+                mutationInput?.alias?.getOrNull() shouldBe "newAlias"
+                mutationInput?.billingAddress?.getOrNull()?.addressLine1 shouldBe "addressLine1"
+                mutationInput?.billingAddress?.getOrNull()?.addressLine2?.getOrNull() shouldBe "addressLine2"
+                mutationInput?.billingAddress?.getOrNull()?.city shouldBe "city"
+                mutationInput?.billingAddress?.getOrNull()?.state shouldBe "state"
+                mutationInput?.billingAddress?.getOrNull()?.postalCode shouldBe "postalCode"
+                mutationInput?.billingAddress?.getOrNull()?.country shouldBe "country"
+            },
+            any(),
+            any(),
+        )
     }
 }

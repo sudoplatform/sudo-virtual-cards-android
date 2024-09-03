@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -8,12 +8,13 @@ package com.sudoplatform.sudovirtualcards.keys
 
 import android.content.Context
 import android.util.Base64
-import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
+import com.amplifyframework.api.ApiCategory
 import com.google.gson.Gson
 import com.sudoplatform.sudokeymanager.KeyManager
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
+import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.BaseTests
 import com.sudoplatform.sudovirtualcards.DefaultSudoVirtualCardsClient
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
@@ -56,8 +57,8 @@ class SudoVirtualCardsImportExportKeysTest : BaseTests() {
         mock<SudoUserClient>()
     }
 
-    private val mockAppSyncClient by before {
-        mock<AWSAppSyncClient>().stub {
+    private val mockApiCategory by before {
+        mock<ApiCategory>().stub {
         }
     }
 
@@ -88,7 +89,7 @@ class SudoVirtualCardsImportExportKeysTest : BaseTests() {
     private val client by before {
         DefaultSudoVirtualCardsClient(
             mockContext,
-            mockAppSyncClient,
+            GraphQLClient(mockApiCategory),
             mockUserClient,
             mockLogger,
             mockDeviceKeyManager,
@@ -98,7 +99,7 @@ class SudoVirtualCardsImportExportKeysTest : BaseTests() {
 
     @After
     fun fini() {
-        verifyNoMoreInteractions(mockContext, mockUserClient, mockKeyManager, mockAppSyncClient)
+        verifyNoMoreInteractions(mockContext, mockUserClient, mockKeyManager, mockApiCategory)
     }
 
     @Test
@@ -129,7 +130,7 @@ class SudoVirtualCardsImportExportKeysTest : BaseTests() {
         val errorClient by before {
             DefaultSudoVirtualCardsClient(
                 mockContext,
-                mockAppSyncClient,
+                GraphQLClient(mockApiCategory),
                 mockUserClient,
                 mockLogger,
                 mockDeviceKeyManager,
@@ -162,7 +163,7 @@ class SudoVirtualCardsImportExportKeysTest : BaseTests() {
         val errorClient by before {
             DefaultSudoVirtualCardsClient(
                 mockContext,
-                mockAppSyncClient,
+                GraphQLClient(mockApiCategory),
                 mockUserClient,
                 mockLogger,
                 mockDeviceKeyManager,
@@ -223,7 +224,7 @@ class SudoVirtualCardsImportExportKeysTest : BaseTests() {
         val importExportClient by before {
             DefaultSudoVirtualCardsClient(
                 mockContext,
-                mockAppSyncClient,
+                GraphQLClient(mockApiCategory),
                 mockUserClient,
                 mockLogger,
                 deviceKeyManager,

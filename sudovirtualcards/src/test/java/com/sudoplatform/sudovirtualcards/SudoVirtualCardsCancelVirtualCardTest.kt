@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -7,20 +7,16 @@
 package com.sudoplatform.sudovirtualcards
 
 import android.content.Context
-import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
-import com.apollographql.apollo.api.Response
-import com.apollographql.apollo.exception.ApolloHttpException
+import com.amplifyframework.api.ApiCategory
+import com.amplifyframework.api.graphql.GraphQLOperation
+import com.amplifyframework.api.graphql.GraphQLResponse
+import com.amplifyframework.core.Consumer
 import com.sudoplatform.sudokeymanager.KeyManagerException
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
-import com.sudoplatform.sudovirtualcards.graphql.CallbackHolder
+import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.graphql.CancelVirtualCardMutation
-import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAddressAttribute
-import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCard
-import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCardWithLastTransaction
-import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedExpiryAttribute
-import com.sudoplatform.sudovirtualcards.graphql.type.CardCancelRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
@@ -34,14 +30,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.Protocol
-import okhttp3.ResponseBody.Companion.toResponseBody
+import org.json.JSONObject
 import org.junit.After
-import org.junit.Before
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argThat
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
@@ -49,6 +45,7 @@ import org.mockito.kotlin.stub
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 import java.net.HttpURLConnection
 import java.util.Date
 import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
@@ -58,90 +55,52 @@ import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
  * using mocks and spies.
  */
 class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
-
-    private val billingAddress by before {
-        SealedCard.BillingAddress(
-            "BillingAddress",
-            SealedCard.BillingAddress.Fragments(
-                SealedAddressAttribute(
-                    "SealedAddressAttribute",
-                    mockSeal("addressLine1"),
-                    mockSeal("addressLine2"),
-                    mockSeal("city"),
-                    mockSeal("state"),
-                    mockSeal("postalCode"),
-                    mockSeal("country"),
-                ),
-            ),
-        )
-    }
-
-    private val expiry by before {
-        SealedCard.Expiry(
-            "Expiry",
-            SealedCard.Expiry.Fragments(
-                SealedExpiryAttribute(
-                    "SealedExpiryAttribute",
-                    mockSeal("01"),
-                    mockSeal("2021"),
-                ),
-            ),
-        )
-    }
-
-    private val mutationRequest by before {
-        CardCancelRequest.builder()
-            .id("id")
-            .keyId("keyId")
-            .build()
-    }
-
-    private val mutationResult by before {
-        CancelVirtualCardMutation.CancelCard(
-            "CancelCard",
-            CancelVirtualCardMutation.CancelCard.Fragments(
-                SealedCardWithLastTransaction(
-                    "SealedCardWithLastTransaction",
-                    null,
-                    SealedCardWithLastTransaction.Fragments(
-                        SealedCard(
-                            "SealedCard",
-                            "id",
-                            "owner",
-                            1,
-                            1.0,
-                            1.0,
-                            "algorithm",
-                            "keyId",
-                            "keyRingId",
-                            emptyList(),
-                            "fundingSourceId",
-                            "currency",
-                            CardState.CLOSED,
-                            1.0,
-                            1.0,
-                            "last4",
-                            mockSeal("newCardHolder"),
-                            mockSeal("newAlias"),
-                            mockSeal("pan"),
-                            mockSeal("csc"),
-                            billingAddress,
-                            expiry,
-                            null,
-                        ),
-                    ),
-                ),
-            ),
-        )
-    }
-
     private val mutationResponse by before {
-        Response.builder<CancelVirtualCardMutation.Data>(CancelVirtualCardMutation(mutationRequest))
-            .data(CancelVirtualCardMutation.Data(mutationResult))
-            .build()
+        JSONObject(
+            """
+                {
+                    'cancelCard': {
+                        '__typename': 'CancelCard',
+                        'lastTransaction': null,
+                        'id':'id',
+                        'owner': 'owner',
+                        'version': 1,
+                        'createdAtEpochMs': 1.0,
+                        'updatedAtEpochMs': 1.0,
+                        'algorithm': 'algorithm',
+                        'keyId': 'keyId',
+                        'keyRingId': 'keyRingId',
+                        'owners': [],
+                        'fundingSourceId': 'fundingSourceId',
+                        'currency': 'currency',
+                        'state': '${CardState.CLOSED}',
+                        'activeToEpochMs': 1.0,
+                        'cancelledAtEpochMs': 1.0,
+                        'last4': 'last4',
+                        'cardHolder': '${mockSeal("newCardHolder")}',
+                        'alias': '${mockSeal("newAlias")}',
+                        'pan': '${mockSeal("pan")}',
+                        'csc': '${mockSeal("csc")}',
+                        'billingAddress':  {
+                            '__typename': 'BillingAddress',
+                            'addressLine1': '${mockSeal("addressLine1")}',
+                            'addressLine2': '${mockSeal("addressLine2")}',
+                            'city': '${mockSeal("city")}',
+                            'state': '${mockSeal("state")}',
+                            'postalCode': '${mockSeal("postalCode")}',
+                            'country': '${mockSeal("country")}'
+                         },
+                        'expiry': {
+                            '__typename': 'Expiry',
+                            'mm': '${mockSeal("01")}',
+                            'yyyy': '${mockSeal("2021")}'
+                         },
+                        'metadata': null
+                    }
+                }
+            """.trimIndent(),
+        )
     }
-
-    private val mutationHolder = CallbackHolder<CancelVirtualCardMutation.Data>()
 
     private val mockContext by before {
         mock<Context>()
@@ -153,9 +112,21 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         }
     }
 
-    private val mockAppSyncClient by before {
-        mock<AWSAppSyncClient>().stub {
-            on { mutate(any<CancelVirtualCardMutation>()) } doReturn mutationHolder.mutationOperation
+    private val mockApiCategory by before {
+        mock<ApiCategory>().stub {
+            on {
+                mutate<String>(
+                    argThat { this.query.equals(CancelVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(), any(),
+                )
+            } doAnswer {
+                val mockOperation: GraphQLOperation<String> = mock()
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(mutationResponse.toString(), null),
+                )
+                mockOperation
+            }
         }
     }
 
@@ -184,36 +155,25 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         SudoVirtualCardsClient.builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
-            .setAppSyncClient(mockAppSyncClient)
+            .setGraphQLClient(GraphQLClient(mockApiCategory))
             .setKeyManager(mockKeyManager)
             .setLogger(mock())
             .setPublicKeyService(mockPublicKeyService)
             .build()
     }
 
-    @Before
-    fun init() {
-        mutationHolder.callback = null
-    }
-
     @After
     fun fini() {
-        verifyNoMoreInteractions(mockContext, mockUserClient, mockKeyManager, mockAppSyncClient)
+        verifyNoMoreInteractions(mockContext, mockUserClient, mockKeyManager, mockApiCategory)
     }
 
     @Test
     fun `cancelVirtualCard() should return success result when no error present`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
         val deferredResult = async(Dispatchers.IO) {
             client.cancelVirtualCard("id")
         }
         deferredResult.start()
-
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(mutationResponse)
-
         val cancelCard = deferredResult.await()
         cancelCard shouldNotBe null
 
@@ -244,7 +204,13 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         }
 
         verify(mockPublicKeyService).getCurrentKey()
-        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
+        verify(mockApiCategory).mutate<String>(
+            org.mockito.kotlin.check {
+                assertEquals(CancelVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
         verify(mockKeyManager, times(12)).decryptWithPrivateKey(anyString(), any(), any())
         verify(mockKeyManager, times(12)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
     }
@@ -261,9 +227,6 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         deferredResult.start()
 
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(mutationResponse)
-
         val cancelCard = deferredResult.await()
         cancelCard shouldNotBe null
 
@@ -288,18 +251,31 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         }
 
         verify(mockPublicKeyService).getCurrentKey()
-        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
+        verify(mockApiCategory).mutate<String>(
+            org.mockito.kotlin.check {
+                assertEquals(CancelVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
         verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
     }
 
     @Test
     fun `cancelVirtualCard() should throw when response is null`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        val nullMutationResponse by before {
-            Response.builder<CancelVirtualCardMutation.Data>(CancelVirtualCardMutation(mutationRequest))
-                .data(null)
-                .build()
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(CancelVirtualCardMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, null),
+            )
+            mockOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -310,27 +286,41 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         deferredResult.start()
 
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(nullMutationResponse)
+        deferredResult.await()
 
         verify(mockPublicKeyService).getCurrentKey()
-        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
+        verify(mockApiCategory).mutate<String>(
+            org.mockito.kotlin.check {
+                assertEquals(CancelVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
     }
 
     @Test
     fun `cancelVirtualCard() should throw when mutation response has an identity verification error`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        val errorMutationResponse by before {
-            val error = com.apollographql.apollo.api.Error(
+        val errors = listOf(
+            GraphQLResponse.Error(
                 "mock",
-                emptyList(),
+                null,
+                null,
                 mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(CancelVirtualCardMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
             )
-            Response.builder<CancelVirtualCardMutation.Data>(CancelVirtualCardMutation(mutationRequest))
-                .errors(listOf(error))
-                .data(null)
-                .build()
+            mockOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -341,27 +331,41 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         deferredResult.start()
 
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(errorMutationResponse)
+        deferredResult.await()
 
         verify(mockPublicKeyService).getCurrentKey()
-        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
+        verify(mockApiCategory).mutate<String>(
+            org.mockito.kotlin.check {
+                assertEquals(CancelVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
     }
 
     @Test
     fun `cancelVirtualCard() should throw when response has card not found error`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        val errorMutationResponse by before {
-            val error = com.apollographql.apollo.api.Error(
+        val errors = listOf(
+            GraphQLResponse.Error(
                 "mock",
-                emptyList(),
+                null,
+                null,
                 mapOf("errorType" to "CardNotFoundError"),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(CancelVirtualCardMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
             )
-            Response.builder<CancelVirtualCardMutation.Data>(CancelVirtualCardMutation(mutationRequest))
-                .errors(listOf(error))
-                .data(null)
-                .build()
+            mockOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -370,29 +374,42 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
             }
         }
         deferredResult.start()
-
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(errorMutationResponse)
+        deferredResult.await()
 
         verify(mockPublicKeyService).getCurrentKey()
-        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
+        verify(mockApiCategory).mutate<String>(
+            org.mockito.kotlin.check {
+                assertEquals(CancelVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
     }
 
     @Test
     fun `cancelVirtualCard() should throw when response has an account locked error`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        val errorMutationResponse by before {
-            val error = com.apollographql.apollo.api.Error(
+        val errors = listOf(
+            GraphQLResponse.Error(
                 "mock",
-                emptyList(),
+                null,
+                null,
                 mapOf("errorType" to "AccountLockedError"),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(CancelVirtualCardMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
             )
-            Response.builder<CancelVirtualCardMutation.Data>(CancelVirtualCardMutation(mutationRequest))
-                .errors(listOf(error))
-                .data(null)
-                .build()
+            mockOperation
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -401,13 +418,15 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
             }
         }
         deferredResult.start()
-
         delay(100L)
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onResponse(errorMutationResponse)
-
         verify(mockPublicKeyService).getCurrentKey()
-        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
+        verify(mockApiCategory).mutate<String>(
+            org.mockito.kotlin.check {
+                assertEquals(CancelVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
     }
 
     @Test
@@ -427,8 +446,14 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
     @Test
     fun `cancelVirtualCard() should throw when unsealing fails`() = runBlocking<Unit> {
-        mockAppSyncClient.stub {
-            on { mutate(any<CancelVirtualCardMutation>()) } doThrow Unsealer.UnsealerException.SealedDataTooShortException(
+        mockApiCategory.stub {
+            on {
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(CancelVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                )
+            } doThrow Unsealer.UnsealerException.SealedDataTooShortException(
                 "Mock Unsealer Exception",
             )
         }
@@ -437,14 +462,40 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
             client.cancelVirtualCard("id")
         }
 
-        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
+        verify(mockApiCategory).mutate<String>(
+            org.mockito.kotlin.check {
+                assertEquals(CancelVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
         verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
     fun `cancelVirtualCard() should throw when http error occurs`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
+        val errors = listOf(
+            GraphQLResponse.Error(
+                "mock",
+                null,
+                null,
+                mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
+            ),
+        )
+        val mockOperation: GraphQLOperation<String> = mock()
+        whenever(
+            mockApiCategory.mutate<String>(
+                argThat { this.query.equals(CancelVirtualCardMutation.OPERATION_DOCUMENT) },
+                any(),
+                any(),
+            ),
+        ).thenAnswer {
+            @Suppress("UNCHECKED_CAST")
+            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                GraphQLResponse(null, errors),
+            )
+            mockOperation
+        }
         val deferredResult = async(Dispatchers.IO) {
             shouldThrow<SudoVirtualCardsClient.VirtualCardException.CancelFailedException> {
                 client.cancelVirtualCard("id")
@@ -452,35 +503,28 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
         }
         deferredResult.start()
         delay(100L)
-
-        val request = okhttp3.Request.Builder()
-            .get()
-            .url("http://www.smh.com.au")
-            .build()
-        val responseBody = "{}".toResponseBody("application/json; charset=utf-8".toMediaType())
-        val forbidden = okhttp3.Response.Builder()
-            .protocol(Protocol.HTTP_1_1)
-            .code(HttpURLConnection.HTTP_FORBIDDEN)
-            .request(request)
-            .message("Forbidden")
-            .body(responseBody)
-            .build()
-
-        mutationHolder.callback shouldNotBe null
-        mutationHolder.callback?.onHttpError(ApolloHttpException(forbidden))
-
         deferredResult.await()
 
-        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
+        verify(mockApiCategory).mutate<String>(
+            org.mockito.kotlin.check {
+                assertEquals(CancelVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
         verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
     fun `cancelVirtualCard() should throw when unknown error occurs()`() = runBlocking<Unit> {
-        mutationHolder.callback shouldBe null
-
-        mockAppSyncClient.stub {
-            on { mutate(any<CancelVirtualCardMutation>()) } doThrow RuntimeException("Mock Runtime Exception")
+        mockApiCategory.stub {
+            on {
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(CancelVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                )
+            } doThrow RuntimeException("Mock Runtime Exception")
         }
 
         val deferredResult = async(Dispatchers.IO) {
@@ -493,21 +537,39 @@ class SudoVirtualCardsCancelVirtualCardTest : BaseTests() {
 
         deferredResult.await()
 
-        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
+        verify(mockApiCategory).mutate<String>(
+            org.mockito.kotlin.check {
+                assertEquals(CancelVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
         verify(mockPublicKeyService).getCurrentKey()
     }
 
     @Test
     fun `cancelVirtualCard() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-        mockAppSyncClient.stub {
-            on { mutate(any<CancelVirtualCardMutation>()) } doThrow CancellationException("Mock Cancellation Exception")
+        mockApiCategory.stub {
+            on {
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(CancelVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                )
+            } doThrow CancellationException("Mock Cancellation Exception")
         }
 
         shouldThrow<CancellationException> {
             client.cancelVirtualCard("id")
         }
 
-        verify(mockAppSyncClient).mutate(any<CancelVirtualCardMutation>())
+        verify(mockApiCategory).mutate<String>(
+            org.mockito.kotlin.check {
+                assertEquals(CancelVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+            },
+            any(),
+            any(),
+        )
         verify(mockPublicKeyService).getCurrentKey()
     }
 }

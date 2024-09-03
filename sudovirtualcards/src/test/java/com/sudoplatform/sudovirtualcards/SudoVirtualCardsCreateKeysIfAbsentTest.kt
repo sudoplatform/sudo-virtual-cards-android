@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -7,9 +7,10 @@
 package com.sudoplatform.sudovirtualcards
 
 import android.content.Context
-import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
+import com.amplifyframework.api.ApiCategory
 import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SudoUserClient
+import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.keys.DeviceKey
 import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
@@ -24,7 +25,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
@@ -70,8 +70,8 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
         mock<SudoUserClient>()
     }
 
-    private val mockAppSyncClient by before {
-        mock<AWSAppSyncClient>()
+    private val mockApiCategory by before {
+        mock<ApiCategory>()
     }
 
     private val mockDeviceKeyManager by before {
@@ -85,7 +85,7 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
 
     private val mockPublicKeyService by before {
         mock<PublicKeyService>().stub {
-            onBlocking { get(anyString(), any()) } doReturn PublicKeyWithKeyRingId(
+            onBlocking { get(anyString()) } doReturn PublicKeyWithKeyRingId(
                 publicKey = publicKey,
                 keyRingId = keyRingId,
             )
@@ -97,7 +97,7 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
     private val client by before {
         DefaultSudoVirtualCardsClient(
             mockContext,
-            mockAppSyncClient,
+            GraphQLClient(mockApiCategory),
             mockUserClient,
             mockLogger,
             mockDeviceKeyManager,
@@ -110,7 +110,7 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
         verifyNoMoreInteractions(
             mockContext,
             mockUserClient,
-            mockAppSyncClient,
+            mockApiCategory,
             mockDeviceKeyManager,
             mockPublicKeyService,
         )

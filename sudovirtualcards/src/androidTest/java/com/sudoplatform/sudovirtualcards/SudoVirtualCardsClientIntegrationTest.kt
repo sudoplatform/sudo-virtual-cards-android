@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -14,7 +14,6 @@ import com.sudoplatform.sudovirtualcards.subscription.Subscriber
 import com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber
 import com.sudoplatform.sudovirtualcards.types.AuthorizationText
 import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
-import com.sudoplatform.sudovirtualcards.types.CachePolicy
 import com.sudoplatform.sudovirtualcards.types.CardState
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderRefreshData
@@ -2588,7 +2587,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun getTransactionsShouldReturnNullForBogusId() = runBlocking {
+    fun getTransactionShouldReturnNullForBogusId() = runBlocking {
         registerSignInAndEntitle()
 
         vcClient.createKeysIfAbsent()
@@ -2791,7 +2790,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         vcClient.reset()
 
         try {
-            vcClient.getVirtualCard(card.id, CachePolicy.REMOTE_ONLY)
+            vcClient.getVirtualCard(card.id)
             throw AssertionError("expected getVirtualCard to throw with no keys, but it succeeded")
         } catch (e: Throwable) {
             e.shouldBeInstanceOf<SudoVirtualCardsClient.VirtualCardException.PublicKeyException>()
@@ -2800,7 +2799,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         // restore keys
         vcClient.importKeys(exportedKeys)
 
-        val restoredKeysCard = vcClient.getVirtualCard(card.id, CachePolicy.REMOTE_ONLY)
+        val restoredKeysCard = vcClient.getVirtualCard(card.id)
         restoredKeysCard shouldBe card
     }
 }

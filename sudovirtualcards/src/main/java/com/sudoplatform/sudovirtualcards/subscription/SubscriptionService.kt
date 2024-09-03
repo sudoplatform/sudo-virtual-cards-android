@@ -1,19 +1,18 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.sudoplatform.sudovirtualcards.subscription
 
-import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
-import com.amazonaws.mobileconnectors.appsync.AppSyncSubscriptionCall
-import com.apollographql.apollo.api.Response
-import com.apollographql.apollo.exception.ApolloException
+import com.amplifyframework.api.ApiException
+import com.amplifyframework.api.graphql.GraphQLResponse
 import com.sudoplatform.sudologging.AndroidUtilsLogDriver
 import com.sudoplatform.sudologging.LogLevel
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
+import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
 import com.sudoplatform.sudovirtualcards.graphql.OnFundingSourceUpdateSubscription
 import com.sudoplatform.sudovirtualcards.graphql.OnTransactionDeleteSubscription
@@ -32,7 +31,7 @@ import kotlinx.coroutines.launch
  * Manage the subscriptions of transaction updates.
  */
 internal class SubscriptionService(
-    private val appSyncClient: AWSAppSyncClient,
+    private val graphQLClient: GraphQLClient,
     private val deviceKeyManager: DeviceKeyManager,
     private val userClient: SudoUserClient,
     private val logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO)),
@@ -55,24 +54,28 @@ internal class SubscriptionService(
         txnDeleteSubscriptionManager.replaceSubscriber(id, subscriber)
 
         scope.launch {
-            if (txnUpdateSubscriptionManager.watcher == null && txnUpdateSubscriptionManager.pendingWatcher == null) {
-                val watcher = appSyncClient.subscribe(
-                    OnTransactionUpdateSubscription.builder()
-                        .owner(userSubject)
-                        .build(),
+            if (txnUpdateSubscriptionManager.watcher == null) {
+                val watcher = graphQLClient.subscribe<OnTransactionUpdateSubscription, OnTransactionUpdateSubscription.Data>(
+                    OnTransactionUpdateSubscription.OPERATION_DOCUMENT,
+                    mapOf("owner" to userSubject),
+                    transactionUpdateCallbacks.onSubscriptionEstablished,
+                    transactionUpdateCallbacks.onSubscription,
+                    transactionUpdateCallbacks.onSubscriptionCompleted,
+                    transactionUpdateCallbacks.onFailure,
                 )
-                txnUpdateSubscriptionManager.pendingWatcher = watcher
-                watcher.execute(updateCallback)
+                txnUpdateSubscriptionManager.watcher = watcher
             }
 
-            if (txnDeleteSubscriptionManager.watcher == null && txnDeleteSubscriptionManager.pendingWatcher == null) {
-                val watcher = appSyncClient.subscribe(
-                    OnTransactionDeleteSubscription.builder()
-                        .owner(userSubject)
-                        .build(),
+            if (txnDeleteSubscriptionManager.watcher == null) {
+                val watcher = graphQLClient.subscribe<OnTransactionDeleteSubscription, OnTransactionDeleteSubscription.Data>(
+                    OnTransactionDeleteSubscription.OPERATION_DOCUMENT,
+                    mapOf("owner" to userSubject),
+                    transactionDeleteCallbacks.onSubscriptionEstablished,
+                    transactionDeleteCallbacks.onSubscription,
+                    transactionDeleteCallbacks.onSubscriptionCompleted,
+                    transactionDeleteCallbacks.onFailure,
                 )
-                txnDeleteSubscriptionManager.pendingWatcher = watcher
-                watcher.execute(deleteCallback)
+                txnDeleteSubscriptionManager.watcher = watcher
             }
         }.join()
     }
@@ -83,14 +86,16 @@ internal class SubscriptionService(
         fsUpdateSubscriptionManager.replaceSubscriber(id, subscriber)
 
         scope.launch {
-            if (fsUpdateSubscriptionManager.watcher == null && fsUpdateSubscriptionManager.pendingWatcher == null) {
-                val watcher = appSyncClient.subscribe(
-                    OnFundingSourceUpdateSubscription.builder()
-                        .owner(userSubject)
-                        .build(),
+            if (fsUpdateSubscriptionManager.watcher == null) {
+                val watcher = graphQLClient.subscribe<OnFundingSourceUpdateSubscription, OnFundingSourceUpdateSubscription.Data>(
+                    OnFundingSourceUpdateSubscription.OPERATION_DOCUMENT,
+                    mapOf("owner" to userSubject),
+                    fundingSourceUpdateCallbacks.onSubscriptionEstablished,
+                    fundingSourceUpdateCallbacks.onSubscription,
+                    fundingSourceUpdateCallbacks.onSubscriptionCompleted,
+                    fundingSourceUpdateCallbacks.onFailure,
                 )
-                fsUpdateSubscriptionManager.pendingWatcher = watcher
-                watcher.execute(fundingSourceCallback)
+                fsUpdateSubscriptionManager.watcher = watcher
             }
         }.join()
     }
@@ -119,44 +124,39 @@ internal class SubscriptionService(
         scope.cancel()
     }
 
-    private val updateCallback = object : AppSyncSubscriptionCall.StartedCallback<OnTransactionUpdateSubscription.Data> {
-        override fun onFailure(e: ApolloException) {
-            logger.error("Transaction update subscription error $e")
-            txnUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
-        }
-
-        override fun onResponse(response: Response<OnTransactionUpdateSubscription.Data>) {
-            scope.launch {
-                val transactionUpdate = response.data()?.onTransactionUpdate()
-                    ?: return@launch
-                txnUpdateSubscriptionManager.transactionChanged(
-                    TransactionTransformer.toEntity(deviceKeyManager, transactionUpdate.fragments().sealedTransaction()),
-                )
-            }
-        }
-
-        override fun onCompleted() {
-            txnUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
-        }
-
-        override fun onStarted() {
-            txnUpdateSubscriptionManager
-                .watcher = txnUpdateSubscriptionManager.pendingWatcher
+    private val transactionUpdateCallbacks = object {
+        val onSubscriptionEstablished: (GraphQLResponse<OnTransactionUpdateSubscription.Data>) -> Unit = {
             txnUpdateSubscriptionManager.connectionStatusChanged(
                 Subscriber.ConnectionState.CONNECTED,
             )
         }
+        val onSubscription: (GraphQLResponse<OnTransactionUpdateSubscription.Data>) -> Unit = {
+            scope.launch {
+                val transactionUpdate = it.data?.onTransactionUpdate
+                    ?: return@launch
+                txnUpdateSubscriptionManager.transactionChanged(
+                    TransactionTransformer.toEntity(deviceKeyManager, transactionUpdate.sealedTransaction),
+                )
+            }
+        }
+        val onSubscriptionCompleted = {
+            txnUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
+        }
+        val onFailure: (ApiException) -> Unit = {
+            logger.error("Transaction update subscription error $it")
+            txnUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
+        }
     }
 
-    private val fundingSourceCallback = object : AppSyncSubscriptionCall.StartedCallback<OnFundingSourceUpdateSubscription.Data> {
-        override fun onFailure(e: ApolloException) {
-            logger.error("FundingSource update subscription error $e")
-            fsUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
+    private val fundingSourceUpdateCallbacks = object {
+        val onSubscriptionEstablished: (GraphQLResponse<OnFundingSourceUpdateSubscription.Data>) -> Unit = {
+            fsUpdateSubscriptionManager.connectionStatusChanged(
+                Subscriber.ConnectionState.CONNECTED,
+            )
         }
-
-        override fun onResponse(response: Response<OnFundingSourceUpdateSubscription.Data>) {
+        val onSubscription: (GraphQLResponse<OnFundingSourceUpdateSubscription.Data>) -> Unit = {
             scope.launch {
-                val fundingSourceUpdate = response.data()?.onFundingSourceUpdate()
+                val fundingSourceUpdate = it.data?.onFundingSourceUpdate
                     ?: return@launch
                 fsUpdateSubscriptionManager.fundingSourceChanged(
                     FundingSourceTransformer.toEntityFromFundingSourceUpdateSubscriptionResult(deviceKeyManager, fundingSourceUpdate),
@@ -164,45 +164,37 @@ internal class SubscriptionService(
             }
         }
 
-        override fun onCompleted() {
+        val onSubscriptionCompleted = {
             fsUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
         }
 
-        override fun onStarted() {
-            fsUpdateSubscriptionManager
-                .watcher = fsUpdateSubscriptionManager.pendingWatcher
-            fsUpdateSubscriptionManager.connectionStatusChanged(
-                Subscriber.ConnectionState.CONNECTED,
-            )
+        val onFailure: (ApiException) -> Unit = {
+            logger.error("FundingSource update subscription error $it")
+            fsUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
         }
     }
 
-    private val deleteCallback = object : AppSyncSubscriptionCall.StartedCallback<OnTransactionDeleteSubscription.Data> {
-        override fun onFailure(e: ApolloException) {
-            logger.error("Transaction delete subscription error $e")
-            txnDeleteSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
-        }
-
-        override fun onResponse(response: Response<OnTransactionDeleteSubscription.Data>) {
-            scope.launch {
-                val transactionDelete = response.data()?.onTransactionDelete()
-                    ?: return@launch
-                txnDeleteSubscriptionManager.transactionChanged(
-                    TransactionTransformer.toEntity(deviceKeyManager, transactionDelete.fragments().sealedTransaction()),
-                )
-            }
-        }
-
-        override fun onCompleted() {
-            txnDeleteSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
-        }
-
-        override fun onStarted() {
-            txnDeleteSubscriptionManager
-                .watcher = txnDeleteSubscriptionManager.pendingWatcher
+    private val transactionDeleteCallbacks = object {
+        val onSubscriptionEstablished: (GraphQLResponse<OnTransactionDeleteSubscription.Data>) -> Unit = {
             txnDeleteSubscriptionManager.connectionStatusChanged(
                 Subscriber.ConnectionState.CONNECTED,
             )
+        }
+        val onSubscription: (GraphQLResponse<OnTransactionDeleteSubscription.Data>) -> Unit = {
+            scope.launch {
+                val transactionDelete = it.data?.onTransactionDelete
+                    ?: return@launch
+                txnDeleteSubscriptionManager.transactionChanged(
+                    TransactionTransformer.toEntity(deviceKeyManager, transactionDelete.sealedTransaction),
+                )
+            }
+        }
+        val onSubscriptionCompleted = {
+            txnDeleteSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
+        }
+        val onFailure: (ApiException) -> Unit = {
+            logger.error("Transaction delete subscription error $it")
+            txnDeleteSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
         }
     }
 }

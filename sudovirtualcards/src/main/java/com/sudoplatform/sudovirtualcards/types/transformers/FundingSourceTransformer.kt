@@ -1,11 +1,12 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.sudoplatform.sudovirtualcards.types.transformers
 
+import com.apollographql.apollo3.api.Optional
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
 import com.sudoplatform.sudovirtualcards.graphql.CancelFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.CancelProvisionalFundingSourceMutation
@@ -65,14 +66,14 @@ internal object FundingSourceTransformer {
         deviceKeyManager: DeviceKeyManager,
         result: CompleteFundingSourceMutation.CompleteFundingSource,
     ): FundingSource {
-        return when (result.__typename()) {
+        return when (result.__typename) {
             "CreditCardFundingSource" -> {
-                val fundingSource = result.asCreditCardFundingSource()?.fragments()?.creditCardFundingSource()
+                val fundingSource = result.onCreditCardFundingSource?.creditCardFundingSource
                     ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(fundingSource)
             }
             "BankAccountFundingSource" -> {
-                val fundingSource = result.asBankAccountFundingSource()?.fragments()?.bankAccountFundingSource()
+                val fundingSource = result.onBankAccountFundingSource?.bankAccountFundingSource
                     ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(deviceKeyManager, fundingSource)
             }
@@ -93,14 +94,14 @@ internal object FundingSourceTransformer {
         deviceKeyManager: DeviceKeyManager,
         result: RefreshFundingSourceMutation.RefreshFundingSource,
     ): FundingSource {
-        return when (result.__typename()) {
+        return when (result.__typename) {
             "CreditCardFundingSource" -> {
-                val fundingSource = result.asCreditCardFundingSource()?.fragments()?.creditCardFundingSource()
+                val fundingSource = result.onCreditCardFundingSource?.creditCardFundingSource
                     ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(fundingSource)
             }
             "BankAccountFundingSource" -> {
-                val fundingSource = result.asBankAccountFundingSource()?.fragments()?.bankAccountFundingSource()
+                val fundingSource = result.onBankAccountFundingSource?.bankAccountFundingSource
                     ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(deviceKeyManager, fundingSource)
             }
@@ -121,14 +122,14 @@ internal object FundingSourceTransformer {
         deviceKeyManager: DeviceKeyManager,
         result: CancelFundingSourceMutation.CancelFundingSource,
     ): FundingSource {
-        return when (result.__typename()) {
+        return when (result.__typename) {
             "CreditCardFundingSource" -> {
-                val fundingSource = result.asCreditCardFundingSource()?.fragments()?.creditCardFundingSource()
+                val fundingSource = result.onCreditCardFundingSource?.creditCardFundingSource
                     ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(fundingSource)
             }
             "BankAccountFundingSource" -> {
-                val fundingSource = result.asBankAccountFundingSource()?.fragments()?.bankAccountFundingSource()
+                val fundingSource = result.onBankAccountFundingSource?.bankAccountFundingSource
                     ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(deviceKeyManager, fundingSource)
             }
@@ -147,17 +148,17 @@ internal object FundingSourceTransformer {
     fun toEntityFromCancelProvisionalFundingSourceMutationResult(
         result: CancelProvisionalFundingSourceMutation.CancelProvisionalFundingSource,
     ): ProvisionalFundingSource {
-        val provisionalFundingSource = result.fragments().provisionalFundingSource()
-        val provisioningData = ProviderDataTransformer.toProvisioningData(provisionalFundingSource.provisioningData())
+        val provisionalFundingSource = result.provisionalFundingSource
+        val provisioningData = ProviderDataTransformer.toProvisioningData(provisionalFundingSource.provisioningData)
         return ProvisionalFundingSource(
-            id = provisionalFundingSource.id(),
-            owner = provisionalFundingSource.owner(),
-            version = provisionalFundingSource.version(),
-            createdAt = provisionalFundingSource.createdAtEpochMs().toDate(),
-            updatedAt = provisionalFundingSource.updatedAtEpochMs().toDate(),
-            type = provisionalFundingSource.type().toEntityFundingSourceType(),
-            state = provisionalFundingSource.state().toEntityProvisioningState(),
-            last4 = provisionalFundingSource.last4() ?: "",
+            id = provisionalFundingSource.id,
+            owner = provisionalFundingSource.owner,
+            version = provisionalFundingSource.version,
+            createdAt = provisionalFundingSource.createdAtEpochMs.toDate(),
+            updatedAt = provisionalFundingSource.updatedAtEpochMs.toDate(),
+            type = provisionalFundingSource.type.toEntityFundingSourceType(),
+            state = provisionalFundingSource.state.toEntityProvisioningState(),
+            last4 = provisionalFundingSource.last4 ?: "",
             provisioningData = provisioningData,
         )
     }
@@ -173,14 +174,14 @@ internal object FundingSourceTransformer {
         deviceKeyManager: DeviceKeyManager,
         result: ReviewUnfundedFundingSourceMutation.ReviewUnfundedFundingSource,
     ): FundingSource {
-        return when (result.__typename()) {
+        return when (result.__typename) {
             "CreditCardFundingSource" -> {
-                val fundingSource = result.asCreditCardFundingSource()?.fragments()?.creditCardFundingSource()
+                val fundingSource = result.onCreditCardFundingSource?.creditCardFundingSource
                     ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(fundingSource)
             }
             "BankAccountFundingSource" -> {
-                val fundingSource = result.asBankAccountFundingSource()?.fragments()?.bankAccountFundingSource()
+                val fundingSource = result.onBankAccountFundingSource?.bankAccountFundingSource
                     ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(deviceKeyManager, fundingSource)
             }
@@ -201,14 +202,14 @@ internal object FundingSourceTransformer {
         deviceKeyManager: DeviceKeyManager,
         result: GetFundingSourceQuery.GetFundingSource,
     ): FundingSource {
-        return when (result.__typename()) {
+        return when (result.__typename) {
             "CreditCardFundingSource" -> {
-                val fundingSource = result.asCreditCardFundingSource()?.fragments()?.creditCardFundingSource()
+                val fundingSource = result.onCreditCardFundingSource?.creditCardFundingSource
                     ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(fundingSource)
             }
             "BankAccountFundingSource" -> {
-                val fundingSource = result.asBankAccountFundingSource()?.fragments()?.bankAccountFundingSource()
+                val fundingSource = result.onBankAccountFundingSource?.bankAccountFundingSource
                     ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(deviceKeyManager, fundingSource)
             }
@@ -222,14 +223,14 @@ internal object FundingSourceTransformer {
         deviceKeyManager: DeviceKeyManager,
         result: SandboxSetFundingSourceToRequireRefreshMutation.SandboxSetFundingSourceToRequireRefresh,
     ): FundingSource {
-        return when (result.__typename()) {
+        return when (result.__typename) {
             "CreditCardFundingSource" -> {
-                val fundingSource = result.asCreditCardFundingSource()?.fragments()?.creditCardFundingSource()
+                val fundingSource = result.onCreditCardFundingSource?.creditCardFundingSource
                     ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(fundingSource)
             }
             "BankAccountFundingSource" -> {
-                val fundingSource = result.asBankAccountFundingSource()?.fragments()?.bankAccountFundingSource()
+                val fundingSource = result.onBankAccountFundingSource?.bankAccountFundingSource
                     ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(deviceKeyManager, fundingSource)
             }
@@ -250,14 +251,14 @@ internal object FundingSourceTransformer {
         deviceKeyManager: DeviceKeyManager,
         result: OnFundingSourceUpdateSubscription.OnFundingSourceUpdate,
     ): FundingSource {
-        return when (result.__typename()) {
+        return when (result.__typename) {
             "CreditCardFundingSource" -> {
-                val fundingSource = result.asCreditCardFundingSource()?.fragments()?.creditCardFundingSource()
+                val fundingSource = result.onCreditCardFundingSource?.creditCardFundingSource
                     ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(fundingSource)
             }
             "BankAccountFundingSource" -> {
-                val fundingSource = result.asBankAccountFundingSource()?.fragments()?.bankAccountFundingSource()
+                val fundingSource = result.onBankAccountFundingSource?.bankAccountFundingSource
                     ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(deviceKeyManager, fundingSource)
             }
@@ -276,16 +277,16 @@ internal object FundingSourceTransformer {
     fun toEntity(
         provisionalFundingSource: ProvisionalFundingSourceFragment,
     ): ProvisionalFundingSource {
-        val provisioningData = ProviderDataTransformer.toProvisioningData(provisionalFundingSource.provisioningData())
+        val provisioningData = ProviderDataTransformer.toProvisioningData(provisionalFundingSource.provisioningData)
         return ProvisionalFundingSource(
-            id = provisionalFundingSource.id(),
-            owner = provisionalFundingSource.owner(),
-            version = provisionalFundingSource.version(),
-            createdAt = provisionalFundingSource.createdAtEpochMs().toDate(),
-            updatedAt = provisionalFundingSource.updatedAtEpochMs().toDate(),
-            type = provisionalFundingSource.type().toEntityFundingSourceType(),
-            state = provisionalFundingSource.state().toEntityProvisioningState(),
-            last4 = provisionalFundingSource.last4() ?: "",
+            id = provisionalFundingSource.id,
+            owner = provisionalFundingSource.owner,
+            version = provisionalFundingSource.version,
+            createdAt = provisionalFundingSource.createdAtEpochMs.toDate(),
+            updatedAt = provisionalFundingSource.updatedAtEpochMs.toDate(),
+            type = provisionalFundingSource.type.toEntityFundingSourceType(),
+            state = provisionalFundingSource.state.toEntityProvisioningState(),
+            last4 = provisionalFundingSource.last4 ?: "",
             provisioningData = provisioningData,
         )
     }
@@ -298,17 +299,17 @@ internal object FundingSourceTransformer {
      */
     fun toEntity(result: List<ListProvisionalFundingSourcesQuery.Item>): List<ProvisionalFundingSource> {
         return result.map {
-            val provisionalFundingSource = it.fragments().provisionalFundingSource()
-            val provisioningData = ProviderDataTransformer.toProvisioningData(provisionalFundingSource.provisioningData())
+            val provisionalFundingSource = it.provisionalFundingSource
+            val provisioningData = ProviderDataTransformer.toProvisioningData(provisionalFundingSource.provisioningData)
             ProvisionalFundingSource(
-                id = provisionalFundingSource.id(),
-                owner = provisionalFundingSource.owner(),
-                version = provisionalFundingSource.version(),
-                createdAt = provisionalFundingSource.createdAtEpochMs().toDate(),
-                updatedAt = provisionalFundingSource.updatedAtEpochMs().toDate(),
-                type = provisionalFundingSource.type().toEntityFundingSourceType(),
-                state = provisionalFundingSource.state().toEntityProvisioningState(),
-                last4 = provisionalFundingSource.last4() ?: "",
+                id = provisionalFundingSource.id,
+                owner = provisionalFundingSource.owner,
+                version = provisionalFundingSource.version,
+                createdAt = provisionalFundingSource.createdAtEpochMs.toDate(),
+                updatedAt = provisionalFundingSource.updatedAtEpochMs.toDate(),
+                type = provisionalFundingSource.type.toEntityFundingSourceType(),
+                state = provisionalFundingSource.state.toEntityProvisioningState(),
+                last4 = provisionalFundingSource.last4 ?: "",
                 provisioningData = provisioningData,
             )
         }.toList()
@@ -322,14 +323,14 @@ internal object FundingSourceTransformer {
      */
     fun toEntity(deviceKeyManager: DeviceKeyManager, result: List<ListFundingSourcesQuery.Item>): List<FundingSource> {
         return result.map {
-            when (it.__typename()) {
+            when (it.__typename) {
                 "CreditCardFundingSource" -> {
-                    val fundingSource = it.asCreditCardFundingSource()?.fragments()?.creditCardFundingSource()
+                    val fundingSource = it.onCreditCardFundingSource?.creditCardFundingSource
                         ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                     toEntity(fundingSource)
                 }
                 "BankAccountFundingSource" -> {
-                    val fundingSource = it.asBankAccountFundingSource()?.fragments()?.bankAccountFundingSource()
+                    val fundingSource = it.onBankAccountFundingSource?.bankAccountFundingSource
                         ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                     toEntity(deviceKeyManager, fundingSource)
                 }
@@ -348,41 +349,36 @@ internal object FundingSourceTransformer {
         if (this == null) {
             return null
         }
-        return GraphQlProvisionalFundingSourceFilterInput.builder()
-            .id(id?.toIDFilterIput())
-            .state(state?.toProvisionalFundingSourceStateFilterInput())
-            .not(
-                not?.toProvisionalFundingSourceFilterInput(),
-            )
-            .and(
-                and?.map {
-                    it.toProvisionalFundingSourceFilterInput()
-                },
-            )
-            .or(or?.map { it.toProvisionalFundingSourceFilterInput() })
-            .build()
+        return GraphQlProvisionalFundingSourceFilterInput(
+            and = Optional.presentIfNotNull(and?.mapNotNull { it.toProvisionalFundingSourceFilterInput() }),
+            id = Optional.presentIfNotNull(id?.toIDFilterInput()),
+            not = Optional.presentIfNotNull(not?.toProvisionalFundingSourceFilterInput()),
+            or = Optional.presentIfNotNull(or?.mapNotNull { it.toProvisionalFundingSourceFilterInput() }),
+            state = Optional.presentIfNotNull(state?.toProvisionalFundingSourceStateFilterInput()),
+
+        )
     }
 
     /**
      * Transform the input type [IdFilterInput] into the corresponding GraphQL
      * type [IDFilterInput].
      */
-    fun IdFilterInput?.toIDFilterIput(): IDFilterInput? {
+    private fun IdFilterInput?.toIDFilterInput(): IDFilterInput? {
         if (this == null) {
             return null
         }
-        return IDFilterInput.builder()
-            .eq(eq)
-            .ne(ne)
-            .ge(ge)
-            .gt(gt)
-            .le(le)
-            .lt(lt)
-            .contains(contains)
-            .notContains(notContains)
-            .between(between?.map { it })
-            .beginsWith(beginsWith)
-            .build()
+        return IDFilterInput(
+            beginsWith = Optional.presentIfNotNull(beginsWith),
+            between = Optional.presentIfNotNull(between?.map { it }),
+            contains = Optional.presentIfNotNull(contains),
+            eq = Optional.presentIfNotNull(eq),
+            ge = Optional.presentIfNotNull(ge),
+            gt = Optional.presentIfNotNull(gt),
+            le = Optional.presentIfNotNull(le),
+            lt = Optional.presentIfNotNull(lt),
+            ne = Optional.presentIfNotNull(ne),
+            notContains = Optional.presentIfNotNull(notContains),
+        )
     }
 
     /**
@@ -394,10 +390,10 @@ internal object FundingSourceTransformer {
         if (this == null) {
             return null
         }
-        return GraphQlProvisionalFundingSourceStateFilterInput.builder()
-            .eq(eq?.toGraphQlProvisioningState())
-            .ne(ne?.toGraphQlProvisioningState())
-            .build()
+        return GraphQlProvisionalFundingSourceStateFilterInput(
+            eq = Optional.presentIfNotNull(eq?.toGraphQlProvisioningState()),
+            ne = Optional.presentIfNotNull(ne?.toGraphQlProvisioningState()),
+        )
     }
 
     /**
@@ -411,29 +407,29 @@ internal object FundingSourceTransformer {
         deviceKeyManager: DeviceKeyManager,
         fundingSource: BankAccountFundingSourceFragment,
     ): FundingSource {
-        val institutionName = fundingSource.institutionName().fragments().sealedAttribute()
-        val nameKeyInfo = KeyInfo(institutionName.keyId(), KeyType.PRIVATE_KEY, institutionName.algorithm())
+        val institutionName = fundingSource.institutionName.sealedAttribute
+        val nameKeyInfo = KeyInfo(institutionName.keyId, KeyType.PRIVATE_KEY, institutionName.algorithm)
         val nameUnsealer = Unsealer(deviceKeyManager, nameKeyInfo)
 
         return BankAccountFundingSource(
-            id = fundingSource.id(),
-            owner = fundingSource.owner(),
-            version = fundingSource.version(),
-            createdAt = fundingSource.createdAtEpochMs().toDate(),
-            updatedAt = fundingSource.updatedAtEpochMs().toDate(),
-            state = fundingSource.state().toEntityState(),
-            flags = fundingSource.flags().map { toEntityFlags(it) },
-            currency = fundingSource.currency(),
-            transactionVelocity = fundingSource.transactionVelocity()?.toEntityTransactionVelocity(),
-            bankAccountType = fundingSource.bankAccountType().toEntityBankAccountType(),
-            last4 = fundingSource.last4(),
-            institutionName = nameUnsealer.unseal(fundingSource.institutionName()),
-            institutionLogo = fundingSource.institutionLogo()?.fragments()?.sealedAttribute()?.let {
-                val logoKeyInfo = KeyInfo(it.keyId(), KeyType.PRIVATE_KEY, it.algorithm())
+            id = fundingSource.id,
+            owner = fundingSource.owner,
+            version = fundingSource.version,
+            createdAt = fundingSource.createdAtEpochMs.toDate(),
+            updatedAt = fundingSource.updatedAtEpochMs.toDate(),
+            state = fundingSource.state.toEntityState(),
+            flags = fundingSource.flags.map { toEntityFlags(it) },
+            currency = fundingSource.currency,
+            transactionVelocity = fundingSource.transactionVelocity?.toEntityTransactionVelocity(),
+            bankAccountType = fundingSource.bankAccountType.toEntityBankAccountType(),
+            last4 = fundingSource.last4,
+            institutionName = nameUnsealer.unseal(fundingSource.institutionName),
+            institutionLogo = fundingSource.institutionLogo?.sealedAttribute?.let {
+                val logoKeyInfo = KeyInfo(it.keyId, KeyType.PRIVATE_KEY, it.algorithm)
                 val logoUnsealer = Unsealer(deviceKeyManager, logoKeyInfo)
-                logoUnsealer.unseal(fundingSource.institutionLogo())
+                logoUnsealer.unseal(fundingSource.institutionLogo)
             },
-            unfundedAmount = fundingSource.unfundedAmount()?.toCurrencyAmount(),
+            unfundedAmount = fundingSource.unfundedAmount?.toCurrencyAmount(),
         )
     }
 
@@ -445,23 +441,23 @@ internal object FundingSourceTransformer {
      */
     private fun toEntity(fundingSource: CreditCardFundingSourceFragment): FundingSource {
         return CreditCardFundingSource(
-            id = fundingSource.id(),
-            owner = fundingSource.owner(),
-            version = fundingSource.version(),
-            createdAt = fundingSource.createdAtEpochMs().toDate(),
-            updatedAt = fundingSource.updatedAtEpochMs().toDate(),
-            state = fundingSource.state().toEntityState(),
-            flags = fundingSource.flags().map { toEntityFlags(it) },
-            currency = fundingSource.currency(),
-            transactionVelocity = fundingSource.transactionVelocity()?.toEntityTransactionVelocity(),
-            last4 = fundingSource.last4(),
-            network = fundingSource.network().toEntityNetwork(),
-            cardType = fundingSource.cardType().toEntityCardType(),
+            id = fundingSource.id,
+            owner = fundingSource.owner,
+            version = fundingSource.version,
+            createdAt = fundingSource.createdAtEpochMs.toDate(),
+            updatedAt = fundingSource.updatedAtEpochMs.toDate(),
+            state = fundingSource.state.toEntityState(),
+            flags = fundingSource.flags.map { toEntityFlags(it) },
+            currency = fundingSource.currency,
+            transactionVelocity = fundingSource.transactionVelocity?.toEntityTransactionVelocity(),
+            last4 = fundingSource.last4,
+            network = fundingSource.network.toEntityNetwork(),
+            cardType = fundingSource.cardType.toEntityCardType(),
         )
     }
 
     private fun ProvisionalFundingSourceState.toEntityProvisioningState(): ProvisionalFundingSource.ProvisioningState {
-        for (value in ProvisionalFundingSource.ProvisioningState.values()) {
+        for (value in ProvisionalFundingSource.ProvisioningState.entries) {
             if (value.name == this.name) {
                 return value
             }
@@ -469,7 +465,7 @@ internal object FundingSourceTransformer {
         return ProvisionalFundingSource.ProvisioningState.UNKNOWN
     }
     private fun ProvisionalFundingSource.ProvisioningState.toGraphQlProvisioningState(): ProvisionalFundingSourceState {
-        for (value in ProvisionalFundingSourceState.values()) {
+        for (value in ProvisionalFundingSourceState.entries) {
             if (value.name == this.name) {
                 return value
             }
@@ -478,7 +474,7 @@ internal object FundingSourceTransformer {
     }
 
     private fun GraphqlFundingSourceState.toEntityState(): FundingSourceState {
-        for (value in FundingSourceState.values()) {
+        for (value in FundingSourceState.entries) {
             if (value.name == this.name) {
                 return value
             }
@@ -486,7 +482,7 @@ internal object FundingSourceTransformer {
         return FundingSourceState.UNKNOWN
     }
     private fun toEntityFlags(input: GraphqlFundingSourceFlags): FundingSourceFlags {
-        for (value in FundingSourceFlags.values()) {
+        for (value in FundingSourceFlags.entries) {
             if (value.name == input.name) {
                 return value
             }
@@ -495,7 +491,7 @@ internal object FundingSourceTransformer {
     }
 
     private fun CreditCardNetwork.toEntityNetwork(): CreditCardFundingSource.CreditCardNetwork {
-        for (value in CreditCardFundingSource.CreditCardNetwork.values()) {
+        for (value in CreditCardFundingSource.CreditCardNetwork.entries) {
             if (value.name == this.name) {
                 return value
             }
@@ -504,7 +500,7 @@ internal object FundingSourceTransformer {
     }
 
     private fun GraphqlCardType.toEntityCardType(): CardType {
-        for (value in CardType.values()) {
+        for (value in CardType.entries) {
             if (value.name == this.name) {
                 return value
             }
@@ -513,7 +509,7 @@ internal object FundingSourceTransformer {
     }
 
     private fun GraphqlFundingSourceType.toEntityFundingSourceType(): FundingSourceType {
-        for (value in FundingSourceType.values()) {
+        for (value in FundingSourceType.entries) {
             if (value.name == this.name) {
                 return value
             }
@@ -522,7 +518,7 @@ internal object FundingSourceTransformer {
     }
 
     private fun GraphqlBankAccountType.toEntityBankAccountType(): BankAccountFundingSource.BankAccountType {
-        for (value in BankAccountFundingSource.BankAccountType.values()) {
+        for (value in BankAccountFundingSource.BankAccountType.entries) {
             if (value.name == this.name) {
                 return value
             }
@@ -531,20 +527,20 @@ internal object FundingSourceTransformer {
     }
 
     private fun CreditCardFundingSourceFragment.TransactionVelocity.toEntityTransactionVelocity(): TransactionVelocity? {
-        if (this.maximum() == null && this.velocity() == null) {
+        if (this.maximum == null && this.velocity == null) {
             return null
         }
-        return TransactionVelocity(this.maximum(), this.velocity())
+        return TransactionVelocity(this.maximum, this.velocity)
     }
 
     private fun BankAccountFundingSourceFragment.TransactionVelocity.toEntityTransactionVelocity(): TransactionVelocity? {
-        if (this.maximum() == null && this.velocity() == null) {
+        if (this.maximum == null && this.velocity == null) {
             return null
         }
-        return TransactionVelocity(this.maximum(), this.velocity())
+        return TransactionVelocity(this.maximum, this.velocity)
     }
 
     private fun BankAccountFundingSourceFragment.UnfundedAmount.toCurrencyAmount(): CurrencyAmount {
-        return CurrencyAmount(this.currency(), this.amount())
+        return CurrencyAmount(this.currency, this.amount)
     }
 }

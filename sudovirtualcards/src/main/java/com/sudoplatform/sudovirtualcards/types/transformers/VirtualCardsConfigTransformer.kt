@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -44,35 +44,35 @@ internal object VirtualCardsConfigTransformer {
         result: VirtualCardsConfig,
     ): VirtualCardsConfigEntity {
         return VirtualCardsConfigEntity(
-            maxFundingSourceVelocity = result.maxFundingSourceVelocity(),
-            maxFundingSourceFailureVelocity = result.maxFundingSourceFailureVelocity(),
-            maxFundingSourcePendingVelocity = result.maxFundingSourcePendingVelocity(),
-            maxCardCreationVelocity = result.maxCardCreationVelocity(),
-            maxTransactionVelocity = this.toEntityFromMaxTransactionVelocity(result.maxTransactionVelocity()),
-            maxTransactionAmount = this.toEntityFromMaxTransactionAmount(result.maxTransactionAmount()),
-            virtualCardCurrencies = result.virtualCardCurrencies(),
-            fundingSourceSupportInfo = result.fundingSourceSupportInfo().map {
+            maxFundingSourceVelocity = result.maxFundingSourceVelocity,
+            maxFundingSourceFailureVelocity = result.maxFundingSourceFailureVelocity,
+            maxFundingSourcePendingVelocity = result.maxFundingSourcePendingVelocity,
+            maxCardCreationVelocity = result.maxCardCreationVelocity,
+            maxTransactionVelocity = this.toEntityFromMaxTransactionVelocity(result.maxTransactionVelocity),
+            maxTransactionAmount = this.toEntityFromMaxTransactionAmount(result.maxTransactionAmount),
+            virtualCardCurrencies = result.virtualCardCurrencies,
+            fundingSourceSupportInfo = result.fundingSourceSupportInfo.map {
                 toEntityFromFundingSourceSupportInfo(
-                    it.fragments().fundingSourceSupportInfo(),
+                    it.fundingSourceSupportInfo,
                 )
             },
-            bankAccountFundingSourceExpendableEnabled = result.bankAccountFundingSourceExpendableEnabled(),
-            bankAccountFundingSourceCreationEnabled = result.bankAccountFundingSourceCreationEnabled(),
-            fundingSourceClientConfiguration = result.fundingSourceClientConfiguration()?.data().let {
+            bankAccountFundingSourceExpendableEnabled = result.bankAccountFundingSourceExpendableEnabled,
+            bankAccountFundingSourceCreationEnabled = result.bankAccountFundingSourceCreationEnabled,
+            fundingSourceClientConfiguration = result.fundingSourceClientConfiguration?.data.let {
                 if (it != null) {
                     decodeFundingSourceClientConfiguration(it)
                 } else {
                     emptyList()
                 }
             },
-            clientApplicationConfiguration = result.clientApplicationsConfiguration()?.data().let {
+            clientApplicationConfiguration = result.clientApplicationsConfiguration?.data.let {
                 if (it != null) {
                     decodeClientApplicationConfiguration(it)
                 } else {
                     emptyMap()
                 }
             },
-            pricingPolicy = result.pricingPolicy()?.data().let {
+            pricingPolicy = result.pricingPolicy?.data.let {
                 if (it != null) {
                     decodePricingPolicy(it)
                 } else {
@@ -86,7 +86,7 @@ internal object VirtualCardsConfigTransformer {
         maxTransactionVelocity: List<VirtualCardsConfig.MaxTransactionVelocity>,
     ): List<CurrencyVelocity> {
         return maxTransactionVelocity.map {
-            CurrencyVelocity(it.currency(), it.velocity())
+            CurrencyVelocity(it.currency, it.velocity)
         }
     }
 
@@ -94,7 +94,7 @@ internal object VirtualCardsConfigTransformer {
         maxTransactionAmount: List<VirtualCardsConfig.MaxTransactionAmount>,
     ): List<CurrencyAmount> {
         return maxTransactionAmount.map {
-            CurrencyAmount(it.currency(), it.amount())
+            CurrencyAmount(it.currency, it.amount)
         }
     }
 
@@ -102,17 +102,17 @@ internal object VirtualCardsConfigTransformer {
         fundingSourceSupportInfo: FundingSourceSupportInfo,
     ): FundingSourceSupportInfoEntity {
         return FundingSourceSupportInfoEntity(
-            fundingSourceSupportInfo.providerType(),
-            fundingSourceSupportInfo.fundingSourceType(),
-            fundingSourceSupportInfo.network(),
-            fundingSourceSupportInfo.detail().map {
-                it.fragments().fundingSourceSupportDetail().toFundingSourceDetailEntity()
+            fundingSourceSupportInfo.providerType,
+            fundingSourceSupportInfo.fundingSourceType,
+            fundingSourceSupportInfo.network,
+            fundingSourceSupportInfo.detail.map {
+                it.fundingSourceSupportDetail.toFundingSourceDetailEntity()
             },
         )
     }
 
     private fun FundingSourceSupportDetail.toFundingSourceDetailEntity(): FundingSourceSupportDetailEntity {
-        return FundingSourceSupportDetailEntity(this.cardType().toCardTypeEntity())
+        return FundingSourceSupportDetailEntity(this.cardType.toCardTypeEntity())
     }
 
     private fun CardType.toCardTypeEntity(): CardTypeEntity {
@@ -121,6 +121,9 @@ internal object VirtualCardsConfigTransformer {
             CardType.DEBIT -> CardTypeEntity.DEBIT
             CardType.PREPAID -> CardTypeEntity.PREPAID
             CardType.OTHER -> CardTypeEntity.OTHER
+            CardType.UNKNOWN__ -> throw SudoVirtualCardsClient.VirtualCardException.FailedException(
+                "Unrecognized CardType",
+            )
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ * Copyright © 2024 Anonyome Labs, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -8,7 +8,6 @@ package com.sudoplatform.sudovirtualcards
 
 import android.content.Context
 import androidx.annotation.Keep
-import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient
 import com.google.gson.Gson
 import com.sudoplatform.sudoapiclient.ApiClientManager
 import com.sudoplatform.sudokeymanager.AndroidSQLiteStore
@@ -18,6 +17,7 @@ import com.sudoplatform.sudologging.AndroidUtilsLogDriver
 import com.sudoplatform.sudologging.LogLevel
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
+import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.keys.DefaultDeviceKeyManager
 import com.sudoplatform.sudovirtualcards.keys.DefaultPublicKeyService
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
@@ -25,11 +25,9 @@ import com.sudoplatform.sudovirtualcards.logging.LogConstants
 import com.sudoplatform.sudovirtualcards.subscription.FundingSourceSubscriber
 import com.sudoplatform.sudovirtualcards.subscription.Subscriber
 import com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber
-import com.sudoplatform.sudovirtualcards.types.CachePolicy
 import com.sudoplatform.sudovirtualcards.types.CreateKeysIfAbsentResult
 import com.sudoplatform.sudovirtualcards.types.DateRange
 import com.sudoplatform.sudovirtualcards.types.FundingSource
-import com.sudoplatform.sudovirtualcards.types.FundingSourceClientConfiguration
 import com.sudoplatform.sudovirtualcards.types.ListAPIResult
 import com.sudoplatform.sudovirtualcards.types.ListOutput
 import com.sudoplatform.sudovirtualcards.types.PartialTransaction
@@ -77,7 +75,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
     class Builder internal constructor() {
         private var context: Context? = null
         private var sudoUserClient: SudoUserClient? = null
-        private var appSyncClient: AWSAppSyncClient? = null
+        private var graphQLClient: GraphQLClient? = null
         private var keyManager: KeyManagerInterface? = null
         private var publicKeyService: PublicKeyService? = null
         private var logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO))
@@ -100,12 +98,12 @@ interface SudoVirtualCardsClient : AutoCloseable {
         }
 
         /**
-         * Provide an [AWSAppSyncClient] for the [SudoVirtualCardsClient] to use
-         * (optional input). If this is not supplied, an [AWSAppSyncClient] will
+         * Provide a [GraphQLClient] for the [SudoVirtualCardsClient] to use
+         * (optional input). If this is not supplied, a [GraphQLClient] will
          * be constructed and used.
          */
-        fun setAppSyncClient(appSyncClient: AWSAppSyncClient) = also {
-            this.appSyncClient = appSyncClient
+        fun setGraphQLClient(graphQLClient: GraphQLClient) = also {
+            this.graphQLClient = graphQLClient
         }
 
         /**
@@ -158,7 +156,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
             Objects.requireNonNull(context, "Context must be provided.")
             Objects.requireNonNull(sudoUserClient, "SudoUserClient must be provided.")
 
-            val appSyncClient = appSyncClient
+            val graphQLClient = graphQLClient
                 ?: ApiClientManager.getClient(this@Builder.context!!, this@Builder.sudoUserClient!!, "vcService")
 
             val deviceKeyManager = DefaultDeviceKeyManager(
@@ -169,13 +167,13 @@ interface SudoVirtualCardsClient : AutoCloseable {
                 keyRingServiceName = "sudo-virtual-cards",
                 userClient = sudoUserClient!!,
                 deviceKeyManager = deviceKeyManager,
-                appSyncClient = appSyncClient,
+                graphQLClient = graphQLClient,
                 logger = logger,
             )
 
             return DefaultSudoVirtualCardsClient(
                 context = context!!,
-                appSyncClient = appSyncClient,
+                graphQLClient = graphQLClient,
                 sudoUserClient = sudoUserClient!!,
                 logger = logger,
                 deviceKeyManager = deviceKeyManager,
@@ -370,8 +368,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
      *  This is to allow for pagination. This value should be generated from a
      *  previous pagination call, otherwise it will throw an exception. The same
      *  arguments should be supplied to this method if using a previously generated [nextToken].
-     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     *  be aware that this will only return cached results of identical API calls.
      * @return A list of [ProvisionalFundingSource]s or an empty list if no matching provisional
      *  funding sources can be found.
      *
@@ -382,7 +378,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
         filter: ProvisionalFundingSourceFilterInput? = null,
         limit: Int = DEFAULT_FUNDING_SOURCE_LIMIT,
         nextToken: String? = null,
-        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,
     ): ListOutput<ProvisionalFundingSource>
 
     /**
@@ -408,26 +403,15 @@ interface SudoVirtualCardsClient : AutoCloseable {
     suspend fun refreshFundingSource(input: RefreshFundingSourceInput): FundingSource
 
     /**
-     * Get the [FundingSourceClientConfiguration] from the service.
-     *
-     * @return The [FundingSourceClientConfiguration] of the client funding source data.
-     */
-    @Deprecated("Use getVirtualCardsConfig instead to retrieve the FundingSourceClientConfiguration")
-    @Throws(FundingSourceException::class)
-    suspend fun getFundingSourceClientConfiguration(): List<FundingSourceClientConfiguration>
-
-    /**
      * Get a [FundingSource] using the [id] parameter.
      *
      * @param id [String] Identifier of the [FundingSource] to be retrieved.
-     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     *  be aware that this will only return cached results of identical API calls.
      * @return The [FundingSource] associated with the [id] or null if it could not be found.
      *
      * @throws [FundingSourceException].
      */
     @Throws(FundingSourceException::class)
-    suspend fun getFundingSource(id: String, cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY): FundingSource?
+    suspend fun getFundingSource(id: String): FundingSource?
 
     /**
      * Get a [ListOutput] of [FundingSource]s.
@@ -440,8 +424,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
      *  This is to allow for pagination. This value should be generated from a
      *  previous pagination call, otherwise it will throw an exception. The same
      *  arguments should be supplied to this method if using a previously generated [nextToken].
-     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     *  be aware that this will only return cached results of identical API calls.
      * @return A list of [FundingSource]s or an empty list if no matching funding sources can be found.
      *
      * @throws [FundingSourceException].
@@ -450,7 +432,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
     suspend fun listFundingSources(
         limit: Int = DEFAULT_FUNDING_SOURCE_LIMIT,
         nextToken: String? = null,
-        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,
     ): ListOutput<FundingSource>
 
     /**
@@ -508,39 +489,33 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * A provisional virtual card is one that is in the process of being provisioned.
      *
      * @param id [String] Identifier of the [ProvisionalVirtualCard] to be retrieved.
-     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     *  be aware that this will only return cached results of identical API calls.
      * @return The [ProvisionalVirtualCard] associated with the [id] or null if it could not be found.
      *
      * @throws [VirtualCardException].
      */
     @Throws(VirtualCardException::class)
-    suspend fun getProvisionalCard(id: String, cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY): ProvisionalVirtualCard?
+    suspend fun getProvisionalCard(id: String): ProvisionalVirtualCard?
 
     /**
      * Get a [VirtualCard] using the [id] parameter.
      *
      * @param id [String] Identifier of the [VirtualCard] to be retrieved.
-     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     *  be aware that this will only return cached results of identical API calls.
      * @returns The [VirtualCard] associated with the [id] or null if it cannot be found.
      *
      * @throws [VirtualCardException].
      */
     @Throws(VirtualCardException::class)
-    suspend fun getVirtualCard(id: String, cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY): VirtualCard?
+    suspend fun getVirtualCard(id: String): VirtualCard?
 
     /**
      * Get the current [VirtualCardsConfig].
      *
-     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     *  be aware that this will only return cached results of identical API calls.
      * @returns The [VirtualCardsConfig] or null if it cannot be found.
      *
      * @throws [VirtualCardException].
      */
     @Throws(VirtualCardException::class)
-    suspend fun getVirtualCardsConfig(cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY): VirtualCardsConfig?
+    suspend fun getVirtualCardsConfig(): VirtualCardsConfig?
 
     /**
      * Get a list of [VirtualCard]s.
@@ -563,8 +538,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
      *  This is to allow for pagination. This value should be generated from a
      *  previous pagination call, otherwise it will throw an exception. The same
      *  arguments should be passed to this method if using a previously generated [nextToken].
-     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     *  be aware that this will only return cached results of identical API calls.
      * @return A [ListAPIResult.Success] or a [ListAPIResult.Partial] result containing either a list of
      *  [VirtualCard]s or [PartialVirtualCard]s respectively. Returns an empty list if no virtual cards can be found.
      *
@@ -574,7 +547,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
     suspend fun listVirtualCards(
         limit: Int = DEFAULT_CARD_LIMIT,
         nextToken: String? = null,
-        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,
     ): ListAPIResult<VirtualCard, PartialVirtualCard>
 
     /**
@@ -622,14 +594,12 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * Get a [Transaction] using the [id] parameter.
      *
      * @param id [String] Identifier of the [Transaction] to be retrieved.
-     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     *  be aware that this will only return cached results of identical API calls.
      * @returns The [Transaction] associated with the [id] or null if it cannot be found.
      *
      * @throws [TransactionException].
      */
     @Throws(TransactionException::class)
-    suspend fun getTransaction(id: String, cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY): Transaction?
+    suspend fun getTransaction(id: String): Transaction?
 
     /**
      * Get a list of all [Transaction]s related to a virtual card.
@@ -653,8 +623,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
      *  This is to allow for pagination. This value should be generated from a
      *  previous pagination call, otherwise it will throw an exception. You should call
      *  this method with the same argument if you are using a previously generated [nextToken].
-     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     *  be aware that this will only return cached results of identical API calls.
      * @param dateRange [DateRange] The date range of transactions to return.
      * @param sortOrder [SortOrder] The order in which the transactions are returned. Defaults to descending.
      * @return A [ListAPIResult.Success] or a [ListAPIResult.Partial] result containing either a list of
@@ -667,7 +635,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
         cardId: String,
         limit: Int = DEFAULT_TRANSACTION_LIMIT,
         nextToken: String? = null,
-        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,
         dateRange: DateRange? = null,
         sortOrder: SortOrder = SortOrder.DESC,
     ): ListAPIResult<Transaction, PartialTransaction>
@@ -695,8 +662,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
      *  This is to allow for pagination. This value should be generated from a
      *  previous pagination call, otherwise it will throw an exception. You should call
      *  this method with the same argument if you are using a previously generated [nextToken].
-     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     *  be aware that this will only return cached results of identical API calls.
      * @return A [ListAPIResult.Success] or a [ListAPIResult.Partial] result containing either a list of
      *  [Transaction]s or [PartialTransaction]s respectively. Returns an empty list if no transactions can be found.
      *
@@ -708,7 +673,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
         transactionType: TransactionType,
         limit: Int = DEFAULT_TRANSACTION_LIMIT,
         nextToken: String? = null,
-        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,
     ): ListAPIResult<Transaction, PartialTransaction>
 
     /**
@@ -732,8 +696,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
      *  This is to allow for pagination. This value should be generated from a
      *  previous pagination call, otherwise it will throw an exception. You should call
      *  this method with the same argument if you are using a previously generated [nextToken].
-     * @param cachePolicy [CachePolicy] Determines how the data will be fetched. When using [CachePolicy.CACHE_ONLY],
-     *  be aware that this will only return cached results of identical API calls.
      * @param dateRange [DateRange] The date range of transactions to return.
      * @param sortOrder [SortOrder] The order in which the transactions are returned. Defaults to descending.
      * @return A [ListAPIResult.Success] or a [ListAPIResult.Partial] result containing either a list of
@@ -745,7 +707,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
     suspend fun listTransactions(
         limit: Int = DEFAULT_TRANSACTION_LIMIT,
         nextToken: String? = null,
-        cachePolicy: CachePolicy = CachePolicy.REMOTE_ONLY,
         dateRange: DateRange? = null,
         sortOrder: SortOrder = SortOrder.DESC,
     ): ListAPIResult<Transaction, PartialTransaction>
@@ -773,9 +734,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * deleted [Transaction]s.
      */
     suspend fun unsubscribeAllFromTransactions()
-
-    @Deprecated("Use unsubscribeAllFromTransactions instead")
-    suspend fun unsubscribeAll()
 
     /**
      * Subscribes to be notified of modified [FundingSource]s. Subscribing multiple times with the same
