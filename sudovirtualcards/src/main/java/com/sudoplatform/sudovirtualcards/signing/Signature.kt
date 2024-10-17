@@ -17,6 +17,7 @@ import java.util.Date
  * @property algorithm [String] Algorithm used to sign the data.
  * @property keyId [String] Identifier of the key used to sign the data.
  */
+@Keep
 data class Signature(
     val data: String,
     val signature: String,

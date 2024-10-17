@@ -11,7 +11,10 @@ import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import com.stripe.android.Stripe
+import com.sudoplatform.sudoapiclient.ApiClientManager
 import com.sudoplatform.sudoentitlements.SudoEntitlementsClient
+import com.sudoplatform.sudoentitlementsadmin.SudoEntitlementsAdminClient
+import com.sudoplatform.sudoentitlementsadmin.types.Entitlement
 import com.sudoplatform.sudoidentityverification.DefaultSudoIdentityVerificationClient
 import com.sudoplatform.sudoidentityverification.types.inputs.VerifyIdentityInput
 import com.sudoplatform.sudokeymanager.KeyManagerFactory
@@ -83,6 +86,11 @@ open class BaseTest {
             .build()
     }
 
+    private val entitlementsAdminClient by lazy {
+        val adminApiKey = readArgument("ADMIN_API_KEY", "api.key")
+        SudoEntitlementsAdminClient.builder(context, adminApiKey).build()
+    }
+
     protected val vcClient by lazy {
         SudoVirtualCardsClient.builder()
             .setContext(context)
@@ -147,6 +155,28 @@ open class BaseTest {
         return configFiles.size == 1
     }
 
+    /**
+     * Any tests which use simulateTransactions must call this first and exit out if the simulator
+     * is not available.
+     */
+    protected fun isTransactionSimulatorAvailable(): Boolean {
+        try {
+            // Note that if the config section is not present, the getClient method will fall
+            // back to the default.
+            // In a correctly configured system, the vcSimulator does not stitch
+            // in with the 'real' services so if the items are the same, then the vcSimulator getClient
+            // has returned the default and the section - and thus the service - is not present.
+            val client = ApiClientManager.getClient(context, userClient, "vcSimulator")
+            val defaultClient = ApiClientManager.getClient(context, userClient)
+            if (client == defaultClient) {
+                return false
+            }
+        } catch (e: Exception) {
+            return false
+        }
+        return true
+    }
+
     private suspend fun register() {
         userClient.isRegistered() shouldBe false
 
@@ -195,6 +225,18 @@ open class BaseTest {
         userClient.isRegistered() shouldBe true
         signIn()
         userClient.isSignedIn() shouldBe true
+
+        val externalId = entitlementsClient.getExternalId()
+        val entitlements = mutableListOf(
+            Entitlement("sudoplatform.sudo.max", "test", 3),
+            Entitlement("sudoplatform.identity-verification.verifyIdentityUserEntitled", "test", 1),
+            Entitlement("sudoplatform.virtual-cards.serviceUserEntitled", "test", 1),
+            Entitlement("sudoplatform.virtual-cards.virtualCardMaxPerSudo", "test", 5),
+            Entitlement("sudoplatform.virtual-cards.virtualCardProvisionUserEntitled", "test", 1),
+            Entitlement("sudoplatform.virtual-cards.virtualCardTransactUserEntitled", "test", 1),
+        )
+
+        entitlementsAdminClient.applyEntitlementsToUser(externalId, entitlements)
         entitlementsClient.redeemEntitlements()
     }
 

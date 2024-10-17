@@ -52,6 +52,7 @@ class SudoVirtualCardsSimulatorClientIntegrationTest : BaseTest() {
     @Test
     fun getSimulatorMerchantsShouldReturnResults() = runBlocking {
         assumeTrue(apiKeyPresent())
+        assumeTrue(isTransactionSimulatorAvailable())
 
         val merchants = simulatorClient.getSimulatorMerchants()
         merchants.isEmpty() shouldBe false
@@ -74,6 +75,7 @@ class SudoVirtualCardsSimulatorClientIntegrationTest : BaseTest() {
     @Test
     fun getSimulatorConversionRatesShouldReturnResults() = runBlocking<Unit> {
         assumeTrue(apiKeyPresent())
+        assumeTrue(isTransactionSimulatorAvailable())
 
         val currencies = simulatorClient.getSimulatorConversionRates()
         currencies.isEmpty() shouldBe false
@@ -94,6 +96,7 @@ class SudoVirtualCardsSimulatorClientIntegrationTest : BaseTest() {
     fun simulateAuthorizationShouldSucceed() = runBlocking {
         assumeTrue(apiKeyPresent())
         assumeTrue(clientConfigPresent())
+        assumeTrue(isTransactionSimulatorAvailable())
 
         // Log in and perform ID verification
         signInAndRegister()
@@ -130,6 +133,7 @@ class SudoVirtualCardsSimulatorClientIntegrationTest : BaseTest() {
     fun simulateIncrementalAuthorizationShouldSucceed() = runBlocking {
         assumeTrue(apiKeyPresent())
         assumeTrue(clientConfigPresent())
+        assumeTrue(isTransactionSimulatorAvailable())
 
         signInAndRegister()
         verifyTestUserIdentity()
@@ -169,6 +173,7 @@ class SudoVirtualCardsSimulatorClientIntegrationTest : BaseTest() {
     fun simulateDebitShouldSucceed() = runBlocking {
         assumeTrue(apiKeyPresent())
         assumeTrue(clientConfigPresent())
+        assumeTrue(isTransactionSimulatorAvailable())
 
         signInAndRegister()
         verifyTestUserIdentity()
@@ -209,6 +214,7 @@ class SudoVirtualCardsSimulatorClientIntegrationTest : BaseTest() {
     fun simulateRefundShouldSucceed() = runBlocking {
         assumeTrue(apiKeyPresent())
         assumeTrue(clientConfigPresent())
+        assumeTrue(isTransactionSimulatorAvailable())
 
         signInAndRegister()
         verifyTestUserIdentity()
@@ -334,6 +340,7 @@ class SudoVirtualCardsSimulatorClientIntegrationTest : BaseTest() {
     @Test
     fun simulateAuthorizationShouldFailWithBogusCard() = runBlocking<Unit> {
         assumeTrue(apiKeyPresent())
+        assumeTrue(isTransactionSimulatorAvailable())
 
         val merchant = simulatorClient.getSimulatorMerchants().first()
 
@@ -353,6 +360,7 @@ class SudoVirtualCardsSimulatorClientIntegrationTest : BaseTest() {
     @Test
     fun simulateIncrementalAuthorizationShouldFailWithBogusAuthorization() = runBlocking<Unit> {
         assumeTrue(apiKeyPresent())
+        assumeTrue(isTransactionSimulatorAvailable())
 
         val input = SimulateIncrementalAuthorizationInput(
             authorizationId = "6666666666666666",
@@ -367,6 +375,7 @@ class SudoVirtualCardsSimulatorClientIntegrationTest : BaseTest() {
     @Test
     fun simulateDebitShouldFailWithBogusAuthorization() = runBlocking<Unit> {
         assumeTrue(apiKeyPresent())
+        assumeTrue(isTransactionSimulatorAvailable())
 
         val input = SimulateDebitInput(
             authorizationId = "6666666666666666",
@@ -381,6 +390,7 @@ class SudoVirtualCardsSimulatorClientIntegrationTest : BaseTest() {
     @Test
     fun simulateRefundShouldFailWithBogusDebit() = runBlocking<Unit> {
         assumeTrue(apiKeyPresent())
+        assumeTrue(isTransactionSimulatorAvailable())
 
         val input = SimulateRefundInput(
             debitId = "6666666666666666",
@@ -395,6 +405,7 @@ class SudoVirtualCardsSimulatorClientIntegrationTest : BaseTest() {
     @Test
     fun simulateReversalShouldFailWithBogusAuthorization() = runBlocking<Unit> {
         assumeTrue(apiKeyPresent())
+        assumeTrue(isTransactionSimulatorAvailable())
 
         val input = SimulateReversalInput(
             authorizationId = "6666666666666666",
@@ -410,6 +421,7 @@ class SudoVirtualCardsSimulatorClientIntegrationTest : BaseTest() {
     fun authorizationExpiryExpiredAuthorizationShouldFail() = runBlocking<Unit> {
         assumeTrue(apiKeyPresent())
         assumeTrue(clientConfigPresent())
+        assumeTrue(isTransactionSimulatorAvailable())
 
         // Log in and perform ID verification
         signInAndRegister()
@@ -465,6 +477,7 @@ class SudoVirtualCardsSimulatorClientIntegrationTest : BaseTest() {
     @Test
     fun simulateAuthorizationExpiryShouldFailWithBogusAuthorization() = runBlocking<Unit> {
         assumeTrue(apiKeyPresent())
+        assumeTrue(isTransactionSimulatorAvailable())
 
         shouldThrow<SudoVirtualCardsSimulatorClient.AuthorizationException.AuthorizationNotFoundException> {
             simulatorClient.simulateAuthorizationExpiry("6666666666666666")

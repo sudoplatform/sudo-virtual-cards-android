@@ -76,6 +76,7 @@ class SudoVirtualCardsSimulatorTransactionPerformanceTest : BaseTest() {
     fun measureTimeToListManyTransactions() = runBlocking<Unit> {
         assumeTrue(apiKeyPresent())
         assumeTrue(clientConfigPresent())
+        assumeTrue(isTransactionSimulatorAvailable())
 
         // Log in and perform ID verification
         signInAndRegister()
