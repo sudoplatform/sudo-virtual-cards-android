@@ -20,6 +20,9 @@ import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
+import com.sudoplatform.sudovirtualcards.types.SortOrder
+import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceFilterInput
+import com.sudoplatform.sudovirtualcards.types.inputs.IdFilterInput
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
@@ -218,8 +221,9 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
             mockOperation
         }
 
+        val filterInput = FundingSourceFilterInput(IdFilterInput(eq = "dummyId"))
         val deferredResult = async(Dispatchers.IO) {
-            client.listFundingSources(1, "dummyNextToken")
+            client.listFundingSources(filterInput, SortOrder.ASC, limit = 1, "dummyNextToken")
         }
         deferredResult.start()
         delay(100L)

@@ -448,10 +448,32 @@ type ProvisionalFundingSourceConnection {
   nextToken: String
 }
 
+input FundingSourceStateFilterInput {
+  eq: FundingSourceState
+  ne: FundingSourceState
+}
+
+input FundingSourceFilterInput {
+  id: IDFilterInput
+  state: FundingSourceStateFilterInput
+  and: [FundingSourceFilterInput!]
+  or: [FundingSourceFilterInput!]
+  not: FundingSourceFilterInput
+}
+
 input ProvisionalCardFilterInput {
   id: IDFilterInput
   owner: IDFilterInput
   clientRefId: IDFilterInput
+}
+
+input CardFilterInput {
+  id: IDFilterInput
+  keyId: IDFilterInput
+  state: IDFilterInput
+  and: [CardFilterInput!]
+  or: [CardFilterInput!]
+  not: CardFilterInput
 }
 
 input IDFilterInput {
@@ -492,9 +514,15 @@ type Query {
   ): PaginatedPublicKey!
   getFundingSourceClientConfiguration: FundingSourceClientConfiguration!
   getFundingSource(id: ID!): FundingSource
-  listFundingSources(limit: Int, nextToken: String): FundingSourceConnection!
+  listFundingSources(
+    filter: FundingSourceFilterInput
+    sortOrder: SortOrder
+    limit: Int
+    nextToken: String
+  ): FundingSourceConnection!
   listProvisionalFundingSources(
     filter: ProvisionalFundingSourceFilterInput
+    sortOrder: SortOrder
     limit: Int
     nextToken: String
   ): ProvisionalFundingSourceConnection!
@@ -505,7 +533,12 @@ type Query {
     nextToken: String
   ): ProvisionalCardConnection!
   getCard(id: ID!, keyId: String): SealedCard
-  listCards(limit: Int, nextToken: String): SealedCardConnection!
+  listCards(
+    filter: CardFilterInput
+    sortOrder: SortOrder
+    limit: Int
+    nextToken: String
+  ): SealedCardConnection!
   getTransaction(id: ID!, keyId: String): SealedTransaction
   listTransactions2(
     limit: Int,

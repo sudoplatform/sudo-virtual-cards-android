@@ -43,11 +43,13 @@ import com.sudoplatform.sudovirtualcards.types.TransactionType
 import com.sudoplatform.sudovirtualcards.types.VirtualCard
 import com.sudoplatform.sudovirtualcards.types.VirtualCardsConfig
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
+import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.types.inputs.RefreshFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
+import com.sudoplatform.sudovirtualcards.types.inputs.VirtualCardFilterInput
 import java.util.Objects
 
 /**
@@ -362,6 +364,8 @@ interface SudoVirtualCardsClient : AutoCloseable {
      *
      * @param filter [ProvisionalFundingSourceFilterInput] Optional parameters used to filter the set
      *  of provisional funding sources returned. If omitted, no filter is applied.
+     * @param sortOrder [SortOrder] Order in which records are returned (based on date/time at which the
+     *  provisional funding source was updated). The default order is descending, ie, most recently updated first.
      * @param limit [Int] Maximum number of [ProvisionalFundingSource]s to return. If omitted the
      *  limit defaults to 10.
      * @param nextToken [String] A token generated from previous calls to [listProvisionalFundingSources].
@@ -376,6 +380,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
     @Throws(FundingSourceException::class)
     suspend fun listProvisionalFundingSources(
         filter: ProvisionalFundingSourceFilterInput? = null,
+        sortOrder: SortOrder? = null,
         limit: Int = DEFAULT_FUNDING_SOURCE_LIMIT,
         nextToken: String? = null,
     ): ListOutput<ProvisionalFundingSource>
@@ -419,6 +424,9 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * If no [FundingSource]s can be found, the [ListOutput] will contain null for the [ListOutput.nextToken]
      * field and contain an empty [ListOutput.items] list.
      *
+     * @param filter [FundingSourceFilterInput] The filter to be applied to the list of funding sources to return.
+     * @param sortOrder [SortOrder] Order in which records are returned (based on date/time at which the funding
+     *  source was updated). The default order is descending, ie, most recently updated first.
      * @param limit [Int] Maximum number of [FundingSource]s to return. If omitted the limit defaults to 10.
      * @param nextToken [String] A token generated from previous calls to [listFundingSources].
      *  This is to allow for pagination. This value should be generated from a
@@ -430,6 +438,8 @@ interface SudoVirtualCardsClient : AutoCloseable {
      */
     @Throws(FundingSourceException::class)
     suspend fun listFundingSources(
+        filter: FundingSourceFilterInput? = null,
+        sortOrder: SortOrder? = null,
         limit: Int = DEFAULT_FUNDING_SOURCE_LIMIT,
         nextToken: String? = null,
     ): ListOutput<FundingSource>
@@ -533,6 +543,9 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * To ensure you obtain all the virtual cards that match, you should continue to call this method
      * whenever the [nextToken] field is not null, even if the items list is empty.
      *
+     * @param filter [VirtualCardFilterInput] The filter to be applied to the list of virtual cards to return.
+     * @param sortOrder [SortOrder] Order in which records are returned (based on date/time at which the virtual
+     *  card was updated). The default order is descending, ie, most recently updated first.
      * @param limit [Int] Maximum number of [VirtualCard]s to return. If omitted the limit defaults to 10.
      * @param nextToken [String] A token generated from previous calls to [listVirtualCards].
      *  This is to allow for pagination. This value should be generated from a
@@ -545,6 +558,8 @@ interface SudoVirtualCardsClient : AutoCloseable {
      */
     @Throws(VirtualCardException::class)
     suspend fun listVirtualCards(
+        filter: VirtualCardFilterInput? = null,
+        sortOrder: SortOrder? = SortOrder.DESC,
         limit: Int = DEFAULT_CARD_LIMIT,
         nextToken: String? = null,
     ): ListAPIResult<VirtualCard, PartialVirtualCard>

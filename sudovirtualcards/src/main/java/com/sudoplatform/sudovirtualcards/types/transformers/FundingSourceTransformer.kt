@@ -19,7 +19,6 @@ import com.sudoplatform.sudovirtualcards.graphql.RefreshFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.ReviewUnfundedFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.SandboxSetFundingSourceToRequireRefreshMutation
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
-import com.sudoplatform.sudovirtualcards.graphql.type.IDFilterInput
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceState
 import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
 import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
@@ -32,16 +31,20 @@ import com.sudoplatform.sudovirtualcards.types.FundingSourceState
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.TransactionVelocity
-import com.sudoplatform.sudovirtualcards.types.inputs.IdFilterInput
+import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceFilterInput
+import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceStateFilterInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceStateFilterInput
+import toIDFilterInput
 import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource as BankAccountFundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.fragment.CreditCardFundingSource as CreditCardFundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalFundingSource as ProvisionalFundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType as GraphqlBankAccountType
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType as GraphqlCardType
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceFilterInput as GraphQlFundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceFlags as GraphqlFundingSourceFlags
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as GraphqlFundingSourceState
+import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceStateFilterInput as GraphQlFundingSourceStateFilterInput
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType as GraphqlFundingSourceType
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceFilterInput as GraphQlProvisionalFundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceStateFilterInput as GraphQlProvisionalFundingSourceStateFilterInput
@@ -360,24 +363,19 @@ internal object FundingSourceTransformer {
     }
 
     /**
-     * Transform the input type [IdFilterInput] into the corresponding GraphQL
-     * type [IDFilterInput].
+     * Transform the input type [FundingSourceFilterInput] into the corresponding GraphQL
+     * type [GraphQlFundingSourceFilterInput].
      */
-    private fun IdFilterInput?.toIDFilterInput(): IDFilterInput? {
+    fun FundingSourceFilterInput?.toFundingSourceFilterInput(): GraphQlFundingSourceFilterInput? {
         if (this == null) {
             return null
         }
-        return IDFilterInput(
-            beginsWith = Optional.presentIfNotNull(beginsWith),
-            between = Optional.presentIfNotNull(between?.map { it }),
-            contains = Optional.presentIfNotNull(contains),
-            eq = Optional.presentIfNotNull(eq),
-            ge = Optional.presentIfNotNull(ge),
-            gt = Optional.presentIfNotNull(gt),
-            le = Optional.presentIfNotNull(le),
-            lt = Optional.presentIfNotNull(lt),
-            ne = Optional.presentIfNotNull(ne),
-            notContains = Optional.presentIfNotNull(notContains),
+        return GraphQlFundingSourceFilterInput(
+            and = Optional.presentIfNotNull(and?.mapNotNull { it.toFundingSourceFilterInput() }),
+            id = Optional.presentIfNotNull(id?.toIDFilterInput()),
+            not = Optional.presentIfNotNull(not?.toFundingSourceFilterInput()),
+            or = Optional.presentIfNotNull(or?.mapNotNull { it.toFundingSourceFilterInput() }),
+            state = Optional.presentIfNotNull(state?.toFundingSourceStateFilterInput()),
         )
     }
 
@@ -393,6 +391,20 @@ internal object FundingSourceTransformer {
         return GraphQlProvisionalFundingSourceStateFilterInput(
             eq = Optional.presentIfNotNull(eq?.toGraphQlProvisioningState()),
             ne = Optional.presentIfNotNull(ne?.toGraphQlProvisioningState()),
+        )
+    }
+
+    /**
+     * Transform the input type [FundingSourceStateFilterInput] into the corresponding GraphQL
+     * type [GraphQlFundingSourceStateFilterInput].
+     */
+    private fun FundingSourceStateFilterInput?.toFundingSourceStateFilterInput(): GraphQlFundingSourceStateFilterInput? {
+        if (this == null) {
+            return null
+        }
+        return GraphQlFundingSourceStateFilterInput(
+            eq = Optional.presentIfNotNull(eq?.toGraphQlFundingSourceSate()),
+            ne = Optional.presentIfNotNull(ne?.toGraphQlFundingSourceSate()),
         )
     }
 
@@ -481,6 +493,15 @@ internal object FundingSourceTransformer {
         }
         return FundingSourceState.UNKNOWN
     }
+    private fun FundingSourceState.toGraphQlFundingSourceSate(): GraphqlFundingSourceState {
+        for (value in GraphqlFundingSourceState.entries) {
+            if (value.name == this.name) {
+                return value
+            }
+        }
+        throw IllegalArgumentException("Unrecognized Funding Source State")
+    }
+
     private fun toEntityFlags(input: GraphqlFundingSourceFlags): FundingSourceFlags {
         for (value in FundingSourceFlags.entries) {
             if (value.name == input.name) {

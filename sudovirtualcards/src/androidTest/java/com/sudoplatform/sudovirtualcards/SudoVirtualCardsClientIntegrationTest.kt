@@ -30,11 +30,13 @@ import com.sudoplatform.sudovirtualcards.types.ListAPIResult
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
 import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
+import com.sudoplatform.sudovirtualcards.types.SortOrder
 import com.sudoplatform.sudovirtualcards.types.StripeCardProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
 import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInput
+import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.types.inputs.IdFilterInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceFilterInput
@@ -42,6 +44,7 @@ import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceSt
 import com.sudoplatform.sudovirtualcards.types.inputs.RefreshFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
+import com.sudoplatform.sudovirtualcards.types.inputs.VirtualCardFilterInput
 import com.sudoplatform.sudovirtualcards.util.CreateBankAccountFundingSourceOptions
 import com.sudoplatform.sudovirtualcards.util.CreateCardFundingSourceOptions
 import io.kotlintest.fail
@@ -856,15 +859,17 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             }
         }
         fundingSourceCount shouldBeGreaterThan 0
+        // defaults (sortOrder is descending)
         val listFundingSources = vcClient.listFundingSources()
         listFundingSources.items.isEmpty() shouldBe false
         listFundingSources.items.size shouldBe fundingSourceCount
         listFundingSources.nextToken shouldBe null
 
         val fundingSources = listFundingSources.items
+        var sortedFundingSources = createdFundingSources.sortedByDescending { it.updatedAt }
         for (i in 0 until fundingSourceCount) {
             val fundingSource = fundingSources[i] as CreditCardFundingSource
-            val createdFundingSource = createdFundingSources[i] as CreditCardFundingSource
+            val createdFundingSource = sortedFundingSources[i] as CreditCardFundingSource
             with(fundingSource) {
                 id shouldBe createdFundingSource.id
                 owner shouldBe createdFundingSource.owner
@@ -874,6 +879,45 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 last4 shouldBe createdFundingSource.last4
                 network shouldBe createdFundingSource.network
             }
+        }
+
+        // ascending sort order
+        val listAscendingFundingSources = vcClient.listFundingSources(null, SortOrder.ASC)
+        listAscendingFundingSources.items.isEmpty() shouldBe false
+        listAscendingFundingSources.items.size shouldBe fundingSourceCount
+        listAscendingFundingSources.nextToken shouldBe null
+        val ascendingFundingSources = listAscendingFundingSources.items
+        sortedFundingSources = createdFundingSources.sortedBy { it.updatedAt }
+        for (i in 0 until fundingSourceCount) {
+            val fundingSource = ascendingFundingSources[i] as CreditCardFundingSource
+            val createdFundingSource = sortedFundingSources[i] as CreditCardFundingSource
+            with(fundingSource) {
+                id shouldBe createdFundingSource.id
+                owner shouldBe createdFundingSource.owner
+                version shouldBe createdFundingSource.version
+                state shouldBe createdFundingSource.state
+                currency shouldBe createdFundingSource.currency
+                last4 shouldBe createdFundingSource.last4
+                network shouldBe createdFundingSource.network
+            }
+        }
+
+        // filtered
+        val filterInput = FundingSourceFilterInput(IdFilterInput(eq = createdFundingSources[0].id))
+        val listFilteredFundingSources = vcClient.listFundingSources(filterInput, SortOrder.ASC)
+        listFilteredFundingSources.items.isEmpty() shouldBe false
+        listFilteredFundingSources.items.size shouldBe 1
+        listAscendingFundingSources.nextToken shouldBe null
+        val filteredFundingSource = listFilteredFundingSources.items[0] as CreditCardFundingSource
+        val createdFundingSource = createdFundingSources[0] as CreditCardFundingSource
+        with(filteredFundingSource) {
+            id shouldBe createdFundingSources[0].id
+            owner shouldBe createdFundingSource.owner
+            version shouldBe createdFundingSource.version
+            state shouldBe createdFundingSource.state
+            currency shouldBe createdFundingSource.currency
+            last4 shouldBe createdFundingSource.last4
+            network shouldBe createdFundingSource.network
         }
     }
 
@@ -1118,6 +1162,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         verifyTestUserIdentity()
 
         var provisionalCount = 0
+        val createdProvisionalFundingSources = mutableListOf<ProvisionalFundingSource>()
 
         if (isStripeEnabled(vcClient)) {
             val setupStripeInput = SetupFundingSourceInput(
@@ -1139,6 +1184,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 stripeProvisioningData.clientSecret shouldNotBe null
                 stripeProvisioningData.intent shouldNotBe null
             }
+            createdProvisionalFundingSources.add(stripeProvisionalFundingSource)
             ++provisionalCount
         }
 
@@ -1162,6 +1208,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 val checkoutProvisioningData = provisioningData as CheckoutCardProvisioningData
                 checkoutProvisioningData shouldNotBe null
             }
+            createdProvisionalFundingSources.add(checkoutCardProvisionalFundingSource)
             ++provisionalCount
         }
 
@@ -1185,14 +1232,52 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 val checkoutProvisioningData = provisioningData as CheckoutBankAccountProvisioningData
                 checkoutProvisioningData shouldNotBe null
             }
+            createdProvisionalFundingSources.add(checkoutBankAccountProvisionalFundingSource)
             ++provisionalCount
         }
         provisionalCount shouldBeGreaterThan 0
-        val provisionalFundingSources = vcClient.listProvisionalFundingSources()
-        provisionalFundingSources.items.size shouldBe provisionalCount
+        // defaults (sortOrder is descending)
+        val listProvisionalFundingSources = vcClient.listProvisionalFundingSources()
+        listProvisionalFundingSources.items.size shouldBe provisionalCount
+        val provisionalFundingSources = listProvisionalFundingSources.items
+        var sortedProvisionalFundingSources = createdProvisionalFundingSources.sortedByDescending { it.updatedAt }
+        for (i in 0 until provisionalCount) {
+            val provisionalFundingSource = provisionalFundingSources[i]
+            val createdProvisionalFundingSource = sortedProvisionalFundingSources[i]
+            with(provisionalFundingSource) {
+                id shouldBe createdProvisionalFundingSource.id
+                owner shouldBe createdProvisionalFundingSource.owner
+                type shouldBe createdProvisionalFundingSource.type
+                updatedAt shouldBe createdProvisionalFundingSource.updatedAt
+                provisioningData shouldBe createdProvisionalFundingSource.provisioningData
+                version shouldBe createdProvisionalFundingSource.version
+                state shouldBe createdProvisionalFundingSource.state
+                last4 shouldBe createdProvisionalFundingSource.last4
+            }
+        }
+
+        // Ascending sortOrder
+        val listAscendingProvisionalFundingSources = vcClient.listProvisionalFundingSources(null, SortOrder.ASC)
+        listAscendingProvisionalFundingSources.items.size shouldBe provisionalCount
+        val ascendingProvisionalFundingSources = listAscendingProvisionalFundingSources.items
+        sortedProvisionalFundingSources = createdProvisionalFundingSources.sortedBy { it.updatedAt }
+        for (i in 0 until provisionalCount) {
+            val provisionalFundingSource = ascendingProvisionalFundingSources[i]
+            val createdProvisionalFundingSource = sortedProvisionalFundingSources[i]
+            with(provisionalFundingSource) {
+                id shouldBe createdProvisionalFundingSource.id
+                owner shouldBe createdProvisionalFundingSource.owner
+                type shouldBe createdProvisionalFundingSource.type
+                updatedAt shouldBe createdProvisionalFundingSource.updatedAt
+                provisioningData shouldBe createdProvisionalFundingSource.provisioningData
+                version shouldBe createdProvisionalFundingSource.version
+                state shouldBe createdProvisionalFundingSource.state
+                last4 shouldBe createdProvisionalFundingSource.last4
+            }
+        }
 
         val randomOffset = (0 until provisionalCount).random()
-        val idToGet = provisionalFundingSources.items[randomOffset].id
+        val idToGet = listProvisionalFundingSources.items[randomOffset].id
         val filteredProvisionalFundingSources = vcClient.listProvisionalFundingSources(
             ProvisionalFundingSourceFilterInput(IdFilterInput(null, idToGet)),
         )
@@ -2179,6 +2264,7 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         // Since card2 is created after card1 it should be returned first in the list
         val expectedCards = arrayOf(card2, card1)
 
+        // defaults (sortOrder is descending)
         val listCards = vcClient.listVirtualCards()
         listCards shouldNotBe null
 
@@ -2212,6 +2298,88 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                     actualCards[i].version shouldBeGreaterThan 0
                 }
             }
+
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
+        }
+
+        // ascending sort order
+        val ascendingListCards = vcClient.listVirtualCards(null, SortOrder.ASC)
+        ascendingListCards shouldNotBe null
+        when (ascendingListCards) {
+            is ListAPIResult.Success -> {
+                ascendingListCards.result.items.isEmpty() shouldBe false
+                ascendingListCards.result.items.size shouldBe 2
+                ascendingListCards.result.nextToken shouldBe null
+
+                val actualCards = ascendingListCards.result.items
+                val expectedAscendingCards = expectedCards.sortedBy { it.updatedAt }
+                for (i in expectedCards.indices) {
+                    actualCards[i].id shouldBe expectedAscendingCards[i].id
+                    actualCards[i].cardNumber shouldBe expectedAscendingCards[i].cardNumber
+                    actualCards[i].last4 shouldBe expectedAscendingCards[i].last4
+                    actualCards[i].cardHolder shouldBe expectedAscendingCards[i].cardHolder
+                    actualCards[i].alias shouldBe expectedAscendingCards[i].alias
+                    actualCards[i].fundingSourceId shouldBe expectedAscendingCards[i].fundingSourceId
+                    actualCards[i].state shouldBe expectedAscendingCards[i].state
+                    actualCards[i].billingAddress shouldBe expectedAscendingCards[i].billingAddress
+                    actualCards[i].currency shouldBe expectedAscendingCards[i].currency
+                    actualCards[i].owner shouldBe expectedAscendingCards[i].owner
+                    actualCards[i].owners.first().id shouldBe expectedAscendingCards[i].owners.first().id
+                    actualCards[i].owners.first().issuer shouldBe expectedAscendingCards[i].owners.first().issuer
+                    actualCards[i].cancelledAt shouldBe expectedAscendingCards[i].cancelledAt
+                    actualCards[i].activeTo.time shouldBeGreaterThan 0L
+                    actualCards[i].createdAt.time shouldBeGreaterThan 0L
+                    actualCards[i].updatedAt.time shouldBeGreaterThan 0L
+                    actualCards[i].expiry.mm.toInt() shouldBeGreaterThan 0
+                    actualCards[i].expiry.yyyy.toInt() shouldBeGreaterThan 0
+                    actualCards[i].securityCode shouldBe expectedAscendingCards[i].securityCode
+                    actualCards[i].version shouldBeGreaterThan 0
+                }
+            }
+
+            else -> {
+                fail("Unexpected ListAPIResult")
+            }
+        }
+
+        // filtered
+        val filterInput = VirtualCardFilterInput(IdFilterInput(eq = expectedCards[0].id))
+        val filteredListCards = vcClient.listVirtualCards(filterInput, SortOrder.ASC)
+        filteredListCards shouldNotBe null
+        when (filteredListCards) {
+            is ListAPIResult.Success -> {
+                filteredListCards.result.items.isEmpty() shouldBe false
+                filteredListCards.result.items.size shouldBe 1
+                filteredListCards.result.nextToken shouldBe null
+
+                val filteredCard = filteredListCards.result.items[0]
+                val expectedCard = expectedCards[0]
+                with(filteredCard) {
+                    id shouldBe expectedCard.id
+                    cardNumber shouldBe expectedCard.cardNumber
+                    last4 shouldBe expectedCard.last4
+                    cardHolder shouldBe expectedCard.cardHolder
+                    alias shouldBe expectedCard.alias
+                    fundingSourceId shouldBe expectedCard.fundingSourceId
+                    state shouldBe expectedCard.state
+                    billingAddress shouldBe expectedCard.billingAddress
+                    currency shouldBe expectedCard.currency
+                    owner shouldBe expectedCard.owner
+                    owners.first().id shouldBe expectedCard.owners.first().id
+                    owners.first().issuer shouldBe expectedCard.owners.first().issuer
+                    cancelledAt shouldBe expectedCard.cancelledAt
+                    activeTo.time shouldBeGreaterThan 0L
+                    createdAt.time shouldBeGreaterThan 0L
+                    updatedAt.time shouldBeGreaterThan 0L
+                    expiry.mm.toInt() shouldBeGreaterThan 0
+                    expiry.yyyy.toInt() shouldBeGreaterThan 0
+                    securityCode shouldBe expectedCard.securityCode
+                    version shouldBeGreaterThan 0
+                }
+            }
+
             else -> {
                 fail("Unexpected ListAPIResult")
             }

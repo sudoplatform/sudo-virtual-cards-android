@@ -49,8 +49,18 @@ query GetFundingSource($id: ID!) {
   }
 }
 
-query ListFundingSources($limit: Int, $nextToken: String) {
-  listFundingSources(limit: $limit, nextToken: $nextToken) {
+query ListFundingSources(
+  $filter: FundingSourceFilterInput
+  $sortOrder: SortOrder
+  $limit: Int
+  $nextToken: String
+) {
+  listFundingSources(
+    filter: $filter
+    sortOrder: $sortOrder
+    limit: $limit
+    nextToken: $nextToken
+  ) {
     items {
       ... on CreditCardFundingSource {
         ...CreditCardFundingSource
@@ -64,11 +74,13 @@ query ListFundingSources($limit: Int, $nextToken: String) {
 }
 query ListProvisionalFundingSources(
   $filter: ProvisionalFundingSourceFilterInput
+  $sortOrder: SortOrder
   $limit: Int
   $nextToken: String
   ) {
     listProvisionalFundingSources(
       filter: $filter
+      sortOrder: $sortOrder
       limit: $limit
       nextToken: $nextToken
     ) {
@@ -104,8 +116,18 @@ query GetCard($id: ID!, $keyId: String) {
   }
 }
 
-query ListCards($limit: Int, $nextToken: String) {
-  listCards(limit: $limit, nextToken: $nextToken) {
+query ListCards(
+  $filter: CardFilterInput
+  $sortOrder: SortOrder
+  $limit: Int
+  $nextToken: String
+) {
+  listCards(
+    filter: $filter
+    sortOrder: $sortOrder
+    limit: $limit
+    nextToken: $nextToken
+  ) {
     items {
       ...SealedCardWithLastTransaction
     }

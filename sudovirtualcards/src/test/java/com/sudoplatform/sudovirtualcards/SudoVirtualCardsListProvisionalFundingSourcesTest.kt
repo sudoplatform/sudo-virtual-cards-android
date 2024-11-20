@@ -19,7 +19,10 @@ import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.graphql.ListProvisionalFundingSourcesQuery
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceState
+import com.sudoplatform.sudovirtualcards.types.SortOrder
 import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
+import com.sudoplatform.sudovirtualcards.types.inputs.IdFilterInput
+import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceFilterInput
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
@@ -222,8 +225,9 @@ class SudoVirtualCardsListProvisionalFundingSourcesTest : BaseTests() {
             mockOperation
         }
 
+        val filterInput = ProvisionalFundingSourceFilterInput(IdFilterInput(eq = "dummyId"))
         val deferredResult = async(Dispatchers.IO) {
-            client.listProvisionalFundingSources()
+            client.listProvisionalFundingSources(filterInput, SortOrder.ASC, 1, "dummyNextToken")
         }
         deferredResult.start()
 

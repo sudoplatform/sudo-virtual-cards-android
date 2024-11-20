@@ -89,13 +89,16 @@ import com.sudoplatform.sudovirtualcards.types.TransactionType
 import com.sudoplatform.sudovirtualcards.types.VirtualCard
 import com.sudoplatform.sudovirtualcards.types.VirtualCardsConfig
 import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
+import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.types.inputs.RefreshFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
+import com.sudoplatform.sudovirtualcards.types.inputs.VirtualCardFilterInput
 import com.sudoplatform.sudovirtualcards.types.transformers.DateRangeTransformer.toDateRangeInput
 import com.sudoplatform.sudovirtualcards.types.transformers.FundingSourceTransformer
+import com.sudoplatform.sudovirtualcards.types.transformers.FundingSourceTransformer.toFundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.types.transformers.FundingSourceTransformer.toProvisionalFundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.types.transformers.KeyType
 import com.sudoplatform.sudovirtualcards.types.transformers.ProviderDataTransformer
@@ -105,6 +108,7 @@ import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
 import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer
 import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer.toAddressInput
 import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer.toMetadataInput
+import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer.toVirtualCardFilterInput
 import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardsConfigTransformer
 import java.net.HttpURLConnection
 import java.util.Calendar
@@ -256,6 +260,7 @@ internal class DefaultSudoVirtualCardsClient(
     @Throws(FundingSourceException::class)
     override suspend fun listProvisionalFundingSources(
         filter: ProvisionalFundingSourceFilterInput?,
+        sortOrder: SortOrder?,
         limit: Int,
         nextToken: String?,
     ): ListOutput<ProvisionalFundingSource> {
@@ -264,6 +269,7 @@ internal class DefaultSudoVirtualCardsClient(
                 ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT,
                 mapOf(
                     "filter" to Optional.presentIfNotNull(filter.toProvisionalFundingSourceFilterInput()),
+                    "sortOrder" to Optional.presentIfNotNull(sortOrder?.toSortOrderInput(sortOrder)),
                     "limit" to Optional.presentIfNotNull(limit),
                     "nextToken" to Optional.presentIfNotNull(nextToken),
                 ),
@@ -456,6 +462,8 @@ internal class DefaultSudoVirtualCardsClient(
 
     @Throws(FundingSourceException::class)
     override suspend fun listFundingSources(
+        filter: FundingSourceFilterInput?,
+        sortOrder: SortOrder?,
         limit: Int,
         nextToken: String?,
     ): ListOutput<FundingSource> {
@@ -463,6 +471,8 @@ internal class DefaultSudoVirtualCardsClient(
             val queryResponse = graphQLClient.query<ListFundingSourcesQuery, ListFundingSourcesQuery.Data>(
                 ListFundingSourcesQuery.OPERATION_DOCUMENT,
                 mapOf(
+                    "filter" to Optional.presentIfNotNull(filter.toFundingSourceFilterInput()),
+                    "sortOrder" to Optional.presentIfNotNull(sortOrder?.toSortOrderInput(sortOrder)),
                     "limit" to Optional.presentIfNotNull(limit),
                     "nextToken" to Optional.presentIfNotNull(nextToken),
                 ),
@@ -684,6 +694,8 @@ internal class DefaultSudoVirtualCardsClient(
 
     @Throws(VirtualCardException::class)
     override suspend fun listVirtualCards(
+        filter: VirtualCardFilterInput?,
+        sortOrder: SortOrder?,
         limit: Int,
         nextToken: String?,
     ): ListAPIResult<VirtualCard, PartialVirtualCard> {
@@ -691,6 +703,8 @@ internal class DefaultSudoVirtualCardsClient(
             val queryResponse = graphQLClient.query<ListCardsQuery, ListCardsQuery.Data>(
                 ListCardsQuery.OPERATION_DOCUMENT,
                 mapOf(
+                    "filter" to Optional.presentIfNotNull(filter.toVirtualCardFilterInput()),
+                    "sortOrder" to Optional.presentIfNotNull(sortOrder?.toSortOrderInput(sortOrder)),
                     "limit" to Optional.presentIfNotNull(limit),
                     "nextToken" to Optional.presentIfNotNull(nextToken),
                 ),

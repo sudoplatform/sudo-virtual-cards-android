@@ -19,6 +19,9 @@ import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.graphql.ListCardsQuery
 import com.sudoplatform.sudovirtualcards.graphql.type.CardState
 import com.sudoplatform.sudovirtualcards.types.ListAPIResult
+import com.sudoplatform.sudovirtualcards.types.SortOrder
+import com.sudoplatform.sudovirtualcards.types.inputs.IdFilterInput
+import com.sudoplatform.sudovirtualcards.types.inputs.VirtualCardFilterInput
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -229,8 +232,9 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
             )
             mockOperation
         }
+        val filterInput = VirtualCardFilterInput(IdFilterInput(eq = "dummyId"))
         val deferredResult = async(Dispatchers.IO) {
-            client.listVirtualCards(1, "dummyNextToken")
+            client.listVirtualCards(filterInput, SortOrder.ASC, 1, "dummyNextToken")
         }
         deferredResult.start()
 

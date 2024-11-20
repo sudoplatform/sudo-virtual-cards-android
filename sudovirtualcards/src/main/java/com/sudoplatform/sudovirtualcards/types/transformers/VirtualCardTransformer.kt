@@ -28,7 +28,10 @@ import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
 import com.sudoplatform.sudovirtualcards.types.SymmetricKeyEncryptionAlgorithm
 import com.sudoplatform.sudovirtualcards.types.Transaction
 import com.sudoplatform.sudovirtualcards.types.VirtualCard
+import com.sudoplatform.sudovirtualcards.types.inputs.VirtualCardFilterInput
+import toIDFilterInput
 import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalCard as ProvisionalCardFragment
+import com.sudoplatform.sudovirtualcards.graphql.type.CardFilterInput as GraphQlCardFilterInput
 import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
 import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTypeEntity
 
@@ -172,6 +175,23 @@ internal object VirtualCardTransformer {
      */
     fun toPartialEntity(sealedCardWithLastTransaction: SealedCardWithLastTransaction): PartialVirtualCard {
         return toPartialEntity(sealedCardWithLastTransaction.sealedCard)
+    }
+
+    /**
+     * Transform the input type [VirtualCardFilterInput] into the corresponding GraphQL
+     * type [GraphQlCardFilterInput].
+     */
+    fun VirtualCardFilterInput?.toVirtualCardFilterInput(): GraphQlCardFilterInput? {
+        if (this == null) {
+            return null
+        }
+        return GraphQlCardFilterInput(
+            and = Optional.presentIfNotNull(and?.mapNotNull { it.toVirtualCardFilterInput() }),
+            id = Optional.presentIfNotNull(id?.toIDFilterInput()),
+            not = Optional.presentIfNotNull(not?.toVirtualCardFilterInput()),
+            or = Optional.presentIfNotNull(or?.mapNotNull { it.toVirtualCardFilterInput() }),
+            state = Optional.presentIfNotNull(state?.toIDFilterInput()),
+        )
     }
 
     /**
