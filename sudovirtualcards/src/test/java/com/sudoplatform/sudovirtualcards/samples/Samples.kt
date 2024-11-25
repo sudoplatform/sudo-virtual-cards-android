@@ -7,9 +7,13 @@
 package com.sudoplatform.sudovirtualcards.samples
 
 import android.content.Context
+import com.sudoplatform.sudonotification.SudoNotificationClient
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudovirtualcards.BaseTests
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
+import com.sudoplatform.sudovirtualcards.SudoVirtualCardsNotifiableClient
+import com.sudoplatform.sudovirtualcards.SudoVirtualCardsNotificationHandler
+import com.sudoplatform.sudovirtualcards.types.VirtualCardsFundingSourceChangedNotification
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
@@ -34,6 +38,24 @@ class Samples : BaseTests() {
         val virtualCardsClient = SudoVirtualCardsClient.builder()
             .setContext(context)
             .setSudoUserClient(sudoUserClient)
+            .build()
+    }
+
+    fun sudoVirtualCardsNotifiableClient(sudoUserClient: SudoUserClient) {
+        val notificationHandler = object : SudoVirtualCardsNotificationHandler {
+            override fun onFundingSourceChanged(notification: VirtualCardsFundingSourceChangedNotification) {
+                // Handle fundingSourceChanged notification
+            }
+        }
+
+        val notifiableClient = SudoVirtualCardsNotifiableClient.builder()
+            .setContext(context)
+            .setNotificationHandler(notificationHandler)
+            .build()
+
+        val sudoNotificationClient = SudoNotificationClient.builder()
+            .setSudoUserClient(sudoUserClient)
+            .setNotifiableClients(listOf(notifiableClient))
             .build()
     }
 }

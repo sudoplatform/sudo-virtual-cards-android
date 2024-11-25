@@ -2,6 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 apply plugin: "org.owasp.dependencycheck"
+apply plugin: "org.jetbrains.kotlin.plugin.serialization"
 
 android {
     compileSdk 34
@@ -96,7 +97,7 @@ dependencies {
     implementation "com.sudoplatform:sudoconfigmanager:8.0.0"
     implementation "com.sudoplatform:sudouser:20.0.0"
     implementation "com.sudoplatform:sudoapiclient:11.1.1"
-
+    implementation 'com.sudoplatform:sudonotification:4.0.1'
 
     // Testing
     testImplementation "junit:junit:4.13.2"
@@ -106,7 +107,7 @@ dependencies {
     testImplementation "org.mockito.kotlin:mockito-kotlin:5.3.1"
     testImplementation 'org.mockito:mockito-inline:5.2.0'
     testImplementation "androidx.test:core:1.6.1"
-    testImplementation 'org.robolectric:robolectric:4.12.1'
+    testImplementation 'org.robolectric:robolectric:4.12.2'
     testImplementation "com.jakewharton.timber:timber:5.0.1"
     testImplementation "commons-codec:commons-codec:1.17.0"
     testImplementation 'org.bouncycastle:bcpkix-jdk15to18:1.76'

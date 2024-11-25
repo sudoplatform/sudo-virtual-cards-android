@@ -58,6 +58,9 @@ const val UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG = "Unsupported funding sourc
  */
 internal object FundingSourceTransformer {
 
+    const val GraphQlCreditCardFundingSourceName = "CreditCardFundingSource"
+    const val GraphQlBankAccountFundingSourceName = "BankAccountFundingSource"
+
     /**
      * Transform the results of the complete funding source mutation.
      *
@@ -70,12 +73,12 @@ internal object FundingSourceTransformer {
         result: CompleteFundingSourceMutation.CompleteFundingSource,
     ): FundingSource {
         return when (result.__typename) {
-            "CreditCardFundingSource" -> {
+            GraphQlCreditCardFundingSourceName -> {
                 val fundingSource = result.onCreditCardFundingSource?.creditCardFundingSource
                     ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(fundingSource)
             }
-            "BankAccountFundingSource" -> {
+            GraphQlBankAccountFundingSourceName -> {
                 val fundingSource = result.onBankAccountFundingSource?.bankAccountFundingSource
                     ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(deviceKeyManager, fundingSource)

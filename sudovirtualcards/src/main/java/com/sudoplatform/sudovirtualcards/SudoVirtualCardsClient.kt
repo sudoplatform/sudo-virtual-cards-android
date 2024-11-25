@@ -80,6 +80,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
         private var graphQLClient: GraphQLClient? = null
         private var keyManager: KeyManagerInterface? = null
         private var publicKeyService: PublicKeyService? = null
+        private var notificationHandler: SudoVirtualCardsNotificationHandler? = null
         private var logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO))
         private var namespace: String = DEFAULT_KEY_NAMESPACE
         private var databaseName: String = AndroidSQLiteStore.DEFAULT_DATABASE_NAME
@@ -135,6 +136,14 @@ interface SudoVirtualCardsClient : AutoCloseable {
         }
 
         /**
+         * Set the notification handler which provides the implementation for notifications received
+         * from the virtual cards service
+         */
+        fun setNotificationHandler(notificationHandler: SudoVirtualCardsNotificationHandler) = also {
+            this.notificationHandler = notificationHandler
+        }
+
+        /**
          * Provide the database name to use for exportable key store database.
          */
         fun setDatabaseName(databaseName: String) = also {
@@ -180,6 +189,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
                 logger = logger,
                 deviceKeyManager = deviceKeyManager,
                 publicKeyService = publicKeyService,
+                notificationHandler = notificationHandler,
             )
         }
     }

@@ -14,6 +14,8 @@ import com.google.gson.Gson
 import com.sudoplatform.sudologging.AndroidUtilsLogDriver
 import com.sudoplatform.sudologging.LogLevel
 import com.sudoplatform.sudologging.Logger
+import com.sudoplatform.sudonotification.types.NotificationMetaData
+import com.sudoplatform.sudonotification.types.NotificationSchemaEntry
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudouser.exceptions.GRAPHQL_ERROR_TYPE
@@ -132,6 +134,7 @@ internal class DefaultSudoVirtualCardsClient(
     private val logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO)),
     private val deviceKeyManager: DeviceKeyManager,
     private val publicKeyService: PublicKeyService,
+    private val notificationHandler: SudoVirtualCardsNotificationHandler? = null,
 ) : SudoVirtualCardsClient {
 
     companion object {
@@ -1388,3 +1391,14 @@ internal class DefaultSudoVirtualCardsClient(
         }
     }
 }
+
+data class SudoVirtualCardsNotificationSchemaEntry(
+    override val description: String,
+    override val fieldName: String,
+    override val type: String,
+) : NotificationSchemaEntry
+
+data class SudoVirtualCardsNotificationMetaData(
+    override val serviceName: String,
+    override val schema: List<SudoVirtualCardsNotificationSchemaEntry>,
+) : NotificationMetaData
