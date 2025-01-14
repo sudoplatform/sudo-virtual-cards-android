@@ -7,6 +7,8 @@
 package com.sudoplatform.sudovirtualcards
 
 import com.sudoplatform.sudoprofiles.Sudo
+import com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInput
+import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 
 data class TestCardBillingAddress(
     val addressLine1: String = TestData.VerifiedUser.addressLine1,
@@ -24,6 +26,22 @@ data class TestCard(
 ) {
 
     var last4 = creditCardNumber.takeLast(4)
+
+    fun toFundingSourceInput(expirationMonth: Int, expirationYear: Int): CreditCardFundingSourceInput {
+        return CreditCardFundingSourceInput(
+            creditCardNumber,
+            expirationMonth,
+            expirationYear,
+            securityCode,
+            address.addressLine1,
+            address.addressLine2,
+            address.city,
+            address.state,
+            address.postalCode,
+            address.country,
+            TestData.VerifiedUser.fullName,
+        )
+    }
 }
 
 /**
@@ -54,6 +72,20 @@ object TestData {
         const val postalCode = "94025"
         const val country = "US"
         const val currency = "USD"
+
+        fun toVirtualCardInput(ownershipProofs: List<String>, fundingSourceId: String): ProvisionVirtualCardInput {
+            return ProvisionVirtualCardInput(
+                ownershipProofs = ownershipProofs,
+                fundingSourceId = fundingSourceId,
+                cardHolder = cardHolder,
+                addressLine1 = addressLine1,
+                city = city,
+                state = state,
+                postalCode = postalCode,
+                country = country,
+                currency = currency,
+            )
+        }
     }
 
     /** Test sudo to use for integration tests */

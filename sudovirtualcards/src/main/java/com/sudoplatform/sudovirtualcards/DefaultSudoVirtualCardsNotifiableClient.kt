@@ -116,7 +116,7 @@ internal class DefaultSudoVirtualCardsNotifiableClient(
         when (notification) {
             is FundingSourceChangedNotification -> this.notificationHandler.onFundingSourceChanged(
                 FundingSourceChangedNotificationTransformer.toEntity(notification),
-            )
+            ) else -> logger.error { "Received unexpected VirtualCardsServiceNotification" }
         }
     }
 }

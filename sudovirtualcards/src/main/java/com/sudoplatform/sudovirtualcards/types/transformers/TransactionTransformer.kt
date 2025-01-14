@@ -115,6 +115,8 @@ internal object TransactionTransformer {
             fundingSourceAmount = unsealer.unsealAmount(
                 sealedDetail.fundingSourceAmount.sealedCurrencyAmountAttribute,
             ),
+            transactedAt = sealedDetail.transactedAtEpochMs?.let { unsealer.unseal(sealedDetail.transactedAtEpochMs).toDouble().toDate() },
+            settledAt = sealedDetail.settledAtEpochMs?.let { unsealer.unseal(sealedDetail.settledAtEpochMs).toDouble().toDate() },
             fundingSourceId = sealedDetail.fundingSourceId,
             description = unsealer.unseal(sealedDetail.description),
             state = sealedDetail.state?.let { unsealer.unseal(it).toChargeDetailState() } ?: ChargeDetailStateEntity.CLEARED,

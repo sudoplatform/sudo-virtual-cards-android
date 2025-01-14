@@ -9,6 +9,7 @@ package com.sudoplatform.sudovirtualcards
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.sudoplatform.sudokeymanager.KeyManagerFactory
 import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateAuthorizationInput
+import com.sudoplatform.sudovirtualcards.types.ChargeDetailState
 import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
 import com.sudoplatform.sudovirtualcards.types.ListAPIResult
 import com.sudoplatform.sudovirtualcards.types.Transaction
@@ -166,6 +167,9 @@ class ListTransactionsIntegrationTest : BaseIntegrationTest() {
                     transactedAmount shouldBe CurrencyAmount("USD", originalAmount)
                     description shouldBe merchant.name
                     declineReason shouldBe null
+                    details.size shouldBe 1
+                    details[0].state shouldBe ChargeDetailState.PENDING
+                    details[0].transactedAt shouldNotBe null
                 }
             }
             else -> {

@@ -187,6 +187,8 @@ fragment SealedTransactionDetailChargeAttribute on SealedTransactionDetailCharge
   fundingSourceAmount {
     ...SealedCurrencyAmountAttribute
   }
+  transactedAtEpochMs
+  settledAtEpochMs
   fundingSourceId
   description
   state

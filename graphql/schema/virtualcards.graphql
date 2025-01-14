@@ -274,6 +274,8 @@ type SealedTransactionDetailChargeAttribute {
   markup: SealedMarkupAttribute!
   markupAmount: SealedCurrencyAmountAttribute!
   fundingSourceAmount: SealedCurrencyAmountAttribute!
+  transactedAtEpochMs: String
+  settledAtEpochMs: String
   fundingSourceId: ID!
   description: String!
   state: String

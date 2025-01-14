@@ -517,6 +517,8 @@ class UnsealerTest : BaseTests() {
                                 seal("2"),
                             ),
                         ),
+                        seal("4.0"),
+                        seal("5.0"),
                         "fundingSourceId",
                         seal("description"),
                         seal("CLEARED"),

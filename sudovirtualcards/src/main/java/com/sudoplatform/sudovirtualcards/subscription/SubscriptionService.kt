@@ -134,9 +134,8 @@ internal class SubscriptionService(
             scope.launch {
                 val transactionUpdate = it.data?.onTransactionUpdate
                     ?: return@launch
-                txnUpdateSubscriptionManager.transactionChanged(
-                    TransactionTransformer.toEntity(deviceKeyManager, transactionUpdate.sealedTransaction),
-                )
+                val transaction = TransactionTransformer.toEntity(deviceKeyManager, transactionUpdate.sealedTransaction)
+                txnUpdateSubscriptionManager.transactionChanged(transaction, TransactionSubscriber.ChangeType.UPSERTED)
             }
         }
         val onSubscriptionCompleted = {
@@ -184,9 +183,8 @@ internal class SubscriptionService(
             scope.launch {
                 val transactionDelete = it.data?.onTransactionDelete
                     ?: return@launch
-                txnDeleteSubscriptionManager.transactionChanged(
-                    TransactionTransformer.toEntity(deviceKeyManager, transactionDelete.sealedTransaction),
-                )
+                val transaction = TransactionTransformer.toEntity(deviceKeyManager, transactionDelete.sealedTransaction)
+                txnDeleteSubscriptionManager.transactionChanged(transaction, TransactionSubscriber.ChangeType.DELETED)
             }
         }
         val onSubscriptionCompleted = {
