@@ -18,8 +18,6 @@ import com.sudoplatform.sudovirtualcards.types.CardState
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderRefreshData
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
-import com.sudoplatform.sudovirtualcards.types.CheckoutCardProviderCompletionData
-import com.sudoplatform.sudovirtualcards.types.CheckoutCardProvisioningData
 import com.sudoplatform.sudovirtualcards.types.ClientApplicationData
 import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSource
@@ -178,28 +176,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             }
         }
 
-        if (isCheckoutCardEnabled(vcClient)) {
-            val setupCheckoutCardInput = SetupFundingSourceInput(
-                "USD",
-                FundingSourceType.CREDIT_CARD,
-                ClientApplicationData("system-test-app"),
-                listOf("checkout"),
-            )
-            val checkoutCardProvisionalFundingSource = vcClient.setupFundingSource(setupCheckoutCardInput)
-
-            with(checkoutCardProvisionalFundingSource) {
-                id shouldNotBe null
-                owner shouldBe userClient.getSubject()
-                version shouldBe 1
-                type shouldBe FundingSourceType.CREDIT_CARD
-                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
-                provisioningData.provider shouldBe "checkout"
-                provisioningData.version shouldBe 1
-                val checkoutProvisioningData = provisioningData as CheckoutCardProvisioningData
-                checkoutProvisioningData shouldNotBe null
-            }
-        }
-
         if (isCheckoutBankAccountEnabled(vcClient)) {
             val setupCheckoutBankAccountInput = SetupFundingSourceInput(
                 "USD",
@@ -237,18 +213,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             )
             shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnsupportedCurrencyException> {
                 vcClient.setupFundingSource(stripeSetupInput)
-            }
-        }
-
-        if (isCheckoutCardEnabled(vcClient)) {
-            val checkoutSetupInput = SetupFundingSourceInput(
-                "AUD",
-                FundingSourceType.CREDIT_CARD,
-                ClientApplicationData("system-test-app"),
-                listOf("checkout"),
-            )
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnsupportedCurrencyException> {
-                vcClient.setupFundingSource(checkoutSetupInput)
             }
         }
 
@@ -388,23 +352,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             }
         }
 
-        if (isCheckoutCardEnabled(vcClient)) {
-            val checkoutInput = CompleteFundingSourceInput(
-                UUID.randomUUID().toString(),
-                CheckoutCardProviderCompletionData(
-                    "checkout",
-                    1,
-                    FundingSourceType.CREDIT_CARD,
-                    "paymentToken",
-
-                ),
-                null,
-            )
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.ProvisionalFundingSourceNotFoundException> {
-                vcClient.completeFundingSource(checkoutInput)
-            }
-        }
-
         if (isCheckoutBankAccountEnabled(vcClient)) {
             vcClient.createKeysIfAbsent()
             val checkoutInput = CompleteFundingSourceInput(
@@ -461,30 +408,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             }
         }
 
-        if (isCheckoutCardEnabled(vcClient)) {
-            val checkoutSetupInput = SetupFundingSourceInput(
-                "USD",
-                FundingSourceType.CREDIT_CARD,
-                ClientApplicationData("system-test-app"),
-                listOf("checkout"),
-            )
-            val checkoutProvisionalFundingSource = vcClient.setupFundingSource(checkoutSetupInput)
-
-            val checkoutCompleteInput = CompleteFundingSourceInput(
-                checkoutProvisionalFundingSource.id,
-                CheckoutCardProviderCompletionData(
-                    "checkout",
-                    1,
-                    FundingSourceType.CREDIT_CARD,
-                    "paymentToken",
-                ),
-                null,
-            )
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException> {
-                vcClient.completeFundingSource(checkoutCompleteInput)
-            }
-        }
-
         if (isCheckoutBankAccountEnabled(vcClient)) {
             vcClient.createKeysIfAbsent()
             val checkoutSetupInput = SetupFundingSourceInput(
@@ -511,105 +434,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
             )
             shouldThrow<SudoVirtualCardsClient.FundingSourceException> {
                 vcClient.completeFundingSource(checkoutCompleteInput)
-            }
-        }
-    }
-
-    @Test
-    fun completeCheckoutFundingSourceShouldThrowWithUserInteractionRequired() = runBlocking {
-        registerSignInAndEntitle()
-        verifyTestUserIdentity()
-
-        if (isCheckoutCardEnabled(vcClient)) {
-            val provider = "checkout"
-            val testCard = TestData.TestCards[provider]?.get("Visa-3DS2-1") ?: throw AssertionError("Unable to locate test card")
-
-            val input = CreditCardFundingSourceInput(
-                testCard.creditCardNumber,
-                expirationMonth(),
-                expirationYear(),
-                testCard.securityCode,
-                testCard.address.addressLine1,
-                testCard.address.addressLine2,
-                testCard.address.city,
-                testCard.address.state,
-                testCard.address.postalCode,
-                testCard.address.country,
-                TestData.VerifiedUser.fullName,
-            )
-
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceRequiresUserInteractionException> {
-                createCardFundingSource(
-                    vcClient,
-                    input,
-                    CreateCardFundingSourceOptions(supportedProviders = listOf(provider)),
-                )
-            }
-        }
-    }
-
-    @Test
-    fun completeCheckoutFundingSourceShouldThrowWithUnacceptableForBadAVSCheck() = runBlocking {
-        registerSignInAndEntitle()
-        verifyTestUserIdentity()
-
-        if (isCheckoutCardEnabled(vcClient)) {
-            val provider = "checkout"
-            val testCard = TestData.TestCards[provider]?.get("BadAddress") ?: throw AssertionError("Unable to locate test card")
-
-            val input = CreditCardFundingSourceInput(
-                testCard.creditCardNumber,
-                expirationMonth(),
-                expirationYear(),
-                testCard.securityCode,
-                testCard.address.addressLine1,
-                testCard.address.addressLine2,
-                testCard.address.city,
-                testCard.address.state,
-                testCard.address.postalCode,
-                testCard.address.country,
-                TestData.VerifiedUser.fullName,
-            )
-
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnacceptableFundingSourceException> {
-                createCardFundingSource(
-                    vcClient,
-                    input,
-                    CreateCardFundingSourceOptions(supportedProviders = listOf(provider)),
-                )
-            }
-        }
-    }
-
-    @Test
-    fun completeCheckoutFundingSourceShouldThrowWithUnacceptableForBadCVVCheck() = runBlocking {
-        registerSignInAndEntitle()
-        verifyTestUserIdentity()
-
-        if (isCheckoutCardEnabled(vcClient)) {
-            val provider = "checkout"
-            val testCard = TestData.TestCards[provider]?.get("BadCVV") ?: throw AssertionError("Unable to locate test card")
-
-            val input = CreditCardFundingSourceInput(
-                testCard.creditCardNumber,
-                expirationMonth(),
-                expirationYear(),
-                testCard.securityCode,
-                testCard.address.addressLine1,
-                testCard.address.addressLine2,
-                testCard.address.city,
-                testCard.address.state,
-                testCard.address.postalCode,
-                testCard.address.country,
-                TestData.VerifiedUser.fullName,
-            )
-
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnacceptableFundingSourceException> {
-                createCardFundingSource(
-                    vcClient,
-                    input,
-                    CreateCardFundingSourceOptions(supportedProviders = listOf(provider)),
-                )
             }
         }
     }
@@ -1030,7 +854,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
         verifyTestUserIdentity()
 
         var stripeProvisionalFundingSource: ProvisionalFundingSource? = null
-        var checkoutCardProvisionalFundingSource: ProvisionalFundingSource? = null
         var checkoutBankAccountProvisionalFundingSource: ProvisionalFundingSource? = null
         var provisionalFundingSourcesCount = 0
 
@@ -1053,29 +876,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 val stripeProvisioningData = provisioningData as StripeCardProvisioningData
                 stripeProvisioningData.clientSecret shouldNotBe null
                 stripeProvisioningData.intent shouldNotBe null
-            }
-            ++provisionalFundingSourcesCount
-        }
-
-        if (isCheckoutCardEnabled(vcClient)) {
-            val setupCheckoutCardInput = SetupFundingSourceInput(
-                "USD",
-                FundingSourceType.CREDIT_CARD,
-                ClientApplicationData("system-test-app"),
-                listOf("checkout"),
-            )
-            checkoutCardProvisionalFundingSource = vcClient.setupFundingSource(setupCheckoutCardInput)
-
-            with(checkoutCardProvisionalFundingSource) {
-                id shouldNotBe null
-                owner shouldBe userClient.getSubject()
-                version shouldBe 1
-                type shouldBe FundingSourceType.CREDIT_CARD
-                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
-                provisioningData.provider shouldBe "checkout"
-                provisioningData.version shouldBe 1
-                val checkoutProvisioningData = provisioningData as CheckoutCardProvisioningData
-                checkoutProvisioningData shouldNotBe null
             }
             ++provisionalFundingSourcesCount
         }
@@ -1118,22 +918,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 val stripeProvisioningData = provisioningData as StripeCardProvisioningData
                 stripeProvisioningData.clientSecret shouldNotBe null
                 stripeProvisioningData.intent shouldNotBe null
-            }
-        }
-        if (checkoutCardProvisionalFundingSource != null) {
-            val returnedCheckoutCard = provisionalFundingSources.items.first { it.id == checkoutCardProvisionalFundingSource.id }
-            returnedCheckoutCard shouldNotBe null
-            with(returnedCheckoutCard) {
-                id shouldNotBe null
-                owner shouldBe userClient.getSubject()
-                version shouldBe 1
-                last4 shouldNotBe null
-                type shouldBe FundingSourceType.CREDIT_CARD
-                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
-                provisioningData.provider shouldBe "checkout"
-                provisioningData.version shouldBe 1
-                val checkoutProvisioningData = provisioningData as CheckoutCardProvisioningData
-                checkoutProvisioningData shouldNotBe null
             }
         }
         if (checkoutBankAccountProvisionalFundingSource != null) {
@@ -1185,30 +969,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 stripeProvisioningData.intent shouldNotBe null
             }
             createdProvisionalFundingSources.add(stripeProvisionalFundingSource)
-            ++provisionalCount
-        }
-
-        if (isCheckoutCardEnabled(vcClient)) {
-            val setupCheckoutCardInput = SetupFundingSourceInput(
-                "USD",
-                FundingSourceType.CREDIT_CARD,
-                ClientApplicationData("system-test-app"),
-                listOf("checkout"),
-            )
-            val checkoutCardProvisionalFundingSource = vcClient.setupFundingSource(setupCheckoutCardInput)
-
-            with(checkoutCardProvisionalFundingSource) {
-                id shouldNotBe null
-                owner shouldBe userClient.getSubject()
-                version shouldBe 1
-                type shouldBe FundingSourceType.CREDIT_CARD
-                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
-                provisioningData.provider shouldBe "checkout"
-                provisioningData.version shouldBe 1
-                val checkoutProvisioningData = provisioningData as CheckoutCardProvisioningData
-                checkoutProvisioningData shouldNotBe null
-            }
-            createdProvisionalFundingSources.add(checkoutCardProvisionalFundingSource)
             ++provisionalCount
         }
 
@@ -1454,29 +1214,6 @@ class SudoVirtualCardsClientIntegrationTest : BaseIntegrationTest() {
                 val stripeProvisioningData = provisioningData as StripeCardProvisioningData
                 stripeProvisioningData.clientSecret shouldNotBe null
                 stripeProvisioningData.intent shouldNotBe null
-            }
-            ++provisionalFundingSourcesCount
-        }
-
-        if (isCheckoutCardEnabled(vcClient)) {
-            val setupCheckoutCardInput = SetupFundingSourceInput(
-                "USD",
-                FundingSourceType.CREDIT_CARD,
-                ClientApplicationData("system-test-app"),
-                listOf("checkout"),
-            )
-            val checkoutCardProvisionalFundingSource = vcClient.setupFundingSource(setupCheckoutCardInput)
-
-            with(checkoutCardProvisionalFundingSource) {
-                id shouldNotBe null
-                owner shouldBe userClient.getSubject()
-                version shouldBe 1
-                type shouldBe FundingSourceType.CREDIT_CARD
-                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
-                provisioningData.provider shouldBe "checkout"
-                provisioningData.version shouldBe 1
-                val checkoutProvisioningData = provisioningData as CheckoutCardProvisioningData
-                checkoutProvisioningData shouldNotBe null
             }
             ++provisionalFundingSourcesCount
         }

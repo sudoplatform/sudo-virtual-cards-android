@@ -40,7 +40,6 @@ import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
-import com.sudoplatform.sudovirtualcards.util.CheckoutTokenWorker
 import com.sudoplatform.sudovirtualcards.util.CreateBankAccountFundingSourceOptions
 import com.sudoplatform.sudovirtualcards.util.CreateCardFundingSourceOptions
 import com.sudoplatform.sudovirtualcards.util.FundingSourceProviders
@@ -258,14 +257,6 @@ abstract class BaseIntegrationTest {
                     (provisionalFundingSource.provisioningData as StripeCardProvisioningData).clientSecret,
                 )
             }
-            "checkout" -> {
-                // Process checkout data
-                cardProviders.apis.checkout ?: throw AssertionError("No checkout API but provisioning data is for checkout")
-                input.name ?: throw java.lang.AssertionError("Checkout requires cardholder name")
-
-                val checkoutTokenWorker = CheckoutTokenWorker(cardProviders.apis.checkout)
-                completionData = checkoutTokenWorker.generatePaymentToken(input)
-            }
             else -> {
                 throw AssertionError("Unsupported funding source type")
             }
@@ -420,9 +411,6 @@ abstract class BaseIntegrationTest {
     protected suspend fun getProvidersList(client: SudoVirtualCardsClient): List<String> {
         val providers = determineFundingSourceProviders(client)
         val cardProviders = mutableListOf<String>()
-        if (providers.checkoutCardEnabled) {
-            cardProviders.add("checkout")
-        }
         if (providers.stripeCardEnabled) {
             cardProviders.add("stripe")
         }
@@ -435,10 +423,7 @@ abstract class BaseIntegrationTest {
 
     protected suspend fun isCheckoutEnabled(client: SudoVirtualCardsClient): Boolean {
         val providers = determineFundingSourceProviders(client)
-        return providers.checkoutCardEnabled || providers.checkoutBankAccountEnabled
-    }
-    protected suspend fun isCheckoutCardEnabled(client: SudoVirtualCardsClient): Boolean {
-        return determineFundingSourceProviders(client).checkoutCardEnabled
+        return providers.checkoutBankAccountEnabled
     }
     protected suspend fun isCheckoutBankAccountEnabled(client: SudoVirtualCardsClient): Boolean {
         return determineFundingSourceProviders(client).checkoutBankAccountEnabled
@@ -446,9 +431,6 @@ abstract class BaseIntegrationTest {
     protected suspend fun getProviderToUse(client: SudoVirtualCardsClient): String {
         if (isStripeEnabled(client)) {
             return "stripe"
-        }
-        if (isCheckoutCardEnabled(client)) {
-            return "checkout"
         }
         throw AssertionError("No card funding source providers available")
     }

@@ -65,7 +65,6 @@ class SudoVirtualCardsReviewUnfundedFundingSourceTest(private val provider: Stri
         fun data(): Collection<String> {
             return listOf(
                 "stripe",
-                "checkoutCard",
                 "checkoutBankAccount",
             )
         }
@@ -142,7 +141,6 @@ class SudoVirtualCardsReviewUnfundedFundingSourceTest(private val provider: Stri
     private val mutationResponse by before {
         mapOf(
             "stripe" to creditCardResponse,
-            "checkoutCard" to creditCardResponse,
             "checkoutBankAccount" to bankAccountResponse,
         )
     }

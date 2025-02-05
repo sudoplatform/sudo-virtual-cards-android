@@ -22,7 +22,6 @@ import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceSt
 import com.sudoplatform.sudovirtualcards.graphql.type.SetupFundingSourceRequest
 import com.sudoplatform.sudovirtualcards.types.AuthorizationText
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
-import com.sudoplatform.sudovirtualcards.types.CheckoutCardProvisioningData
 import com.sudoplatform.sudovirtualcards.types.ClientApplicationData
 import com.sudoplatform.sudovirtualcards.types.LinkToken
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
@@ -69,7 +68,6 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
         fun data(): Collection<String> {
             return listOf(
                 "stripe",
-                "checkoutCard",
                 "checkoutBankAccount",
             )
         }
@@ -82,12 +80,6 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                 FundingSourceTypeEntity.CREDIT_CARD,
                 ClientApplicationData("system-test-app"),
                 listOf("stripe"),
-            ),
-            "checkoutCard" to SetupFundingSourceInput(
-                "USD",
-                FundingSourceTypeEntity.CREDIT_CARD,
-                ClientApplicationData("system-test-app"),
-                listOf("checkout"),
             ),
             "checkoutBankAccount" to SetupFundingSourceInput(
                 "USD",
@@ -111,7 +103,6 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
     )
     private val expectedProvisioningData = mapOf(
         "stripe" to StripeCardProvisioningData("stripe", 1, "intent", "clientSecret", FundingSourceTypeEntity.CREDIT_CARD),
-        "checkoutCard" to CheckoutCardProvisioningData("checkout", 1, FundingSourceTypeEntity.CREDIT_CARD),
         "checkoutBankAccount" to CheckoutBankAccountProvisioningData(
             "checkout",
             1,
@@ -127,7 +118,6 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
 
     private val mutationResponse by before {
         val stripeSetupData = StripeCardProvisioningData("stripe", 1, "intent", "clientSecret", FundingSourceTypeEntity.CREDIT_CARD)
-        val checkoutCardSetupData = CheckoutCardProvisioningData("checkout", 1, FundingSourceTypeEntity.CREDIT_CARD)
         val checkoutBankAccountSetupData = CheckoutBankAccountProvisioningData(
             "checkout",
             1,
@@ -154,25 +144,6 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
                         'updatedAtEpochMs': 10.0,
                         'type': '${FundingSourceType.CREDIT_CARD}',
                         'provisioningData': '${Base64.encodeBase64String(Gson().toJson(stripeSetupData).toByteArray())}',
-                        'state': '${ProvisionalFundingSourceState.PROVISIONING}',
-                        'last4':''
-                    }
-                }
-                    """.trimIndent(),
-                ),
-            "checkoutCard" to
-                JSONObject(
-                    """
-                {
-                    'setupFundingSource': {
-                        '__typename': 'ProvisionalFundingSource',
-                        'id':'id',
-                        'owner': 'owner',
-                        'version': 1,
-                        'createdAtEpochMs': 1.0,
-                        'updatedAtEpochMs': 10.0,
-                        'type': '${FundingSourceType.CREDIT_CARD}',
-                        'provisioningData': '${Base64.encodeBase64String(Gson().toJson(checkoutCardSetupData).toByteArray())}',
                         'state': '${ProvisionalFundingSourceState.PROVISIONING}',
                         'last4':''
                     }

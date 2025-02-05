@@ -83,21 +83,6 @@ data class StripeCardProvisioningData(
 ) : ProviderProvisioningData()
 
 /**
- * Representation of [CheckoutCardProvisioningData] used to provision a checkout card funding source.
- *
- * @property provider See [ProviderCommonData.provider].
- * @property version See [ProviderCommonData.version].
- * @property type See [ProviderCommonData.type].
- */
-@Keep
-@Parcelize
-data class CheckoutCardProvisioningData(
-    override val provider: String = ProviderDefaults.checkoutProvider,
-    override val version: Int = ProviderDefaults.version,
-    override val type: FundingSourceType = FundingSourceType.CREDIT_CARD,
-) : ProviderProvisioningData()
-
-/**
  * Representation of [CheckoutBankAccountProvisioningData] used to provision a checkout bank account funding source.
  *
  * @property provider See [ProviderCommonData.provider].
@@ -161,27 +146,6 @@ data class StripeCardProviderCompletionData(
     val paymentMethod: String,
     // Odd ordering for backwards compatibility
     override val type: FundingSourceType = FundingSourceType.CREDIT_CARD,
-) : ProviderCompletionData()
-
-/**
- * Representation of [CheckoutCardProviderCompletionData] sent to the provider and
- * used to complete the funding source creation.
- *
- * @property provider See [ProviderCommonData.provider].
- * @property version See [ProviderCommonData.version].
- * @property type See [ProviderCommonData.type].
- * @property paymentToken [String]
- *      Optional. Specifies payment token associated with the funding source credit
- *      card or null on subsequent call to completeFundingSource after user interaction.
- */
-@Keep
-@Parcelize
-data class CheckoutCardProviderCompletionData(
-    override val provider: String = ProviderDefaults.checkoutProvider,
-    override val version: Int = ProviderDefaults.version,
-    override val type: FundingSourceType = FundingSourceType.CREDIT_CARD,
-    @SerializedName("payment_token")
-    val paymentToken: String?,
 ) : ProviderCompletionData()
 
 /**
@@ -300,24 +264,6 @@ data class BaseUserInteractionData(
     override val provider: String = ProviderDefaults.checkoutProvider,
     override val version: Int,
     override val type: FundingSourceType,
-) : ProviderUserInteractionData()
-
-/**
- * Returned when user interaction is required during the funding source setup operation
- * for checkout.com card funding sources
- *
- * @property provider See [ProviderCommonData.provider].
- * @property version See [ProviderCommonData.version].
- * @property type See [ProviderCommonData.type].
- * @property redirectUrl [String] Mandatory URL which indicates where the user should go for additional interaction.
- */
-@Keep
-@Parcelize
-data class CheckoutCardUserInteractionData(
-    override val provider: String = ProviderDefaults.checkoutProvider,
-    override val version: Int = ProviderDefaults.version,
-    override val type: FundingSourceType = FundingSourceType.CREDIT_CARD,
-    val redirectUrl: String,
 ) : ProviderUserInteractionData()
 
 /**

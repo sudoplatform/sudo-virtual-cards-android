@@ -66,7 +66,6 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
         fun data(): Collection<String> {
             return listOf(
                 "stripe",
-                "checkoutCard",
                 "checkoutBankAccount",
             )
         }
@@ -190,7 +189,6 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
     private val queryResponse by before {
         mapOf(
             "stripe" to creditCardResponse,
-            "checkoutCard" to creditCardResponse,
             "checkoutBankAccount" to bankAccountResponse,
             "unfundedBankAccount" to unfundedBankAccountResponse,
         )

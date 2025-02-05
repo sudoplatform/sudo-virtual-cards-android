@@ -17,8 +17,6 @@ import com.sudoplatform.sudovirtualcards.types.BaseProvisioningData
 import com.sudoplatform.sudovirtualcards.types.BaseUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountRefreshUserInteractionData
-import com.sudoplatform.sudovirtualcards.types.CheckoutCardProvisioningData
-import com.sudoplatform.sudovirtualcards.types.CheckoutCardUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.ProviderProvisioningData
 import com.sudoplatform.sudovirtualcards.types.ProviderUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
@@ -79,12 +77,7 @@ class ProvisioningDataDeserializer : JsonDeserializer<ProviderProvisioningData> 
         val type = ProviderDataTransformer.extractAsStringOrThrow(jObject, "type")
         return when (provider) {
             "stripe" -> context!!.deserialize(jElement, StripeCardProvisioningData::class.java)
-            "checkout" ->
-                return when (type) {
-                    "CREDIT_CARD" -> context!!.deserialize(jElement, CheckoutCardProvisioningData::class.java)
-                    "BANK_ACCOUNT" -> context!!.deserialize(jElement, CheckoutBankAccountProvisioningData::class.java)
-                    else -> context!!.deserialize(jElement, BaseProvisioningData::class.java)
-                }
+            "checkout" -> context!!.deserialize(jElement, CheckoutBankAccountProvisioningData::class.java)
             else -> context!!.deserialize(jElement, BaseProvisioningData::class.java)
         }
     }
@@ -99,14 +92,8 @@ class UserInteractionDataDeserializer : JsonDeserializer<ProviderUserInteraction
     ): ProviderUserInteractionData {
         val jObject = jElement.asJsonObject
         val provider = ProviderDataTransformer.extractAsStringOrThrow(jObject, "provider")
-        val version = ProviderDataTransformer.extractAsIntOrThrow(jObject, "version")
-        val type = ProviderDataTransformer.extractAsStringOrThrow(jObject, "type")
         return when (provider) {
-            "checkout" -> when (type) {
-                "CREDIT_CARD" -> context!!.deserialize(jElement, CheckoutCardUserInteractionData::class.java)
-                "BANK_ACCOUNT" -> context!!.deserialize(jElement, CheckoutBankAccountRefreshUserInteractionData::class.java)
-                else -> context!!.deserialize(jElement, BaseUserInteractionData::class.java)
-            }
+            "checkout" -> context!!.deserialize(jElement, CheckoutBankAccountRefreshUserInteractionData::class.java)
             else -> context!!.deserialize(jElement, BaseUserInteractionData::class.java)
         }
     }

@@ -65,7 +65,6 @@ import com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber
 import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderRefreshData
-import com.sudoplatform.sudovirtualcards.types.CheckoutCardProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.CreateKeysIfAbsentResult
 import com.sudoplatform.sudovirtualcards.types.DateRange
 import com.sudoplatform.sudovirtualcards.types.FundingSource
@@ -302,7 +301,7 @@ internal class DefaultSudoVirtualCardsClient(
 
             val encodedCompletionData: String
             when (input.completionData) {
-                is StripeCardProviderCompletionData, is CheckoutCardProviderCompletionData -> {
+                is StripeCardProviderCompletionData -> {
                     val encodedCompletionDataString = Gson().toJson(input.completionData)
                     encodedCompletionData = Base64.encode(encodedCompletionDataString.toByteArray()).toString(Charsets.UTF_8)
                 }

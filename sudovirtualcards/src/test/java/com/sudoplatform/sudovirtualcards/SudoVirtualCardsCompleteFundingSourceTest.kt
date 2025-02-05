@@ -28,8 +28,6 @@ import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.types.AuthorizationText
 import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderCompletionData
-import com.sudoplatform.sudovirtualcards.types.CheckoutCardProviderCompletionData
-import com.sudoplatform.sudovirtualcards.types.CheckoutCardUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceFlags
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
@@ -80,7 +78,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
         fun data(): Collection<String> {
             return listOf(
                 "stripe",
-                "checkoutCard",
                 "checkoutBankAccount",
             )
         }
@@ -93,12 +90,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
                 1,
                 "paymentMethod",
                 FundingSourceType.CREDIT_CARD,
-            ),
-            "checkoutCard" to CheckoutCardProviderCompletionData(
-                "checkout",
-                1,
-                FundingSourceType.CREDIT_CARD,
-                "payment_token",
             ),
             "checkoutBankAccount" to CheckoutBankAccountProviderCompletionData(
                 "checkout",
@@ -206,7 +197,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
     private val mutationResponse by before {
         mapOf(
             "stripe" to creditCardResponse,
-            "checkoutCard" to creditCardResponse,
             "checkoutBankAccount" to bankAccountResponse,
         )
     }
@@ -572,56 +562,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(private val provider: String) : 
             shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnacceptableFundingSourceException> {
                 client.completeFundingSource(input)
             }
-        }
-        deferredResult.start()
-
-        delay(100L)
-        deferredResult.await()
-
-        verifyCompleteFundingSourceMutation()
-        if (provider == "checkoutBankAccount") {
-            verify(mockPublicKeyService).getCurrentKey()
-            verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
-        }
-    }
-
-    @Test
-    fun `completeFundingSource() should throw when a user interaction required funding source error occurs`() = runBlocking<Unit> {
-        val providerInteractionData = CheckoutCardUserInteractionData(redirectUrl = "https://some.url.com/session")
-        val interactionData = SudoVirtualCardsClient.FundingSourceInteractionData(
-            Base64.encode(Gson().toJson(providerInteractionData).toByteArray()).toString(Charsets.UTF_8),
-        )
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf(
-                    "errorType" to "FundingSourceRequiresUserInteractionError",
-                    "errorInfo" to interactionData,
-                ),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(CompleteFundingSourceMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            val exception = shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceRequiresUserInteractionException> {
-                client.completeFundingSource(input)
-            }
-            exception.interactionData shouldBe providerInteractionData
         }
         deferredResult.start()
 
