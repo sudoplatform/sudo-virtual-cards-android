@@ -54,41 +54,41 @@ class SudoVirtualCardsSandboxSetFundingSourceToRequireRefreshTest : BaseTests() 
     private val bankAccountResponse by before {
         JSONObject(
             """
-                {
-                    'sandboxSetFundingSourceToRequireRefresh': {
-                        '__typename': 'BankAccountFundingSource',
-                        'id':'id',
-                        'owner': 'owner',
-                        'version': 1,
-                        'createdAtEpochMs': 1.0,
-                        'updatedAtEpochMs': 10.0,
-                        'state': '${FundingSourceStateGraphQL.INACTIVE}',
-                        'flags': [],
-                        'currency':'USD',
-                        'transactionVelocity': {
-                            'maximum': 10000,
-                            'velocity': ['10000/P1D']
-                        },
-                        'bankAccountType': '${BankAccountType.CHECKING}',
-                        'authorization': {
-                            'language': 'language',
-                            'content': 'content',
-                            'algorithm': 'algorithm',
-                            'contentType': 'contentType',
-                            'signature': 'signature',
-                            'keyId': 'keyId',
-                            'data': 'data'
-                        },
-                        'last4':'last4',
-                        'institutionName': {
-                            '__typename': 'InstitutionName',
-                            'algorithm': 'algorithm',
-                            'plainTextType': 'string',
-                            'keyId': 'keyId',
-                            'base64EncodedSealedData': '${mockSeal("base64EncodedSealedData")}'
-                        }
+            {
+                'sandboxSetFundingSourceToRequireRefresh': {
+                    '__typename': 'BankAccountFundingSource',
+                    'id':'id',
+                    'owner': 'owner',
+                    'version': 1,
+                    'createdAtEpochMs': 1.0,
+                    'updatedAtEpochMs': 10.0,
+                    'state': '${FundingSourceStateGraphQL.INACTIVE}',
+                    'flags': [],
+                    'currency':'USD',
+                    'transactionVelocity': {
+                        'maximum': 10000,
+                        'velocity': ['10000/P1D']
+                    },
+                    'bankAccountType': '${BankAccountType.CHECKING}',
+                    'authorization': {
+                        'language': 'language',
+                        'content': 'content',
+                        'algorithm': 'algorithm',
+                        'contentType': 'contentType',
+                        'signature': 'signature',
+                        'keyId': 'keyId',
+                        'data': 'data'
+                    },
+                    'last4':'last4',
+                    'institutionName': {
+                        '__typename': 'InstitutionName',
+                        'algorithm': 'algorithm',
+                        'plainTextType': 'string',
+                        'keyId': 'keyId',
+                        'base64EncodedSealedData': '${mockSeal("base64EncodedSealedData")}'
                     }
                 }
+            }
             """.trimIndent(),
         )
     }
@@ -106,7 +106,8 @@ class SudoVirtualCardsSandboxSetFundingSourceToRequireRefreshTest : BaseTests() 
             on {
                 mutate<String>(
                     argThat { this.query.equals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT) },
-                    any(), any(),
+                    any(),
+                    any(),
                 )
             } doAnswer {
                 val mockOperation: GraphQLOperation<String> = mock()
@@ -127,7 +128,8 @@ class SudoVirtualCardsSandboxSetFundingSourceToRequireRefreshTest : BaseTests() 
     }
 
     private val client by before {
-        SudoVirtualCardsClient.builder()
+        SudoVirtualCardsClient
+            .builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
             .setGraphQLClient(GraphQLClient(mockApiCategory))
@@ -142,276 +144,294 @@ class SudoVirtualCardsSandboxSetFundingSourceToRequireRefreshTest : BaseTests() 
     }
 
     @Test
-    fun `sandboxSetFundingSourceToRequireRefresh() should return results when no error present`() = runBlocking<Unit> {
-        val deferredResult = async(Dispatchers.IO) {
-            client.sandboxSetFundingSourceToRequireRefresh("fundingSourceId")
-        }
-        deferredResult.start()
+    fun `sandboxSetFundingSourceToRequireRefresh() should return results when no error present`() =
+        runBlocking<Unit> {
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.sandboxSetFundingSourceToRequireRefresh("fundingSourceId")
+                }
+            deferredResult.start()
 
-        delay(100L)
-        val result = deferredResult.await()
-        result shouldNotBe null
+            delay(100L)
+            val result = deferredResult.await()
+            result shouldNotBe null
 
-        when (result) {
-            is BankAccountFundingSource -> {
-                with(result) {
-                    id shouldBe "id"
-                    owner shouldBe "owner"
-                    version shouldBe 1
-                    createdAt shouldNotBe null
-                    updatedAt shouldNotBe null
-                    state shouldBe FundingSourceState.INACTIVE
-                    flags shouldBe emptyList()
-                    currency shouldBe "USD"
-                    transactionVelocity?.maximum shouldBe 10000
-                    transactionVelocity?.velocity shouldBe listOf("10000/P1D")
-                    bankAccountType shouldBe BankAccountFundingSource.BankAccountType.CHECKING
-                    last4 shouldBe "last4"
-                    institutionName shouldNotBe null
-                    institutionLogo shouldBe null
+            when (result) {
+                is BankAccountFundingSource -> {
+                    with(result) {
+                        id shouldBe "id"
+                        owner shouldBe "owner"
+                        version shouldBe 1
+                        createdAt shouldNotBe null
+                        updatedAt shouldNotBe null
+                        state shouldBe FundingSourceState.INACTIVE
+                        flags shouldBe emptyList()
+                        currency shouldBe "USD"
+                        transactionVelocity?.maximum shouldBe 10000
+                        transactionVelocity?.velocity shouldBe listOf("10000/P1D")
+                        bankAccountType shouldBe BankAccountFundingSource.BankAccountType.CHECKING
+                        last4 shouldBe "last4"
+                        institutionName shouldNotBe null
+                        institutionLogo shouldBe null
+                    }
+                }
+                else -> {
+                    fail("Unexpected FundingSource type")
                 }
             }
-            else -> {
-                fail("Unexpected FundingSource type")
-            }
-        }
 
-        verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
-        verify(mockKeyManager).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `sandboxSetFundingSourceToRequireRefresh() should throw when mutation response is null`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT) },
+            verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
+            verify(mockKeyManager).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT, it.query)
+                },
                 any(),
                 any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, null),
             )
-            mockOperation
         }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.FailedException> {
-                client.sandboxSetFundingSourceToRequireRefresh("fundingSourceId")
-            }
-        }
-        deferredResult.start()
-        delay(100L)
-
-        deferredResult.await()
-
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 
     @Test
-    fun `sandboxSetFundingSourceToRequireRefresh() should throw when response has a funding source not found error`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "FundingSourceNotFoundError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceNotFoundException> {
-                client.sandboxSetFundingSourceToRequireRefresh("fundingSourceId")
-            }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `sandboxSetFundingSourceToRequireRefresh() should throw when response has an account locked error`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "AccountLockedError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.AccountLockedException> {
-                client.sandboxSetFundingSourceToRequireRefresh("fundingSourceId")
-            }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `sandboxSetFundingSourceToRequireRefresh() should throw when http error occurs`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.FailedException> {
-                client.sandboxSetFundingSourceToRequireRefresh("fundingSourceId")
-            }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `sandboxSetFundingSourceToRequireRefresh() should throw when unknown error occurs`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                mutate<String>(
+    fun `sandboxSetFundingSourceToRequireRefresh() should throw when mutation response is null`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
                     argThat { this.query.equals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, null),
                 )
-            } doThrow RuntimeException("Mock Runtime Exception")
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnknownException> {
-                client.sandboxSetFundingSourceToRequireRefresh("fundingSourceId")
+                mockOperation
             }
-        }
-        deferredResult.start()
-        delay(100L)
 
-        deferredResult.await()
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.FailedException> {
+                        client.sandboxSetFundingSourceToRequireRefresh("fundingSourceId")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
 
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
+            deferredResult.await()
 
-    @Test
-    fun `sandboxSetFundingSourceToRequireRefresh() should not suppress CancellationException`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                mutate<String>(
-                    argThat { this.query.equals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT) },
-                    any(),
-                    any(),
-                )
-            } doThrow CancellationException(
-                "Mock Cancellation Exception",
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
             )
         }
 
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<CancellationException> {
-                client.sandboxSetFundingSourceToRequireRefresh("fundingSourceId")
+    @Test
+    fun `sandboxSetFundingSourceToRequireRefresh() should throw when response has a funding source not found error`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "FundingSourceNotFoundError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
             }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceNotFoundException> {
+                        client.sandboxSetFundingSourceToRequireRefresh("fundingSourceId")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
-        deferredResult.start()
-        delay(100L)
 
-        deferredResult.await()
+    @Test
+    fun `sandboxSetFundingSourceToRequireRefresh() should throw when response has an account locked error`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "AccountLockedError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
 
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.AccountLockedException> {
+                        client.sandboxSetFundingSourceToRequireRefresh("fundingSourceId")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `sandboxSetFundingSourceToRequireRefresh() should throw when http error occurs`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.FailedException> {
+                        client.sandboxSetFundingSourceToRequireRefresh("fundingSourceId")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `sandboxSetFundingSourceToRequireRefresh() should throw when unknown error occurs`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    mutate<String>(
+                        argThat { this.query.equals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow RuntimeException("Mock Runtime Exception")
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnknownException> {
+                        client.sandboxSetFundingSourceToRequireRefresh("fundingSourceId")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+
+            deferredResult.await()
+
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `sandboxSetFundingSourceToRequireRefresh() should not suppress CancellationException`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    mutate<String>(
+                        argThat { this.query.equals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow
+                    CancellationException(
+                        "Mock Cancellation Exception",
+                    )
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<CancellationException> {
+                        client.sandboxSetFundingSourceToRequireRefresh("fundingSourceId")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+
+            deferredResult.await()
+
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
 }

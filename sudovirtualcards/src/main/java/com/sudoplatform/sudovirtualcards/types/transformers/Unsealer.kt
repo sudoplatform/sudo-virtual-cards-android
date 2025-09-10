@@ -37,18 +37,30 @@ internal class Unsealer(
         const val KEY_SIZE_AES = 256
     }
 
-    private val algorithm: KeyManagerInterface.PublicKeyEncryptionAlgorithm = when (keyInfo.algorithm) {
-        DefaultPublicKeyService.DEFAULT_ALGORITHM -> KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1
-        else -> KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_PKCS1
-    }
+    private val algorithm: KeyManagerInterface.PublicKeyEncryptionAlgorithm =
+        when (keyInfo.algorithm) {
+            DefaultPublicKeyService.DEFAULT_ALGORITHM -> KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1
+            else -> KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_PKCS1
+        }
 
-    sealed class UnsealerException(message: String? = null, cause: Throwable? = null) : RuntimeException(message, cause) {
-        class SealedDataTooShortException(message: String? = null, cause: Throwable? = null) :
-            UnsealerException(message, cause)
-        class UnsupportedDataTypeException(message: String? = null, cause: Throwable? = null) :
-            UnsealerException(message, cause)
-        class UnsupportedAlgorithmException(message: String? = null, cause: Throwable? = null) :
-            UnsealerException(message, cause)
+    sealed class UnsealerException(
+        message: String? = null,
+        cause: Throwable? = null,
+    ) : RuntimeException(message, cause) {
+        class SealedDataTooShortException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : UnsealerException(message, cause)
+
+        class UnsupportedDataTypeException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : UnsealerException(message, cause)
+
+        class UnsupportedAlgorithmException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : UnsealerException(message, cause)
     }
 
     /**
@@ -62,8 +74,11 @@ internal class Unsealer(
         return decrypt(keyInfo, valueBytes)
     }
 
-    private fun decrypt(keyInfo: KeyInfo, data: ByteArray): String {
-        return when (keyInfo.keyType) {
+    private fun decrypt(
+        keyInfo: KeyInfo,
+        data: ByteArray,
+    ): String =
+        when (keyInfo.keyType) {
             KeyType.PRIVATE_KEY -> {
                 if (data.size < KEY_SIZE_AES) {
                     throw UnsealerException.SealedDataTooShortException("Sealed value too short")
@@ -77,7 +92,6 @@ internal class Unsealer(
                 String(deviceKeyManager.decryptWithSymmetricKeyId(keyInfo.keyId, data))
             }
         }
-    }
 
     /**
      * Unseal the fields of a GraphQL [SealedCard.BillingAddress] and convert them to
@@ -160,14 +174,16 @@ internal class Unsealer(
      * Unseal the fields that make up a sealed currency amount and convert them to a
      * [CurrencyAmount].
      */
-    fun unsealAmount(sealedAmount: SealedCurrencyAmountAttribute): CurrencyAmount {
-        return CurrencyAmount(
+    fun unsealAmount(sealedAmount: SealedCurrencyAmountAttribute): CurrencyAmount =
+        CurrencyAmount(
             currency = unseal(sealedAmount.currency),
             amount = unseal(sealedAmount.amount).toInt(),
         )
-    }
 
-    private fun unsealJsonValue(algorithm: String, base64EncodedSealedData: String): JsonValue<Any> {
+    private fun unsealJsonValue(
+        algorithm: String,
+        base64EncodedSealedData: String,
+    ): JsonValue<Any> {
         if (!SymmetricKeyEncryptionAlgorithm.isAlgorithmSupported(algorithm)) {
             throw UnsealerException.UnsupportedAlgorithmException(algorithm)
         }
@@ -176,8 +192,8 @@ internal class Unsealer(
         return toJsonValue(anyJson)
     }
 
-    private fun toJsonValue(value: JsonElement): JsonValue<Any> {
-        return when {
+    private fun toJsonValue(value: JsonElement): JsonValue<Any> =
+        when {
             value.isJsonPrimitive -> {
                 val primitive = value.asJsonPrimitive
                 when {
@@ -207,5 +223,4 @@ internal class Unsealer(
                 throw UnsealerException.UnsupportedDataTypeException()
             }
         }
-    }
 }

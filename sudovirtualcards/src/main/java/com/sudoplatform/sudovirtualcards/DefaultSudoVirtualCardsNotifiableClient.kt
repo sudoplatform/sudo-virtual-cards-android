@@ -28,12 +28,12 @@ import kotlinx.serialization.json.Json
  */
 internal class DefaultSudoVirtualCardsNotifiableClient(
     private val notificationHandler: SudoVirtualCardsNotificationHandler,
-    private val logger: Logger = Logger(
-        LogConstants.SUDOLOG_TAG,
-        AndroidUtilsLogDriver(LogLevel.INFO),
-    ),
+    private val logger: Logger =
+        Logger(
+            LogConstants.SUDOLOG_TAG,
+            AndroidUtilsLogDriver(LogLevel.INFO),
+        ),
 ) : SudoVirtualCardsNotifiableClient {
-
     /**
      * Virtual Cards service name key in sudoplatformconfig.json and notifications.
      */
@@ -42,28 +42,28 @@ internal class DefaultSudoVirtualCardsNotifiableClient(
     /**
      * Return Virtual Cards Service notification filter schema to [SudoNotificationClient].
      */
-    override fun getSchema(): NotificationMetaData {
-        return SudoVirtualCardsNotificationMetaData(
+    override fun getSchema(): NotificationMetaData =
+        SudoVirtualCardsNotificationMetaData(
             serviceName = Constants.SERVICE_NAME,
-            schema = listOf(
-                SudoVirtualCardsNotificationSchemaEntry(
-                    description = "Type of notification message",
-                    fieldName = "meta.type",
-                    type = "string",
+            schema =
+                listOf(
+                    SudoVirtualCardsNotificationSchemaEntry(
+                        description = "Type of notification message",
+                        fieldName = "meta.type",
+                        type = "string",
+                    ),
+                    SudoVirtualCardsNotificationSchemaEntry(
+                        description = "ID of funding source to match",
+                        fieldName = "meta.fundingSourceId",
+                        type = "string",
+                    ),
+                    SudoVirtualCardsNotificationSchemaEntry(
+                        description = "Type of funding source to match",
+                        fieldName = "meta.fundingSourceType",
+                        type = "string",
+                    ),
                 ),
-                SudoVirtualCardsNotificationSchemaEntry(
-                    description = "ID of funding source to match",
-                    fieldName = "meta.fundingSourceId",
-                    type = "string",
-                ),
-                SudoVirtualCardsNotificationSchemaEntry(
-                    description = "Type of funding source to match",
-                    fieldName = "meta.fundingSourceType",
-                    type = "string",
-                ),
-            ),
         )
-    }
 
     /**
      * Process [RemoteMessage].
@@ -84,12 +84,13 @@ internal class DefaultSudoVirtualCardsNotifiableClient(
             val data: String,
         )
 
-        val sudoplatform = try {
-            json.decodeFromString<Sudoplatform>(message.data["sudoplatform"]!!)
-        } catch (e: Exception) {
-            logger.error { "Unable to decode Sudoplatform notification envelope ${e.message}" }
-            return
-        }
+        val sudoplatform =
+            try {
+                json.decodeFromString<Sudoplatform>(message.data["sudoplatform"]!!)
+            } catch (e: Exception) {
+                logger.error { "Unable to decode Sudoplatform notification envelope ${e.message}" }
+                return
+            }
 
         // SudoNotificationClient will already have verified that this notification
         // matches our service name but best check.
@@ -101,12 +102,13 @@ internal class DefaultSudoVirtualCardsNotifiableClient(
             return
         }
 
-        val notification = try {
-            VirtualCardsServiceNotification.decodeFromString(sudoplatform.data)
-        } catch (e: Exception) {
-            logger.error { "Unable to decode VirtualCardsServiceNotification ${e.message}" }
-            return
-        }
+        val notification =
+            try {
+                VirtualCardsServiceNotification.decodeFromString(sudoplatform.data)
+            } catch (e: Exception) {
+                logger.error { "Unable to decode VirtualCardsServiceNotification ${e.message}" }
+                return
+            }
 
         // Delegate handling to the registered application handler.
         //
@@ -114,9 +116,11 @@ internal class DefaultSudoVirtualCardsNotifiableClient(
         // Allow the app to fail so an application errors  can be
         // more easily identified and fixed.
         when (notification) {
-            is FundingSourceChangedNotification -> this.notificationHandler.onFundingSourceChanged(
-                FundingSourceChangedNotificationTransformer.toEntity(notification),
-            ) else -> logger.error { "Received unexpected VirtualCardsServiceNotification" }
+            is FundingSourceChangedNotification ->
+                this.notificationHandler.onFundingSourceChanged(
+                    FundingSourceChangedNotificationTransformer.toEntity(notification),
+                )
+            else -> logger.error { "Received unexpected VirtualCardsServiceNotification" }
         }
     }
 }

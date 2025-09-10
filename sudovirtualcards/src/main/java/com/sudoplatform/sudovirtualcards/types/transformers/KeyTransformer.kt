@@ -17,7 +17,6 @@ import com.sudoplatform.sudovirtualcards.keys.PublicKeyWithKeyRingId
  * entity type that is exposed to users.
  */
 internal object KeyTransformer {
-
     /**
      * Transform the results of the [CreatePublicKeyMutation.CreatePublicKeyForVirtualCards] mutation.
      *
@@ -27,11 +26,12 @@ internal object KeyTransformer {
     fun toPublicKeyWithKeyRingId(result: CreatePublicKeyMutation.CreatePublicKeyForVirtualCards): PublicKeyWithKeyRingId {
         val publicKeyWithKeyRingId = result.publicKey
         return PublicKeyWithKeyRingId(
-            publicKey = PublicKey(
-                keyId = publicKeyWithKeyRingId.keyId,
-                publicKey = Base64.decode(publicKeyWithKeyRingId.publicKey),
-                algorithm = publicKeyWithKeyRingId.algorithm,
-            ),
+            publicKey =
+                PublicKey(
+                    keyId = publicKeyWithKeyRingId.keyId,
+                    publicKey = Base64.decode(publicKeyWithKeyRingId.publicKey),
+                    algorithm = publicKeyWithKeyRingId.algorithm,
+                ),
             keyRingId = publicKeyWithKeyRingId.keyRingId,
         )
     }
@@ -45,11 +45,12 @@ internal object KeyTransformer {
     fun toPublicKeyWithKeyRingId(result: GetPublicKeyQuery.GetPublicKeyForVirtualCards): PublicKeyWithKeyRingId {
         val publicKeyWithKeyRingId = result.publicKey
         return PublicKeyWithKeyRingId(
-            publicKey = PublicKey(
-                keyId = publicKeyWithKeyRingId.keyId,
-                publicKey = Base64.decode(publicKeyWithKeyRingId.publicKey),
-                algorithm = publicKeyWithKeyRingId.algorithm,
-            ),
+            publicKey =
+                PublicKey(
+                    keyId = publicKeyWithKeyRingId.keyId,
+                    publicKey = Base64.decode(publicKeyWithKeyRingId.publicKey),
+                    algorithm = publicKeyWithKeyRingId.algorithm,
+                ),
             keyRingId = publicKeyWithKeyRingId.keyRingId,
         )
     }

@@ -15,7 +15,6 @@ import com.sudoplatform.sudovirtualcards.types.VirtualCardsFundingSourceChangedN
  * to the [VirtualCardsFundingSourceChangedNotification] entity type that is exposed to users.
  */
 internal object FundingSourceChangedNotificationTransformer {
-
     /**
      * Transform the [FundingSourceChangedNotification] type to its [VirtualCardsFundingSourceChangedNotification]
      *  entity type.
@@ -23,8 +22,8 @@ internal object FundingSourceChangedNotificationTransformer {
      * @param notification [FundingSourceChangedNotification] The message received notification type.
      * @return The [VirtualCardsFundingSourceChangedNotification] entity type.
      */
-    fun toEntity(notification: FundingSourceChangedNotification): VirtualCardsFundingSourceChangedNotification {
-        return VirtualCardsFundingSourceChangedNotification(
+    fun toEntity(notification: FundingSourceChangedNotification): VirtualCardsFundingSourceChangedNotification =
+        VirtualCardsFundingSourceChangedNotification(
             id = notification.fundingSourceId,
             owner = notification.owner,
             type = notification.fundingSourceType,
@@ -33,5 +32,4 @@ internal object FundingSourceChangedNotificationTransformer {
             flags = notification.flags,
             updatedAt = Date(notification.updatedAtEpochMs),
         )
-    }
 }

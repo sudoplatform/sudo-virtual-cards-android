@@ -24,11 +24,13 @@ data class TestCard(
     val securityCode: String,
     val address: TestCardBillingAddress,
 ) {
-
     var last4 = creditCardNumber.takeLast(4)
 
-    fun toFundingSourceInput(expirationMonth: Int, expirationYear: Int): CreditCardFundingSourceInput {
-        return CreditCardFundingSourceInput(
+    fun toFundingSourceInput(
+        expirationMonth: Int,
+        expirationYear: Int,
+    ): CreditCardFundingSourceInput =
+        CreditCardFundingSourceInput(
             creditCardNumber,
             expirationMonth,
             expirationYear,
@@ -41,14 +43,13 @@ data class TestCard(
             address.country,
             TestData.VerifiedUser.fullName,
         )
-    }
 }
 
 /**
  * Data used in tests.
  */
+@Suppress("ktlint:standard:property-naming")
 object TestData {
-
     /** Test user that is pre-verified */
     object VerifiedUser {
         const val firstName = "John"
@@ -64,6 +65,7 @@ object TestData {
     }
 
     /** Test information used to provision a virtual card */
+    @Suppress("ktlint:standard:property-naming")
     object ProvisionCardInput {
         const val cardHolder = "Unlimited Cards"
         const val addressLine1 = "123 Nowhere St"
@@ -73,8 +75,11 @@ object TestData {
         const val country = "US"
         const val currency = "USD"
 
-        fun toVirtualCardInput(ownershipProofs: List<String>, fundingSourceId: String): ProvisionVirtualCardInput {
-            return ProvisionVirtualCardInput(
+        fun toVirtualCardInput(
+            ownershipProofs: List<String>,
+            fundingSourceId: String,
+        ): ProvisionVirtualCardInput =
+            ProvisionVirtualCardInput(
                 ownershipProofs = ownershipProofs,
                 fundingSourceId = fundingSourceId,
                 cardHolder = cardHolder,
@@ -85,49 +90,54 @@ object TestData {
                 country = country,
                 currency = currency,
             )
-        }
     }
 
     /** Test sudo to use for integration tests */
     val sudo = Sudo("Mr", "Theodore", "Bear", "Shopping", null, null)
 
-    val DefaultTestCardBillingAddress = mapOf(
-        "stripe" to TestCardBillingAddress(),
-        "checkout" to TestCardBillingAddress(
-            // See https://www.checkout.com/docs/testing/avs-check-testing
-            // We need to set this to ensure success cases force AVS check
-            // to pass. Otherwise, because the test cards are all non-US,
-            // they return AVS check code 'G' which we don't accept as its
-            // an international code indicating no check performed.
-            addressLine1 = "Test_Y",
-        ),
-    )
+    val DefaultTestCardBillingAddress =
+        mapOf(
+            "stripe" to TestCardBillingAddress(),
+            "checkout" to
+                TestCardBillingAddress(
+                    // See https://www.checkout.com/docs/testing/avs-check-testing
+                    // We need to set this to ensure success cases force AVS check
+                    // to pass. Otherwise, because the test cards are all non-US,
+                    // they return AVS check code 'G' which we don't accept as its
+                    // an international code indicating no check performed.
+                    addressLine1 = "Test_Y",
+                ),
+        )
 
     /** Stripe Funding source test data.
      *
      * Note: All test data taken from https://stripe.com/docs/testing
      */
-    val TestCards = mapOf(
-        "stripe" to mapOf(
-            "Visa-3DS2-1" to TestCard("4000000000003220", "123", DefaultTestCardBillingAddress["stripe"]!!),
-            "Visa-No3DS-1" to TestCard("4242424242424242", "123", DefaultTestCardBillingAddress["stripe"]!!),
-            "MC-No3DS-1" to TestCard("5200828282828210", "123", DefaultTestCardBillingAddress["stripe"]!!),
-        ),
-        /** Checkout Funding source test data.
-         *
-         * Note: All test data taken from https://www.checkout.com/docs/testing/test-cards
-         * Visa 4532432452900131 is flagged as non-3ds but does trigger a challenge.
-         */
-        "checkout" to mapOf(
-            "Visa-3DS2-1" to TestCard("4242424242424242", "123", DefaultTestCardBillingAddress["checkout"]!!),
-            "Visa-3DS2-2" to TestCard("4543474002249996", "956", DefaultTestCardBillingAddress["checkout"]!!),
-            "Visa-No3DS-1" to TestCard("4484070000035519", "257", DefaultTestCardBillingAddress["checkout"]!!),
-            "MC-No3DS-1" to TestCard("5183683001544411", "100", DefaultTestCardBillingAddress["checkout"]!!),
-            "BadAddress" to TestCard("4484070000035519", "257", TestCardBillingAddress(addressLine1 = "Test_N")),
-            "BadCVV" to TestCard("4484070000035519", "202", DefaultTestCardBillingAddress["checkout"]!!),
-        ),
-    )
+    val TestCards =
+        mapOf(
+            "stripe" to
+                mapOf(
+                    "Visa-3DS2-1" to TestCard("4000000000003220", "123", DefaultTestCardBillingAddress["stripe"]!!),
+                    "Visa-No3DS-1" to TestCard("4242424242424242", "123", DefaultTestCardBillingAddress["stripe"]!!),
+                    "MC-No3DS-1" to TestCard("5200828282828210", "123", DefaultTestCardBillingAddress["stripe"]!!),
+                ),
+            /** Checkout Funding source test data.
+             *
+             * Note: All test data taken from https://www.checkout.com/docs/testing/test-cards
+             * Visa 4532432452900131 is flagged as non-3ds but does trigger a challenge.
+             */
+            "checkout" to
+                mapOf(
+                    "Visa-3DS2-1" to TestCard("4242424242424242", "123", DefaultTestCardBillingAddress["checkout"]!!),
+                    "Visa-3DS2-2" to TestCard("4543474002249996", "956", DefaultTestCardBillingAddress["checkout"]!!),
+                    "Visa-No3DS-1" to TestCard("4484070000035519", "257", DefaultTestCardBillingAddress["checkout"]!!),
+                    "MC-No3DS-1" to TestCard("5183683001544411", "100", DefaultTestCardBillingAddress["checkout"]!!),
+                    "BadAddress" to TestCard("4484070000035519", "257", TestCardBillingAddress(addressLine1 = "Test_N")),
+                    "BadCVV" to TestCard("4484070000035519", "202", DefaultTestCardBillingAddress["checkout"]!!),
+                ),
+        )
 
+    @Suppress("ktlint:standard:property-naming")
     object TestBankAccountUsername {
         const val customChecking = "custom_checking_500"
         const val customIdentityMismatch = "custom_identity_mismatch"

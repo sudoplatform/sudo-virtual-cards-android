@@ -16,6 +16,7 @@ import kotlinx.parcelize.Parcelize
 /**
  * Initializes [ProviderDefaults].
  */
+@Suppress("ktlint:standard:property-naming")
 object ProviderDefaults {
     /** Stripe Provider String. */
     const val stripeProvider = "stripe"
@@ -44,7 +45,9 @@ abstract class ProviderCommonData {
     abstract val type: FundingSourceType
 }
 
-sealed class ProviderProvisioningData : ProviderCommonData(), Parcelable
+sealed class ProviderProvisioningData :
+    ProviderCommonData(),
+    Parcelable
 
 /**
  * Representation of a based provisioning data type used to provision a checkout funding source. The client must
@@ -60,7 +63,8 @@ data class BaseProvisioningData(
     override val provider: String = ProviderDefaults.checkoutProvider,
     override val version: Int,
     override val type: FundingSourceType,
-) : ProviderProvisioningData(), Parcelable
+) : ProviderProvisioningData(),
+    Parcelable
 
 /**
  * Representation of [StripeCardProvisioningData] used to provision a stripe funding source.
@@ -126,7 +130,9 @@ data class LinkToken(
 @Deprecated("Use provider-specific provisioning data")
 typealias ProvisioningData = StripeCardProvisioningData
 
-sealed class ProviderCompletionData : ProviderCommonData(), Parcelable
+sealed class ProviderCompletionData :
+    ProviderCommonData(),
+    Parcelable
 
 /**
  * Representation of [StripeCardProviderCompletionData] sent to the provider and
@@ -206,7 +212,9 @@ internal data class ProviderSetupData(
     val applicationName: String,
 ) : Parcelable
 
-sealed class ProviderRefreshData : ProviderCommonData(), Parcelable
+sealed class ProviderRefreshData :
+    ProviderCommonData(),
+    Parcelable
 
 /**
  * Representation of [CheckoutBankAccountProviderRefreshData] sent to the provider and
@@ -248,7 +256,9 @@ internal data class SerializedCheckoutBankAccountRefreshData(
     val authorizationTextSignature: Signature? = null,
 ) : ProviderCommonData()
 
-sealed class ProviderUserInteractionData : ProviderCommonData(), Parcelable
+sealed class ProviderUserInteractionData :
+    ProviderCommonData(),
+    Parcelable
 
 /**
  * Representation of a based user interaction data type used to provision a checkout funding source. The client must

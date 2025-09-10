@@ -36,7 +36,6 @@ import timber.log.Timber
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class PublicKeyServiceExceptionTest : BaseTests() {
-
     private val keyRingServiceName = "sudo-virtual-cards"
 
     private val mockUserClient by before {
@@ -69,73 +68,81 @@ class PublicKeyServiceExceptionTest : BaseTests() {
     }
 
     @After
-    fun fini() = runBlocking {
-        Timber.uprootAll()
-    }
+    fun fini() =
+        runBlocking {
+            Timber.uprootAll()
+        }
 
     @Test
-    fun shouldThrowIfNotRegistered() = runBlocking<Unit> {
-        // given
-        mockUserClient.stub {
-            on { getSubject() } doReturn null
-        }
+    fun shouldThrowIfNotRegistered() =
+        runBlocking<Unit> {
+            // given
+            mockUserClient.stub {
+                on { getSubject() } doReturn null
+            }
 
-        shouldThrow<PublicKeyService.PublicKeyServiceException.UserIdNotFoundException> {
-            publicKeyService.getCurrentRegisteredKey()
+            shouldThrow<PublicKeyService.PublicKeyServiceException.UserIdNotFoundException> {
+                publicKeyService.getCurrentRegisteredKey()
+            }
         }
-    }
-
-    @Test
-    fun shouldThrowIfDeviceKeyManagerThrows1() = runBlocking<Unit> {
-        mockDeviceKeyManager.stub {
-            on { getCurrentKey() } doThrow DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException("mock")
-        }
-        shouldThrow<PublicKeyService.PublicKeyServiceException.KeyCreateException> {
-            publicKeyService.getCurrentKey()
-        }
-    }
 
     @Test
-    fun shouldThrowIfDeviceKeyManagerThrows2() = runBlocking<Unit> {
-        mockDeviceKeyManager.stub {
-            on { generateNewCurrentKeyPair() } doThrow DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException("mock")
+    fun shouldThrowIfDeviceKeyManagerThrows1() =
+        runBlocking<Unit> {
+            mockDeviceKeyManager.stub {
+                on { getCurrentKey() } doThrow DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException("mock")
+            }
+            shouldThrow<PublicKeyService.PublicKeyServiceException.KeyCreateException> {
+                publicKeyService.getCurrentKey()
+            }
         }
-        shouldThrow<PublicKeyService.PublicKeyServiceException.KeyCreateException> {
-            publicKeyService.getCurrentRegisteredKey()
-        }
-    }
 
     @Test
-    fun shouldThrowIfAppSyncThrows1() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                query<String>(
-                    check {
-                        assertEquals(GetPublicKeyQuery.OPERATION_DOCUMENT, it.query)
-                    },
-                    any(), any(),
-                )
-            } doThrow RuntimeException("mock")
+    fun shouldThrowIfDeviceKeyManagerThrows2() =
+        runBlocking<Unit> {
+            mockDeviceKeyManager.stub {
+                on { generateNewCurrentKeyPair() } doThrow DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException("mock")
+            }
+            shouldThrow<PublicKeyService.PublicKeyServiceException.KeyCreateException> {
+                publicKeyService.getCurrentRegisteredKey()
+            }
         }
-        shouldThrow<PublicKeyService.PublicKeyServiceException.UnknownException> {
-            publicKeyService.get("id")
-        }
-    }
 
     @Test
-    fun shouldThrowIfAppSyncThrows2() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                mutate<String> (
-                    check {
-                        assertEquals(CreatePublicKeyMutation.OPERATION_DOCUMENT, it.query)
-                    },
-                    any(), any(),
-                )
-            } doThrow RuntimeException("mock")
+    fun shouldThrowIfAppSyncThrows1() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    query<String>(
+                        check {
+                            assertEquals(GetPublicKeyQuery.OPERATION_DOCUMENT, it.query)
+                        },
+                        any(),
+                        any(),
+                    )
+                } doThrow RuntimeException("mock")
+            }
+            shouldThrow<PublicKeyService.PublicKeyServiceException.UnknownException> {
+                publicKeyService.get("id")
+            }
         }
-        shouldThrow<PublicKeyService.PublicKeyServiceException.UnknownException> {
-            publicKeyService.create("id", "ringId", ByteArray(42))
+
+    @Test
+    fun shouldThrowIfAppSyncThrows2() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    mutate<String>(
+                        check {
+                            assertEquals(CreatePublicKeyMutation.OPERATION_DOCUMENT, it.query)
+                        },
+                        any(),
+                        any(),
+                    )
+                } doThrow RuntimeException("mock")
+            }
+            shouldThrow<PublicKeyService.PublicKeyServiceException.UnknownException> {
+                publicKeyService.create("id", "ringId", ByteArray(42))
+            }
         }
-    }
 }

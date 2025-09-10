@@ -9,7 +9,7 @@ package com.sudoplatform.sudovirtualcards
 import android.content.Context
 import com.amazonaws.util.Base64
 import com.amplifyframework.api.graphql.GraphQLResponse
-import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo.api.Optional
 import com.google.gson.Gson
 import com.sudoplatform.sudologging.AndroidUtilsLogDriver
 import com.sudoplatform.sudologging.LogLevel
@@ -135,7 +135,6 @@ internal class DefaultSudoVirtualCardsClient(
     private val publicKeyService: PublicKeyService,
     private val notificationHandler: SudoVirtualCardsNotificationHandler? = null,
 ) : SudoVirtualCardsClient {
-
     companion object {
         /** Exception messages */
         private const val INVALID_TOKEN_MSG = "An invalid token error has occurred"
@@ -195,7 +194,7 @@ internal class DefaultSudoVirtualCardsClient(
      * and allow us to retry. The value of `version` doesn't need to be kept up-to-date with the
      * version of the code.
      */
-    private val version: String = "16.0.0"
+    private val version: String = "17.0.0"
 
     /** This manages the subscriptions to transaction updates and deletes */
     private val subscriptions = SubscriptionService(graphQLClient, deviceKeyManager, sudoUserClient, logger)
@@ -222,23 +221,26 @@ internal class DefaultSudoVirtualCardsClient(
     @Throws(FundingSourceException::class)
     override suspend fun setupFundingSource(input: SetupFundingSourceInput): ProvisionalFundingSource {
         try {
-            val setupData = ProviderSetupData(
-                applicationName = input.applicationData.applicationName,
-            )
+            val setupData =
+                ProviderSetupData(
+                    applicationName = input.applicationData.applicationName,
+                )
             val setupDataString = Gson().toJson(setupData)
             val encodedSetupData = Base64.encode(setupDataString.toByteArray()).toString(Charsets.UTF_8)
-            val mutationInput = SetupFundingSourceRequest(
-                currency = input.currency,
-                language = Optional.Absent,
-                setupData = Optional.presentIfNotNull(encodedSetupData),
-                supportedProviders = Optional.presentIfNotNull(input.supportedProviders),
-                type = input.type.toFundingSourceTypeInput(input.type),
-            )
+            val mutationInput =
+                SetupFundingSourceRequest(
+                    currency = input.currency,
+                    language = Optional.Absent,
+                    setupData = Optional.presentIfNotNull(encodedSetupData),
+                    supportedProviders = Optional.presentIfNotNull(input.supportedProviders),
+                    type = input.type.toFundingSourceTypeInput(input.type),
+                )
 
-            val mutationResponse = graphQLClient.mutate<SetupFundingSourceMutation, SetupFundingSourceMutation.Data>(
-                SetupFundingSourceMutation.OPERATION_DOCUMENT,
-                mapOf("input" to mutationInput),
-            )
+            val mutationResponse =
+                graphQLClient.mutate<SetupFundingSourceMutation, SetupFundingSourceMutation.Data>(
+                    SetupFundingSourceMutation.OPERATION_DOCUMENT,
+                    mapOf("input" to mutationInput),
+                )
 
             if (mutationResponse.hasErrors()) {
                 logger.error("errors = ${mutationResponse.errors}")
@@ -267,15 +269,16 @@ internal class DefaultSudoVirtualCardsClient(
         nextToken: String?,
     ): ListOutput<ProvisionalFundingSource> {
         try {
-            val queryResponse = graphQLClient.query<ListProvisionalFundingSourcesQuery, ListProvisionalFundingSourcesQuery.Data>(
-                ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT,
-                mapOf(
-                    "filter" to Optional.presentIfNotNull(filter.toProvisionalFundingSourceFilterInput()),
-                    "sortOrder" to Optional.presentIfNotNull(sortOrder?.toSortOrderInput(sortOrder)),
-                    "limit" to Optional.presentIfNotNull(limit),
-                    "nextToken" to Optional.presentIfNotNull(nextToken),
-                ),
-            )
+            val queryResponse =
+                graphQLClient.query<ListProvisionalFundingSourcesQuery, ListProvisionalFundingSourcesQuery.Data>(
+                    ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT,
+                    mapOf(
+                        "filter" to Optional.presentIfNotNull(filter.toProvisionalFundingSourceFilterInput()),
+                        "sortOrder" to Optional.presentIfNotNull(sortOrder?.toSortOrderInput(sortOrder)),
+                        "limit" to Optional.presentIfNotNull(limit),
+                        "nextToken" to Optional.presentIfNotNull(nextToken),
+                    ),
+                )
 
             if (queryResponse.hasErrors()) {
                 logger.error("errors = ${queryResponse.errors}")
@@ -307,51 +310,57 @@ internal class DefaultSudoVirtualCardsClient(
                 }
 
                 is CheckoutBankAccountProviderCompletionData -> {
-                    val publicKey = this.publicKeyService.getCurrentKey()
-                        ?: throw FundingSourceException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
+                    val publicKey =
+                        this.publicKeyService.getCurrentKey()
+                            ?: throw FundingSourceException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
                     val signingService = DefaultSigningService(deviceKeyManager)
                     TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
                     val signedAt = Calendar.getInstance(TimeZone.getTimeZone("UTC")).time
-                    val authorizationTextSignatureData = SignatureData(
-                        hash = input.completionData.authorizationText.hash,
-                        hashAlgorithm = input.completionData.authorizationText.hashAlgorithm,
-                        account = input.completionData.accountId,
-                        signedAt = signedAt,
-                    )
+                    val authorizationTextSignatureData =
+                        SignatureData(
+                            hash = input.completionData.authorizationText.hash,
+                            hashAlgorithm = input.completionData.authorizationText.hashAlgorithm,
+                            account = input.completionData.accountId,
+                            signedAt = signedAt,
+                        )
                     val data = Gson().toJson(authorizationTextSignatureData)
                     val signature = signingService.signString(data, publicKey.keyId, KeyType.PRIVATE_KEY)
-                    val authorizationTextSignature = Signature(
-                        data,
-                        algorithm = "RSASignatureSSAPKCS15SHA256",
-                        keyId = publicKey.keyId,
-                        signature = signature,
-                    )
-                    val completionData = SerializedCheckoutBankAccountCompletionData(
-                        provider = provider,
-                        version = 1,
-                        type = FundingSourceType.BANK_ACCOUNT,
-                        keyId = publicKey.keyId,
-                        publicToken = input.completionData.publicToken,
-                        accountId = input.completionData.accountId,
-                        institutionId = input.completionData.institutionId,
-                        authorizationTextSignature = authorizationTextSignature,
-                    )
+                    val authorizationTextSignature =
+                        Signature(
+                            data,
+                            algorithm = "RSASignatureSSAPKCS15SHA256",
+                            keyId = publicKey.keyId,
+                            signature = signature,
+                        )
+                    val completionData =
+                        SerializedCheckoutBankAccountCompletionData(
+                            provider = provider,
+                            version = 1,
+                            type = FundingSourceType.BANK_ACCOUNT,
+                            keyId = publicKey.keyId,
+                            publicToken = input.completionData.publicToken,
+                            accountId = input.completionData.accountId,
+                            institutionId = input.completionData.institutionId,
+                            authorizationTextSignature = authorizationTextSignature,
+                        )
 
                     val completionDataString = Gson().toJson(completionData)
                     encodedCompletionData = Base64.encode(completionDataString.toByteArray()).toString(Charsets.UTF_8)
                 }
             }
 
-            val mutationInput = CompleteFundingSourceRequest(
-                id = input.id,
-                completionData = encodedCompletionData,
-                updateCardFundingSource = Optional.presentIfNotNull(input.updateCardFundingSource),
-            )
+            val mutationInput =
+                CompleteFundingSourceRequest(
+                    id = input.id,
+                    completionData = encodedCompletionData,
+                    updateCardFundingSource = Optional.presentIfNotNull(input.updateCardFundingSource),
+                )
 
-            val mutationResponse = graphQLClient.mutate<CompleteFundingSourceMutation, CompleteFundingSourceMutation.Data>(
-                CompleteFundingSourceMutation.OPERATION_DOCUMENT,
-                mapOf("input" to mutationInput),
-            )
+            val mutationResponse =
+                graphQLClient.mutate<CompleteFundingSourceMutation, CompleteFundingSourceMutation.Data>(
+                    CompleteFundingSourceMutation.OPERATION_DOCUMENT,
+                    mapOf("input" to mutationInput),
+                )
 
             if (mutationResponse.hasErrors()) {
                 logger.error("errors = ${mutationResponse.errors}")
@@ -380,48 +389,54 @@ internal class DefaultSudoVirtualCardsClient(
             if (input.refreshData is CheckoutBankAccountProviderRefreshData) {
                 val applicationName = input.applicationData.applicationName
                 var authorizationTextSignature: Signature? = null
-                val publicKey = this.publicKeyService.getCurrentKey()
-                    ?: throw FundingSourceException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
+                val publicKey =
+                    this.publicKeyService.getCurrentKey()
+                        ?: throw FundingSourceException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
                 if (input.refreshData.authorizationText != null && input.refreshData.accountId != null) {
                     val signingService = DefaultSigningService(deviceKeyManager)
-                    val authorizationTextSignatureData = SignatureData(
-                        hash = input.refreshData.authorizationText.hash,
-                        hashAlgorithm = input.refreshData.authorizationText.hashAlgorithm,
-                        account = input.refreshData.accountId,
-                    )
+                    val authorizationTextSignatureData =
+                        SignatureData(
+                            hash = input.refreshData.authorizationText.hash,
+                            hashAlgorithm = input.refreshData.authorizationText.hashAlgorithm,
+                            account = input.refreshData.accountId,
+                        )
                     val data = Gson().toJson(authorizationTextSignatureData)
                     val signature = signingService.signString(data, publicKey.keyId, KeyType.PRIVATE_KEY)
-                    authorizationTextSignature = Signature(
-                        data,
-                        algorithm = "RSASignatureSSAPKCS15SHA256",
-                        keyId = publicKey.keyId,
-                        signature = signature,
-                    )
+                    authorizationTextSignature =
+                        Signature(
+                            data,
+                            algorithm = "RSASignatureSSAPKCS15SHA256",
+                            keyId = publicKey.keyId,
+                            signature = signature,
+                        )
                 }
-                val refreshData = SerializedCheckoutBankAccountRefreshData(
-                    provider = provider,
-                    version = 1,
-                    type = FundingSourceType.BANK_ACCOUNT,
-                    applicationName = applicationName,
-                    keyId = publicKey.keyId,
-                    authorizationTextSignature = authorizationTextSignature,
-                )
+                val refreshData =
+                    SerializedCheckoutBankAccountRefreshData(
+                        provider = provider,
+                        version = 1,
+                        type = FundingSourceType.BANK_ACCOUNT,
+                        applicationName = applicationName,
+                        keyId = publicKey.keyId,
+                        authorizationTextSignature = authorizationTextSignature,
+                    )
                 val refreshDataString = Gson().toJson(refreshData)
                 encodedRefreshData = Base64.encode(refreshDataString.toByteArray()).toString(Charsets.UTF_8)
             } else {
                 throw FundingSourceException.UnexpectedProviderException("Unexpected provider: $provider:$type")
             }
 
-            val mutationInput = RefreshFundingSourceRequest(
-                id = input.id,
-                language = Optional.presentIfNotNull(input.language),
-                refreshData = encodedRefreshData,
-            )
+            val mutationInput =
+                RefreshFundingSourceRequest(
+                    id = input.id,
+                    language = Optional.presentIfNotNull(input.language),
+                    refreshData = encodedRefreshData,
+                )
 
-            val mutationResponse = graphQLClient.mutate<RefreshFundingSourceMutation, RefreshFundingSourceMutation.Data>(
-                RefreshFundingSourceMutation.OPERATION_DOCUMENT,
-                mapOf("input" to mutationInput),
-            )
+            val mutationResponse =
+                graphQLClient.mutate<RefreshFundingSourceMutation, RefreshFundingSourceMutation.Data>(
+                    RefreshFundingSourceMutation.OPERATION_DOCUMENT,
+                    mapOf("input" to mutationInput),
+                )
 
             if (mutationResponse.hasErrors()) {
                 logger.error("errors = ${mutationResponse.errors}")
@@ -444,10 +459,11 @@ internal class DefaultSudoVirtualCardsClient(
     @Throws(FundingSourceException::class)
     override suspend fun getFundingSource(id: String): FundingSource? {
         try {
-            val queryResponse = graphQLClient.query<GetFundingSourceQuery, GetFundingSourceQuery.Data>(
-                GetFundingSourceQuery.OPERATION_DOCUMENT,
-                mapOf("id" to id),
-            )
+            val queryResponse =
+                graphQLClient.query<GetFundingSourceQuery, GetFundingSourceQuery.Data>(
+                    GetFundingSourceQuery.OPERATION_DOCUMENT,
+                    mapOf("id" to id),
+                )
 
             if (queryResponse.hasErrors()) {
                 logger.error("errors = ${queryResponse.errors}")
@@ -470,15 +486,16 @@ internal class DefaultSudoVirtualCardsClient(
         nextToken: String?,
     ): ListOutput<FundingSource> {
         try {
-            val queryResponse = graphQLClient.query<ListFundingSourcesQuery, ListFundingSourcesQuery.Data>(
-                ListFundingSourcesQuery.OPERATION_DOCUMENT,
-                mapOf(
-                    "filter" to Optional.presentIfNotNull(filter.toFundingSourceFilterInput()),
-                    "sortOrder" to Optional.presentIfNotNull(sortOrder?.toSortOrderInput(sortOrder)),
-                    "limit" to Optional.presentIfNotNull(limit),
-                    "nextToken" to Optional.presentIfNotNull(nextToken),
-                ),
-            )
+            val queryResponse =
+                graphQLClient.query<ListFundingSourcesQuery, ListFundingSourcesQuery.Data>(
+                    ListFundingSourcesQuery.OPERATION_DOCUMENT,
+                    mapOf(
+                        "filter" to Optional.presentIfNotNull(filter.toFundingSourceFilterInput()),
+                        "sortOrder" to Optional.presentIfNotNull(sortOrder?.toSortOrderInput(sortOrder)),
+                        "limit" to Optional.presentIfNotNull(limit),
+                        "nextToken" to Optional.presentIfNotNull(nextToken),
+                    ),
+                )
 
             if (queryResponse.hasErrors()) {
                 logger.error("errors = ${queryResponse.errors}")
@@ -499,10 +516,11 @@ internal class DefaultSudoVirtualCardsClient(
         try {
             val mutationInput = IdInput(id = id)
 
-            val mutationResponse = graphQLClient.mutate<CancelFundingSourceMutation, CancelFundingSourceMutation.Data>(
-                CancelFundingSourceMutation.OPERATION_DOCUMENT,
-                mapOf("input" to mutationInput),
-            )
+            val mutationResponse =
+                graphQLClient.mutate<CancelFundingSourceMutation, CancelFundingSourceMutation.Data>(
+                    CancelFundingSourceMutation.OPERATION_DOCUMENT,
+                    mapOf("input" to mutationInput),
+                )
 
             if (mutationResponse.hasErrors()) {
                 logger.error("errors = ${mutationResponse.errors}")
@@ -528,13 +546,14 @@ internal class DefaultSudoVirtualCardsClient(
         try {
             val mutationInput = IdInput(id = id)
 
-            val mutationResponse = graphQLClient.mutate<
-                CancelProvisionalFundingSourceMutation,
-                CancelProvisionalFundingSourceMutation.Data,
+            val mutationResponse =
+                graphQLClient.mutate<
+                    CancelProvisionalFundingSourceMutation,
+                    CancelProvisionalFundingSourceMutation.Data,
                 >(
-                CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT,
-                mapOf("input" to mutationInput),
-            )
+                    CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT,
+                    mapOf("input" to mutationInput),
+                )
 
             if (mutationResponse.hasErrors()) {
                 logger.error("errors = ${mutationResponse.errors}")
@@ -560,10 +579,11 @@ internal class DefaultSudoVirtualCardsClient(
         try {
             val mutationInput = IdInput(id = id)
 
-            val mutationResponse = graphQLClient.mutate<ReviewUnfundedFundingSourceMutation, ReviewUnfundedFundingSourceMutation.Data>(
-                ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT,
-                mapOf("input" to mutationInput),
-            )
+            val mutationResponse =
+                graphQLClient.mutate<ReviewUnfundedFundingSourceMutation, ReviewUnfundedFundingSourceMutation.Data>(
+                    ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT,
+                    mapOf("input" to mutationInput),
+                )
 
             if (mutationResponse.hasErrors()) {
                 logger.error("errors = ${mutationResponse.errors}")
@@ -589,22 +609,24 @@ internal class DefaultSudoVirtualCardsClient(
         try {
             val key = publicKeyService.getCurrentRegisteredKey()
 
-            val mutationInput = CardProvisionRequest(
-                alias = Optional.presentIfNotNull(input.alias),
-                billingAddress = Optional.presentIfNotNull(input.billingAddress.toAddressInput()),
-                cardHolder = input.cardHolder,
-                clientRefId = input.clientRefId,
-                currency = input.currency,
-                fundingSourceId = input.fundingSourceId,
-                keyRingId = key.keyRingId,
-                metadata = Optional.presentIfNotNull(input.metadata.toMetadataInput(deviceKeyManager)),
-                ownerProofs = input.ownershipProofs,
-            )
+            val mutationInput =
+                CardProvisionRequest(
+                    alias = Optional.presentIfNotNull(input.alias),
+                    billingAddress = Optional.presentIfNotNull(input.billingAddress.toAddressInput()),
+                    cardHolder = input.cardHolder,
+                    clientRefId = input.clientRefId,
+                    currency = input.currency,
+                    fundingSourceId = input.fundingSourceId,
+                    keyRingId = key.keyRingId,
+                    metadata = Optional.presentIfNotNull(input.metadata.toMetadataInput(deviceKeyManager)),
+                    ownerProofs = input.ownershipProofs,
+                )
 
-            val mutationResponse = graphQLClient.mutate<ProvisionVirtualCardMutation, ProvisionVirtualCardMutation.Data>(
-                ProvisionVirtualCardMutation.OPERATION_DOCUMENT,
-                mapOf("input" to mutationInput),
-            )
+            val mutationResponse =
+                graphQLClient.mutate<ProvisionVirtualCardMutation, ProvisionVirtualCardMutation.Data>(
+                    ProvisionVirtualCardMutation.OPERATION_DOCUMENT,
+                    mapOf("input" to mutationInput),
+                )
 
             if (mutationResponse.hasErrors()) {
                 logger.error("errors = ${mutationResponse.errors}")
@@ -628,10 +650,11 @@ internal class DefaultSudoVirtualCardsClient(
     @Throws(VirtualCardException::class)
     override suspend fun getProvisionalCard(id: String): ProvisionalVirtualCard? {
         try {
-            val queryResponse = graphQLClient.query<GetProvisionalCardQuery, GetProvisionalCardQuery.Data>(
-                GetProvisionalCardQuery.OPERATION_DOCUMENT,
-                mapOf("id" to id),
-            )
+            val queryResponse =
+                graphQLClient.query<GetProvisionalCardQuery, GetProvisionalCardQuery.Data>(
+                    GetProvisionalCardQuery.OPERATION_DOCUMENT,
+                    mapOf("id" to id),
+                )
 
             if (queryResponse.hasErrors()) {
                 logger.error("errors = ${queryResponse.errors}")
@@ -649,16 +672,18 @@ internal class DefaultSudoVirtualCardsClient(
     @Throws(VirtualCardException::class)
     override suspend fun getVirtualCard(id: String): VirtualCard? {
         try {
-            val key = publicKeyService.getCurrentKey()
-                ?: throw VirtualCardException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
+            val key =
+                publicKeyService.getCurrentKey()
+                    ?: throw VirtualCardException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
 
-            val queryResponse = graphQLClient.query<GetCardQuery, GetCardQuery.Data>(
-                GetCardQuery.OPERATION_DOCUMENT,
-                mapOf(
-                    "id" to id,
-                    "keyId" to Optional.presentIfNotNull(key.keyId),
-                ),
-            )
+            val queryResponse =
+                graphQLClient.query<GetCardQuery, GetCardQuery.Data>(
+                    GetCardQuery.OPERATION_DOCUMENT,
+                    mapOf(
+                        "id" to id,
+                        "keyId" to Optional.presentIfNotNull(key.keyId),
+                    ),
+                )
 
             if (queryResponse.hasErrors()) {
                 logger.error("errors = ${queryResponse.errors}")
@@ -676,10 +701,11 @@ internal class DefaultSudoVirtualCardsClient(
     @Throws(VirtualCardException::class)
     override suspend fun getVirtualCardsConfig(): VirtualCardsConfig? {
         try {
-            val queryResponse = graphQLClient.query<GetVirtualCardsConfigQuery, GetVirtualCardsConfigQuery.Data>(
-                GetVirtualCardsConfigQuery.OPERATION_DOCUMENT,
-                emptyMap(),
-            )
+            val queryResponse =
+                graphQLClient.query<GetVirtualCardsConfigQuery, GetVirtualCardsConfigQuery.Data>(
+                    GetVirtualCardsConfigQuery.OPERATION_DOCUMENT,
+                    emptyMap(),
+                )
 
             if (queryResponse.hasErrors()) {
                 logger.error("errors = ${queryResponse.errors}")
@@ -702,15 +728,16 @@ internal class DefaultSudoVirtualCardsClient(
         nextToken: String?,
     ): ListAPIResult<VirtualCard, PartialVirtualCard> {
         try {
-            val queryResponse = graphQLClient.query<ListCardsQuery, ListCardsQuery.Data>(
-                ListCardsQuery.OPERATION_DOCUMENT,
-                mapOf(
-                    "filter" to Optional.presentIfNotNull(filter.toVirtualCardFilterInput()),
-                    "sortOrder" to Optional.presentIfNotNull(sortOrder?.toSortOrderInput(sortOrder)),
-                    "limit" to Optional.presentIfNotNull(limit),
-                    "nextToken" to Optional.presentIfNotNull(nextToken),
-                ),
-            )
+            val queryResponse =
+                graphQLClient.query<ListCardsQuery, ListCardsQuery.Data>(
+                    ListCardsQuery.OPERATION_DOCUMENT,
+                    mapOf(
+                        "filter" to Optional.presentIfNotNull(filter.toVirtualCardFilterInput()),
+                        "sortOrder" to Optional.presentIfNotNull(sortOrder?.toSortOrderInput(sortOrder)),
+                        "limit" to Optional.presentIfNotNull(limit),
+                        "nextToken" to Optional.presentIfNotNull(nextToken),
+                    ),
+                )
 
             if (queryResponse.hasErrors()) {
                 logger.error("errors = ${queryResponse.errors}")
@@ -725,10 +752,11 @@ internal class DefaultSudoVirtualCardsClient(
             val partials: MutableList<PartialResult<PartialVirtualCard>> = mutableListOf()
             for (sealedCard in sealedCards) {
                 try {
-                    val unsealedCard = VirtualCardTransformer.toEntity(
-                        deviceKeyManager,
-                        sealedCard.sealedCardWithLastTransaction,
-                    )
+                    val unsealedCard =
+                        VirtualCardTransformer.toEntity(
+                            deviceKeyManager,
+                            sealedCard.sealedCardWithLastTransaction,
+                        )
                     success.add(unsealedCard)
                 } catch (e: Exception) {
                     val partialCard = VirtualCardTransformer.toPartialEntity(sealedCard.sealedCardWithLastTransaction)
@@ -746,24 +774,27 @@ internal class DefaultSudoVirtualCardsClient(
     @Throws(VirtualCardException::class)
     override suspend fun updateVirtualCard(input: UpdateVirtualCardInput): SingleAPIResult<VirtualCard, PartialVirtualCard> {
         try {
-            val keyPairResult = publicKeyService.getCurrentKey()
-                ?: throw VirtualCardException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
+            val keyPairResult =
+                publicKeyService.getCurrentKey()
+                    ?: throw VirtualCardException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
             val keyId = keyPairResult.keyId
 
-            val mutationInput = CardUpdateRequest(
-                alias = Optional.presentIfNotNull(input.alias),
-                billingAddress = Optional.presentIfNotNull(input.billingAddress?.toAddressInput()),
-                cardHolder = Optional.presentIfNotNull(input.cardHolder),
-                expectedVersion = Optional.presentIfNotNull(input.expectedCardVersion),
-                id = input.id,
-                keyId = Optional.presentIfNotNull(keyId),
-                metadata = Optional.presentIfNotNull(input.metadata.toMetadataInput(deviceKeyManager)),
-            )
+            val mutationInput =
+                CardUpdateRequest(
+                    alias = Optional.presentIfNotNull(input.alias),
+                    billingAddress = Optional.presentIfNotNull(input.billingAddress?.toAddressInput()),
+                    cardHolder = Optional.presentIfNotNull(input.cardHolder),
+                    expectedVersion = Optional.presentIfNotNull(input.expectedCardVersion),
+                    id = input.id,
+                    keyId = Optional.presentIfNotNull(keyId),
+                    metadata = Optional.presentIfNotNull(input.metadata.toMetadataInput(deviceKeyManager)),
+                )
 
-            val mutationResponse = graphQLClient.mutate<UpdateVirtualCardMutation, UpdateVirtualCardMutation.Data>(
-                UpdateVirtualCardMutation.OPERATION_DOCUMENT,
-                mapOf("input" to mutationInput),
-            )
+            val mutationResponse =
+                graphQLClient.mutate<UpdateVirtualCardMutation, UpdateVirtualCardMutation.Data>(
+                    UpdateVirtualCardMutation.OPERATION_DOCUMENT,
+                    mapOf("input" to mutationInput),
+                )
 
             if (mutationResponse.hasErrors()) {
                 logger.error("errors = ${mutationResponse.errors}")
@@ -776,10 +807,11 @@ internal class DefaultSudoVirtualCardsClient(
             val updatedCard = mutationResponse.data?.updateCard
             updatedCard?.let {
                 try {
-                    val unsealedUpdatedCard = VirtualCardTransformer.toEntity(
-                        deviceKeyManager,
-                        updatedCard.sealedCardWithLastTransaction,
-                    )
+                    val unsealedUpdatedCard =
+                        VirtualCardTransformer.toEntity(
+                            deviceKeyManager,
+                            updatedCard.sealedCardWithLastTransaction,
+                        )
                     return SingleAPIResult.Success(unsealedUpdatedCard)
                 } catch (e: Exception) {
                     val partialUpdatedCard = VirtualCardTransformer.toPartialEntity(updatedCard.sealedCardWithLastTransaction)
@@ -796,18 +828,21 @@ internal class DefaultSudoVirtualCardsClient(
 
     override suspend fun cancelVirtualCard(id: String): SingleAPIResult<VirtualCard, PartialVirtualCard> {
         try {
-            val key = publicKeyService.getCurrentKey()
-                ?: throw VirtualCardException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
+            val key =
+                publicKeyService.getCurrentKey()
+                    ?: throw VirtualCardException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
             val keyId = key.keyId
 
-            val mutationInput = CardCancelRequest(
-                id = id,
-                keyId = Optional.presentIfNotNull(keyId),
-            )
-            val mutationResponse = graphQLClient.mutate<CancelVirtualCardMutation, CancelVirtualCardMutation.Data>(
-                CancelVirtualCardMutation.OPERATION_DOCUMENT,
-                mapOf("input" to mutationInput),
-            )
+            val mutationInput =
+                CardCancelRequest(
+                    id = id,
+                    keyId = Optional.presentIfNotNull(keyId),
+                )
+            val mutationResponse =
+                graphQLClient.mutate<CancelVirtualCardMutation, CancelVirtualCardMutation.Data>(
+                    CancelVirtualCardMutation.OPERATION_DOCUMENT,
+                    mapOf("input" to mutationInput),
+                )
 
             if (mutationResponse.hasErrors()) {
                 logger.error("errors = ${mutationResponse.errors}")
@@ -820,15 +855,17 @@ internal class DefaultSudoVirtualCardsClient(
             val cancelledCard = mutationResponse.data?.cancelCard
             cancelledCard?.let {
                 try {
-                    val unsealedCancelledCard = VirtualCardTransformer.toEntity(
-                        deviceKeyManager,
-                        cancelledCard.sealedCardWithLastTransaction,
-                    )
+                    val unsealedCancelledCard =
+                        VirtualCardTransformer.toEntity(
+                            deviceKeyManager,
+                            cancelledCard.sealedCardWithLastTransaction,
+                        )
                     return SingleAPIResult.Success(unsealedCancelledCard)
                 } catch (e: Exception) {
-                    val partialCancelledCard = VirtualCardTransformer.toPartialEntity(
-                        cancelledCard.sealedCardWithLastTransaction,
-                    )
+                    val partialCancelledCard =
+                        VirtualCardTransformer.toPartialEntity(
+                            cancelledCard.sealedCardWithLastTransaction,
+                        )
                     val partialResult = PartialResult(partialCancelledCard, e)
                     return SingleAPIResult.Partial(partialResult)
                 }
@@ -843,14 +880,16 @@ internal class DefaultSudoVirtualCardsClient(
     @Throws(SudoVirtualCardsClient.TransactionException::class)
     override suspend fun getTransaction(id: String): Transaction? {
         try {
-            val keyPairResult = publicKeyService.getCurrentKey()
-                ?: throw SudoVirtualCardsClient.TransactionException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
+            val keyPairResult =
+                publicKeyService.getCurrentKey()
+                    ?: throw SudoVirtualCardsClient.TransactionException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
             val keyId = keyPairResult.keyId
 
-            val queryResponse = graphQLClient.query<GetTransactionQuery, GetTransactionQuery.Data>(
-                GetTransactionQuery.OPERATION_DOCUMENT,
-                mapOf("id" to id, "keyId" to Optional.presentIfNotNull(keyId)),
-            )
+            val queryResponse =
+                graphQLClient.query<GetTransactionQuery, GetTransactionQuery.Data>(
+                    GetTransactionQuery.OPERATION_DOCUMENT,
+                    mapOf("id" to id, "keyId" to Optional.presentIfNotNull(keyId)),
+                )
 
             if (queryResponse.hasErrors()) {
                 logger.error("errors = ${queryResponse.errors}")
@@ -874,16 +913,17 @@ internal class DefaultSudoVirtualCardsClient(
         sortOrder: SortOrder,
     ): ListAPIResult<Transaction, PartialTransaction> {
         try {
-            val queryResponse = graphQLClient.query<ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Data>(
-                ListTransactionsByCardIdQuery.OPERATION_DOCUMENT,
-                mapOf(
-                    "cardId" to cardId,
-                    "limit" to Optional.presentIfNotNull(limit),
-                    "nextToken" to Optional.presentIfNotNull(nextToken),
-                    "dateRange" to Optional.presentIfNotNull(dateRange?.toDateRangeInput()),
-                    "sortOrder" to Optional.presentIfNotNull(sortOrder.toSortOrderInput(sortOrder)),
-                ),
-            )
+            val queryResponse =
+                graphQLClient.query<ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Data>(
+                    ListTransactionsByCardIdQuery.OPERATION_DOCUMENT,
+                    mapOf(
+                        "cardId" to cardId,
+                        "limit" to Optional.presentIfNotNull(limit),
+                        "nextToken" to Optional.presentIfNotNull(nextToken),
+                        "dateRange" to Optional.presentIfNotNull(dateRange?.toDateRangeInput()),
+                        "sortOrder" to Optional.presentIfNotNull(sortOrder.toSortOrderInput(sortOrder)),
+                    ),
+                )
 
             if (queryResponse.hasErrors()) {
                 logger.error("errors = ${queryResponse.errors}")
@@ -923,20 +963,21 @@ internal class DefaultSudoVirtualCardsClient(
         nextToken: String?,
     ): ListAPIResult<Transaction, PartialTransaction> {
         try {
-            val queryResponse = graphQLClient.query<ListTransactionsByCardIdAndTypeQuery, ListTransactionsByCardIdAndTypeQuery.Data>(
-                ListTransactionsByCardIdAndTypeQuery.OPERATION_DOCUMENT,
-                mapOf(
-                    "cardId" to cardId,
-                    "transactionType" to (
-                        transactionType.toTransactionType()
-                            ?: throw SudoVirtualCardsClient.TransactionException.UnsupportedTransactionTypeException(
-                                UNSUPPORTED_TRANSACTION_TYPE_MSG,
-                            )
+            val queryResponse =
+                graphQLClient.query<ListTransactionsByCardIdAndTypeQuery, ListTransactionsByCardIdAndTypeQuery.Data>(
+                    ListTransactionsByCardIdAndTypeQuery.OPERATION_DOCUMENT,
+                    mapOf(
+                        "cardId" to cardId,
+                        "transactionType" to (
+                            transactionType.toTransactionType()
+                                ?: throw SudoVirtualCardsClient.TransactionException.UnsupportedTransactionTypeException(
+                                    UNSUPPORTED_TRANSACTION_TYPE_MSG,
+                                )
                         ),
-                    "limit" to Optional.presentIfNotNull(limit),
-                    "nextToken" to Optional.presentIfNotNull(nextToken),
-                ),
-            )
+                        "limit" to Optional.presentIfNotNull(limit),
+                        "nextToken" to Optional.presentIfNotNull(nextToken),
+                    ),
+                )
 
             if (queryResponse.hasErrors()) {
                 logger.error("errors = ${queryResponse.errors}")
@@ -976,15 +1017,16 @@ internal class DefaultSudoVirtualCardsClient(
         sortOrder: SortOrder,
     ): ListAPIResult<Transaction, PartialTransaction> {
         try {
-            val queryResponse = graphQLClient.query<ListTransactionsQuery, ListTransactionsQuery.Data>(
-                ListTransactionsQuery.OPERATION_DOCUMENT,
-                mapOf(
-                    "limit" to Optional.presentIfNotNull(limit),
-                    "nextToken" to Optional.presentIfNotNull(nextToken),
-                    "dateRange" to Optional.presentIfNotNull(dateRange?.toDateRangeInput()),
-                    "sortOrder" to Optional.presentIfNotNull(sortOrder.toSortOrderInput(sortOrder)),
-                ),
-            )
+            val queryResponse =
+                graphQLClient.query<ListTransactionsQuery, ListTransactionsQuery.Data>(
+                    ListTransactionsQuery.OPERATION_DOCUMENT,
+                    mapOf(
+                        "limit" to Optional.presentIfNotNull(limit),
+                        "nextToken" to Optional.presentIfNotNull(nextToken),
+                        "dateRange" to Optional.presentIfNotNull(dateRange?.toDateRangeInput()),
+                        "sortOrder" to Optional.presentIfNotNull(sortOrder.toSortOrderInput(sortOrder)),
+                    ),
+                )
 
             if (queryResponse.hasErrors()) {
                 logger.error("errors = ${queryResponse.errors}")
@@ -1016,7 +1058,10 @@ internal class DefaultSudoVirtualCardsClient(
         }
     }
 
-    override suspend fun subscribeToTransactions(id: String, subscriber: TransactionSubscriber) {
+    override suspend fun subscribeToTransactions(
+        id: String,
+        subscriber: TransactionSubscriber,
+    ) {
         subscriptions.subscribeTransactions(id, subscriber)
     }
 
@@ -1028,7 +1073,10 @@ internal class DefaultSudoVirtualCardsClient(
         subscriptions.unsubscribeAllTransactions()
     }
 
-    override suspend fun subscribeToFundingSources(id: String, subscriber: FundingSourceSubscriber) {
+    override suspend fun subscribeToFundingSources(
+        id: String,
+        subscriber: FundingSourceSubscriber,
+    ) {
         subscriptions.subscribeFundingSources(id, subscriber)
     }
 
@@ -1040,33 +1088,39 @@ internal class DefaultSudoVirtualCardsClient(
         subscriptions.unsubscribeAllFundingSources()
     }
 
-    override suspend fun sandboxGetPlaidData(institutionId: String, plaidUsername: String): SandboxPlaidData {
+    override suspend fun sandboxGetPlaidData(
+        institutionId: String,
+        plaidUsername: String,
+    ): SandboxPlaidData {
         try {
-            val queryInput = SandboxGetPlaidDataRequest(
+            val queryInput =
+                SandboxGetPlaidDataRequest(
+                    institutionId = institutionId,
+                    username = plaidUsername,
+                )
 
-                institutionId = institutionId,
-                username = plaidUsername,
-            )
-
-            val queryResponse = graphQLClient.query<SandboxGetPlaidDataQuery, SandboxGetPlaidDataQuery.Data>(
-                SandboxGetPlaidDataQuery.OPERATION_DOCUMENT,
-                mapOf("input" to queryInput),
-            )
+            val queryResponse =
+                graphQLClient.query<SandboxGetPlaidDataQuery, SandboxGetPlaidDataQuery.Data>(
+                    SandboxGetPlaidDataQuery.OPERATION_DOCUMENT,
+                    mapOf("input" to queryInput),
+                )
 
             if (queryResponse.hasErrors()) {
                 logger.error("errors = ${queryResponse.errors}")
                 throw interpretFundingSourceError(queryResponse.errors.first())
             }
 
-            val queryResult = queryResponse.data?.sandboxGetPlaidData
-                ?: throw FundingSourceException.FailedException("No sandbox Plaid data returned")
+            val queryResult =
+                queryResponse.data?.sandboxGetPlaidData
+                    ?: throw FundingSourceException.FailedException("No sandbox Plaid data returned")
 
-            val result = SandboxPlaidData(
-                queryResult.accountMetadata.map {
-                    PlaidAccountMetadata(it.accountId, interpretPlaidAccountSubtype(it.subtype))
-                },
-                queryResult.publicToken,
-            )
+            val result =
+                SandboxPlaidData(
+                    queryResult.accountMetadata.map {
+                        PlaidAccountMetadata(it.accountId, interpretPlaidAccountSubtype(it.subtype))
+                    },
+                    queryResult.publicToken,
+                )
 
             return result
         } catch (e: Throwable) {
@@ -1082,23 +1136,25 @@ internal class DefaultSudoVirtualCardsClient(
                     fundingSourceId = fundingSourceId,
                 )
 
-            val mutationResponse = graphQLClient.mutate<
-                SandboxSetFundingSourceToRequireRefreshMutation,
-                SandboxSetFundingSourceToRequireRefreshMutation.Data,
+            val mutationResponse =
+                graphQLClient.mutate<
+                    SandboxSetFundingSourceToRequireRefreshMutation,
+                    SandboxSetFundingSourceToRequireRefreshMutation.Data,
                 >(
-                SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT,
-                mapOf("input" to mutationInput),
-            )
+                    SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT,
+                    mapOf("input" to mutationInput),
+                )
 
             if (mutationResponse.hasErrors()) {
                 logger.error("errors = ${mutationResponse.errors}")
                 throw interpretFundingSourceError(mutationResponse.errors.first())
             }
 
-            val mutationResult = mutationResponse.data?.sandboxSetFundingSourceToRequireRefresh
-                ?: throw FundingSourceException.FailedException(
-                    "No data returned setting funding source to require refresh",
-                )
+            val mutationResult =
+                mutationResponse.data?.sandboxSetFundingSourceToRequireRefresh
+                    ?: throw FundingSourceException.FailedException(
+                        "No data returned setting funding source to require refresh",
+                    )
 
             return FundingSourceTransformer.toEntityFromSandboxSetFundingSourceToRequireRefreshResult(deviceKeyManager, mutationResult)
         } catch (e: Throwable) {
@@ -1224,17 +1280,16 @@ internal class DefaultSudoVirtualCardsClient(
         return ListAPIResult.Success(listSuccessResult)
     }
 
-    private fun interpretFundingSourceException(e: Throwable): Throwable {
-        return when (e) {
+    private fun interpretFundingSourceException(e: Throwable): Throwable =
+        when (e) {
             is CancellationException,
             is FundingSourceException,
             -> e
             else -> FundingSourceException.UnknownException(e)
         }
-    }
 
-    private fun interpretVirtualCardException(e: Throwable): Throwable {
-        return when (e) {
+    private fun interpretVirtualCardException(e: Throwable): Throwable =
+        when (e) {
             is CancellationException,
             is VirtualCardException,
             -> e
@@ -1246,10 +1301,9 @@ internal class DefaultSudoVirtualCardsClient(
                 SudoVirtualCardsClient.VirtualCardCryptographicKeysException.SecureKeyArchiveException(KEY_ARCHIVE_ERROR_MSG, e)
             else -> VirtualCardException.UnknownException(e)
         }
-    }
 
-    private fun interpretTransactionException(e: Throwable): Throwable {
-        return when (e) {
+    private fun interpretTransactionException(e: Throwable): Throwable =
+        when (e) {
             is CancellationException,
             is SudoVirtualCardsClient.TransactionException,
             -> e
@@ -1259,7 +1313,6 @@ internal class DefaultSudoVirtualCardsClient(
                 SudoVirtualCardsClient.TransactionException.UnsealingException(UNSEAL_CARD_ERROR_MSG, e)
             else -> SudoVirtualCardsClient.TransactionException.UnknownException(e)
         }
-    }
 
     /**
      * @param e [GraphQLResponse.Error]: Error returned from Amplify library
@@ -1378,17 +1431,15 @@ internal class DefaultSudoVirtualCardsClient(
         return VirtualCardException.FailedException(e.toString())
     }
 
-    private fun interpretTransactionError(e: GraphQLResponse.Error): SudoVirtualCardsClient.TransactionException {
-        return SudoVirtualCardsClient.TransactionException.FailedException(e.toString())
-    }
+    private fun interpretTransactionError(e: GraphQLResponse.Error): SudoVirtualCardsClient.TransactionException =
+        SudoVirtualCardsClient.TransactionException.FailedException(e.toString())
 
-    private fun interpretPlaidAccountSubtype(plaidSubtype: String?): BankAccountFundingSource.BankAccountType {
-        return when (plaidSubtype) {
+    private fun interpretPlaidAccountSubtype(plaidSubtype: String?): BankAccountFundingSource.BankAccountType =
+        when (plaidSubtype) {
             "checking" -> BankAccountFundingSource.BankAccountType.CHECKING
             "savings" -> BankAccountFundingSource.BankAccountType.SAVING
             else -> BankAccountFundingSource.BankAccountType.UNKNOWN
         }
-    }
 }
 
 data class SudoVirtualCardsNotificationSchemaEntry(

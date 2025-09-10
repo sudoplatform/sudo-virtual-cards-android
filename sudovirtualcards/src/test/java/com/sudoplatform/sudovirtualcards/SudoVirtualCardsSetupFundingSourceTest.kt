@@ -61,112 +61,119 @@ import com.sudoplatform.sudovirtualcards.types.FundingSourceType as FundingSourc
  * using mocks and spies.
  */
 @RunWith(Parameterized::class)
-class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : BaseTests() {
+class SudoVirtualCardsSetupFundingSourceTest(
+    private val provider: String,
+) : BaseTests() {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data(): Collection<String> {
-            return listOf(
+        fun data(): Collection<String> =
+            listOf(
                 "stripe",
                 "checkoutBankAccount",
             )
-        }
     }
 
     private val input by before {
         mapOf(
-            "stripe" to SetupFundingSourceInput(
-                "USD",
-                FundingSourceTypeEntity.CREDIT_CARD,
-                ClientApplicationData("system-test-app"),
-                listOf("stripe"),
-            ),
-            "checkoutBankAccount" to SetupFundingSourceInput(
-                "USD",
-                FundingSourceTypeEntity.BANK_ACCOUNT,
-                ClientApplicationData("system-test-app"),
-                listOf("checkout"),
-                "en-US",
-            ),
+            "stripe" to
+                SetupFundingSourceInput(
+                    "USD",
+                    FundingSourceTypeEntity.CREDIT_CARD,
+                    ClientApplicationData("system-test-app"),
+                    listOf("stripe"),
+                ),
+            "checkoutBankAccount" to
+                SetupFundingSourceInput(
+                    "USD",
+                    FundingSourceTypeEntity.BANK_ACCOUNT,
+                    ClientApplicationData("system-test-app"),
+                    listOf("checkout"),
+                    "en-US",
+                ),
         )
     }
 
     // Compile-time test of backwards compatibility.
     val backwardCompatibilityProviderProvisioningData = ProvisioningData("stripe", 1, "intent", "clientSecret")
 
-    private val authorizationText = AuthorizationText(
-        "en-US",
-        "content",
-        "contentType",
-        "hash",
-        "hashAlgorithm",
-    )
-    private val expectedProvisioningData = mapOf(
-        "stripe" to StripeCardProvisioningData("stripe", 1, "intent", "clientSecret", FundingSourceTypeEntity.CREDIT_CARD),
-        "checkoutBankAccount" to CheckoutBankAccountProvisioningData(
-            "checkout",
-            1,
-            FundingSourceTypeEntity.BANK_ACCOUNT,
-            LinkToken(
-                "linkToken",
-                "expiration",
-                "requestId",
-            ),
-            listOf(authorizationText),
-        ),
-    )
+    private val authorizationText =
+        AuthorizationText(
+            "en-US",
+            "content",
+            "contentType",
+            "hash",
+            "hashAlgorithm",
+        )
+    private val expectedProvisioningData =
+        mapOf(
+            "stripe" to StripeCardProvisioningData("stripe", 1, "intent", "clientSecret", FundingSourceTypeEntity.CREDIT_CARD),
+            "checkoutBankAccount" to
+                CheckoutBankAccountProvisioningData(
+                    "checkout",
+                    1,
+                    FundingSourceTypeEntity.BANK_ACCOUNT,
+                    LinkToken(
+                        "linkToken",
+                        "expiration",
+                        "requestId",
+                    ),
+                    listOf(authorizationText),
+                ),
+        )
 
     private val mutationResponse by before {
         val stripeSetupData = StripeCardProvisioningData("stripe", 1, "intent", "clientSecret", FundingSourceTypeEntity.CREDIT_CARD)
-        val checkoutBankAccountSetupData = CheckoutBankAccountProvisioningData(
-            "checkout",
-            1,
-            FundingSourceTypeEntity.BANK_ACCOUNT,
-            LinkToken(
-                "linkToken",
-                "expiration",
-                "requestId",
-            ),
-            listOf(authorizationText),
-        )
+        val checkoutBankAccountSetupData =
+            CheckoutBankAccountProvisioningData(
+                "checkout",
+                1,
+                FundingSourceTypeEntity.BANK_ACCOUNT,
+                LinkToken(
+                    "linkToken",
+                    "expiration",
+                    "requestId",
+                ),
+                listOf(authorizationText),
+            )
 
         mapOf(
             "stripe" to
                 JSONObject(
                     """
-                {
-                    'setupFundingSource': {
-                        '__typename': 'ProvisionalFundingSource',
-                        'id':'id',
-                        'owner': 'owner',
-                        'version': 1,
-                        'createdAtEpochMs': 1.0,
-                        'updatedAtEpochMs': 10.0,
-                        'type': '${FundingSourceType.CREDIT_CARD}',
-                        'provisioningData': '${Base64.encodeBase64String(Gson().toJson(stripeSetupData).toByteArray())}',
-                        'state': '${ProvisionalFundingSourceState.PROVISIONING}',
-                        'last4':''
+                    {
+                        'setupFundingSource': {
+                            '__typename': 'ProvisionalFundingSource',
+                            'id':'id',
+                            'owner': 'owner',
+                            'version': 1,
+                            'createdAtEpochMs': 1.0,
+                            'updatedAtEpochMs': 10.0,
+                            'type': '${FundingSourceType.CREDIT_CARD}',
+                            'provisioningData': '${Base64.encodeBase64String(Gson().toJson(stripeSetupData).toByteArray())}',
+                            'state': '${ProvisionalFundingSourceState.PROVISIONING}',
+                            'last4':''
+                        }
                     }
-                }
                     """.trimIndent(),
                 ),
             "checkoutBankAccount" to
                 JSONObject(
                     """
-                {
-                    'setupFundingSource': {
-                        '__typename': 'ProvisionalFundingSource',
-                        'id':'id',
-                        'owner': 'owner',
-                        'version': 1,
-                        'createdAtEpochMs': 1.0,
-                        'updatedAtEpochMs': 10.0,
-                        'type': '${FundingSourceType.BANK_ACCOUNT}',
-                        'provisioningData': '${Base64.encodeBase64String(Gson().toJson(checkoutBankAccountSetupData).toByteArray())}',
-                        'state': '${ProvisionalFundingSourceState.PROVISIONING}',
-                        'last4':''
+                    {
+                        'setupFundingSource': {
+                            '__typename': 'ProvisionalFundingSource',
+                            'id':'id',
+                            'owner': 'owner',
+                            'version': 1,
+                            'createdAtEpochMs': 1.0,
+                            'updatedAtEpochMs': 10.0,
+                            'type': '${FundingSourceType.BANK_ACCOUNT}',
+                            'provisioningData': '${Base64.encodeBase64String(Gson().toJson(checkoutBankAccountSetupData).toByteArray())}',
+                            'state': '${ProvisionalFundingSourceState.PROVISIONING}',
+                            'last4':''
+                        }
                     }
-                }
                     """.trimIndent(),
                 ),
         )
@@ -185,7 +192,8 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
             on {
                 mutate<String>(
                     argThat { this.query.equals(SetupFundingSourceMutation.OPERATION_DOCUMENT) },
-                    any(), any(),
+                    any(),
+                    any(),
                 )
             } doAnswer {
                 val mockOperation: GraphQLOperation<String> = mock()
@@ -204,7 +212,8 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
     }
 
     private val client by before {
-        SudoVirtualCardsClient.builder()
+        SudoVirtualCardsClient
+            .builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
             .setGraphQLClient(GraphQLClient(mockApiCategory))
@@ -224,302 +233,325 @@ class SudoVirtualCardsSetupFundingSourceTest(private val provider: String) : Bas
     }
 
     @Test
-    fun `setupFundingSource() should return results when no error present`() = runBlocking<Unit> {
-        val deferredResult = async(Dispatchers.IO) {
-            client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
-        }
-        deferredResult.start()
+    fun `setupFundingSource() should return results when no error present`() =
+        runBlocking<Unit> {
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
+                }
+            deferredResult.start()
 
-        delay(100L)
-        val result = deferredResult.await()
-        result shouldNotBe null
+            delay(100L)
+            val result = deferredResult.await()
+            result shouldNotBe null
 
-        with(result) {
-            id shouldBe "id"
-            owner shouldBe "owner"
-            version shouldBe 1
-            createdAt shouldNotBe null
-            updatedAt shouldNotBe null
-            state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
-            provisioningData shouldBe (expectedProvisioningData[provider] ?: throw missingProvider(provider))
-        }
-
-        verifySetupFundingSourceMutation()
-    }
-
-    @Test
-    fun `setupFundingSource() should throw when response is null`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(SetupFundingSourceMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, null),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.SetupFailedException> {
-                client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
+            with(result) {
+                id shouldBe "id"
+                owner shouldBe "owner"
+                version shouldBe 1
+                createdAt shouldNotBe null
+                updatedAt shouldNotBe null
+                state shouldBe ProvisionalFundingSource.ProvisioningState.PROVISIONING
+                provisioningData shouldBe (expectedProvisioningData[provider] ?: throw missingProvider(provider))
             }
+
+            verifySetupFundingSourceMutation()
         }
-        deferredResult.start()
-
-        delay(100L)
-        deferredResult.await()
-
-        verifySetupFundingSourceMutation()
-    }
 
     @Test
-    fun `setupFundingSource() should throw when an unsupported currency error occurs`() = runBlocking<Unit> {
-        val input by before {
-            SetupFundingSourceInput(
-                "AUD",
-                input[provider]?.type ?: throw missingProvider(provider),
-                ClientApplicationData("system-test-app"),
-            )
-        }
-
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "UnsupportedCurrencyError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(SetupFundingSourceMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnsupportedCurrencyException> {
-                client.setupFundingSource(input)
-            }
-        }
-        deferredResult.start()
-
-        delay(100L)
-        deferredResult.await()
-
-        verifySetupFundingSourceMutation("AUD")
-    }
-
-    @Test
-    fun `setupFundingSource() should throw when an account locked error occurs`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "AccountLockedError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(SetupFundingSourceMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.AccountLockedException> {
-                client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
-            }
-        }
-        deferredResult.start()
-
-        delay(100L)
-        deferredResult.await()
-
-        verifySetupFundingSourceMutation()
-    }
-
-    @Test
-    fun `setupFundingSource() should throw when an entitlements exceeded error occurs`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "EntitlementExceededError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(SetupFundingSourceMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.EntitlementExceededException> {
-                client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
-            }
-        }
-        deferredResult.start()
-
-        delay(100L)
-        deferredResult.await()
-
-        verifySetupFundingSourceMutation()
-    }
-
-    @Test
-    fun `setupFundingSource() should throw when a velocity exceeded error occurs`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "VelocityExceededError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(SetupFundingSourceMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.VelocityExceededException> {
-                client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
-            }
-        }
-        deferredResult.start()
-
-        delay(100L)
-        deferredResult.await()
-
-        verifySetupFundingSourceMutation()
-    }
-
-    @Test
-    fun `setupFundingSource() should throw when http error occurs`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(SetupFundingSourceMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.SetupFailedException> {
-                client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
-            }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-
-        verifySetupFundingSourceMutation()
-    }
-
-    @Test
-    fun `setupFundingSource() should throw when unknown error occurs`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                mutate<String>(
+    fun `setupFundingSource() should throw when response is null`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
                     argThat { this.query.equals(SetupFundingSourceMutation.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, null),
                 )
-            } doThrow RuntimeException("Mock Runtime Exception")
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnknownException> {
-                client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
+                mockOperation
             }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.SetupFailedException> {
+                        client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
+                    }
+                }
+            deferredResult.start()
+
+            delay(100L)
+            deferredResult.await()
+
+            verifySetupFundingSourceMutation()
         }
-        deferredResult.start()
-        delay(100L)
-
-        deferredResult.await()
-
-        verifySetupFundingSourceMutation()
-    }
 
     @Test
-    fun `setupFundingSource() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                mutate<String>(
+    fun `setupFundingSource() should throw when an unsupported currency error occurs`() =
+        runBlocking<Unit> {
+            val input by before {
+                SetupFundingSourceInput(
+                    "AUD",
+                    input[provider]?.type ?: throw missingProvider(provider),
+                    ClientApplicationData("system-test-app"),
+                )
+            }
+
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "UnsupportedCurrencyError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
                     argThat { this.query.equals(SetupFundingSourceMutation.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
                 )
-            } doThrow CancellationException("Mock Cancellation Exception")
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<CancellationException> {
-                client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
+                mockOperation
             }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnsupportedCurrencyException> {
+                        client.setupFundingSource(input)
+                    }
+                }
+            deferredResult.start()
+
+            delay(100L)
+            deferredResult.await()
+
+            verifySetupFundingSourceMutation("AUD")
         }
-        deferredResult.start()
-        delay(100L)
 
-        deferredResult.await()
+    @Test
+    fun `setupFundingSource() should throw when an account locked error occurs`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "AccountLockedError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(SetupFundingSourceMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.AccountLockedException> {
+                        client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
+                    }
+                }
+            deferredResult.start()
 
-        verifySetupFundingSourceMutation()
-    }
+            delay(100L)
+            deferredResult.await()
+
+            verifySetupFundingSourceMutation()
+        }
+
+    @Test
+    fun `setupFundingSource() should throw when an entitlements exceeded error occurs`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "EntitlementExceededError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(SetupFundingSourceMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.EntitlementExceededException> {
+                        client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
+                    }
+                }
+            deferredResult.start()
+
+            delay(100L)
+            deferredResult.await()
+
+            verifySetupFundingSourceMutation()
+        }
+
+    @Test
+    fun `setupFundingSource() should throw when a velocity exceeded error occurs`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "VelocityExceededError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(SetupFundingSourceMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.VelocityExceededException> {
+                        client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
+                    }
+                }
+            deferredResult.start()
+
+            delay(100L)
+            deferredResult.await()
+
+            verifySetupFundingSourceMutation()
+        }
+
+    @Test
+    fun `setupFundingSource() should throw when http error occurs`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(SetupFundingSourceMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.SetupFailedException> {
+                        client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verifySetupFundingSourceMutation()
+        }
+
+    @Test
+    fun `setupFundingSource() should throw when unknown error occurs`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    mutate<String>(
+                        argThat { this.query.equals(SetupFundingSourceMutation.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow RuntimeException("Mock Runtime Exception")
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnknownException> {
+                        client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+
+            deferredResult.await()
+
+            verifySetupFundingSourceMutation()
+        }
+
+    @Test
+    fun `setupFundingSource() should not block coroutine cancellation exception`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    mutate<String>(
+                        argThat { this.query.equals(SetupFundingSourceMutation.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow CancellationException("Mock Cancellation Exception")
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<CancellationException> {
+                        client.setupFundingSource(input[provider] ?: throw missingProvider(provider))
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+
+            deferredResult.await()
+
+            verifySetupFundingSourceMutation()
+        }
 
     private fun verifySetupFundingSourceMutation(expectedCurrency: String = "USD") {
         verify(mockApiCategory).mutate<String>(

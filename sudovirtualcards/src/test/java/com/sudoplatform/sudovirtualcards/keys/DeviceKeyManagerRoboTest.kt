@@ -30,7 +30,6 @@ import timber.log.Timber
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class DeviceKeyManagerRoboTest : BaseTests() {
-
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     private val keyManager by before {
@@ -51,63 +50,69 @@ class DeviceKeyManagerRoboTest : BaseTests() {
     }
 
     @After
-    fun fini() = runBlocking {
-        Timber.uprootAll()
-    }
-
-    @Test
-    fun shouldBeAbleToPerformOperations() = runBlocking {
-        deviceKeyManager.getCurrentKey() shouldBe null
-        deviceKeyManager.getKeyWithId("bogusValue") shouldBe null
-
-        val keyPair = deviceKeyManager.generateNewCurrentKeyPair()
-        with(keyPair) {
-            this shouldNotBe null
-            keyId.isBlank() shouldBe false
-            publicKey shouldNotBe null
-            publicKey.size shouldBeGreaterThan 0
+    fun fini() =
+        runBlocking {
+            Timber.uprootAll()
         }
 
-        val currentKeyPair = deviceKeyManager.getCurrentKey()
-        currentKeyPair shouldNotBe null
-        currentKeyPair shouldBe keyPair
+    @Test
+    fun shouldBeAbleToPerformOperations() =
+        runBlocking {
+            deviceKeyManager.getCurrentKey() shouldBe null
+            deviceKeyManager.getKeyWithId("bogusValue") shouldBe null
 
-        val fetchedKeyPair = deviceKeyManager.getKeyWithId(currentKeyPair!!.keyId)
-        fetchedKeyPair shouldNotBe null
-        fetchedKeyPair shouldBe keyPair
-        fetchedKeyPair shouldBe currentKeyPair
+            val keyPair = deviceKeyManager.generateNewCurrentKeyPair()
+            with(keyPair) {
+                this shouldNotBe null
+                keyId.isBlank() shouldBe false
+                publicKey shouldNotBe null
+                publicKey.size shouldBeGreaterThan 0
+            }
 
-        val clearData = "hello world".toByteArray()
-        var secretData = keyManager.encryptWithPublicKey(
-            currentKeyPair.keyId,
-            clearData,
-            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
-        )
-        var decryptedData = deviceKeyManager.decryptWithPrivateKey(
-            secretData,
-            currentKeyPair.keyId,
-            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
-        )
-        decryptedData shouldBe clearData
+            val currentKeyPair = deviceKeyManager.getCurrentKey()
+            currentKeyPair shouldNotBe null
+            currentKeyPair shouldBe keyPair
 
-        keyManager.generateSymmetricKey("symmetricKey")
-        val symmetricKey = keyManager.getSymmetricKeyData("symmetricKey")
-            ?: throw AssertionError("Missing symmetricKey")
-        secretData = keyManager.encryptWithSymmetricKey("symmetricKey", clearData)
+            val fetchedKeyPair = deviceKeyManager.getKeyWithId(currentKeyPair!!.keyId)
+            fetchedKeyPair shouldNotBe null
+            fetchedKeyPair shouldBe keyPair
+            fetchedKeyPair shouldBe currentKeyPair
 
-        decryptedData = deviceKeyManager.decryptWithSymmetricKey(symmetricKey, secretData)
-        decryptedData shouldBe clearData
-    }
+            val clearData = "hello world".toByteArray()
+            var secretData =
+                keyManager.encryptWithPublicKey(
+                    currentKeyPair.keyId,
+                    clearData,
+                    KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
+                )
+            var decryptedData =
+                deviceKeyManager.decryptWithPrivateKey(
+                    secretData,
+                    currentKeyPair.keyId,
+                    KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
+                )
+            decryptedData shouldBe clearData
+
+            keyManager.generateSymmetricKey("symmetricKey")
+            val symmetricKey =
+                keyManager.getSymmetricKeyData("symmetricKey")
+                    ?: throw AssertionError("Missing symmetricKey")
+            secretData = keyManager.encryptWithSymmetricKey("symmetricKey", clearData)
+
+            decryptedData = deviceKeyManager.decryptWithSymmetricKey(symmetricKey, secretData)
+            decryptedData shouldBe clearData
+        }
 
     @Test
-    fun shouldBeAbleToGenerateSymmetricKeyId() = runBlocking {
-        deviceKeyManager.getCurrentSymmetricKeyId() shouldBe null
+    fun shouldBeAbleToGenerateSymmetricKeyId() =
+        runBlocking {
+            deviceKeyManager.getCurrentSymmetricKeyId() shouldBe null
 
-        val symmetricKey = deviceKeyManager.generateNewCurrentSymmetricKey()
-        symmetricKey.isBlank() shouldBe false
+            val symmetricKey = deviceKeyManager.generateNewCurrentSymmetricKey()
+            symmetricKey.isBlank() shouldBe false
 
-        val symmetricKeyId = deviceKeyManager.getCurrentSymmetricKeyId()
-        symmetricKeyId shouldNotBe null
-        symmetricKeyId?.isBlank() shouldBe false
-    }
+            val symmetricKeyId = deviceKeyManager.getCurrentSymmetricKeyId()
+            symmetricKeyId shouldNotBe null
+            symmetricKeyId?.isBlank() shouldBe false
+        }
 }

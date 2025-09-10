@@ -10,12 +10,10 @@ package com.sudoplatform.sudovirtualcards.subscription
  * Generic Subscriber interface which allows notification of connection state change
  */
 interface Subscriber {
-
     /**
      * Connection state of the subscription.
      */
     enum class ConnectionState {
-
         /**
          * Connected and receiving updates.
          */

@@ -33,17 +33,14 @@ import com.sudoplatform.sudovirtualcards.types.VirtualCardsConfig as VirtualCard
  * type to the entity type that is exposed to users.
  */
 internal object VirtualCardsConfigTransformer {
-
     /**
      * Transform the results of the [GetVirtualCardsConfigQuery].
      *
      * @param result [VirtualCardsConfig] The GraphQL query results.
      * @return The [VirtualCardsConfig] entity type.
      */
-    fun toEntityFromGetVirtualCardsConfigQueryResult(
-        result: VirtualCardsConfig,
-    ): VirtualCardsConfigEntity {
-        return VirtualCardsConfigEntity(
+    fun toEntityFromGetVirtualCardsConfigQueryResult(result: VirtualCardsConfig): VirtualCardsConfigEntity =
+        VirtualCardsConfigEntity(
             maxFundingSourceVelocity = result.maxFundingSourceVelocity,
             maxFundingSourceFailureVelocity = result.maxFundingSourceFailureVelocity,
             maxFundingSourcePendingVelocity = result.maxFundingSourcePendingVelocity,
@@ -51,57 +48,56 @@ internal object VirtualCardsConfigTransformer {
             maxTransactionVelocity = this.toEntityFromMaxTransactionVelocity(result.maxTransactionVelocity),
             maxTransactionAmount = this.toEntityFromMaxTransactionAmount(result.maxTransactionAmount),
             virtualCardCurrencies = result.virtualCardCurrencies,
-            fundingSourceSupportInfo = result.fundingSourceSupportInfo.map {
-                toEntityFromFundingSourceSupportInfo(
-                    it.fundingSourceSupportInfo,
-                )
-            },
+            fundingSourceSupportInfo =
+                result.fundingSourceSupportInfo.map {
+                    toEntityFromFundingSourceSupportInfo(
+                        it.fundingSourceSupportInfo,
+                    )
+                },
             bankAccountFundingSourceExpendableEnabled = result.bankAccountFundingSourceExpendableEnabled,
             bankAccountFundingSourceCreationEnabled = result.bankAccountFundingSourceCreationEnabled,
-            fundingSourceClientConfiguration = result.fundingSourceClientConfiguration?.data.let {
-                if (it != null) {
-                    decodeFundingSourceClientConfiguration(it)
-                } else {
-                    emptyList()
-                }
-            },
-            clientApplicationConfiguration = result.clientApplicationsConfiguration?.data.let {
-                if (it != null) {
-                    decodeClientApplicationConfiguration(it)
-                } else {
-                    emptyMap()
-                }
-            },
-            pricingPolicy = result.pricingPolicy?.data.let {
-                if (it != null) {
-                    decodePricingPolicy(it)
-                } else {
-                    null
-                }
-            },
+            fundingSourceClientConfiguration =
+                result.fundingSourceClientConfiguration?.data.let {
+                    if (it != null) {
+                        decodeFundingSourceClientConfiguration(it)
+                    } else {
+                        emptyList()
+                    }
+                },
+            clientApplicationConfiguration =
+                result.clientApplicationsConfiguration?.data.let {
+                    if (it != null) {
+                        decodeClientApplicationConfiguration(it)
+                    } else {
+                        emptyMap()
+                    }
+                },
+            pricingPolicy =
+                result.pricingPolicy?.data.let {
+                    if (it != null) {
+                        decodePricingPolicy(it)
+                    } else {
+                        null
+                    }
+                },
         )
-    }
 
     private fun toEntityFromMaxTransactionVelocity(
         maxTransactionVelocity: List<VirtualCardsConfig.MaxTransactionVelocity>,
-    ): List<CurrencyVelocity> {
-        return maxTransactionVelocity.map {
+    ): List<CurrencyVelocity> =
+        maxTransactionVelocity.map {
             CurrencyVelocity(it.currency, it.velocity)
         }
-    }
 
     private fun toEntityFromMaxTransactionAmount(
         maxTransactionAmount: List<VirtualCardsConfig.MaxTransactionAmount>,
-    ): List<CurrencyAmount> {
-        return maxTransactionAmount.map {
+    ): List<CurrencyAmount> =
+        maxTransactionAmount.map {
             CurrencyAmount(it.currency, it.amount)
         }
-    }
 
-    private fun toEntityFromFundingSourceSupportInfo(
-        fundingSourceSupportInfo: FundingSourceSupportInfo,
-    ): FundingSourceSupportInfoEntity {
-        return FundingSourceSupportInfoEntity(
+    private fun toEntityFromFundingSourceSupportInfo(fundingSourceSupportInfo: FundingSourceSupportInfo): FundingSourceSupportInfoEntity =
+        FundingSourceSupportInfoEntity(
             fundingSourceSupportInfo.providerType,
             fundingSourceSupportInfo.fundingSourceType,
             fundingSourceSupportInfo.network,
@@ -109,14 +105,12 @@ internal object VirtualCardsConfigTransformer {
                 it.fundingSourceSupportDetail.toFundingSourceDetailEntity()
             },
         )
-    }
 
-    private fun FundingSourceSupportDetail.toFundingSourceDetailEntity(): FundingSourceSupportDetailEntity {
-        return FundingSourceSupportDetailEntity(this.cardType.toCardTypeEntity())
-    }
+    private fun FundingSourceSupportDetail.toFundingSourceDetailEntity(): FundingSourceSupportDetailEntity =
+        FundingSourceSupportDetailEntity(this.cardType.toCardTypeEntity())
 
-    private fun CardType.toCardTypeEntity(): CardTypeEntity {
-        return when (this) {
+    private fun CardType.toCardTypeEntity(): CardTypeEntity =
+        when (this) {
             CardType.CREDIT -> CardTypeEntity.CREDIT
             CardType.DEBIT -> CardTypeEntity.DEBIT
             CardType.PREPAID -> CardTypeEntity.PREPAID
@@ -125,7 +119,6 @@ internal object VirtualCardsConfigTransformer {
                 "Unrecognized CardType",
             )
         }
-    }
 }
 
 /**

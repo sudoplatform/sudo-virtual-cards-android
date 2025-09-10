@@ -55,7 +55,6 @@ import java.util.Calendar
  * Test the operation of the [SudoVirtualCardsClient].
  */
 abstract class BaseIntegrationTest {
-
     // We cache our SudoUserClient instance because it has an
     // embedded AWSAppSync instance of its own. Each AWSAppSync
     // instance registers a connectivity watcher call back but
@@ -79,7 +78,8 @@ abstract class BaseIntegrationTest {
     }
 
     private val entitlementsClient by lazy {
-        SudoEntitlementsClient.builder()
+        SudoEntitlementsClient
+            .builder()
             .setContext(context)
             .setSudoUserClient(userClient)
             .build()
@@ -96,7 +96,8 @@ abstract class BaseIntegrationTest {
 
     protected val vcSimulatorClient by lazy {
         val adminApiKey = readArgument("ADMIN_API_KEY", "api.key")
-        SudoVirtualCardsSimulatorClient.builder()
+        SudoVirtualCardsSimulatorClient
+            .builder()
             .setContext(context)
             .setApiKey(adminApiKey)
             .build()
@@ -108,13 +109,15 @@ abstract class BaseIntegrationTest {
 
     private var fundingSourceProviders: FundingSourceProviders? = null
 
-    private fun readTextFile(fileName: String): String {
-        return context.assets.open(fileName).bufferedReader().use {
+    private fun readTextFile(fileName: String): String =
+        context.assets.open(fileName).bufferedReader().use {
             it.readText().trim()
         }
-    }
 
-    private fun readArgument(argumentName: String, fallbackFileName: String?): String {
+    private fun readArgument(
+        argumentName: String,
+        fallbackFileName: String?,
+    ): String {
         println(InstrumentationRegistry.getArguments()).toString()
         val argumentValue = InstrumentationRegistry.getArguments().getString(argumentName)?.trim()
         if (argumentValue != null) {
@@ -145,13 +148,14 @@ abstract class BaseIntegrationTest {
         val privateKey = readArgument("REGISTER_KEY", "register_key.private")
         val keyId = readArgument("REGISTER_KEY_ID", "register_key.id")
 
-        val authProvider = TESTAuthenticationProvider(
-            name = "vc-client-test",
-            privateKey = privateKey,
-            publicKey = null,
-            keyManager = keyManager,
-            keyId = keyId,
-        )
+        val authProvider =
+            TESTAuthenticationProvider(
+                name = "vc-client-test",
+                privateKey = privateKey,
+                publicKey = null,
+                keyManager = keyManager,
+                keyId = keyId,
+            )
 
         userClient.registerWithAuthenticationProvider(authProvider, "vc-client-test")
     }
@@ -180,14 +184,15 @@ abstract class BaseIntegrationTest {
     protected suspend fun registerSignInAndEntitle(config: VirtualCardsConfig? = null) {
         registerAndSignIn()
         val externalId = entitlementsClient.getExternalId()
-        val entitlements = mutableListOf(
-            Entitlement("sudoplatform.sudo.max", "test", 3),
-            Entitlement("sudoplatform.identity-verification.verifyIdentityUserEntitled", "test", 1),
-            Entitlement("sudoplatform.virtual-cards.serviceUserEntitled", "test", 1),
-            Entitlement("sudoplatform.virtual-cards.virtualCardMaxPerSudo", "test", 5),
-            Entitlement("sudoplatform.virtual-cards.virtualCardProvisionUserEntitled", "test", 1),
-            Entitlement("sudoplatform.virtual-cards.virtualCardTransactUserEntitled", "test", 1),
-        )
+        val entitlements =
+            mutableListOf(
+                Entitlement("sudoplatform.sudo.max", "test", 3),
+                Entitlement("sudoplatform.identity-verification.verifyIdentityUserEntitled", "test", 1),
+                Entitlement("sudoplatform.virtual-cards.serviceUserEntitled", "test", 1),
+                Entitlement("sudoplatform.virtual-cards.virtualCardMaxPerSudo", "test", 5),
+                Entitlement("sudoplatform.virtual-cards.virtualCardProvisionUserEntitled", "test", 1),
+                Entitlement("sudoplatform.virtual-cards.virtualCardTransactUserEntitled", "test", 1),
+            )
         if (config != null) {
             if (config.bankAccountFundingSourceExpendableEnabled) {
                 entitlements.add(
@@ -200,29 +205,28 @@ abstract class BaseIntegrationTest {
     }
 
     protected suspend fun verifyTestUserIdentity() {
-        val countryCodeAlpha3 = LocaleUtil.toCountryCodeAlpha3(context, TestData.VerifiedUser.country)
-            ?: throw IllegalArgumentException("Unable to convert country code to ISO 3166 Alpha-3")
+        val countryCodeAlpha3 =
+            LocaleUtil.toCountryCodeAlpha3(context, TestData.VerifiedUser.country)
+                ?: throw IllegalArgumentException("Unable to convert country code to ISO 3166 Alpha-3")
 
-        val input = VerifyIdentityInput(
-            firstName = TestData.VerifiedUser.firstName,
-            lastName = TestData.VerifiedUser.lastName,
-            address = TestData.VerifiedUser.addressLine1,
-            city = TestData.VerifiedUser.city,
-            state = TestData.VerifiedUser.state,
-            postalCode = TestData.VerifiedUser.postalCode,
-            country = countryCodeAlpha3,
-            dateOfBirth = TestData.VerifiedUser.dateOfBirth,
-        )
+        val input =
+            VerifyIdentityInput(
+                firstName = TestData.VerifiedUser.firstName,
+                lastName = TestData.VerifiedUser.lastName,
+                address = TestData.VerifiedUser.addressLine1,
+                city = TestData.VerifiedUser.city,
+                state = TestData.VerifiedUser.state,
+                postalCode = TestData.VerifiedUser.postalCode,
+                country = countryCodeAlpha3,
+                dateOfBirth = TestData.VerifiedUser.dateOfBirth,
+            )
         identityVerificationClient.verifyIdentity(input)
     }
 
-    protected suspend fun createSudo(sudoInput: Sudo): Sudo {
-        return sudoClient.createSudo(sudoInput)
-    }
+    protected suspend fun createSudo(sudoInput: Sudo): Sudo = sudoClient.createSudo(sudoInput)
 
-    protected suspend fun getOwnershipProof(sudo: Sudo): String {
-        return sudoClient.getOwnershipProof(sudo, "sudoplatform.virtual-cards.virtual-card")
-    }
+    protected suspend fun getOwnershipProof(sudo: Sudo): String =
+        sudoClient.getOwnershipProof(sudo, "sudoplatform.virtual-cards.virtual-card")
 
     protected suspend fun retrieveVirtualCardsConfig(client: SudoVirtualCardsClient): VirtualCardsConfig? {
         registerAndSignIn()
@@ -236,12 +240,13 @@ abstract class BaseIntegrationTest {
     ): FundingSource {
         val cardProviders = fundingSourceProviders ?: determineFundingSourceProviders(client)
         // Perform the funding source setup operation
-        val setupInput = SetupFundingSourceInput(
-            options.currency,
-            FundingSourceType.CREDIT_CARD,
-            ClientApplicationData(options.applicationName),
-            options.supportedProviders,
-        )
+        val setupInput =
+            SetupFundingSourceInput(
+                options.currency,
+                FundingSourceType.CREDIT_CARD,
+                ClientApplicationData(options.applicationName),
+                options.supportedProviders,
+            )
         val provisionalFundingSource = client.setupFundingSource(setupInput)
 
         val provisionalData = provisionalFundingSource.provisioningData
@@ -252,10 +257,11 @@ abstract class BaseIntegrationTest {
                 // Process stripe data
                 cardProviders.apis.stripe ?: throw AssertionError("No stripe API but provisioning data is for stripe")
                 val stripeIntentWorker = StripeIntentWorker(context, cardProviders.apis.stripe)
-                completionData = stripeIntentWorker.confirmSetupIntent(
-                    input,
-                    (provisionalFundingSource.provisioningData as StripeCardProvisioningData).clientSecret,
-                )
+                completionData =
+                    stripeIntentWorker.confirmSetupIntent(
+                        input,
+                        (provisionalFundingSource.provisioningData as StripeCardProvisioningData).clientSecret,
+                    )
             }
             else -> {
                 throw AssertionError("Unsupported funding source type")
@@ -263,11 +269,12 @@ abstract class BaseIntegrationTest {
         }
 
         // Perform the funding source completion operation
-        val completeInput = CompleteFundingSourceInput(
-            provisionalFundingSource.id,
-            completionData,
-            options.updateCardFundingSource,
-        )
+        val completeInput =
+            CompleteFundingSourceInput(
+                provisionalFundingSource.id,
+                completionData,
+                options.updateCardFundingSource,
+            )
         return client.completeFundingSource(completeInput)
     }
 
@@ -275,12 +282,13 @@ abstract class BaseIntegrationTest {
         virtualCardsClient: SudoVirtualCardsClient,
         options: CreateBankAccountFundingSourceOptions?,
     ): FundingSource {
-        val setupInput = SetupFundingSourceInput(
-            options?.currency ?: "USD",
-            FundingSourceType.BANK_ACCOUNT,
-            ClientApplicationData(options?.applicationName ?: "androidApplication"),
-            options?.supportedProviders,
-        )
+        val setupInput =
+            SetupFundingSourceInput(
+                options?.currency ?: "USD",
+                FundingSourceType.BANK_ACCOUNT,
+                ClientApplicationData(options?.applicationName ?: "androidApplication"),
+                options?.supportedProviders,
+            )
         val provisionalFundingSource = virtualCardsClient.setupFundingSource(setupInput)
         val provisioningData =
             provisionalFundingSource.provisioningData as CheckoutBankAccountProvisioningData
@@ -290,30 +298,35 @@ abstract class BaseIntegrationTest {
 
         val plaidSandboxData = virtualCardsClient.sandboxGetPlaidData(institutionId, username)
 
-        val authorizationText = AuthorizationText(
-            provisioningData.authorizationText[0].language,
-            provisioningData.authorizationText[0].content,
-            provisioningData.authorizationText[0].contentType,
-            provisioningData.authorizationText[0].hash,
-            provisioningData.authorizationText[0].hashAlgorithm,
-        )
+        val authorizationText =
+            AuthorizationText(
+                provisioningData.authorizationText[0].language,
+                provisioningData.authorizationText[0].content,
+                provisioningData.authorizationText[0].contentType,
+                provisioningData.authorizationText[0].hash,
+                provisioningData.authorizationText[0].hashAlgorithm,
+            )
         val accountMetadata = plaidSandboxData.accountMetadata[0]
-        val checkoutInput = CompleteFundingSourceInput(
-            provisionalFundingSource.id,
-            CheckoutBankAccountProviderCompletionData(
-                "checkout",
-                1,
-                FundingSourceType.BANK_ACCOUNT,
-                plaidSandboxData.publicToken,
-                accountMetadata.accountId,
-                institutionId,
-                authorizationText,
-            ),
-        )
+        val checkoutInput =
+            CompleteFundingSourceInput(
+                provisionalFundingSource.id,
+                CheckoutBankAccountProviderCompletionData(
+                    "checkout",
+                    1,
+                    FundingSourceType.BANK_ACCOUNT,
+                    plaidSandboxData.publicToken,
+                    accountMetadata.accountId,
+                    institutionId,
+                    authorizationText,
+                ),
+            )
         return virtualCardsClient.completeFundingSource(checkoutInput)
     }
 
-    protected suspend fun provisionVirtualCard(client: SudoVirtualCardsClient, input: ProvisionVirtualCardInput): VirtualCard {
+    protected suspend fun provisionVirtualCard(
+        client: SudoVirtualCardsClient,
+        input: ProvisionVirtualCardInput,
+    ): VirtualCard {
         val provisionalCard1 = client.provisionVirtualCard(input)
         var state = provisionalCard1.provisioningState
 
@@ -339,14 +352,15 @@ abstract class BaseIntegrationTest {
         // Create an authorization for a purchase (debit)
         val merchant = vcSimulatorClient.getSimulatorMerchants().first()
         val originalAmount = 75
-        val authInput = SimulateAuthorizationInput(
-            cardNumber = virtualCard.cardNumber,
-            amount = originalAmount,
-            merchantId = merchant.id,
-            securityCode = virtualCard.securityCode,
-            expirationMonth = virtualCard.expiry.mm.toInt(),
-            expirationYear = virtualCard.expiry.yyyy.toInt(),
-        )
+        val authInput =
+            SimulateAuthorizationInput(
+                cardNumber = virtualCard.cardNumber,
+                amount = originalAmount,
+                merchantId = merchant.id,
+                securityCode = virtualCard.securityCode,
+                expirationMonth = virtualCard.expiry.mm.toInt(),
+                expirationYear = virtualCard.expiry.yyyy.toInt(),
+            )
         val authResponse = vcSimulatorClient.simulateAuthorization(authInput)
         with(authResponse) {
             isApproved shouldBe true
@@ -358,10 +372,11 @@ abstract class BaseIntegrationTest {
         }
 
         // Create a debit for the authorized amount
-        val debitInput = SimulateDebitInput(
-            authorizationId = authResponse.id,
-            amount = authInput.amount,
-        )
+        val debitInput =
+            SimulateDebitInput(
+                authorizationId = authResponse.id,
+                amount = authInput.amount,
+            )
         val debitResponse = vcSimulatorClient.simulateDebit(debitInput)
         with(debitResponse) {
             id.isBlank() shouldBe false
@@ -372,10 +387,11 @@ abstract class BaseIntegrationTest {
         }
 
         // Refund the debit
-        val refundInput = SimulateRefundInput(
-            debitId = debitResponse.id,
-            amount = debitInput.amount,
-        )
+        val refundInput =
+            SimulateRefundInput(
+                debitId = debitResponse.id,
+                amount = debitInput.amount,
+            )
         val refundResponse = vcSimulatorClient.simulateRefund(refundInput)
         with(refundResponse) {
             id.isBlank() shouldBe false
@@ -417,17 +433,17 @@ abstract class BaseIntegrationTest {
         return cardProviders
     }
 
-    protected suspend fun isStripeEnabled(client: SudoVirtualCardsClient): Boolean {
-        return determineFundingSourceProviders(client).stripeCardEnabled
-    }
+    protected suspend fun isStripeEnabled(client: SudoVirtualCardsClient): Boolean =
+        determineFundingSourceProviders(client).stripeCardEnabled
 
     protected suspend fun isCheckoutEnabled(client: SudoVirtualCardsClient): Boolean {
         val providers = determineFundingSourceProviders(client)
         return providers.checkoutBankAccountEnabled
     }
-    protected suspend fun isCheckoutBankAccountEnabled(client: SudoVirtualCardsClient): Boolean {
-        return determineFundingSourceProviders(client).checkoutBankAccountEnabled
-    }
+
+    protected suspend fun isCheckoutBankAccountEnabled(client: SudoVirtualCardsClient): Boolean =
+        determineFundingSourceProviders(client).checkoutBankAccountEnabled
+
     protected suspend fun getProviderToUse(client: SudoVirtualCardsClient): String {
         if (isStripeEnabled(client)) {
             return "stripe"

@@ -7,7 +7,7 @@
 package com.sudoplatform.sudovirtualcards.types.transformers
 
 import com.amazonaws.util.Base64
-import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo.api.Optional
 import com.google.gson.Gson
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedCard
@@ -40,7 +40,6 @@ import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTyp
  * types to the entity type that is exposed to users.
  */
 internal object VirtualCardTransformer {
-
     /**
      * Transform the input type [BillingAddress] into the corresponding GraphQL type [AddressInput].
      */
@@ -90,8 +89,8 @@ internal object VirtualCardTransformer {
     fun toEntity(
         deviceKeyManager: DeviceKeyManager,
         provisionalCard: ProvisionalCardFragment,
-    ): ProvisionalVirtualCard {
-        return ProvisionalVirtualCard(
+    ): ProvisionalVirtualCard =
+        ProvisionalVirtualCard(
             id = provisionalCard.id,
             clientRefId = provisionalCard.clientRefId,
             owner = provisionalCard.owner,
@@ -101,7 +100,6 @@ internal object VirtualCardTransformer {
             createdAt = provisionalCard.createdAtEpochMs.toDate(),
             updatedAt = provisionalCard.updatedAtEpochMs.toDate(),
         )
-    }
 
     /**
      * Transform the [SealedCardWithLastTransaction] GraphQL type to its entity type.
@@ -113,13 +111,12 @@ internal object VirtualCardTransformer {
     fun toEntity(
         deviceKeyManager: DeviceKeyManager,
         sealedCardWithLastTransaction: SealedCardWithLastTransaction,
-    ): VirtualCard {
-        return toEntity(
+    ): VirtualCard =
+        toEntity(
             deviceKeyManager,
             sealedCardWithLastTransaction.sealedCard,
             sealedCardWithLastTransaction.lastTransaction?.sealedTransaction,
         )
-    }
 
     /**
      * Transform the [ProvisionalCardFragment] GraphQL type to its entity type.
@@ -147,12 +144,13 @@ internal object VirtualCardTransformer {
             state = sealedCard.state.toState(),
             cardHolder = unsealer.unseal(sealedCard.cardHolder),
             alias = sealedCard.alias?.let { unsealer.unseal(it) },
-            metadata = sealedCard.metadata?.let {
-                val sealedAttribute = it.sealedAttribute
-                val symmetricKeyInfo = KeyInfo(sealedAttribute.keyId, KeyType.SYMMETRIC_KEY, sealedAttribute.algorithm)
-                val metadataUnsealer = Unsealer(deviceKeyManager, symmetricKeyInfo)
-                metadataUnsealer.unseal(it)
-            },
+            metadata =
+                sealedCard.metadata?.let {
+                    val sealedAttribute = it.sealedAttribute
+                    val symmetricKeyInfo = KeyInfo(sealedAttribute.keyId, KeyType.SYMMETRIC_KEY, sealedAttribute.algorithm)
+                    val metadataUnsealer = Unsealer(deviceKeyManager, symmetricKeyInfo)
+                    metadataUnsealer.unseal(it)
+                },
             last4 = sealedCard.last4,
             cardNumber = unsealer.unseal(sealedCard.pan),
             securityCode = unsealer.unseal(sealedCard.csc),
@@ -173,9 +171,8 @@ internal object VirtualCardTransformer {
      * @param sealedCardWithLastTransaction [SealedCardWithLastTransaction] The GraphQL type.
      * @return The [PartialVirtualCard] entity type.
      */
-    fun toPartialEntity(sealedCardWithLastTransaction: SealedCardWithLastTransaction): PartialVirtualCard {
-        return toPartialEntity(sealedCardWithLastTransaction.sealedCard)
-    }
+    fun toPartialEntity(sealedCardWithLastTransaction: SealedCardWithLastTransaction): PartialVirtualCard =
+        toPartialEntity(sealedCardWithLastTransaction.sealedCard)
 
     /**
      * Transform the input type [VirtualCardFilterInput] into the corresponding GraphQL
@@ -200,8 +197,8 @@ internal object VirtualCardTransformer {
      * @param sealedCard [SealedCard] The GraphQL type.
      * @return The [PartialVirtualCard] entity type.
      */
-    private fun toPartialEntity(sealedCard: SealedCard): PartialVirtualCard {
-        return PartialVirtualCard(
+    private fun toPartialEntity(sealedCard: SealedCard): PartialVirtualCard =
+        PartialVirtualCard(
             id = sealedCard.id,
             owners = sealedCard.owners.toOwners(),
             owner = sealedCard.owner,
@@ -215,10 +212,9 @@ internal object VirtualCardTransformer {
             createdAt = sealedCard.createdAtEpochMs.toDate(),
             updatedAt = sealedCard.updatedAtEpochMs.toDate(),
         )
-    }
 
-    private fun CardState.toState(): CardStateEntity {
-        return when (this) {
+    private fun CardState.toState(): CardStateEntity =
+        when (this) {
             CardState.ISSUED -> CardStateEntity.ISSUED
             CardState.SUSPENDED -> CardStateEntity.SUSPENDED
             CardState.CLOSED -> CardStateEntity.CLOSED
@@ -227,10 +223,9 @@ internal object VirtualCardTransformer {
                 "Unknown CardState",
             )
         }
-    }
 
-    private fun ProvisioningState.toProvisionalCardState(): ProvisionalVirtualCard.ProvisioningState {
-        return when (this) {
+    private fun ProvisioningState.toProvisionalCardState(): ProvisionalVirtualCard.ProvisioningState =
+        when (this) {
             ProvisioningState.PROVISIONING -> ProvisionalVirtualCard.ProvisioningState.PROVISIONING
             ProvisioningState.FAILED -> ProvisionalVirtualCard.ProvisioningState.FAILED
             ProvisioningState.COMPLETED -> ProvisionalVirtualCard.ProvisioningState.COMPLETED
@@ -238,17 +233,13 @@ internal object VirtualCardTransformer {
                 "Unknown ProvisionalCardState",
             )
         }
-    }
 
-    private fun SealedCard.Owner.toOwner(): Owner {
-        return Owner(id = owner.id, issuer = owner.issuer)
-    }
+    private fun SealedCard.Owner.toOwner(): Owner = Owner(id = owner.id, issuer = owner.issuer)
 
-    private fun List<SealedCard.Owner>.toOwners(): List<Owner> {
-        return this.map {
+    private fun List<SealedCard.Owner>.toOwners(): List<Owner> =
+        this.map {
             it.toOwner()
         }
-    }
 
     private fun SealedTransaction.toTransaction(deviceKeyManager: DeviceKeyManager): Transaction {
         val keyInfo = KeyInfo(keyId, KeyType.PRIVATE_KEY, algorithm)

@@ -11,7 +11,7 @@ Please see the [Sudo Platform Developer Docs](https://sudoplatform.com/docs) for
 | Technology             | Supported version |
 | ---------------------- | ----------------- |
 | Min. Deployment Target | 26                |
-| Kotlin version         | 1.9+              |
+| Kotlin version         | 2.1.0             |
 
 ## Integration Instructions
 Visit the [Virtual Cards section](https://docs.sudoplatform.com/guides/virtual-cards) of the Sudo Platform Developer Docs for SDK integration instructions.

@@ -31,18 +31,18 @@ import java.util.Date
  */
 @RunWith(RobolectricTestRunner::class)
 class SudoVirtualCardsNotifiableClientTest : BaseTests() {
-
     private val mockRemoteMessage by before {
         mock<RemoteMessage>()
     }
 
-    private val testNotificationHandler = object : SudoVirtualCardsNotificationHandler {
-        val fundingSourceChangedNotifications = mutableListOf<VirtualCardsFundingSourceChangedNotification>()
+    private val testNotificationHandler =
+        object : SudoVirtualCardsNotificationHandler {
+            val fundingSourceChangedNotifications = mutableListOf<VirtualCardsFundingSourceChangedNotification>()
 
-        override fun onFundingSourceChanged(notification: VirtualCardsFundingSourceChangedNotification) {
-            fundingSourceChangedNotifications.add(notification)
+            override fun onFundingSourceChanged(notification: VirtualCardsFundingSourceChangedNotification) {
+                fundingSourceChangedNotifications.add(notification)
+            }
         }
-    }
 
     private val client by before {
         DefaultSudoVirtualCardsNotifiableClient(
@@ -69,32 +69,34 @@ class SudoVirtualCardsNotifiableClientTest : BaseTests() {
             it.fieldName shouldStartWith "meta."
         }
 
-        schema.schema.map { it.fieldName } shouldContainAll listOf(
-            "meta.type",
-            "meta.fundingSourceId",
-            "meta.fundingSourceType",
-        )
+        schema.schema.map { it.fieldName } shouldContainAll
+            listOf(
+                "meta.type",
+                "meta.fundingSourceId",
+                "meta.fundingSourceType",
+            )
     }
 
     @Test
     fun `processPayload does nothing for badly formatted payloads`() {
-        val payloads = listOf(
-            mapOf(),
-            mapOf(Pair("sudoplatform", "this is not JSON")),
-            mapOf(Pair("sudoplatform", "{}")),
-            mapOf(Pair("sudoplatform", "{\"servicename\":\"sudoService\",\"data\":\"\"}")),
-            mapOf(Pair("sudoplatform", "{\"servicename\":\"vcService\",\"data\":\"this is not json\"}")),
-            mapOf(Pair("sudoplatform", "{\"servicename\":\"vcService\",\"data\":\"{\\\"wrong\\\":\\\"property\\\"}\"}")),
-            mapOf(
-                Pair(
-                    "sudoplatform",
-                    "{\"servicename\":\"emService\",\"data\":" +
-                        "\"{\\\"keyId\\\":\\\"key-id\\\"," +
-                        "\\\"algorithm\\\":\\\"algorithm\\\"," +
-                        "\\\"sealed\\\":\\\"invalid-sealed-data\\\"}\"}",
+        val payloads =
+            listOf(
+                mapOf(),
+                mapOf(Pair("sudoplatform", "this is not JSON")),
+                mapOf(Pair("sudoplatform", "{}")),
+                mapOf(Pair("sudoplatform", "{\"servicename\":\"sudoService\",\"data\":\"\"}")),
+                mapOf(Pair("sudoplatform", "{\"servicename\":\"vcService\",\"data\":\"this is not json\"}")),
+                mapOf(Pair("sudoplatform", "{\"servicename\":\"vcService\",\"data\":\"{\\\"wrong\\\":\\\"property\\\"}\"}")),
+                mapOf(
+                    Pair(
+                        "sudoplatform",
+                        "{\"servicename\":\"emService\",\"data\":" +
+                            "\"{\\\"keyId\\\":\\\"key-id\\\"," +
+                            "\\\"algorithm\\\":\\\"algorithm\\\"," +
+                            "\\\"sealed\\\":\\\"invalid-sealed-data\\\"}\"}",
+                    ),
                 ),
-            ),
-        )
+            )
 
         payloads.forEach { payload ->
             reset(mockRemoteMessage)
@@ -126,29 +128,31 @@ class SudoVirtualCardsNotifiableClientTest : BaseTests() {
 
         mockRemoteMessage.stub { on { data } doReturn payload }
 
-        val internalNotification = FundingSourceChangedNotification(
-            type = "fundingSourceChanged",
-            owner = "owner-id",
-            fundingSourceId = "funding-source-id",
-            fundingSourceType = FundingSourceType.BANK_ACCOUNT,
-            last4 = "1234",
-            state = FundingSourceState.ACTIVE,
-            flags = emptyList<FundingSourceFlags>(),
-            updatedAtEpochMs = 2000,
-        )
+        val internalNotification =
+            FundingSourceChangedNotification(
+                type = "fundingSourceChanged",
+                owner = "owner-id",
+                fundingSourceId = "funding-source-id",
+                fundingSourceType = FundingSourceType.BANK_ACCOUNT,
+                last4 = "1234",
+                state = FundingSourceState.ACTIVE,
+                flags = emptyList<FundingSourceFlags>(),
+                updatedAtEpochMs = 2000,
+            )
 
         client.processPayload(mockRemoteMessage)
 
         testNotificationHandler.fundingSourceChangedNotifications shouldHaveSize 1
 
-        testNotificationHandler.fundingSourceChangedNotifications[0] shouldBe VirtualCardsFundingSourceChangedNotification(
-            id = internalNotification.fundingSourceId,
-            owner = internalNotification.owner,
-            type = internalNotification.fundingSourceType,
-            last4 = internalNotification.last4,
-            state = internalNotification.state,
-            flags = internalNotification.flags,
-            updatedAt = Date(internalNotification.updatedAtEpochMs),
-        )
+        testNotificationHandler.fundingSourceChangedNotifications[0] shouldBe
+            VirtualCardsFundingSourceChangedNotification(
+                id = internalNotification.fundingSourceId,
+                owner = internalNotification.owner,
+                type = internalNotification.fundingSourceType,
+                last4 = internalNotification.last4,
+                state = internalNotification.state,
+                flags = internalNotification.flags,
+                updatedAt = Date(internalNotification.updatedAtEpochMs),
+            )
     }
 }

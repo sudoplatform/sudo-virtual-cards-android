@@ -49,22 +49,21 @@ import org.mockito.kotlin.whenever
  * using mocks and spies.
  */
 class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
-
     private val queryResponse by before {
         JSONObject(
             """
-                {
-                    'getProvisionalCard': {
-                            '__typename': 'ProvisionalCard',
-                            'id':'id',
-                            'owner': 'owner',
-                            'version': 1,
-                            'createdAtEpochMs': 1.0,
-                            'updatedAtEpochMs': 1.0,
-                            'clientRefId': 'clientRefId',
-                            'provisioningState': '${ProvisioningState.PROVISIONING}'
-                        }
-                }
+            {
+                'getProvisionalCard': {
+                        '__typename': 'ProvisionalCard',
+                        'id':'id',
+                        'owner': 'owner',
+                        'version': 1,
+                        'createdAtEpochMs': 1.0,
+                        'updatedAtEpochMs': 1.0,
+                        'clientRefId': 'clientRefId',
+                        'provisioningState': '${ProvisioningState.PROVISIONING}'
+                    }
+            }
             """.trimIndent(),
         )
     }
@@ -84,7 +83,8 @@ class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
             on {
                 query<String>(
                     argThat { this.query.equals(GetProvisionalCardQuery.OPERATION_DOCUMENT) },
-                    any(), any(),
+                    any(),
+                    any(),
                 )
             } doAnswer {
                 val mockOperation: GraphQLOperation<String> = mock()
@@ -106,7 +106,8 @@ class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
     }
 
     private val client by before {
-        SudoVirtualCardsClient.builder()
+        SudoVirtualCardsClient
+            .builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
             .setGraphQLClient(GraphQLClient(mockApiCategory))
@@ -121,156 +122,165 @@ class SudoVirtualCardsGetProvisionalCardTest : BaseTests() {
     }
 
     @Test
-    fun `getProvisionalCard() should return results when no error present`() = runBlocking<Unit> {
-        val deferredResult = async(Dispatchers.IO) {
-            client.getProvisionalCard("id")
-        }
-        deferredResult.start()
-        delay(100L)
-        val result = deferredResult.await()
-        result shouldNotBe null
+    fun `getProvisionalCard() should return results when no error present`() =
+        runBlocking<Unit> {
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.getProvisionalCard("id")
+                }
+            deferredResult.start()
+            delay(100L)
+            val result = deferredResult.await()
+            result shouldNotBe null
 
-        with(result!!) {
-            id shouldBe "id"
-            clientRefId shouldBe "clientRefId"
-            owner shouldBe "owner"
-            version shouldBe 1
-            provisioningState shouldBe ProvisionalVirtualCard.ProvisioningState.PROVISIONING
-            card shouldBe null
-            createdAt shouldNotBe null
-            updatedAt shouldNotBe null
-        }
+            with(result!!) {
+                id shouldBe "id"
+                clientRefId shouldBe "clientRefId"
+                owner shouldBe "owner"
+                version shouldBe 1
+                provisioningState shouldBe ProvisionalVirtualCard.ProvisioningState.PROVISIONING
+                card shouldBe null
+                createdAt shouldNotBe null
+                updatedAt shouldNotBe null
+            }
 
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetProvisionalCardQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetProvisionalCardQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
 
     @Test
-    fun `getProvisionalCard() should throw when query response is null`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(GetProvisionalCardQuery.OPERATION_DOCUMENT) },
+    fun `getProvisionalCard() should throw when query response is null`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(GetProvisionalCardQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, null),
+                )
+                mockOperation
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.getProvisionalCard("id")
+                }
+            deferredResult.start()
+            delay(100L)
+            val result = deferredResult.await()
+            result shouldBe null
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetProvisionalCardQuery.OPERATION_DOCUMENT, it.query)
+                },
                 any(),
                 any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, null),
             )
-            mockOperation
         }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.getProvisionalCard("id")
-        }
-        deferredResult.start()
-        delay(100L)
-        val result = deferredResult.await()
-        result shouldBe null
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetProvisionalCardQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 
     @Test
-    fun `getProvisionalCard() should throw when query response has errors`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(GetProvisionalCardQuery.OPERATION_DOCUMENT) },
+    fun `getProvisionalCard() should throw when query response has errors`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(GetProvisionalCardQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.IdentityVerificationException> {
+                        client.getProvisionalCard("id")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetProvisionalCardQuery.OPERATION_DOCUMENT, it.query)
+                },
                 any(),
                 any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
             )
-            mockOperation
         }
 
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.IdentityVerificationException> {
+    @Test
+    fun `getProvisionalCard() should not block coroutine cancellation exception`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    mockApiCategory.query<String>(
+                        argThat { this.query.equals(GetProvisionalCardQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow CancellationException("mock")
+            }
+
+            shouldThrow<CancellationException> {
                 client.getProvisionalCard("id")
             }
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetProvisionalCardQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
-        deferredResult.start()
-        delay(100L)
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetProvisionalCardQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 
     @Test
-    fun `getProvisionalCard() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                mockApiCategory.query<String>(
-                    argThat { this.query.equals(GetProvisionalCardQuery.OPERATION_DOCUMENT) },
-                    any(),
-                    any(),
-                )
-            } doThrow CancellationException("mock")
-        }
+    fun `getProvisionalCard() should throw when key registration fails`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    mockApiCategory.query<String>(
+                        argThat { this.query.equals(GetProvisionalCardQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow Unsealer.UnsealerException.SealedDataTooShortException("mock")
+            }
 
-        shouldThrow<CancellationException> {
-            client.getProvisionalCard("id")
+            shouldThrow<SudoVirtualCardsClient.VirtualCardException.UnsealingException> {
+                client.getProvisionalCard("id")
+            }
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetProvisionalCardQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetProvisionalCardQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `getProvisionalCard() should throw when key registration fails`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                mockApiCategory.query<String>(
-                    argThat { this.query.equals(GetProvisionalCardQuery.OPERATION_DOCUMENT) },
-                    any(),
-                    any(),
-                )
-            } doThrow Unsealer.UnsealerException.SealedDataTooShortException("mock")
-        }
-
-        shouldThrow<SudoVirtualCardsClient.VirtualCardException.UnsealingException> {
-            client.getProvisionalCard("id")
-        }
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetProvisionalCardQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 }

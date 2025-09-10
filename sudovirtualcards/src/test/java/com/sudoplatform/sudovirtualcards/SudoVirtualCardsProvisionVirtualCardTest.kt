@@ -51,7 +51,6 @@ import org.mockito.kotlin.whenever
  * using mocks and spies.
  */
 class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
-
     private val input by before {
         ProvisionVirtualCardInput(
             "clientRefId",
@@ -73,19 +72,19 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
     private val cardProvisionResponse by before {
         JSONObject(
             """
-                {
-                    'cardProvision': {
-                        '__typename': 'CardProvision',
-                        'id':'id',
-                        'owner': 'owner',
-                        'version': 1,
-                        'createdAtEpochMs': 1.0,
-                        'updatedAtEpochMs': 1.0,
-                        'clientRefId': 'clientRefId',
-                        'provisioningState': '${ProvisioningState.PROVISIONING}',
-                        'card': [],
-                    }
+            {
+                'cardProvision': {
+                    '__typename': 'CardProvision',
+                    'id':'id',
+                    'owner': 'owner',
+                    'version': 1,
+                    'createdAtEpochMs': 1.0,
+                    'updatedAtEpochMs': 1.0,
+                    'clientRefId': 'clientRefId',
+                    'provisioningState': '${ProvisioningState.PROVISIONING}',
+                    'card': [],
                 }
+            }
             """.trimIndent(),
         )
     }
@@ -105,7 +104,8 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
             on {
                 mutate<String>(
                     argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
-                    any(), any(),
+                    any(),
+                    any(),
                 )
             } doAnswer {
                 val mockOperation: GraphQLOperation<String> = mock()
@@ -126,15 +126,17 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
         }
     }
 
-    private val currentKey = PublicKey(
-        keyId = "keyId",
-        publicKey = "publicKey".toByteArray(),
-    )
+    private val currentKey =
+        PublicKey(
+            keyId = "keyId",
+            publicKey = "publicKey".toByteArray(),
+        )
 
-    private val currentKeyWithKeyRingId = PublicKeyWithKeyRingId(
-        publicKey = currentKey,
-        keyRingId = "keyRingId",
-    )
+    private val currentKeyWithKeyRingId =
+        PublicKeyWithKeyRingId(
+            publicKey = currentKey,
+            keyRingId = "keyRingId",
+        )
 
     private val mockPublicKeyService by before {
         mock<PublicKeyService>().stub {
@@ -144,7 +146,8 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
     }
 
     private val client by before {
-        SudoVirtualCardsClient.builder()
+        SudoVirtualCardsClient
+            .builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
             .setGraphQLClient(GraphQLClient(mockApiCategory))
@@ -166,532 +169,566 @@ class SudoVirtualCardsProvisionVirtualCardTest : BaseTests() {
     }
 
     @Test
-    fun `provisionVirtualCard() should return results when no error present`() = runBlocking<Unit> {
-        val deferredResult = async(Dispatchers.IO) {
-            client.provisionVirtualCard(input)
-        }
-        deferredResult.start()
+    fun `provisionVirtualCard() should return results when no error present`() =
+        runBlocking<Unit> {
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.provisionVirtualCard(input)
+                }
+            deferredResult.start()
 
-        delay(100L)
+            delay(100L)
 
-        val result = deferredResult.await()
-        result shouldNotBe null
+            val result = deferredResult.await()
+            result shouldNotBe null
 
-        with(result) {
-            id shouldBe "id"
-            clientRefId shouldBe "clientRefId"
-            owner shouldBe "owner"
-            version shouldBe 1
-            provisioningState shouldBe ProvisionalVirtualCard.ProvisioningState.PROVISIONING
-            card shouldBe null
-            createdAt shouldNotBe null
-            updatedAt shouldNotBe null
-        }
+            with(result) {
+                id shouldBe "id"
+                clientRefId shouldBe "clientRefId"
+                owner shouldBe "owner"
+                version shouldBe 1
+                provisioningState shouldBe ProvisionalVirtualCard.ProvisioningState.PROVISIONING
+                card shouldBe null
+                createdAt shouldNotBe null
+                updatedAt shouldNotBe null
+            }
 
-        verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `provisionVirtualCard() should throw when registered public key retrieval fails`() = runBlocking<Unit> {
-        mockPublicKeyService.stub {
-            onBlocking { getCurrentRegisteredKey() } doThrow PublicKeyService.PublicKeyServiceException.KeyCreateException()
-        }
-
-        shouldThrow<SudoVirtualCardsClient.VirtualCardException.PublicKeyException> {
-            client.provisionVirtualCard(input)
-        }
-
-        verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockApiCategory, never()).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `provisionVirtualCard() should throw when card mutation response is null`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
+            verify(mockPublicKeyService).getCurrentRegisteredKey()
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+                },
                 any(),
                 any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, null),
             )
-            mockOperation
         }
 
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.ProvisionFailedException> {
+    @Test
+    fun `provisionVirtualCard() should throw when registered public key retrieval fails`() =
+        runBlocking<Unit> {
+            mockPublicKeyService.stub {
+                onBlocking { getCurrentRegisteredKey() } doThrow PublicKeyService.PublicKeyServiceException.KeyCreateException()
+            }
+
+            shouldThrow<SudoVirtualCardsClient.VirtualCardException.PublicKeyException> {
                 client.provisionVirtualCard(input)
             }
+
+            verify(mockPublicKeyService).getCurrentRegisteredKey()
+            verify(mockApiCategory, never()).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
-        deferredResult.start()
-
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 
     @Test
-    fun `provisionVirtualCard() should throw when response has an identity verification not verified error`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
+    fun `provisionVirtualCard() should throw when card mutation response is null`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, null),
+                )
+                mockOperation
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.ProvisionFailedException> {
+                        client.provisionVirtualCard(input)
+                    }
+                }
+            deferredResult.start()
+
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockPublicKeyService).getCurrentRegisteredKey()
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+                },
                 any(),
                 any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
             )
-            mockOperation
         }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.IdentityVerificationException> {
+
+    @Test
+    fun `provisionVirtualCard() should throw when response has an identity verification not verified error`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.IdentityVerificationException> {
+                        client.provisionVirtualCard(input)
+                    }
+                }
+            deferredResult.start()
+
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockPublicKeyService).getCurrentRegisteredKey()
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `provisionVirtualCard() should throw when response has an identity verification insufficient error`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "IdentityVerificationInsufficientError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.IdentityVerificationInsufficientException> {
+                        client.provisionVirtualCard(input)
+                    }
+                }
+            deferredResult.start()
+
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockPublicKeyService).getCurrentRegisteredKey()
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `provisionVirtualCard() should throw when response has a funding source not found error`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "FundingSourceNotFoundError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.FundingSourceNotFoundException> {
+                        client.provisionVirtualCard(input)
+                    }
+                }
+            deferredResult.start()
+
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockPublicKeyService).getCurrentRegisteredKey()
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `provisionVirtualCard() should throw when response has a funding source not active error`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "FundingSourceNotActiveError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.FundingSourceNotActiveException> {
+                        client.provisionVirtualCard(input)
+                    }
+                }
+            deferredResult.start()
+
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockPublicKeyService).getCurrentRegisteredKey()
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `provisionVirtualCard() should throw when response has a velocity exceeded error`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "VelocityExceededError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.VelocityExceededException> {
+                        client.provisionVirtualCard(input)
+                    }
+                }
+            deferredResult.start()
+
+            delay(100L)
+
+            deferredResult.await()
+
+            verify(mockPublicKeyService).getCurrentRegisteredKey()
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `provisionVirtualCard() should throw when response has an entitlement exceeded error`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "EntitlementExceededError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.EntitlementExceededException> {
+                        client.provisionVirtualCard(input)
+                    }
+                }
+
+            deferredResult.start()
+
+            delay(100L)
+
+            deferredResult.await()
+
+            verify(mockPublicKeyService).getCurrentRegisteredKey()
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `provisionVirtualCard() should throw when response has an unsupported currency error`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "UnsupportedCurrencyError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.UnsupportedCurrencyException> {
+                        client.provisionVirtualCard(input)
+                    }
+                }
+            deferredResult.start()
+
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockPublicKeyService).getCurrentRegisteredKey()
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `provisionVirtualCard() should throw when response has an invalid token error`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "InvalidTokenError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.ProvisionFailedException> {
+                        client.provisionVirtualCard(input)
+                    }
+                }
+            deferredResult.start()
+
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockPublicKeyService).getCurrentRegisteredKey()
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `provisionVirtualCard() should throw when response has an account locked error`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "AccountLockedError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.AccountLockedException> {
+                        client.provisionVirtualCard(input)
+                    }
+                }
+            deferredResult.start()
+
+            delay(100L)
+
+            deferredResult.await()
+
+            verify(mockPublicKeyService).getCurrentRegisteredKey()
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `provisionVirtualCard() should not block coroutine cancellation exception`() =
+        runBlocking<Unit> {
+            mockPublicKeyService.stub {
+                onBlocking { getCurrentRegisteredKey() } doThrow CancellationException("mock")
+            }
+
+            shouldThrow<CancellationException> {
                 client.provisionVirtualCard(input)
             }
+
+            verify(mockPublicKeyService).getCurrentRegisteredKey()
+            verify(mockApiCategory, never()).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
-        deferredResult.start()
-
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 
     @Test
-    fun `provisionVirtualCard() should throw when response has an identity verification insufficient error`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "IdentityVerificationInsufficientError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.IdentityVerificationInsufficientException> {
+    fun `provisionVirtualCard() should throw when key registration fails`() =
+        runBlocking<Unit> {
+            mockPublicKeyService.stub {
+                onBlocking { getCurrentRegisteredKey() } doThrow PublicKeyService.PublicKeyServiceException.KeyCreateException("mock")
+            }
+
+            shouldThrow<SudoVirtualCardsClient.VirtualCardException.PublicKeyException> {
                 client.provisionVirtualCard(input)
             }
-        }
-        deferredResult.start()
 
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `provisionVirtualCard() should throw when response has a funding source not found error`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "FundingSourceNotFoundError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
+            verify(mockPublicKeyService).getCurrentRegisteredKey()
+            verify(mockApiCategory, never()).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
+                },
                 any(),
                 any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
             )
-            mockOperation
         }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.FundingSourceNotFoundException> {
-                client.provisionVirtualCard(input)
-            }
-        }
-        deferredResult.start()
-
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `provisionVirtualCard() should throw when response has a funding source not active error`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "FundingSourceNotActiveError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.FundingSourceNotActiveException> {
-                client.provisionVirtualCard(input)
-            }
-        }
-        deferredResult.start()
-
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `provisionVirtualCard() should throw when response has a velocity exceeded error`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "VelocityExceededError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.VelocityExceededException> {
-                client.provisionVirtualCard(input)
-            }
-        }
-        deferredResult.start()
-
-        delay(100L)
-
-        deferredResult.await()
-
-        verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `provisionVirtualCard() should throw when response has an entitlement exceeded error`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "EntitlementExceededError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.EntitlementExceededException> {
-                client.provisionVirtualCard(input)
-            }
-        }
-
-        deferredResult.start()
-
-        delay(100L)
-
-        deferredResult.await()
-
-        verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `provisionVirtualCard() should throw when response has an unsupported currency error`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "UnsupportedCurrencyError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.UnsupportedCurrencyException> {
-                client.provisionVirtualCard(input)
-            }
-        }
-        deferredResult.start()
-
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `provisionVirtualCard() should throw when response has an invalid token error`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "InvalidTokenError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.ProvisionFailedException> {
-                client.provisionVirtualCard(input)
-            }
-        }
-        deferredResult.start()
-
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `provisionVirtualCard() should throw when response has an account locked error`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "AccountLockedError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.AccountLockedException> {
-                client.provisionVirtualCard(input)
-            }
-        }
-        deferredResult.start()
-
-        delay(100L)
-
-        deferredResult.await()
-
-        verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `provisionVirtualCard() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-        mockPublicKeyService.stub {
-            onBlocking { getCurrentRegisteredKey() } doThrow CancellationException("mock")
-        }
-
-        shouldThrow<CancellationException> {
-            client.provisionVirtualCard(input)
-        }
-
-        verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockApiCategory, never()).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `provisionVirtualCard() should throw when key registration fails`() = runBlocking<Unit> {
-        mockPublicKeyService.stub {
-            onBlocking { getCurrentRegisteredKey() } doThrow PublicKeyService.PublicKeyServiceException.KeyCreateException("mock")
-        }
-
-        shouldThrow<SudoVirtualCardsClient.VirtualCardException.PublicKeyException> {
-            client.provisionVirtualCard(input)
-        }
-
-        verify(mockPublicKeyService).getCurrentRegisteredKey()
-        verify(mockApiCategory, never()).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ProvisionVirtualCardMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 }

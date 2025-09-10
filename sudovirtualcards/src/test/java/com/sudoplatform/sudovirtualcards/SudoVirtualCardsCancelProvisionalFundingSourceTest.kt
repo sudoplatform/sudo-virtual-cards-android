@@ -50,8 +50,7 @@ import java.net.HttpURLConnection
  * Test the correct operation of [SudoVirtualCardsClient.cancelProvisionalFundingSource]
  * using mocks and spies.
  */
-class SudoVirtualCardsCancelProvisionalFundingSourceTest() : BaseTests() {
-
+class SudoVirtualCardsCancelProvisionalFundingSourceTest : BaseTests() {
     private val provisionalResponse by before {
         val stripeSetupData =
             StripeCardProvisioningData(
@@ -64,20 +63,20 @@ class SudoVirtualCardsCancelProvisionalFundingSourceTest() : BaseTests() {
 
         JSONObject(
             """
-                {
-                    'cancelProvisionalFundingSource': {
-                            '__typename': 'typename',
-                            'id':'id',
-                            'owner': 'owner',
-                            'version': 1,
-                            'createdAtEpochMs': 1.0,
-                            'updatedAtEpochMs': 10.0,
-                            'type': '${FundingSourceType.CREDIT_CARD}',
-                            'provisioningData': '${Base64.encodeBase64String(Gson().toJson(stripeSetupData).toByteArray())}',
-                            'state': '${ProvisionalFundingSourceState.PROVISIONING}',
-                            'last4':'1234'
-                        }
-                }
+            {
+                'cancelProvisionalFundingSource': {
+                        '__typename': 'typename',
+                        'id':'id',
+                        'owner': 'owner',
+                        'version': 1,
+                        'createdAtEpochMs': 1.0,
+                        'updatedAtEpochMs': 10.0,
+                        'type': '${FundingSourceType.CREDIT_CARD}',
+                        'provisioningData': '${Base64.encodeBase64String(Gson().toJson(stripeSetupData).toByteArray())}',
+                        'state': '${ProvisionalFundingSourceState.PROVISIONING}',
+                        'last4':'1234'
+                    }
+            }
             """.trimIndent(),
         )
     }
@@ -95,7 +94,8 @@ class SudoVirtualCardsCancelProvisionalFundingSourceTest() : BaseTests() {
             on {
                 mutate<String>(
                     argThat { this.query.equals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT) },
-                    any(), any(),
+                    any(),
+                    any(),
                 )
             } doAnswer {
                 val mockOperation: GraphQLOperation<String> = mock()
@@ -116,7 +116,8 @@ class SudoVirtualCardsCancelProvisionalFundingSourceTest() : BaseTests() {
     }
 
     private val client by before {
-        SudoVirtualCardsClient.builder()
+        SudoVirtualCardsClient
+            .builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
             .setGraphQLClient(GraphQLClient(mockApiCategory))
@@ -131,254 +132,271 @@ class SudoVirtualCardsCancelProvisionalFundingSourceTest() : BaseTests() {
     }
 
     @Test
-    fun `cancelProvisionalFundingSource() should return results when no error present`() = runBlocking<Unit> {
-        val deferredResult = async(Dispatchers.IO) {
-            client.cancelProvisionalFundingSource("id")
-        }
-        deferredResult.start()
-        delay(100L)
-        val result = deferredResult.await()
-        result shouldNotBe null
+    fun `cancelProvisionalFundingSource() should return results when no error present`() =
+        runBlocking<Unit> {
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.cancelProvisionalFundingSource("id")
+                }
+            deferredResult.start()
+            delay(100L)
+            val result = deferredResult.await()
+            result shouldNotBe null
 
-        with(result) {
-            id shouldBe "id"
-            owner shouldBe "owner"
-            version shouldBe 1
-            createdAt shouldNotBe null
-            updatedAt shouldNotBe null
-            type shouldBe com.sudoplatform.sudovirtualcards.types.FundingSourceType.CREDIT_CARD
-            state shouldBe com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource.ProvisioningState.PROVISIONING
-            last4 shouldBe "1234"
-        }
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `cancelProvisionalFundingSource() should throw when mutation response is null`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, null),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.CancelFailedException> {
-                client.cancelProvisionalFundingSource("id")
+            with(result) {
+                id shouldBe "id"
+                owner shouldBe "owner"
+                version shouldBe 1
+                createdAt shouldNotBe null
+                updatedAt shouldNotBe null
+                type shouldBe com.sudoplatform.sudovirtualcards.types.FundingSourceType.CREDIT_CARD
+                state shouldBe com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource.ProvisioningState.PROVISIONING
+                last4 shouldBe "1234"
             }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `cancelProvisionalFundingSource() should throw when response has a funding source not found error`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "FundingSourceNotFoundError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT) },
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT, it.query)
+                },
                 any(),
                 any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
             )
-            mockOperation
         }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceNotFoundException> {
-                client.cancelProvisionalFundingSource("id")
-            }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 
     @Test
-    fun `cancelProvisionalFundingSource() should throw when response has an account locked error`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "AccountLockedError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.AccountLockedException> {
-                client.cancelProvisionalFundingSource("id")
-            }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `cancelProvisionalFundingSource() should throw when http error occurs`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.CancelFailedException> {
-                client.cancelProvisionalFundingSource("id")
-            }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `cancelProvisionalFundingSource() should throw when unknown error occurs`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
+    fun `cancelProvisionalFundingSource() should throw when mutation response is null`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
                 mockApiCategory.mutate<String>(
                     argThat { this.query.equals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, null),
                 )
-            } doThrow RuntimeException("Mock Runtime Exception")
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnknownException> {
-                client.cancelProvisionalFundingSource("id")
+                mockOperation
             }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
 
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.CancelFailedException> {
+                        client.cancelProvisionalFundingSource("id")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
 
     @Test
-    fun `cancelProvisionalFundingSource() should not suppress CancellationException`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
+    fun `cancelProvisionalFundingSource() should throw when response has a funding source not found error`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "FundingSourceNotFoundError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
                 mockApiCategory.mutate<String>(
                     argThat { this.query.equals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
                 )
-            } doThrow CancellationException("Mock Cancellation Exception")
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<CancellationException> {
-                client.cancelProvisionalFundingSource("id")
+                mockOperation
             }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
 
-        verify(mockApiCategory).mutate<String>(
-            org.mockito.kotlin.check {
-                assertEquals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceNotFoundException> {
+                        client.cancelProvisionalFundingSource("id")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `cancelProvisionalFundingSource() should throw when response has an account locked error`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "AccountLockedError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.AccountLockedException> {
+                        client.cancelProvisionalFundingSource("id")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `cancelProvisionalFundingSource() should throw when http error occurs`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.CancelFailedException> {
+                        client.cancelProvisionalFundingSource("id")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `cancelProvisionalFundingSource() should throw when unknown error occurs`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    mockApiCategory.mutate<String>(
+                        argThat { this.query.equals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow RuntimeException("Mock Runtime Exception")
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnknownException> {
+                        client.cancelProvisionalFundingSource("id")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `cancelProvisionalFundingSource() should not suppress CancellationException`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    mockApiCategory.mutate<String>(
+                        argThat { this.query.equals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow CancellationException("Mock Cancellation Exception")
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<CancellationException> {
+                        client.cancelProvisionalFundingSource("id")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).mutate<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(CancelProvisionalFundingSourceMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
 }

@@ -13,14 +13,16 @@ import com.sudoplatform.sudovirtualcards.types.Transaction
  * Manages subscriptions for a specific GraphQL subscription.
  */
 internal class TransactionSubscriptionManager<T> : SubscriptionManager<T, TransactionSubscriber>() {
-
     /**
      * Notifies subscribers of a new, updated or deleted [Transaction].
      *
      * @param transaction The [Transaction] that was changed.
      * @param changeType The type of change that occurred, represented by [ChangeType].
      */
-    internal fun transactionChanged(transaction: Transaction, changeType: TransactionSubscriber.ChangeType) {
+    internal fun transactionChanged(
+        transaction: Transaction,
+        changeType: TransactionSubscriber.ChangeType,
+    ) {
         var subscribersToNotify: ArrayList<TransactionSubscriber>
         synchronized(this) {
             // Take a copy of the subscribers to notify in synchronized block

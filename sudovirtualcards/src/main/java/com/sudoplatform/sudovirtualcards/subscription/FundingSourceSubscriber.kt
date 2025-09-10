@@ -12,7 +12,6 @@ import com.sudoplatform.sudovirtualcards.types.FundingSource
  * Subscriber for receiving notifications about changes to [FundingSource]s.
  */
 interface FundingSourceSubscriber : Subscriber {
-
     /**
      * Notifies the subscriber of a modified [FundingSource]
      *

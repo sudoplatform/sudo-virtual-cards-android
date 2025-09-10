@@ -3,7 +3,6 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package com.sudoplatform.sudovirtualcardssimulator
 
 import com.sudoplatform.sudoprofiles.Sudo
@@ -11,8 +10,8 @@ import com.sudoplatform.sudoprofiles.Sudo
 /**
  * Data used in Android tests.
  */
+@Suppress("ktlint:standard:property-naming")
 object AndroidTestData {
-
     /** Test user that is pre-verified */
     object VerifiedUser {
         const val firstName = "John"
@@ -37,14 +36,15 @@ object AndroidTestData {
         const val country = "US"
     }
 
-    val sudo = Sudo(
-        title = "Mr",
-        firstName = "Theodore",
-        lastName = "Bear",
-        label = "Shopping",
-        notes = null,
-        avatar = null,
-    )
+    val sudo =
+        Sudo(
+            title = "Mr",
+            firstName = "Theodore",
+            lastName = "Bear",
+            label = "Shopping",
+            notes = null,
+            avatar = null,
+        )
 
     object IdentityVerification {
         const val virtualCardsAudience = "sudoplatform.virtual-cards.virtual-card"

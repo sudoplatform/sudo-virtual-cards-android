@@ -20,7 +20,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class LocaleUtilTest {
-
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Test

@@ -14,7 +14,6 @@ import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTyp
  * GraphQL type.
  */
 internal object TransactionTypeTransformer {
-
     /**
      * Transform the input type [TransactionTypeEntity] into the corresponding GraphQL type [TransactionType].
      */

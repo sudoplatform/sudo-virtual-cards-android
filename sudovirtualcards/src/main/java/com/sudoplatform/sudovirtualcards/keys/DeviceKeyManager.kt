@@ -12,30 +12,55 @@ import com.sudoplatform.sudokeymanager.KeyManagerInterface
  * Responsible for managing the local storage and lifecycle of key pairs associated with the virtual cards service.
  */
 internal interface DeviceKeyManager {
-
     /**
      * Defines the exceptions for the [DeviceKeyManager] methods.
      *
      * @property message Accompanying message for the exception.
      * @property cause The cause for the exception.
      */
-    sealed class DeviceKeyManagerException(message: String? = null, cause: Throwable? = null) : RuntimeException(message, cause) {
-        class KeyGenerationException(message: String? = null, cause: Throwable? = null) :
-            DeviceKeyManagerException(message = message, cause = cause)
-        class KeyOperationFailedException(message: String? = null, cause: Throwable? = null) :
-            DeviceKeyManagerException(message = message, cause = cause)
-        class DecryptionException(message: String? = null, cause: Throwable? = null) :
-            DeviceKeyManagerException(message = message, cause = cause)
-        class EncryptionException(message: String? = null, cause: Throwable? = null) :
-            DeviceKeyManagerException(message = message, cause = cause)
-        class KeyRingIdUnknownException(message: String? = null, cause: Throwable? = null) :
-            DeviceKeyManagerException(message = message, cause = cause)
-        class SigningException(message: String? = null, cause: Throwable? = null) :
-            DeviceKeyManagerException(message = message, cause = cause)
-        class SecureKeyArchiveException(message: String? = null, cause: Throwable? = null) :
-            DeviceKeyManagerException(message = message, cause = cause)
-        class UnknownException(message: String? = null, cause: Throwable? = null) :
-            DeviceKeyManagerException(message = message, cause = cause)
+    sealed class DeviceKeyManagerException(
+        message: String? = null,
+        cause: Throwable? = null,
+    ) : RuntimeException(message, cause) {
+        class KeyGenerationException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : DeviceKeyManagerException(message = message, cause = cause)
+
+        class KeyOperationFailedException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : DeviceKeyManagerException(message = message, cause = cause)
+
+        class DecryptionException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : DeviceKeyManagerException(message = message, cause = cause)
+
+        class EncryptionException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : DeviceKeyManagerException(message = message, cause = cause)
+
+        class KeyRingIdUnknownException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : DeviceKeyManagerException(message = message, cause = cause)
+
+        class SigningException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : DeviceKeyManagerException(message = message, cause = cause)
+
+        class SecureKeyArchiveException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : DeviceKeyManagerException(message = message, cause = cause)
+
+        class UnknownException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : DeviceKeyManagerException(message = message, cause = cause)
     }
 
     /**
@@ -96,7 +121,11 @@ internal interface DeviceKeyManager {
      * @throws [DeviceKeyManager.DeviceKeyManagerException.DecryptionException] if the data cannot be decrypted
      */
     @Throws(DeviceKeyManagerException::class)
-    fun decryptWithPrivateKey(data: ByteArray, keyId: String, algorithm: KeyManagerInterface.PublicKeyEncryptionAlgorithm): ByteArray
+    fun decryptWithPrivateKey(
+        data: ByteArray,
+        keyId: String,
+        algorithm: KeyManagerInterface.PublicKeyEncryptionAlgorithm,
+    ): ByteArray
 
     /**
      * Decrypt the [data] with the symmetric key [key]
@@ -107,7 +136,10 @@ internal interface DeviceKeyManager {
      * @throws [DeviceKeyManager.DeviceKeyManagerException.DecryptionException] if the data cannot be decrypted
      */
     @Throws(DeviceKeyManagerException::class)
-    fun decryptWithSymmetricKey(key: ByteArray, data: ByteArray): ByteArray
+    fun decryptWithSymmetricKey(
+        key: ByteArray,
+        data: ByteArray,
+    ): ByteArray
 
     /**
      * Decrypt the [data] with the symmetric key [keyId].
@@ -118,7 +150,10 @@ internal interface DeviceKeyManager {
      * @throws [DeviceKeyManager.DeviceKeyManagerException.DecryptionException] if the data cannot be decrypted.
      */
     @Throws(DeviceKeyManagerException::class)
-    fun decryptWithSymmetricKeyId(keyId: String, data: ByteArray): ByteArray
+    fun decryptWithSymmetricKeyId(
+        keyId: String,
+        data: ByteArray,
+    ): ByteArray
 
     /**
      * Encrypt the [data] with the symmetric key [keyId].
@@ -129,7 +164,10 @@ internal interface DeviceKeyManager {
      * @throws [DeviceKeyManager.DeviceKeyManagerException.EncryptionException] if the data cannot be encrypted.
      */
     @Throws(DeviceKeyManagerException::class)
-    fun encryptWithSymmetricKeyId(keyId: String, data: ByteArray): ByteArray
+    fun encryptWithSymmetricKeyId(
+        keyId: String,
+        data: ByteArray,
+    ): ByteArray
 
     /**
      * Sign the [data] with the private key [keyId].
@@ -140,7 +178,10 @@ internal interface DeviceKeyManager {
      * @throws [DeviceKeyManager.DeviceKeyManagerException.SigningException] if the data cannot be signed.
      */
     @Throws(DeviceKeyManagerException::class)
-    fun signWithPrivateKeyId(keyId: String, data: ByteArray): ByteArray
+    fun signWithPrivateKeyId(
+        keyId: String,
+        data: ByteArray,
+    ): ByteArray
 
     /**
      * Import keys from a key archive.

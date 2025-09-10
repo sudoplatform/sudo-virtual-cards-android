@@ -54,7 +54,6 @@ import java.util.Calendar
  * Base class of tests that register and authenticate
  */
 open class BaseTest {
-
     companion object {
         protected const val TEST_ID = "vc-sim-sdk-test"
         protected const val VERBOSE = false
@@ -80,7 +79,8 @@ open class BaseTest {
     }
 
     private val entitlementsClient by lazy {
-        SudoEntitlementsClient.builder()
+        SudoEntitlementsClient
+            .builder()
             .setContext(context)
             .setSudoUserClient(userClient)
             .build()
@@ -92,7 +92,8 @@ open class BaseTest {
     }
 
     protected val vcClient by lazy {
-        SudoVirtualCardsClient.builder()
+        SudoVirtualCardsClient
+            .builder()
             .setContext(context)
             .setSudoUserClient(userClient)
             .setLogger(logger)
@@ -119,34 +120,42 @@ open class BaseTest {
         Timber.plant(Timber.DebugTree())
 
         if (VERBOSE) {
-            java.util.logging.Logger.getLogger("com.amazonaws").level = java.util.logging.Level.FINEST
-            java.util.logging.Logger.getLogger("org.apache.http").level = java.util.logging.Level.FINEST
+            java.util.logging.Logger
+                .getLogger("com.amazonaws")
+                .level = java.util.logging.Level.FINEST
+            java.util.logging.Logger
+                .getLogger("org.apache.http")
+                .level = java.util.logging.Level.FINEST
         }
         apiKey = readArgument("ADMIN_API_KEY", "api.key")
 
-        simulatorClient = SudoVirtualCardsSimulatorClient.builder()
-            .setContext(context)
-            .setApiKey(apiKey)
-            .setLogger(logger)
-            .build()
+        simulatorClient =
+            SudoVirtualCardsSimulatorClient
+                .builder()
+                .setContext(context)
+                .setApiKey(apiKey)
+                .setLogger(logger)
+                .build()
     }
 
-    protected fun fini() = runBlocking {
-        if (clientConfigPresent()) {
-            if (userClient.isRegistered()) {
-                deregister()
+    protected fun fini() =
+        runBlocking {
+            if (clientConfigPresent()) {
+                if (userClient.isRegistered()) {
+                    deregister()
+                }
+                userClient.reset()
+                sudoClient.reset()
             }
-            userClient.reset()
-            sudoClient.reset()
+
+            Timber.uprootAll()
         }
 
-        Timber.uprootAll()
-    }
-
     protected fun clientConfigPresent(): Boolean {
-        val configFiles = context.assets.list("")?.filter { fileName ->
-            fileName == "sudoplatformconfig.json"
-        } ?: emptyList()
+        val configFiles =
+            context.assets.list("")?.filter { fileName ->
+                fileName == "sudoplatformconfig.json"
+            } ?: emptyList()
         Timber.d("config files present ${configFiles.size}")
         // these will throw if a variable cannot be read
         readArgument("ADMIN_API_KEY", "api.key")
@@ -183,23 +192,27 @@ open class BaseTest {
         val privateKey = readArgument("REGISTER_KEY", "register_key.private")
         val keyId = readArgument("REGISTER_KEY_ID", "register_key.id")
 
-        val authProvider = TESTAuthenticationProvider(
-            name = "vc-sim-client-test",
-            privateKey = privateKey,
-            publicKey = null,
-            keyManager = keyManager,
-            keyId = keyId,
-        )
+        val authProvider =
+            TESTAuthenticationProvider(
+                name = "vc-sim-client-test",
+                privateKey = privateKey,
+                publicKey = null,
+                keyManager = keyManager,
+                keyId = keyId,
+            )
 
         userClient.registerWithAuthenticationProvider(authProvider, "vc-sim-client-test")
     }
 
-    private fun readTextFile(fileName: String): String {
-        return context.assets.open(fileName).bufferedReader().use {
+    private fun readTextFile(fileName: String): String =
+        context.assets.open(fileName).bufferedReader().use {
             it.readText().trim()
         }
-    }
-    private fun readArgument(argumentName: String, fallbackFileName: String?): String {
+
+    private fun readArgument(
+        argumentName: String,
+        fallbackFileName: String?,
+    ): String {
         println(InstrumentationRegistry.getArguments()).toString()
         val argumentValue = InstrumentationRegistry.getArguments().getString(argumentName)?.trim()
         if (argumentValue != null) {
@@ -227,14 +240,15 @@ open class BaseTest {
         userClient.isSignedIn() shouldBe true
 
         val externalId = entitlementsClient.getExternalId()
-        val entitlements = mutableListOf(
-            Entitlement("sudoplatform.sudo.max", "test", 3),
-            Entitlement("sudoplatform.identity-verification.verifyIdentityUserEntitled", "test", 1),
-            Entitlement("sudoplatform.virtual-cards.serviceUserEntitled", "test", 1),
-            Entitlement("sudoplatform.virtual-cards.virtualCardMaxPerSudo", "test", 5),
-            Entitlement("sudoplatform.virtual-cards.virtualCardProvisionUserEntitled", "test", 1),
-            Entitlement("sudoplatform.virtual-cards.virtualCardTransactUserEntitled", "test", 1),
-        )
+        val entitlements =
+            mutableListOf(
+                Entitlement("sudoplatform.sudo.max", "test", 3),
+                Entitlement("sudoplatform.identity-verification.verifyIdentityUserEntitled", "test", 1),
+                Entitlement("sudoplatform.virtual-cards.serviceUserEntitled", "test", 1),
+                Entitlement("sudoplatform.virtual-cards.virtualCardMaxPerSudo", "test", 5),
+                Entitlement("sudoplatform.virtual-cards.virtualCardProvisionUserEntitled", "test", 1),
+                Entitlement("sudoplatform.virtual-cards.virtualCardTransactUserEntitled", "test", 1),
+            )
 
         entitlementsAdminClient.applyEntitlementsToUser(externalId, entitlements)
         entitlementsClient.redeemEntitlements()
@@ -245,57 +259,62 @@ open class BaseTest {
     }
 
     protected suspend fun verifyTestUserIdentity() {
-        val countryCodeAlpha3 = LocaleUtil.toCountryCodeAlpha3(context, AndroidTestData.VerifiedUser.country)
-            ?: throw IllegalArgumentException("Unable to convert country code to ISO 3166 Alpha-3")
+        val countryCodeAlpha3 =
+            LocaleUtil.toCountryCodeAlpha3(context, AndroidTestData.VerifiedUser.country)
+                ?: throw IllegalArgumentException("Unable to convert country code to ISO 3166 Alpha-3")
 
-        val verifyIdentityInput = VerifyIdentityInput(
-            AndroidTestData.VerifiedUser.firstName,
-            AndroidTestData.VerifiedUser.lastName,
-            AndroidTestData.VerifiedUser.addressLine1,
-            AndroidTestData.VerifiedUser.city,
-            AndroidTestData.VerifiedUser.state,
-            AndroidTestData.VerifiedUser.postalCode,
-            countryCodeAlpha3,
-            AndroidTestData.VerifiedUser.dateOfBirth,
-        )
+        val verifyIdentityInput =
+            VerifyIdentityInput(
+                AndroidTestData.VerifiedUser.firstName,
+                AndroidTestData.VerifiedUser.lastName,
+                AndroidTestData.VerifiedUser.addressLine1,
+                AndroidTestData.VerifiedUser.city,
+                AndroidTestData.VerifiedUser.state,
+                AndroidTestData.VerifiedUser.postalCode,
+                countryCodeAlpha3,
+                AndroidTestData.VerifiedUser.dateOfBirth,
+            )
         idvClient.verifyIdentity(verifyIdentityInput)
     }
 
-    protected suspend fun createSudo(sudoInput: Sudo): Sudo {
-        return sudoClient.createSudo(sudoInput)
-    }
+    protected suspend fun createSudo(sudoInput: Sudo): Sudo = sudoClient.createSudo(sudoInput)
 
-    protected suspend fun getOwnershipProof(sudo: Sudo): String {
-        return sudoClient.getOwnershipProof(sudo, "sudoplatform.virtual-cards.virtual-card")
-    }
+    protected suspend fun getOwnershipProof(sudo: Sudo): String =
+        sudoClient.getOwnershipProof(sudo, "sudoplatform.virtual-cards.virtual-card")
 
-    protected suspend fun createFundingSource(client: SudoVirtualCardsClient, input: CreditCardFundingSourceInput): FundingSource {
+    protected suspend fun createFundingSource(
+        client: SudoVirtualCardsClient,
+        input: CreditCardFundingSourceInput,
+    ): FundingSource {
         // Retrieve the funding source client configuration
         val configuration = client.getVirtualCardsConfig()!!.fundingSourceClientConfiguration
 
         // Perform the funding source setup operation
-        val setupInput = SetupFundingSourceInput(
-            "USD",
-            FundingSourceType.CREDIT_CARD,
-            ClientApplicationData("system-test-app"),
-            listOf("stripe"),
-        )
+        val setupInput =
+            SetupFundingSourceInput(
+                "USD",
+                FundingSourceType.CREDIT_CARD,
+                ClientApplicationData("system-test-app"),
+                listOf("stripe"),
+            )
         val provisionalFundingSource = client.setupFundingSource(setupInput)
 
         // Process stripe data
         val stripeClient = Stripe(context, configuration.first().apiKey)
         val stripeIntentWorker = StripeIntentWorker(context, stripeClient)
-        val completionData = stripeIntentWorker.confirmSetupIntent(
-            input,
-            (provisionalFundingSource.provisioningData as StripeCardProvisioningData).clientSecret,
-        )
+        val completionData =
+            stripeIntentWorker.confirmSetupIntent(
+                input,
+                (provisionalFundingSource.provisioningData as StripeCardProvisioningData).clientSecret,
+            )
 
         // Perform the funding source completion operation
-        val completeInput = CompleteFundingSourceInput(
-            provisionalFundingSource.id,
-            completionData,
-            null,
-        )
+        val completeInput =
+            CompleteFundingSourceInput(
+                provisionalFundingSource.id,
+                completionData,
+                null,
+            )
         return client.completeFundingSource(completeInput)
     }
 
@@ -343,18 +362,19 @@ open class BaseTest {
         val fundingSource: FundingSource
         if (inputFundingSource == null) {
             // Create a funding source
-            val fundingSourceInput = CreditCardFundingSourceInput(
-                AndroidTestData.Visa.cardNumber,
-                expirationMonth,
-                expirationYear,
-                AndroidTestData.Visa.securityCode,
-                AndroidTestData.VerifiedUser.addressLine1,
-                AndroidTestData.VerifiedUser.addressLine2,
-                AndroidTestData.VerifiedUser.city,
-                AndroidTestData.VerifiedUser.state,
-                AndroidTestData.VerifiedUser.postalCode,
-                AndroidTestData.VerifiedUser.country,
-            )
+            val fundingSourceInput =
+                CreditCardFundingSourceInput(
+                    AndroidTestData.Visa.cardNumber,
+                    expirationMonth,
+                    expirationYear,
+                    AndroidTestData.Visa.securityCode,
+                    AndroidTestData.VerifiedUser.addressLine1,
+                    AndroidTestData.VerifiedUser.addressLine2,
+                    AndroidTestData.VerifiedUser.city,
+                    AndroidTestData.VerifiedUser.state,
+                    AndroidTestData.VerifiedUser.postalCode,
+                    AndroidTestData.VerifiedUser.country,
+                )
             fundingSource = createFundingSource(vcClient, fundingSourceInput)
         } else {
             fundingSource = inputFundingSource
@@ -366,18 +386,19 @@ open class BaseTest {
         // Create a virtual card
         val ownershipProof = getOwnershipProof(sudo)
         vcClient.createKeysIfAbsent()
-        val cardInput = ProvisionVirtualCardInput(
-            ownershipProofs = listOf(ownershipProof),
-            fundingSourceId = fundingSource.id,
-            cardHolder = AndroidTestData.VirtualUser.cardHolder,
-            metadata = JsonValue.JsonString(AndroidTestData.VirtualUser.alias),
-            addressLine1 = AndroidTestData.VirtualUser.addressLine1,
-            city = AndroidTestData.VirtualUser.city,
-            state = AndroidTestData.VirtualUser.state,
-            postalCode = AndroidTestData.VirtualUser.postalCode,
-            country = AndroidTestData.VirtualUser.country,
-            currency = "USD",
-        )
+        val cardInput =
+            ProvisionVirtualCardInput(
+                ownershipProofs = listOf(ownershipProof),
+                fundingSourceId = fundingSource.id,
+                cardHolder = AndroidTestData.VirtualUser.cardHolder,
+                metadata = JsonValue.JsonString(AndroidTestData.VirtualUser.alias),
+                addressLine1 = AndroidTestData.VirtualUser.addressLine1,
+                city = AndroidTestData.VirtualUser.city,
+                state = AndroidTestData.VirtualUser.state,
+                postalCode = AndroidTestData.VirtualUser.postalCode,
+                country = AndroidTestData.VirtualUser.country,
+                currency = "USD",
+            )
         return createCard(cardInput)
     }
 }

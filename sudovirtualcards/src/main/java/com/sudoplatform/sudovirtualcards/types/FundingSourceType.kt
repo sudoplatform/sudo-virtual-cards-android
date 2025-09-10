@@ -17,8 +17,8 @@ enum class FundingSourceType {
     BANK_ACCOUNT,
     ;
 
-    fun toFundingSourceTypeInput(fundingSourceType: FundingSourceType): FundingSourceTypeInput {
-        return when (fundingSourceType) {
+    fun toFundingSourceTypeInput(fundingSourceType: FundingSourceType): FundingSourceTypeInput =
+        when (fundingSourceType) {
             CREDIT_CARD -> {
                 FundingSourceTypeInput.CREDIT_CARD
             }
@@ -26,5 +26,4 @@ enum class FundingSourceType {
                 FundingSourceTypeInput.BANK_ACCOUNT
             }
         }
-    }
 }

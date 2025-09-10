@@ -23,7 +23,6 @@ import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import kotlinx.coroutines.runBlocking
-import org.awaitility.Duration
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.has
 import org.awaitility.kotlin.untilCallTo
@@ -33,18 +32,20 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.Duration
 
 @RunWith(AndroidJUnit4::class)
 class SubscribeToTransactionsIntegrationTest : BaseIntegrationTest() {
-
     // MARK: - Supplementary
 
     class TransactionSubscriberMock : TransactionSubscriber {
-
         var transactionChangedCallCount = 0
         var transactionChangedParameterList: MutableList<Pair<Transaction, ChangeType>> = mutableListOf()
 
-        override fun transactionChanged(transaction: Transaction, changeType: ChangeType) {
+        override fun transactionChanged(
+            transaction: Transaction,
+            changeType: ChangeType,
+        ) {
             transactionChangedCallCount += 1
             transactionChangedParameterList.add(Pair(transaction, changeType))
         }
@@ -60,71 +61,78 @@ class SubscribeToTransactionsIntegrationTest : BaseIntegrationTest() {
     fun init() {
         KeyManagerFactory(context).createAndroidKeyManager().removeAllKeys()
         sudoClient.generateEncryptionKey()
-        vcClient = SudoVirtualCardsClient.builder()
-            .setContext(context)
-            .setSudoUserClient(userClient)
-            .build()
+        vcClient =
+            SudoVirtualCardsClient
+                .builder()
+                .setContext(context)
+                .setSudoUserClient(userClient)
+                .build()
     }
 
     @After
-    fun fini(): Unit = runBlocking {
-        if (userClient.isRegistered()) {
-            deregister()
+    fun fini(): Unit =
+        runBlocking {
+            if (userClient.isRegistered()) {
+                deregister()
+            }
+            vcClient.reset()
+            sudoClient.reset()
+            userClient.reset()
+            sudoClient.generateEncryptionKey()
         }
-        vcClient.reset()
-        sudoClient.reset()
-        userClient.reset()
-        sudoClient.generateEncryptionKey()
-    }
 
     // MARK: - Tests
 
     @Test
-    fun subscribeToTransactions_withAuthorizationTransaction_willNotifySubscriberWithUpsertChangeType(): Unit = runBlocking {
-        // given
-        val card = setupVirtualCard()
-        val mockTransactionSubscriber = TransactionSubscriberMock()
-        vcClient.subscribeToTransactions("test-id", mockTransactionSubscriber)
+    fun subscribeToTransactions_withAuthorizationTransaction_willNotifySubscriberWithUpsertChangeType(): Unit =
+        runBlocking {
+            // given
+            val card = setupVirtualCard()
+            val mockTransactionSubscriber = TransactionSubscriberMock()
+            vcClient.subscribeToTransactions("test-id", mockTransactionSubscriber)
 
-        // when
-        val authorizationResponse = simulateAuthorization(card, 1000)
-        await.atMost(Duration.TEN_SECONDS) withPollInterval Duration.TWO_HUNDRED_MILLISECONDS untilCallTo {
-            mockTransactionSubscriber.transactionChangedCallCount
-        } has { this == 1 }
+            // when
+            val authorizationResponse = simulateAuthorization(card, 1000)
+            await.atMost(Duration.ofSeconds(10)) withPollInterval Duration.ofMillis(200) untilCallTo {
+                mockTransactionSubscriber.transactionChangedCallCount
+            } has { this == 1 }
 
-        simulateDebit(authorizationResponse.id, 400)
-        await.atMost(Duration.TEN_SECONDS) withPollInterval Duration.TWO_HUNDRED_MILLISECONDS untilCallTo {
-            mockTransactionSubscriber.transactionChangedCallCount
-        } has { this == 3 }
+            simulateDebit(authorizationResponse.id, 400)
+            await.atMost(Duration.ofSeconds(10)) withPollInterval Duration.ofMillis(200) untilCallTo {
+                mockTransactionSubscriber.transactionChangedCallCount
+            } has { this == 3 }
 
-        simulateDebit(authorizationResponse.id, 600)
-        await.atMost(Duration.TEN_SECONDS) withPollInterval Duration.TWO_HUNDRED_MILLISECONDS untilCallTo {
-            mockTransactionSubscriber.transactionChangedCallCount
-        } has { this == 5 }
+            simulateDebit(authorizationResponse.id, 600)
+            await.atMost(Duration.ofSeconds(10)) withPollInterval Duration.ofMillis(200) untilCallTo {
+                mockTransactionSubscriber.transactionChangedCallCount
+            } has { this == 5 }
 
-        // then
-        mockTransactionSubscriber.transactionChangedParameterList.map { it.first.type } shouldBe listOf(
-            TransactionType.PENDING, // Pending transaction of $10 created
-            TransactionType.PENDING, // Pending transaction updated to $6 after first debit of $4
-            TransactionType.COMPLETE, // First debit transaction of $4 created
-            TransactionType.PENDING, // Pending transaction deleted after second debit of $6
-            TransactionType.COMPLETE, // Second debit transaction of $6 created
-        )
-        mockTransactionSubscriber.transactionChangedParameterList.map { it.first.transactedAmount } shouldBe listOf(
-            CurrencyAmount("USD", 1000),
-            CurrencyAmount("USD", 600),
-            CurrencyAmount("USD", 400),
-            CurrencyAmount("USD", 600),
-            CurrencyAmount("USD", 600),
-        )
-        mockTransactionSubscriber.transactionChangedParameterList.map { it.second } shouldBe listOf(
-            ChangeType.UPSERTED,
-            ChangeType.UPSERTED,
-            ChangeType.UPSERTED,
-            ChangeType.DELETED,
-            ChangeType.UPSERTED,
-        )
-    }
+            // then
+            mockTransactionSubscriber.transactionChangedParameterList.map { it.first.type } shouldBe
+                listOf(
+                    TransactionType.PENDING, // Pending transaction of $10 created
+                    TransactionType.PENDING, // Pending transaction updated to $6 after first debit of $4
+                    TransactionType.COMPLETE, // First debit transaction of $4 created
+                    TransactionType.PENDING, // Pending transaction deleted after second debit of $6
+                    TransactionType.COMPLETE, // Second debit transaction of $6 created
+                )
+            mockTransactionSubscriber.transactionChangedParameterList.map { it.first.transactedAmount } shouldBe
+                listOf(
+                    CurrencyAmount("USD", 1000),
+                    CurrencyAmount("USD", 600),
+                    CurrencyAmount("USD", 400),
+                    CurrencyAmount("USD", 600),
+                    CurrencyAmount("USD", 600),
+                )
+            mockTransactionSubscriber.transactionChangedParameterList.map { it.second } shouldBe
+                listOf(
+                    ChangeType.UPSERTED,
+                    ChangeType.UPSERTED,
+                    ChangeType.UPSERTED,
+                    ChangeType.DELETED,
+                    ChangeType.UPSERTED,
+                )
+        }
 
     // MARK: - Helpers
 
@@ -154,16 +162,20 @@ class SubscribeToTransactionsIntegrationTest : BaseIntegrationTest() {
         return card
     }
 
-    private suspend fun simulateAuthorization(card: VirtualCard, amount: Int): SimulateAuthorizationResponse {
+    private suspend fun simulateAuthorization(
+        card: VirtualCard,
+        amount: Int,
+    ): SimulateAuthorizationResponse {
         val merchant = vcSimulatorClient.getSimulatorMerchants().first()
-        val authInput = SimulateAuthorizationInput(
-            cardNumber = card.cardNumber,
-            amount = amount,
-            merchantId = merchant.id,
-            securityCode = card.securityCode,
-            expirationMonth = card.expiry.mm.toInt(),
-            expirationYear = card.expiry.yyyy.toInt(),
-        )
+        val authInput =
+            SimulateAuthorizationInput(
+                cardNumber = card.cardNumber,
+                amount = amount,
+                merchantId = merchant.id,
+                securityCode = card.securityCode,
+                expirationMonth = card.expiry.mm.toInt(),
+                expirationYear = card.expiry.yyyy.toInt(),
+            )
         val authResponse = vcSimulatorClient.simulateAuthorization(authInput)
         with(authResponse) {
             isApproved shouldBe true
@@ -176,7 +188,10 @@ class SubscribeToTransactionsIntegrationTest : BaseIntegrationTest() {
         return authResponse
     }
 
-    private suspend fun simulateDebit(authorizationId: String, amount: Int): SimulateDebitResponse {
+    private suspend fun simulateDebit(
+        authorizationId: String,
+        amount: Int,
+    ): SimulateDebitResponse {
         val debitInput = SimulateDebitInput(authorizationId, amount)
         return vcSimulatorClient.simulateDebit(debitInput)
     }

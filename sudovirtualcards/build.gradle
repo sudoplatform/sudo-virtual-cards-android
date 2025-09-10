@@ -5,15 +5,15 @@ apply plugin: "org.owasp.dependencycheck"
 apply plugin: "org.jetbrains.kotlin.plugin.serialization"
 
 android {
-    compileSdk 34
+    compileSdkVersion 35
 
     namespace "com.sudoplatform.sudovirtualcards"
 
     defaultConfig {
         minSdkVersion 26
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode = 1
-        versionName = "16.0.0"
+        versionName = "17.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testApplicationId = "com.sudoplatform.sudovirtualcards.test"
         consumerProguardFiles 'consumer-rules.pro'
@@ -31,6 +31,7 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+        coreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
@@ -67,7 +68,7 @@ android {
 }
 
 ext {
-    coroutine_version = '1.8.1'
+    coroutine_version = '1.10.2'
     kotlintest_version = "3.4.2"
 }
 
@@ -84,61 +85,63 @@ dependencies {
     // for updating AWS SDK versions.
     implementation "com.amazonaws:aws-android-sdk-core:$aws_version!!"
     constraints {
-        implementation("com.google.android.gms:play-services-basement:18.1.0") {
+        implementation("com.google.android.gms:play-services-basement:18.7.1") {
             because("Versions < 18.1.0 have CVE-2022-1799")
+        }
+        implementation("org.hamcrest:hamcrest-core:2.1") {
+            because ("Multiple different versions are being pulled in")
         }
     }
 
-    implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
+    implementation 'com.nimbusds:nimbus-jose-jwt:10.5'
 
     // Sudo Platform
-    implementation "com.sudoplatform:sudokeymanager:8.0.0"
-    implementation "com.sudoplatform:sudologging:5.0.0"
-    implementation "com.sudoplatform:sudoconfigmanager:8.0.0"
-    implementation "com.sudoplatform:sudouser:20.0.0"
-    implementation "com.sudoplatform:sudoapiclient:11.1.1"
-    implementation 'com.sudoplatform:sudonotification:4.0.1'
+    implementation "com.sudoplatform:sudokeymanager:9.0.0"
+    implementation "com.sudoplatform:sudologging:6.0.0"
+    implementation "com.sudoplatform:sudoconfigmanager:9.0.0"
+    implementation "com.sudoplatform:sudouser:21.0.0"
+    implementation "com.sudoplatform:sudoapiclient:12.0.0"
+    implementation 'com.sudoplatform:sudonotification:5.0.1'
+
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.5"
 
     // Testing
     testImplementation "junit:junit:4.13.2"
     testImplementation "io.kotlintest:kotlintest-assertions:$kotlintest_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutine_version"
-    testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    testImplementation "org.mockito.kotlin:mockito-kotlin:5.3.1"
+    testImplementation "org.jetbrains.kotlin:kotlin-reflect:2.1.20"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:6.0.0"
     testImplementation 'org.mockito:mockito-inline:5.2.0'
-    testImplementation "androidx.test:core:1.6.1"
-    testImplementation 'org.robolectric:robolectric:4.12.2'
+    testImplementation "androidx.test:core:1.7.0"
+    testImplementation 'org.robolectric:robolectric:4.16'
     testImplementation "com.jakewharton.timber:timber:5.0.1"
-    testImplementation "commons-codec:commons-codec:1.17.0"
-    testImplementation 'org.bouncycastle:bcpkix-jdk15to18:1.76'
-    testImplementation "org.json:json:20240303"
+    testImplementation "commons-codec:commons-codec:1.19.0"
+    testImplementation 'org.bouncycastle:bcpkix-jdk15to18:1.81'
+    testImplementation "org.json:json:20250517"
 
     // Stripe
-    androidTestImplementation 'com.stripe:stripe-android:20.48.1'
+    androidTestImplementation 'com.stripe:stripe-android:21.24.3'
 
     // Checkout.com
     androidTestImplementation 'com.github.checkout:frames-android:3.1.2'
 
-    // Checkout dependency only works with 1.3.0 or 1.4.0 so we peg
-    // it to 1.4.0 so other test related dependencies do not automatically
-    // upgrade it to a later version that breaks the build.
     androidTestImplementation("com.google.android.material:material") {
         version {
             strictly("1.4.0")
         }
     }
 
-    androidTestImplementation "androidx.test.ext:junit:1.2.1"
-    androidTestImplementation "androidx.test:runner:1.6.2"
-    androidTestImplementation "androidx.test:core:1.6.1"
+    androidTestImplementation "androidx.test.ext:junit:1.3.0"
+    androidTestImplementation "androidx.test:runner:1.7.0"
+    androidTestImplementation "androidx.test:core:1.7.0"
     androidTestImplementation "io.kotlintest:kotlintest-assertions:$kotlintest_version"
     androidTestImplementation "com.jakewharton.timber:timber:5.0.1"
-    androidTestImplementation 'org.awaitility:awaitility-kotlin:3.1.6'
-    androidTestImplementation 'com.sudoplatform:sudoidentityverification:16.0.0'
-    androidTestImplementation 'com.sudoplatform:sudoentitlements:12.0.2'
-    androidTestImplementation 'com.sudoplatform:sudoentitlementsadmin:10.1.0'
-    androidTestImplementation 'com.sudoplatform:sudovirtualcardssimulator:10.0.1'
-    androidTestImplementation "com.sudoplatform:sudoprofiles:16.0.0"
+    androidTestImplementation 'org.awaitility:awaitility-kotlin:4.3.0'
+    androidTestImplementation 'com.sudoplatform:sudoidentityverification:19.0.0'
+    androidTestImplementation 'com.sudoplatform:sudoentitlements:13.0.0'
+    androidTestImplementation 'com.sudoplatform:sudoentitlementsadmin:11.0.0'
+    androidTestImplementation 'com.sudoplatform:sudovirtualcardssimulator:11.0.0'
+    androidTestImplementation "com.sudoplatform:sudoprofiles:17.0.0"
 }
 
 // Returns a list of `configurations` which should not be scanned for vulnerabilities
@@ -168,11 +171,8 @@ afterEvaluate {
         failBuildOnCVSS 0
         skipConfigurations = getConfigurationsToSkip(configurations)
 
-        cve {
-            urlModified = "https://anonyome-nist-cve-mirror.s3.amazonaws.com/nvdcve-1.1-modified.json.gz"
-            urlBase = "https://anonyome-nist-cve-mirror.s3.amazonaws.com/nvdcve-1.1-%d.json.gz"
-            startYear = 2002
-            waitTime = 0
+        nvd {
+            datafeedUrl = "https://anonyome-nist-cve-mirror.s3.amazonaws.com/"
         }
 
         analyzers {
@@ -183,9 +183,6 @@ afterEvaluate {
                 warnOnlyOnRemoteErrors = true
             }
         }
-    }
-    tasks.named("sourceReleaseJar") {
-        dependsOn("generateServiceApolloSources")
     }
 }
 
@@ -214,7 +211,7 @@ tasks.register("checkLicenseHaveRequiredFields") {
                     errors.append("License entry '${artifact.artifact}' is missing required element `$field`\n")
                 }
             }
-            if (artifact["license"] == null && artifact["licenseUrl" == null]) {
+            if (artifact["license"] == null && artifact["licenseUrl"] == null) {
                 errors.append("License entry '${artifact.artifact}' must have one of [license,licenseUrl]\n")
             }
         }
@@ -229,20 +226,19 @@ checkLicenses.finalizedBy checkLicenseHaveRequiredFields
 apply plugin: 'org.jmailen.kotlinter'
 
 kotlinter {
-    ignoreFailures = false
     reporters = ['checkstyle', 'plain']
 }
 // Exclude the apollographql-generated classes from linting
-tasks.formatKotlinMain {
+tasks.withType(org.jmailen.gradle.kotlinter.tasks.FormatTask) {
     exclude { it.file.path.contains("generated/")}
 }
 
-tasks.lintKotlinMain {
+tasks.withType(org.jmailen.gradle.kotlinter.tasks.LintTask) {
     exclude { it.file.path.contains("generated/")}
 }
 
 // Apollo Code Generation
-apply plugin: "com.apollographql.apollo3"
+apply plugin: "com.apollographql.apollo"
 apollo {
     service("service") {
         packageName.set("com.sudoplatform.sudovirtualcards.graphql")
@@ -269,6 +265,10 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "testDebugUnitTest") {
     )
     sourceDirectories.setFrom(files("${buildDir.parent}/sudovirtualcards/src/main/java"))
     executionData.setFrom(fileTree(["dir":"$buildDir", "includes":["**/*.exec", "**/*.ec"]]))
+
+    reports {
+        xml.required = true
+    }
 }
 
 // Dokka documentation generation

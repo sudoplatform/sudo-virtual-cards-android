@@ -12,14 +12,12 @@ import com.sudoplatform.sudovirtualcards.types.Transaction
  * Subscriber for receiving notifications about new, updated or deleted [Transaction]s.
  */
 interface TransactionSubscriber : Subscriber {
-
     /**
      * Represents the type of change that occurred to a [Transaction].
      *
      * Used to indicate whether a transaction was added/updated or deleted.
      */
     enum class ChangeType {
-
         /**
          * Indicates that a [Transaction] was added or updated.
          */
@@ -36,7 +34,6 @@ interface TransactionSubscriber : Subscriber {
      */
     @Deprecated("Prefer Subscriber.ConnectionState")
     enum class ConnectionState {
-
         /**
          * Connected and receiving updates.
          */
@@ -55,10 +52,11 @@ interface TransactionSubscriber : Subscriber {
      * See [Subscriber.connectionStatusChanged]
      */
     override fun connectionStatusChanged(state: Subscriber.ConnectionState) {
-        val localState = when (state) {
-            Subscriber.ConnectionState.CONNECTED -> ConnectionState.CONNECTED
-            Subscriber.ConnectionState.DISCONNECTED -> ConnectionState.DISCONNECTED
-        }
+        val localState =
+            when (state) {
+                Subscriber.ConnectionState.CONNECTED -> ConnectionState.CONNECTED
+                Subscriber.ConnectionState.DISCONNECTED -> ConnectionState.DISCONNECTED
+            }
         return this.connectionStatusChanged(localState)
     }
 
@@ -84,7 +82,10 @@ interface TransactionSubscriber : Subscriber {
      * @param transaction The [Transaction] that was changed.
      * @param changeType The type of change that occurred, represented by [ChangeType].
      */
-    fun transactionChanged(transaction: Transaction, changeType: ChangeType) {
+    fun transactionChanged(
+        transaction: Transaction,
+        changeType: ChangeType,
+    ) {
         transactionChanged(transaction)
     }
 }

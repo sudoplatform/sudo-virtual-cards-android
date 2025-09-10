@@ -23,7 +23,6 @@ import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTyp
  * types to the entity type that is exposed to users.
  */
 internal object TransactionTransformer {
-
     /**
      * Transform the results of the [SealedTransaction] GraphQL type to its entity type.
      *
@@ -40,8 +39,8 @@ internal object TransactionTransformer {
         return transaction.toTransaction(unsealer)
     }
 
-    private fun SealedTransaction.toTransaction(unsealer: Unsealer): Transaction {
-        return Transaction(
+    private fun SealedTransaction.toTransaction(unsealer: Unsealer): Transaction =
+        Transaction(
             id = id,
             owner = owner,
             version = version,
@@ -58,7 +57,6 @@ internal object TransactionTransformer {
             createdAt = createdAtEpochMs.toDate(),
             updatedAt = updatedAtEpochMs.toDate(),
         )
-    }
 
     /**
      * Transform the [SealedTransaction] GraphQL type into a [PartialTransaction].
@@ -66,8 +64,8 @@ internal object TransactionTransformer {
      * @param transaction [SealedTransaction] The GraphQL type.
      * @return The [PartialTransaction] entity type.
      */
-    fun toPartialEntity(transaction: SealedTransaction): PartialTransaction {
-        return PartialTransaction(
+    fun toPartialEntity(transaction: SealedTransaction): PartialTransaction =
+        PartialTransaction(
             id = transaction.id,
             owner = transaction.owner,
             version = transaction.version,
@@ -77,7 +75,6 @@ internal object TransactionTransformer {
             createdAt = transaction.createdAtEpochMs.toDate(),
             updatedAt = transaction.updatedAtEpochMs.toDate(),
         )
-    }
 
     private fun TransactionType.toTransactionType(): TransactionTypeEntity {
         for (txnType in TransactionTypeEntity.entries) {
@@ -91,31 +88,42 @@ internal object TransactionTransformer {
     private fun toEntityFromTransactionDetail(
         unsealer: Unsealer,
         results: List<SealedTransaction.Detail>?,
-    ): List<TransactionDetailCharge> {
-        return results?.map { it.toTransactionDetailCharge(unsealer) }
+    ): List<TransactionDetailCharge> =
+        results
+            ?.map { it.toTransactionDetailCharge(unsealer) }
             ?.toList()
             ?: emptyList()
-    }
 
     private fun SealedTransaction.Detail.toTransactionDetailCharge(unsealer: Unsealer): TransactionDetailCharge {
         val sealedDetail = sealedTransactionDetailChargeAttribute
         val sealedMarkup = sealedTransactionDetailChargeAttribute.markup.sealedMarkupAttribute
         return TransactionDetailCharge(
-            virtualCardAmount = unsealer.unsealAmount(
-                sealedDetail.virtualCardAmount.sealedCurrencyAmountAttribute,
-            ),
-            markup = Markup(
-                percent = unsealer.unseal(sealedMarkup.percent).toInt(),
-                flat = unsealer.unseal(sealedMarkup.flat).toInt(),
-                minCharge = sealedMarkup.minCharge?.let { unsealer.unseal(it).toInt() } ?: 0,
-            ),
-            markupAmount = unsealer.unsealAmount(
-                sealedDetail.markupAmount.sealedCurrencyAmountAttribute,
-            ),
-            fundingSourceAmount = unsealer.unsealAmount(
-                sealedDetail.fundingSourceAmount.sealedCurrencyAmountAttribute,
-            ),
-            transactedAt = sealedDetail.transactedAtEpochMs?.let { unsealer.unseal(sealedDetail.transactedAtEpochMs).toDouble().toDate() },
+            virtualCardAmount =
+                unsealer.unsealAmount(
+                    sealedDetail.virtualCardAmount.sealedCurrencyAmountAttribute,
+                ),
+            markup =
+                Markup(
+                    percent = unsealer.unseal(sealedMarkup.percent).toInt(),
+                    flat = unsealer.unseal(sealedMarkup.flat).toInt(),
+                    minCharge = sealedMarkup.minCharge?.let { unsealer.unseal(it).toInt() } ?: 0,
+                ),
+            markupAmount =
+                unsealer.unsealAmount(
+                    sealedDetail.markupAmount.sealedCurrencyAmountAttribute,
+                ),
+            fundingSourceAmount =
+                unsealer.unsealAmount(
+                    sealedDetail.fundingSourceAmount.sealedCurrencyAmountAttribute,
+                ),
+            transactedAt =
+                sealedDetail.transactedAtEpochMs?.let {
+                    unsealer
+                        .unseal(
+                            sealedDetail.transactedAtEpochMs,
+                        ).toDouble()
+                        .toDate()
+                },
             settledAt = sealedDetail.settledAtEpochMs?.let { unsealer.unseal(sealedDetail.settledAtEpochMs).toDouble().toDate() },
             fundingSourceId = sealedDetail.fundingSourceId,
             description = unsealer.unseal(sealedDetail.description),

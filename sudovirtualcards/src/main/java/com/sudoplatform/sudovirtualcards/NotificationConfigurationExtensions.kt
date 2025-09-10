@@ -17,48 +17,58 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
 // By default, disable all notifications we do not know how to handle
-internal val DEFAULT_FIRST_RULE_STRING = JsonObject(
-    mapOf(
-        Pair(
-            "!=",
-            JsonArray(
-                listOf(
-                    JsonObject(
-                        mapOf(
-                            Pair("var", JsonPrimitive("meta.type")),
+internal val DEFAULT_FIRST_RULE_STRING =
+    JsonObject(
+        mapOf(
+            Pair(
+                "!=",
+                JsonArray(
+                    listOf(
+                        JsonObject(
+                            mapOf(
+                                Pair("var", JsonPrimitive("meta.type")),
+                            ),
                         ),
+                        JsonPrimitive(FundingSourceChangedNotification.TYPE),
                     ),
-                    JsonPrimitive(FundingSourceChangedNotification.TYPE),
                 ),
             ),
         ),
-    ),
-).toString()
+    ).toString()
 
 // Disable notification types other than those we know how to handle
-internal val DEFAULT_FIRST_RULE = NotificationFilterItem(
-    name = Constants.SERVICE_NAME,
-    status = NotificationConfiguration.DISABLE_STR,
-    rules = DEFAULT_FIRST_RULE_STRING,
-)
+internal val DEFAULT_FIRST_RULE =
+    NotificationFilterItem(
+        name = Constants.SERVICE_NAME,
+        status = NotificationConfiguration.DISABLE_STR,
+        rules = DEFAULT_FIRST_RULE_STRING,
+    )
 
 internal const val DEFAULT_LAST_RULE_STRING = NotificationConfiguration.DEFAULT_RULE_STRING
 
 // Enable all otherwise unfiltered out notifications
-internal val DEFAULT_LAST_RULE = NotificationFilterItem(
-    name = Constants.SERVICE_NAME,
-    status = NotificationConfiguration.ENABLE_STR,
-    rules = DEFAULT_LAST_RULE_STRING,
-)
+internal val DEFAULT_LAST_RULE =
+    NotificationFilterItem(
+        name = Constants.SERVICE_NAME,
+        status = NotificationConfiguration.ENABLE_STR,
+        rules = DEFAULT_LAST_RULE_STRING,
+    )
 
-internal fun isRuleMatchingFundingSourceId(rule: String?, fundingSourceId: String): Boolean {
-    return isRuleMatchingSingleMeta(rule, "fundingSourceId", fundingSourceId)
-}
-internal fun isRuleMatchingFundingSourceType(rule: String?, fundingSourceType: FundingSourceType): Boolean {
-    return isRuleMatchingSingleMeta(rule, "fundingSourceType", fundingSourceType.toString())
-}
+internal fun isRuleMatchingFundingSourceId(
+    rule: String?,
+    fundingSourceId: String,
+): Boolean = isRuleMatchingSingleMeta(rule, "fundingSourceId", fundingSourceId)
 
-internal fun isRuleMatchingSingleMeta(rule: String?, metaName: String, metaValue: String): Boolean {
+internal fun isRuleMatchingFundingSourceType(
+    rule: String?,
+    fundingSourceType: FundingSourceType,
+): Boolean = isRuleMatchingSingleMeta(rule, "fundingSourceType", fundingSourceType.toString())
+
+internal fun isRuleMatchingSingleMeta(
+    rule: String?,
+    metaName: String,
+    metaValue: String,
+): Boolean {
     if (rule == null) {
         return false
     }
@@ -75,10 +85,8 @@ internal fun isRuleMatchingSingleMeta(rule: String?, metaName: String, metaValue
             if (v is JsonPrimitive && v.isString && v.content == "meta.$metaName" && rhs.content == metaValue) {
                 return true
             }
-        }
-
-        // "fundingSourceId == var meta.fundingSourceId
-        else if (rhs is JsonObject && lhs is JsonPrimitive && lhs.isString) {
+        } else if (rhs is JsonObject && lhs is JsonPrimitive && lhs.isString) {
+            // "fundingSourceId == var meta.fundingSourceId
             val v = rhs["var"]
             if (v is JsonPrimitive && v.isString && v.content == "meta.$metaName" && lhs.content == metaValue) {
                 return true
@@ -96,16 +104,18 @@ internal fun isRuleMatchingSingleMeta(rule: String?, metaName: String, metaValue
  * @return New NotificationConfiguration with updated rules
  */
 fun NotificationConfiguration.initVirtualCardsNotifications(): NotificationConfiguration {
-    val newConfigs = this.configs
-        .filter { it.name != Constants.SERVICE_NAME }
-        .toMutableList()
+    val newConfigs =
+        this.configs
+            .filter { it.name != Constants.SERVICE_NAME }
+            .toMutableList()
 
-    val vcServiceConfigs = this.configs
-        .filter { it.name == Constants.SERVICE_NAME }
-        // Filter out any current or historic default rules.
-        // We'll add current default rules back in
-        .filter { it.rules != DEFAULT_FIRST_RULE_STRING && it.rules != DEFAULT_LAST_RULE_STRING }
-        .toMutableList()
+    val vcServiceConfigs =
+        this.configs
+            .filter { it.name == Constants.SERVICE_NAME }
+            // Filter out any current or historic default rules.
+            // We'll add current default rules back in
+            .filter { it.rules != DEFAULT_FIRST_RULE_STRING && it.rules != DEFAULT_LAST_RULE_STRING }
+            .toMutableList()
 
     newConfigs.add(DEFAULT_FIRST_RULE)
     newConfigs.addAll(vcServiceConfigs)
@@ -122,18 +132,21 @@ internal fun NotificationConfiguration.setVirtualCardsNotificationsForSingleMeta
     enabled: Boolean,
 ): NotificationConfiguration {
     // Start with any rules for other services
-    val newRules = this.configs
-        .filter { it.name != Constants.SERVICE_NAME }.toMutableList()
+    val newRules =
+        this.configs
+            .filter { it.name != Constants.SERVICE_NAME }
+            .toMutableList()
 
     // Then find all the virtual cards service rules except our defaults and
     // any existing rule matching this meta.
-    val newVcServiceRules = this.configs
-        .filter { it.name == Constants.SERVICE_NAME }
-        // Filter out any current or historic default rules.
-        // We'll add current default rules back in
-        .filter { it.rules != DEFAULT_FIRST_RULE_STRING && it.rules != DEFAULT_LAST_RULE_STRING }
-        // Filter out any rule specific to our meta name and value
-        .filter { !isRuleMatchingSingleMeta(it.rules, metaName, metaValue) }
+    val newVcServiceRules =
+        this.configs
+            .filter { it.name == Constants.SERVICE_NAME }
+            // Filter out any current or historic default rules.
+            // We'll add current default rules back in
+            .filter { it.rules != DEFAULT_FIRST_RULE_STRING && it.rules != DEFAULT_LAST_RULE_STRING }
+            // Filter out any rule specific to our meta name and value
+            .filter { !isRuleMatchingSingleMeta(it.rules, metaName, metaValue) }
 
     // Re-add DEFAULT_FIRST_RULE
     newRules.add(DEFAULT_FIRST_RULE)
@@ -144,23 +157,24 @@ internal fun NotificationConfiguration.setVirtualCardsNotificationsForSingleMeta
     // If we're disabling notifications for this meta value then
     // add an explicit rule for that
     if (!enabled) {
-        val newJsonRule = JsonObject(
-            mapOf(
-                Pair(
-                    "==",
-                    JsonArray(
-                        listOf(
-                            JsonObject(
-                                mapOf(
-                                    Pair("var", JsonPrimitive("meta.$metaName")),
+        val newJsonRule =
+            JsonObject(
+                mapOf(
+                    Pair(
+                        "==",
+                        JsonArray(
+                            listOf(
+                                JsonObject(
+                                    mapOf(
+                                        Pair("var", JsonPrimitive("meta.$metaName")),
+                                    ),
                                 ),
+                                JsonPrimitive(metaValue),
                             ),
-                            JsonPrimitive(metaValue),
                         ),
                     ),
                 ),
-            ),
-        )
+            )
 
         newRules.add(
             NotificationFilterItem(
@@ -200,9 +214,7 @@ internal fun NotificationConfiguration.setVirtualCardsNotificationsForSingleMeta
 fun NotificationConfiguration.setVirtualCardsNotificationsForFundingSource(
     fundingSourceId: String,
     enabled: Boolean,
-): NotificationConfiguration {
-    return setVirtualCardsNotificationsForSingleMeta("fundingSourceId", fundingSourceId, enabled)
-}
+): NotificationConfiguration = setVirtualCardsNotificationsForSingleMeta("fundingSourceId", fundingSourceId, enabled)
 
 /**
  * Test whether or not virtual cards service notifications are enabled for a particular funding source
@@ -212,13 +224,14 @@ fun NotificationConfiguration.setVirtualCardsNotificationsForFundingSource(
  * @return Whether or not virtual cards service notifications are enabled for the funding source with the specified ID
  */
 fun NotificationConfiguration.isVirtualCardsNotificationForFundingSourceIdEnabled(fundingSourceId: String): Boolean {
-    val fundingSourceRule = this.configs
-        .filter { it.name == Constants.SERVICE_NAME }
-        // Filter out any current or historic default rules.
-        // We'll add current default rules back in
-        .filter { it.rules != DEFAULT_FIRST_RULE_STRING && it.rules != DEFAULT_LAST_RULE_STRING }
-        // Filter out any rule specific to our funding source id
-        .find { isRuleMatchingFundingSourceId(it.rules, fundingSourceId) }
+    val fundingSourceRule =
+        this.configs
+            .filter { it.name == Constants.SERVICE_NAME }
+            // Filter out any current or historic default rules.
+            // We'll add current default rules back in
+            .filter { it.rules != DEFAULT_FIRST_RULE_STRING && it.rules != DEFAULT_LAST_RULE_STRING }
+            // Filter out any rule specific to our funding source id
+            .find { isRuleMatchingFundingSourceId(it.rules, fundingSourceId) }
 
     // Notifications are enabled for this funding source id if either there
     // is no matching rule (because the default enables it) or if the
@@ -248,9 +261,7 @@ fun NotificationConfiguration.isVirtualCardsNotificationForFundingSourceIdEnable
 fun NotificationConfiguration.setVirtualCardsNotificationsForFundingSourceType(
     fundingSourceType: FundingSourceType,
     enabled: Boolean,
-): NotificationConfiguration {
-    return setVirtualCardsNotificationsForSingleMeta("fundingSourceType", fundingSourceType.toString(), enabled)
-}
+): NotificationConfiguration = setVirtualCardsNotificationsForSingleMeta("fundingSourceType", fundingSourceType.toString(), enabled)
 
 /**
  * Test whether or not virtual cards service notifications are enabled for a particular funding source type
@@ -260,13 +271,14 @@ fun NotificationConfiguration.setVirtualCardsNotificationsForFundingSourceType(
  * @return Whether or not virtual cards service notifications are enabled for the funding source with the specified type
  */
 fun NotificationConfiguration.isVirtualCardsNotificationForFundingSourceTypeEnabled(fundingSourceType: FundingSourceType): Boolean {
-    val fundingSourceRule = this.configs
-        .filter { it.name == Constants.SERVICE_NAME }
-        // Filter out any current or historic default rules.
-        // We'll add current default rules back in
-        .filter { it.rules != DEFAULT_FIRST_RULE_STRING && it.rules != DEFAULT_LAST_RULE_STRING }
-        // Filter out any rule specific to our funding source id
-        .find { isRuleMatchingFundingSourceType(it.rules, fundingSourceType) }
+    val fundingSourceRule =
+        this.configs
+            .filter { it.name == Constants.SERVICE_NAME }
+            // Filter out any current or historic default rules.
+            // We'll add current default rules back in
+            .filter { it.rules != DEFAULT_FIRST_RULE_STRING && it.rules != DEFAULT_LAST_RULE_STRING }
+            // Filter out any rule specific to our funding source id
+            .find { isRuleMatchingFundingSourceType(it.rules, fundingSourceType) }
 
     // Notifications are enabled for this funding source type if either there
     // is no matching rule (because the default enables it) or if the

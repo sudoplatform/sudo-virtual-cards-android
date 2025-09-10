@@ -38,25 +38,29 @@ internal class StripeIntentWorker(
         clientSecret: String,
     ): StripeCardProviderCompletionData {
         // Build card details
-        val cardDetails = PaymentMethodCreateParams.Card.Builder()
-            .setNumber(input.cardNumber)
-            .setExpiryMonth(input.expirationMonth)
-            .setExpiryYear(input.expirationYear)
-            .setCvc(input.securityCode)
-            .build()
+        val cardDetails =
+            PaymentMethodCreateParams.Card
+                .Builder()
+                .setNumber(input.cardNumber)
+                .setExpiryMonth(input.expirationMonth)
+                .setExpiryYear(input.expirationYear)
+                .setCvc(input.securityCode)
+                .build()
         // Build billing details
-        val billingDetails = PaymentMethod.BillingDetails.Builder()
-            .setAddress(
-                Address.Builder()
-                    .setLine1(input.addressLine1)
-                    .setLine2(input.addressLine2)
-                    .setCity(input.city)
-                    .setState(input.state)
-                    .setPostalCode(input.postalCode)
-                    .setCountry(ensureAlpha2CountryCode(context, input.country))
-                    .build(),
-            )
-            .build()
+        val billingDetails =
+            PaymentMethod.BillingDetails
+                .Builder()
+                .setAddress(
+                    Address
+                        .Builder()
+                        .setLine1(input.addressLine1)
+                        .setLine2(input.addressLine2)
+                        .setCity(input.city)
+                        .setState(input.state)
+                        .setPostalCode(input.postalCode)
+                        .setCountry(ensureAlpha2CountryCode(context, input.country))
+                        .build(),
+                ).build()
         // Confirm setup
         val cardParams = PaymentMethodCreateParams.create(cardDetails, billingDetails)
         val confirmParams = ConfirmSetupIntentParams.create(cardParams, clientSecret)
@@ -78,7 +82,10 @@ internal class StripeIntentWorker(
      *
      * @param countryCode The country code to parse.
      */
-    private fun ensureAlpha2CountryCode(context: Context, countryCode: String): String {
+    private fun ensureAlpha2CountryCode(
+        context: Context,
+        countryCode: String,
+    ): String {
         if (countryCode.trim().length != 3) {
             return countryCode.trim()
         }

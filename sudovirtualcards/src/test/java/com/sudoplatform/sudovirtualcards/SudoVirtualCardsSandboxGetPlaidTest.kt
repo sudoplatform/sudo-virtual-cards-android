@@ -46,28 +46,27 @@ import java.net.HttpURLConnection
  * using mocks and spies.
  */
 class SudoVirtualCardsSandboxGetPlaidTest : BaseTests() {
-
     private val queryResponse by before {
         JSONObject(
             """
-                {
-                    'sandboxGetPlaidData': {
-                        'accountMetadata': [{
-                            'accountId': 'checkingAccountId',
-                            'subtype': 'checking'
-                        },{
-                            'accountId': 'savingsAccountId',
-                            'subtype': 'savings'
-                        },{
-                            'accountId': 'otherAccountId',
-                            'subtype': 'other'
-                        },{
-                            'accountId': 'unspecifiedAccountId',
-                            'subtype': null
-                        }],
-                        'publicToken':'publicToken'
-                        }
-                }
+            {
+                'sandboxGetPlaidData': {
+                    'accountMetadata': [{
+                        'accountId': 'checkingAccountId',
+                        'subtype': 'checking'
+                    },{
+                        'accountId': 'savingsAccountId',
+                        'subtype': 'savings'
+                    },{
+                        'accountId': 'otherAccountId',
+                        'subtype': 'other'
+                    },{
+                        'accountId': 'unspecifiedAccountId',
+                        'subtype': null
+                    }],
+                    'publicToken':'publicToken'
+                    }
+            }
             """.trimIndent(),
         )
     }
@@ -85,7 +84,8 @@ class SudoVirtualCardsSandboxGetPlaidTest : BaseTests() {
             on {
                 query<String>(
                     argThat { this.query.equals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT) },
-                    any(), any(),
+                    any(),
+                    any(),
                 )
             } doAnswer {
                 val mockOperation: GraphQLOperation<String> = mock()
@@ -107,7 +107,8 @@ class SudoVirtualCardsSandboxGetPlaidTest : BaseTests() {
     }
 
     private val client by before {
-        SudoVirtualCardsClient.builder()
+        SudoVirtualCardsClient
+            .builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
             .setGraphQLClient(GraphQLClient(mockApiCategory))
@@ -129,207 +130,221 @@ class SudoVirtualCardsSandboxGetPlaidTest : BaseTests() {
     }
 
     @Test
-    fun `sandboxGetPlaidData() should return results when no error present`() = runBlocking<Unit> {
-        val deferredResult = async(Dispatchers.IO) {
-            client.sandboxGetPlaidData("institutionId", "plaidUsername")
-        }
-        deferredResult.start()
+    fun `sandboxGetPlaidData() should return results when no error present`() =
+        runBlocking<Unit> {
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.sandboxGetPlaidData("institutionId", "plaidUsername")
+                }
+            deferredResult.start()
 
-        delay(100L)
-        val result = deferredResult.await()
-        result shouldNotBe null
+            delay(100L)
+            val result = deferredResult.await()
+            result shouldNotBe null
 
-        with(result) {
-            accountMetadata shouldBe listOf(
-                PlaidAccountMetadata("checkingAccountId", BankAccountFundingSource.BankAccountType.CHECKING),
-                PlaidAccountMetadata("savingsAccountId", BankAccountFundingSource.BankAccountType.SAVING),
-                PlaidAccountMetadata("otherAccountId", BankAccountFundingSource.BankAccountType.UNKNOWN),
-                PlaidAccountMetadata("unspecifiedAccountId", BankAccountFundingSource.BankAccountType.UNKNOWN),
-            )
-            publicToken shouldBe "publicToken"
-        }
-        verify(mockApiCategory).query<String>(
-            org.mockito.kotlin.check {
-                assertEquals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `sandboxGetPlaidData() should throw when query response is null`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, null),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.FailedException> {
-                client.sandboxGetPlaidData("institutionId", "plaidUsername")
+            with(result) {
+                accountMetadata shouldBe
+                    listOf(
+                        PlaidAccountMetadata("checkingAccountId", BankAccountFundingSource.BankAccountType.CHECKING),
+                        PlaidAccountMetadata("savingsAccountId", BankAccountFundingSource.BankAccountType.SAVING),
+                        PlaidAccountMetadata("otherAccountId", BankAccountFundingSource.BankAccountType.UNKNOWN),
+                        PlaidAccountMetadata("unspecifiedAccountId", BankAccountFundingSource.BankAccountType.UNKNOWN),
+                    )
+                publicToken shouldBe "publicToken"
             }
-        }
-        deferredResult.start()
-
-        delay(100L)
-        verify(mockApiCategory).query<String>(
-            org.mockito.kotlin.check {
-                assertEquals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `sandboxGetPlaidData() should throw when query response has errors`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT) },
+            verify(mockApiCategory).query<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT, it.query)
+                },
                 any(),
                 any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
             )
-            mockOperation
         }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.IdentityVerificationException> {
-                client.sandboxGetPlaidData("institutionId", "plaidUsername")
-            }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockApiCategory).query<String>(
-            org.mockito.kotlin.check {
-                assertEquals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 
     @Test
-    fun `sandboxGetPlaidData() should throw when http error occurs`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.FailedException> {
-                client.sandboxGetPlaidData("institutionId", "plaidUsername")
-            }
-        }
-        deferredResult.start()
-        delay(100L)
-
-        deferredResult.await()
-
-        verify(mockApiCategory).query<String>(
-            org.mockito.kotlin.check {
-                assertEquals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `sandboxGetPlaidData() should throw when unknown error occurs()`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                query<String>(
+    fun `sandboxGetPlaidData() should throw when query response is null`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
                     argThat { this.query.equals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, null),
                 )
-            } doThrow RuntimeException("Mock Runtime Exception")
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnknownException> {
-                client.sandboxGetPlaidData("institutionId", "plaidUsername")
+                mockOperation
             }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.FailedException> {
+                        client.sandboxGetPlaidData("institutionId", "plaidUsername")
+                    }
+                }
+            deferredResult.start()
+
+            delay(100L)
+            verify(mockApiCategory).query<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
-        deferredResult.start()
-        delay(100L)
-
-        deferredResult.await()
-
-        verify(mockApiCategory).query<String>(
-            org.mockito.kotlin.check {
-                assertEquals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 
     @Test
-    fun `sandboxGetPlaidData() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                query<String>(
+    fun `sandboxGetPlaidData() should throw when query response has errors`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
                     argThat { this.query.equals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
                 )
-            } doThrow CancellationException("Mock Cancellation Exception")
+                mockOperation
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.IdentityVerificationException> {
+                        client.sandboxGetPlaidData("institutionId", "plaidUsername")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).query<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
 
-        shouldThrow<CancellationException> {
-            client.sandboxGetPlaidData("institutionId", "plaidUsername")
+    @Test
+    fun `sandboxGetPlaidData() should throw when http error occurs`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.FailedException> {
+                        client.sandboxGetPlaidData("institutionId", "plaidUsername")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+
+            deferredResult.await()
+
+            verify(mockApiCategory).query<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
 
-        verify(mockApiCategory).query<String>(
-            org.mockito.kotlin.check {
-                assertEquals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
+    @Test
+    fun `sandboxGetPlaidData() should throw when unknown error occurs()`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    query<String>(
+                        argThat { this.query.equals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow RuntimeException("Mock Runtime Exception")
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnknownException> {
+                        client.sandboxGetPlaidData("institutionId", "plaidUsername")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+
+            deferredResult.await()
+
+            verify(mockApiCategory).query<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `sandboxGetPlaidData() should not block coroutine cancellation exception`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    query<String>(
+                        argThat { this.query.equals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow CancellationException("Mock Cancellation Exception")
+            }
+
+            shouldThrow<CancellationException> {
+                client.sandboxGetPlaidData("institutionId", "plaidUsername")
+            }
+
+            verify(mockApiCategory).query<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(SandboxGetPlaidDataQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
 }

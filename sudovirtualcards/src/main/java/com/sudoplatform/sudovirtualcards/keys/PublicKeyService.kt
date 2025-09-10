@@ -12,22 +12,35 @@ import com.sudoplatform.sudouser.PublicKey
  * Responsible for managing the storage and lifecycle of key pairs locally and remotely in the virtual cards service.
  */
 internal interface PublicKeyService {
-
     /**
      * Defines the exceptions for the [PublicKeyService] methods.
      *
      * @property message Accompanying message for the exception.
      * @property cause The cause for the exception.
      */
-    sealed class PublicKeyServiceException(message: String? = null, cause: Throwable? = null) : RuntimeException(message, cause) {
-        class KeyCreateException(message: String? = null, cause: Throwable? = null) :
-            PublicKeyServiceException(message = message, cause = cause)
-        class FailedException(message: String? = null, cause: Throwable? = null) :
-            PublicKeyServiceException(message = message, cause = cause)
-        class UserIdNotFoundException(message: String? = null, cause: Throwable? = null) :
-            PublicKeyServiceException(message = message, cause = cause)
-        class UnknownException(message: String? = null, cause: Throwable? = null) :
-            PublicKeyServiceException(message = message, cause = cause)
+    sealed class PublicKeyServiceException(
+        message: String? = null,
+        cause: Throwable? = null,
+    ) : RuntimeException(message, cause) {
+        class KeyCreateException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : PublicKeyServiceException(message = message, cause = cause)
+
+        class FailedException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : PublicKeyServiceException(message = message, cause = cause)
+
+        class UserIdNotFoundException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : PublicKeyServiceException(message = message, cause = cause)
+
+        class UnknownException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : PublicKeyServiceException(message = message, cause = cause)
     }
 
     /**
@@ -69,5 +82,9 @@ internal interface PublicKeyService {
      * @param publicKey [ByteArray] Bytes of the public key (PEM format) to register/create.
      */
     @Throws(PublicKeyServiceException::class)
-    suspend fun create(keyId: String, keyRingId: String, publicKey: ByteArray): PublicKeyWithKeyRingId
+    suspend fun create(
+        keyId: String,
+        keyRingId: String,
+        publicKey: ByteArray,
+    ): PublicKeyWithKeyRingId
 }

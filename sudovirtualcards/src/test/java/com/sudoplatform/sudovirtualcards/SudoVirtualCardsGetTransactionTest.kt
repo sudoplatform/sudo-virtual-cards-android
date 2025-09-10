@@ -54,66 +54,65 @@ import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTyp
  * using mocks and spies.
  */
 class SudoVirtualCardsGetTransactionTest : BaseTests() {
-
     private val queryResponse by before {
         JSONObject(
             """
-                {
-                    'getTransaction': {
-                            '__typename': 'GetTransaction',
-                            'id':'id',
-                            'owner': 'owner',
-                            'version': 1,
-                            'createdAtEpochMs': 1.0,
-                            'updatedAtEpochMs': 1.0,
-                            'sortDateEpochMs': 1.0,
-                            'algorithm': 'algorithm',
-                            'keyId': 'keyId',
-                            'cardId': 'cardId',
-                            'sequenceId': 'sequenceId',
-                            'type': '${TransactionType.COMPLETE}',
-                            'transactedAtEpochMs': '${mockSeal("transactedAt")}',
-                            'settledAtEpochMs': '${mockSeal("settledAt")}',
-                            'billedAmount': {
-                                '__typename': 'BilledAmount',
+            {
+                'getTransaction': {
+                        '__typename': 'GetTransaction',
+                        'id':'id',
+                        'owner': 'owner',
+                        'version': 1,
+                        'createdAtEpochMs': 1.0,
+                        'updatedAtEpochMs': 1.0,
+                        'sortDateEpochMs': 1.0,
+                        'algorithm': 'algorithm',
+                        'keyId': 'keyId',
+                        'cardId': 'cardId',
+                        'sequenceId': 'sequenceId',
+                        'type': '${TransactionType.COMPLETE}',
+                        'transactedAtEpochMs': '${mockSeal("transactedAt")}',
+                        'settledAtEpochMs': '${mockSeal("settledAt")}',
+                        'billedAmount': {
+                            '__typename': 'BilledAmount',
+                            'currency': '${mockSeal("USD")}',
+                            'amount': '${mockSeal("billedAmount")}'
+                        },
+                        'transactedAmount': {
+                            '__typename': 'TransactedAmount',
+                            'currency': '${mockSeal("USD")}',
+                            'amount': '${mockSeal("transactedAmount")}'
+                        },
+                        'description': '${mockSeal("description")}',
+                        'detail': [{
+                            '__typename': 'SealedTransactionDetailChargeAttribute',
+                            'virtualCardAmount': {
+                                '__typename': 'VirtualCardAmount',
                                 'currency': '${mockSeal("USD")}',
-                                'amount': '${mockSeal("billedAmount")}'
+                                'amount': '${mockSeal("virtualCardAmount")}'
                             },
-                            'transactedAmount': {
-                                '__typename': 'TransactedAmount',
+                            'markup': {
+                                '__typename': 'Markup',
+                                'percent': '${mockSeal("1")}',
+                                'flat': '${mockSeal("2")}',
+                                'minCharge': '${mockSeal("3")}'
+                            },
+                            'markupAmount': {
+                                '__typename': 'MarkupAmount',
                                 'currency': '${mockSeal("USD")}',
-                                'amount': '${mockSeal("transactedAmount")}'
+                                'amount': '${mockSeal("markupAmount")}'
                             },
+                            'fundingSourceAmount': {
+                                '__typename': 'FundingSourceAmount',
+                                'currency': '${mockSeal("USD")}',
+                                'amount': '${mockSeal("fundingSourceAmount")}'
+                            },
+                            'fundingSourceId': 'fundingSourceId',
                             'description': '${mockSeal("description")}',
-                            'detail': [{
-                                '__typename': 'SealedTransactionDetailChargeAttribute',
-                                'virtualCardAmount': {
-                                    '__typename': 'VirtualCardAmount',
-                                    'currency': '${mockSeal("USD")}',
-                                    'amount': '${mockSeal("virtualCardAmount")}'
-                                },
-                                'markup': {
-                                    '__typename': 'Markup',
-                                    'percent': '${mockSeal("1")}',
-                                    'flat': '${mockSeal("2")}',
-                                    'minCharge': '${mockSeal("3")}'
-                                },
-                                'markupAmount': {
-                                    '__typename': 'MarkupAmount',
-                                    'currency': '${mockSeal("USD")}',
-                                    'amount': '${mockSeal("markupAmount")}'
-                                },
-                                'fundingSourceAmount': {
-                                    '__typename': 'FundingSourceAmount',
-                                    'currency': '${mockSeal("USD")}',
-                                    'amount': '${mockSeal("fundingSourceAmount")}'
-                                },
-                                'fundingSourceId': 'fundingSourceId',
-                                'description': '${mockSeal("description")}',
-                                'state': '${mockSeal("CLEARED")}'
-                            }]
-                        }
-                }
+                            'state': '${mockSeal("CLEARED")}'
+                        }]
+                    }
+            }
             """.trimIndent(),
         )
     }
@@ -128,10 +127,11 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
         }
     }
 
-    private val currentKey = PublicKey(
-        keyId = "keyId",
-        publicKey = "publicKey".toByteArray(),
-    )
+    private val currentKey =
+        PublicKey(
+            keyId = "keyId",
+            publicKey = "publicKey".toByteArray(),
+        )
 
     private val mockPublicKeyService by before {
         mock<PublicKeyService>().stub {
@@ -144,7 +144,8 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
             on {
                 query<String>(
                     argThat { this.query.equals(GetTransactionQuery.OPERATION_DOCUMENT) },
-                    any(), any(),
+                    any(),
+                    any(),
                 )
             } doAnswer {
                 val mockOperation: GraphQLOperation<String> = mock()
@@ -168,7 +169,8 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
     }
 
     private val client by before {
-        SudoVirtualCardsClient.builder()
+        SudoVirtualCardsClient
+            .builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
             .setGraphQLClient(GraphQLClient(mockApiCategory))
@@ -184,30 +186,32 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
     }
 
     @Test
-    fun `getTransaction() should return results when no error present`() = runBlocking<Unit> {
-        val deferredResult = async(Dispatchers.IO) {
-            client.getTransaction("id")
+    fun `getTransaction() should return results when no error present`() =
+        runBlocking<Unit> {
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.getTransaction("id")
+                }
+            deferredResult.start()
+
+            delay(100L)
+
+            val result = deferredResult.await()
+            result shouldNotBe null
+
+            checkTransaction(result!!)
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetTransactionQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+            verify(mockPublicKeyService).getCurrentKey()
+            verify(mockKeyManager, times(18)).decryptWithPrivateKey(anyString(), any(), any())
+            verify(mockKeyManager, times(18)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
         }
-        deferredResult.start()
-
-        delay(100L)
-
-        val result = deferredResult.await()
-        result shouldNotBe null
-
-        checkTransaction(result!!)
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetTransactionQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-        verify(mockPublicKeyService).getCurrentKey()
-        verify(mockKeyManager, times(18)).decryptWithPrivateKey(anyString(), any(), any())
-        verify(mockKeyManager, times(18)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
-    }
 
     private fun checkTransaction(transaction: Transaction) {
         with(transaction) {
@@ -231,225 +235,236 @@ class SudoVirtualCardsGetTransactionTest : BaseTests() {
     }
 
     @Test
-    fun `getTransaction() should return null result when query response is null`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(GetTransactionQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, null),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.getTransaction("id")
-        }
-        deferredResult.start()
-        delay(100L)
-        val result = deferredResult.await()
-        result shouldBe null
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetTransactionQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-        verify(mockPublicKeyService).getCurrentKey()
-    }
-
-    @Test
-    fun `getTransaction() should return null when query response has no transaction found`() = runBlocking<Unit> {
-        val noTransactionResponse by before {
-            JSONObject(
-                """
-                {
-                    'getTransaction': null
-                }
-                """.trimIndent(),
-            )
-        }
-
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(GetTransactionQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(noTransactionResponse.toString(), null),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            client.getTransaction("id")
-        }
-        deferredResult.start()
-
-        delay(100L)
-        deferredResult.await() shouldBe null
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetTransactionQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-        verify(mockPublicKeyService).getCurrentKey()
-    }
-
-    @Test
-    fun `getTransaction() should throw current key pair retrieval returns null`() = runBlocking<Unit> {
-        mockPublicKeyService.stub {
-            onBlocking { getCurrentKey() } doReturn null
-        }
-
-        shouldThrow<SudoVirtualCardsClient.TransactionException.PublicKeyException> {
-            client.getTransaction("id")
-        }
-
-        verify(mockApiCategory, never()).query<String>(
-            check {
-                assertEquals(GetTransactionQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-
-        verify(mockPublicKeyService).getCurrentKey()
-    }
-
-    @Test
-    fun `getTransaction() should throw when unsealing fails`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
+    fun `getTransaction() should return null result when query response is null`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
                 mockApiCategory.query<String>(
                     argThat { this.query.equals(GetTransactionQuery.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, null),
                 )
-            } doThrow
-                Unsealer.UnsealerException.SealedDataTooShortException("Mock Unsealer Exception")
-        }
+                mockOperation
+            }
 
-        shouldThrow<SudoVirtualCardsClient.TransactionException.UnsealingException> {
-            client.getTransaction("id")
-        }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.getTransaction("id")
+                }
+            deferredResult.start()
+            delay(100L)
+            val result = deferredResult.await()
+            result shouldBe null
 
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetTransactionQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-        verify(mockPublicKeyService).getCurrentKey()
-    }
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetTransactionQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+            verify(mockPublicKeyService).getCurrentKey()
+        }
 
     @Test
-    fun `getTransaction() should throw when http error occurs`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(GetTransactionQuery.OPERATION_DOCUMENT) },
+    fun `getTransaction() should return null when query response has no transaction found`() =
+        runBlocking<Unit> {
+            val noTransactionResponse by before {
+                JSONObject(
+                    """
+                    {
+                        'getTransaction': null
+                    }
+                    """.trimIndent(),
+                )
+            }
+
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(GetTransactionQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(noTransactionResponse.toString(), null),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.getTransaction("id")
+                }
+            deferredResult.start()
+
+            delay(100L)
+            deferredResult.await() shouldBe null
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetTransactionQuery.OPERATION_DOCUMENT, it.query)
+                },
                 any(),
                 any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
             )
-            mockOperation
+            verify(mockPublicKeyService).getCurrentKey()
         }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.TransactionException.FailedException> {
+
+    @Test
+    fun `getTransaction() should throw current key pair retrieval returns null`() =
+        runBlocking<Unit> {
+            mockPublicKeyService.stub {
+                onBlocking { getCurrentKey() } doReturn null
+            }
+
+            shouldThrow<SudoVirtualCardsClient.TransactionException.PublicKeyException> {
                 client.getTransaction("id")
             }
+
+            verify(mockApiCategory, never()).query<String>(
+                check {
+                    assertEquals(GetTransactionQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+
+            verify(mockPublicKeyService).getCurrentKey()
         }
-        deferredResult.start()
-
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetTransactionQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-        verify(mockPublicKeyService).getCurrentKey()
-    }
 
     @Test
-    fun `getTransaction() should throw when unknown error occurs`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                query<String>(
+    fun `getTransaction() should throw when unsealing fails`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    mockApiCategory.query<String>(
+                        argThat { this.query.equals(GetTransactionQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow
+                    Unsealer.UnsealerException.SealedDataTooShortException("Mock Unsealer Exception")
+            }
+
+            shouldThrow<SudoVirtualCardsClient.TransactionException.UnsealingException> {
+                client.getTransaction("id")
+            }
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetTransactionQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+            verify(mockPublicKeyService).getCurrentKey()
+        }
+
+    @Test
+    fun `getTransaction() should throw when http error occurs`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
                     argThat { this.query.equals(GetTransactionQuery.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
                 )
-            } doThrow RuntimeException("Mock Runtime Exception")
-        }
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.TransactionException.FailedException> {
+                        client.getTransaction("id")
+                    }
+                }
+            deferredResult.start()
 
-        shouldThrow<SudoVirtualCardsClient.TransactionException.UnknownException> {
-            client.getTransaction("id")
-        }
+            delay(100L)
+            deferredResult.await()
 
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetTransactionQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-        verify(mockPublicKeyService).getCurrentKey()
-    }
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetTransactionQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+            verify(mockPublicKeyService).getCurrentKey()
+        }
 
     @Test
-    fun `getTransaction() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                query<String>(
-                    argThat { this.query.equals(GetTransactionQuery.OPERATION_DOCUMENT) },
-                    any(),
-                    any(),
-                )
-            } doThrow CancellationException("Mock Cancellation Exception")
+    fun `getTransaction() should throw when unknown error occurs`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    query<String>(
+                        argThat { this.query.equals(GetTransactionQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow RuntimeException("Mock Runtime Exception")
+            }
+
+            shouldThrow<SudoVirtualCardsClient.TransactionException.UnknownException> {
+                client.getTransaction("id")
+            }
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetTransactionQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+            verify(mockPublicKeyService).getCurrentKey()
         }
 
-        shouldThrow<CancellationException> {
-            client.getTransaction("id")
-        }
+    @Test
+    fun `getTransaction() should not block coroutine cancellation exception`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    query<String>(
+                        argThat { this.query.equals(GetTransactionQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow CancellationException("Mock Cancellation Exception")
+            }
 
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetTransactionQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-        verify(mockPublicKeyService).getCurrentKey()
-    }
+            shouldThrow<CancellationException> {
+                client.getTransaction("id")
+            }
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetTransactionQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+            verify(mockPublicKeyService).getCurrentKey()
+        }
 }

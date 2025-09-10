@@ -37,7 +37,6 @@ import org.mockito.kotlin.verifyNoMoreInteractions
  * using mocks and spies.
  */
 class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
-
     private val symmetricKeyId = "symmetric-key-id"
     private val keyId = "key-pair-id"
     private val keyRingId = "key-ring-id"
@@ -50,10 +49,11 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
 
     private val publicKeyWithKeyRingIdResult by before {
         PublicKeyWithKeyRingId(
-            publicKey = PublicKey(
-                keyId = keyId,
-                publicKey = ByteArray(42),
-            ),
+            publicKey =
+                PublicKey(
+                    keyId = keyId,
+                    publicKey = ByteArray(42),
+                ),
             keyRingId = keyRingId,
         )
     }
@@ -85,10 +85,11 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
 
     private val mockPublicKeyService by before {
         mock<PublicKeyService>().stub {
-            onBlocking { get(anyString()) } doReturn PublicKeyWithKeyRingId(
-                publicKey = publicKey,
-                keyRingId = keyRingId,
-            )
+            onBlocking { get(anyString()) } doReturn
+                PublicKeyWithKeyRingId(
+                    publicKey = publicKey,
+                    keyRingId = keyRingId,
+                )
             onBlocking { getCurrentKey() } doReturn publicKey
             onBlocking { getCurrentRegisteredKey() } doReturn publicKeyWithKeyRingIdResult
         }
@@ -117,48 +118,52 @@ class SudoVirtualCardsCreateKeysIfAbsentTest : BaseTests() {
     }
 
     @Test
-    fun `createKeysIfAbsent() should create new symmetric key if current symmetric key is not present`() = runBlocking<Unit> {
-        mockDeviceKeyManager.stub {
-            on { getCurrentSymmetricKeyId() } doReturn null
+    fun `createKeysIfAbsent() should create new symmetric key if current symmetric key is not present`() =
+        runBlocking<Unit> {
+            mockDeviceKeyManager.stub {
+                on { getCurrentSymmetricKeyId() } doReturn null
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.createKeysIfAbsent()
+                }
+            deferredResult.start()
+            delay(100L)
+
+            val result = deferredResult.await()
+            result shouldNotBe null
+
+            with(result) {
+                symmetricKey.created shouldBe true
+                symmetricKey.keyId shouldBe symmetricKeyId
+                keyPair.created shouldBe false
+                keyPair.keyId shouldBe keyId
+            }
+
+            verify(mockDeviceKeyManager).getCurrentSymmetricKeyId()
+            verify(mockDeviceKeyManager).generateNewCurrentSymmetricKey()
+            verify(mockPublicKeyService).getCurrentRegisteredKey()
         }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.createKeysIfAbsent()
-        }
-        deferredResult.start()
-        delay(100L)
-
-        val result = deferredResult.await()
-        result shouldNotBe null
-
-        with(result) {
-            symmetricKey.created shouldBe true
-            symmetricKey.keyId shouldBe symmetricKeyId
-            keyPair.created shouldBe false
-            keyPair.keyId shouldBe keyId
-        }
-
-        verify(mockDeviceKeyManager).getCurrentSymmetricKeyId()
-        verify(mockDeviceKeyManager).generateNewCurrentSymmetricKey()
-        verify(mockPublicKeyService).getCurrentRegisteredKey()
-    }
 
     @Test
-    fun `createKeysIfAbsent() should throw when an unknown error occurs`() = runBlocking<Unit> {
-        mockDeviceKeyManager.stub {
-            on { getCurrentSymmetricKeyId() } doThrow RuntimeException("Mock Runtime Exception")
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.UnknownException> {
-                client.createKeysIfAbsent()
+    fun `createKeysIfAbsent() should throw when an unknown error occurs`() =
+        runBlocking<Unit> {
+            mockDeviceKeyManager.stub {
+                on { getCurrentSymmetricKeyId() } doThrow RuntimeException("Mock Runtime Exception")
             }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.UnknownException> {
+                        client.createKeysIfAbsent()
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+
+            deferredResult.await()
+
+            verify(mockDeviceKeyManager).getCurrentSymmetricKeyId()
         }
-        deferredResult.start()
-        delay(100L)
-
-        deferredResult.await()
-
-        verify(mockDeviceKeyManager).getCurrentSymmetricKeyId()
-    }
 }

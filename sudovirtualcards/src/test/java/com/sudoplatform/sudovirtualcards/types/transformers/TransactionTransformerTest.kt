@@ -16,7 +16,6 @@ import org.junit.Test
  * Testing the transaction transformer.
  */
 class TransactionTransformerTest : BaseTests() {
-
     @Test
     fun `decline reasons should decode`() {
         "INSUFFICIENT_FUNDS".toDeclineReason() shouldBe DeclineReason.INSUFFICIENT_FUNDS

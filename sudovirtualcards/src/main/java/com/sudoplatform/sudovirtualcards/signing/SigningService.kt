@@ -12,7 +12,6 @@ import com.sudoplatform.sudovirtualcards.types.transformers.KeyType
  * Responsible for performing signing operations on data in the virtual cards service.
  */
 internal interface SigningService {
-
     /**
      * Sign the [data] with the key [keyId] based on the [keyType].
      *
@@ -21,5 +20,9 @@ internal interface SigningService {
      * @property keyType [KeyType] The type of key to use to sign the data.
      * @return Signed data.
      */
-    fun signString(data: String, keyId: String, keyType: KeyType): String
+    fun signString(
+        data: String,
+        keyId: String,
+        keyType: KeyType,
+    ): String
 }

@@ -19,7 +19,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class SudoVirtualCardsSimulatorClientBuilderTest {
-
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Test
@@ -29,13 +28,15 @@ class SudoVirtualCardsSimulatorClientBuilderTest {
         }
 
         shouldThrow<NullPointerException> {
-            SudoVirtualCardsSimulatorClient.builder()
+            SudoVirtualCardsSimulatorClient
+                .builder()
                 .setContext(context)
                 .build()
         }
 
         shouldThrow<NullPointerException> {
-            SudoVirtualCardsSimulatorClient.builder()
+            SudoVirtualCardsSimulatorClient
+                .builder()
                 .setContext(context)
                 .build()
         }
@@ -43,7 +44,8 @@ class SudoVirtualCardsSimulatorClientBuilderTest {
 
     @Test
     fun simulatorClientBuilderShouldNotThrowIfApiKeyProvided() {
-        SudoVirtualCardsSimulatorClient.builder()
+        SudoVirtualCardsSimulatorClient
+            .builder()
             .setContext(context)
             .setApiKey("foo")
             .build()
@@ -51,7 +53,8 @@ class SudoVirtualCardsSimulatorClientBuilderTest {
 
     @Test
     fun simulatorClientBuilderShouldNotThrowIfUsernamePasswordProvided() {
-        SudoVirtualCardsSimulatorClient.builder()
+        SudoVirtualCardsSimulatorClient
+            .builder()
             .setContext(context)
             .setUsername("foo")
             .setPassword("bar")

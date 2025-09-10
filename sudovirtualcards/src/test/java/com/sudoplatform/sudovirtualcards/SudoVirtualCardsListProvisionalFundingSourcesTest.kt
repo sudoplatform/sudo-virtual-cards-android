@@ -53,7 +53,6 @@ import java.net.HttpURLConnection
  * using mocks and spies.
  */
 class SudoVirtualCardsListProvisionalFundingSourcesTest : BaseTests() {
-
     private val queryResponse by before {
         val stripeSetupData =
             StripeCardProvisioningData(
@@ -66,23 +65,23 @@ class SudoVirtualCardsListProvisionalFundingSourcesTest : BaseTests() {
 
         JSONObject(
             """
-                {
-                    'listProvisionalFundingSources': {
-                        'items': [{
-                            '__typename': 'ProvisionalFundingSource',
-                            'id':'id',
-                            'owner': 'owner',
-                            'version': 1,
-                            'createdAtEpochMs': 1.0,
-                            'updatedAtEpochMs': 1.0,
-                            'type': '${FundingSourceType.CREDIT_CARD}',
-                            'provisioningData': '${Base64.encodeBase64String(Gson().toJson(stripeSetupData).toByteArray())}',
-                            'state': '${ProvisionalFundingSourceState.PROVISIONING}',
-                            'last4':'1234'
-                        }],
-                        'nextToken': null
-                    }
+            {
+                'listProvisionalFundingSources': {
+                    'items': [{
+                        '__typename': 'ProvisionalFundingSource',
+                        'id':'id',
+                        'owner': 'owner',
+                        'version': 1,
+                        'createdAtEpochMs': 1.0,
+                        'updatedAtEpochMs': 1.0,
+                        'type': '${FundingSourceType.CREDIT_CARD}',
+                        'provisioningData': '${Base64.encodeBase64String(Gson().toJson(stripeSetupData).toByteArray())}',
+                        'state': '${ProvisionalFundingSourceState.PROVISIONING}',
+                        'last4':'1234'
+                    }],
+                    'nextToken': null
                 }
+            }
             """.trimIndent(),
         )
     }
@@ -99,23 +98,23 @@ class SudoVirtualCardsListProvisionalFundingSourcesTest : BaseTests() {
 
         JSONObject(
             """
-                {
-                    'listProvisionalFundingSources': {
-                        'items': [{
-                            '__typename': 'ProvisionalFundingSource',
-                            'id':'id',
-                            'owner': 'owner',
-                            'version': 1,
-                            'createdAtEpochMs': 1.0,
-                            'updatedAtEpochMs': 1.0,
-                            'type': '${FundingSourceType.CREDIT_CARD}',
-                            'provisioningData': '${Base64.encodeBase64String(Gson().toJson(stripeSetupData).toByteArray())}',
-                            'state': '${ProvisionalFundingSourceState.PROVISIONING}',
-                            'last4':'1234'
-                        }],
-                        'nextToken': 'dummyNextToken'
-                    }
+            {
+                'listProvisionalFundingSources': {
+                    'items': [{
+                        '__typename': 'ProvisionalFundingSource',
+                        'id':'id',
+                        'owner': 'owner',
+                        'version': 1,
+                        'createdAtEpochMs': 1.0,
+                        'updatedAtEpochMs': 1.0,
+                        'type': '${FundingSourceType.CREDIT_CARD}',
+                        'provisioningData': '${Base64.encodeBase64String(Gson().toJson(stripeSetupData).toByteArray())}',
+                        'state': '${ProvisionalFundingSourceState.PROVISIONING}',
+                        'last4':'1234'
+                    }],
+                    'nextToken': 'dummyNextToken'
                 }
+            }
             """.trimIndent(),
         )
     }
@@ -123,11 +122,11 @@ class SudoVirtualCardsListProvisionalFundingSourcesTest : BaseTests() {
     private val queryResponseWithEmptyList by before {
         JSONObject(
             """
-                {
-                    'listProvisionalFundingSources': {
-                        'items': []
-                    }
+            {
+                'listProvisionalFundingSources': {
+                    'items': []
                 }
+            }
             """.trimIndent(),
         )
     }
@@ -145,7 +144,8 @@ class SudoVirtualCardsListProvisionalFundingSourcesTest : BaseTests() {
             on {
                 query<String>(
                     argThat { this.query.equals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT) },
-                    any(), any(),
+                    any(),
+                    any(),
                 )
             } doAnswer {
                 val mockOperation: GraphQLOperation<String> = mock()
@@ -163,7 +163,8 @@ class SudoVirtualCardsListProvisionalFundingSourcesTest : BaseTests() {
     }
 
     private val client by before {
-        SudoVirtualCardsClient.builder()
+        SudoVirtualCardsClient
+            .builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
             .setGraphQLClient(GraphQLClient(mockApiCategory))
@@ -178,263 +179,278 @@ class SudoVirtualCardsListProvisionalFundingSourcesTest : BaseTests() {
     }
 
     @Test
-    fun `ListProvisionalFundingSources() should return results when no error present`() = runBlocking<Unit> {
-        val deferredResult = async(Dispatchers.IO) {
-            client.listProvisionalFundingSources()
-        }
-        deferredResult.start()
+    fun `ListProvisionalFundingSources() should return results when no error present`() =
+        runBlocking<Unit> {
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listProvisionalFundingSources()
+                }
+            deferredResult.start()
 
-        delay(100L)
-        val result = deferredResult.await()
-        result shouldNotBe null
-        result.items.isEmpty() shouldBe false
-        result.items.size shouldBe 1
-        result.nextToken shouldBe null
+            delay(100L)
+            val result = deferredResult.await()
+            result shouldNotBe null
+            result.items.isEmpty() shouldBe false
+            result.items.size shouldBe 1
+            result.nextToken shouldBe null
 
-        with(result.items[0]) {
-            id shouldBe("id")
-            owner shouldBe("owner")
-            version shouldBe 1
-            state shouldBe com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource.ProvisioningState.PROVISIONING
-            last4 shouldBe "1234"
-        }
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `ListProvisionalFundingSources() should return results when populating nextToken`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(queryResponseWithNextToken.toString(), null),
-            )
-            mockOperation
-        }
-
-        val filterInput = ProvisionalFundingSourceFilterInput(IdFilterInput(eq = "dummyId"))
-        val deferredResult = async(Dispatchers.IO) {
-            client.listProvisionalFundingSources(filterInput, SortOrder.ASC, 1, "dummyNextToken")
-        }
-        deferredResult.start()
-
-        delay(100L)
-        val result = deferredResult.await()
-
-        result shouldNotBe null
-        result.items.isEmpty() shouldBe false
-        result.items.size shouldBe 1
-        result.nextToken shouldBe "dummyNextToken"
-
-        with(result.items[0]) {
-            id shouldBe("id")
-            owner shouldBe("owner")
-            version shouldBe 1
-            state shouldBe com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource.ProvisioningState.PROVISIONING
-            last4 shouldBe "1234"
-            type shouldBe com.sudoplatform.sudovirtualcards.types.FundingSourceType.CREDIT_CARD
-        }
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `ListProvisionalFundingSources() should return empty list output when query result data is empty`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(queryResponseWithEmptyList.toString(), null),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.listProvisionalFundingSources()
-        }
-        deferredResult.start()
-        delay(100L)
-
-        val result = deferredResult.await()
-        result shouldNotBe null
-        result.items.isEmpty() shouldBe true
-        result.items.size shouldBe 0
-        result.nextToken shouldBe null
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `ListProvisionalFundingSources() should return empty list output when query response is null`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, null),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.listProvisionalFundingSources()
-        }
-        deferredResult.start()
-        delay(100L)
-
-        val result = deferredResult.await()
-        result shouldNotBe null
-        result.items.isEmpty() shouldBe true
-        result.items.size shouldBe 0
-        result.nextToken shouldBe null
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `ListProvisionalFundingSources() should throw when http error occurs`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.FailedException> {
-                client.listProvisionalFundingSources()
+            with(result.items[0]) {
+                id shouldBe ("id")
+                owner shouldBe ("owner")
+                version shouldBe 1
+                state shouldBe com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource.ProvisioningState.PROVISIONING
+                last4 shouldBe "1234"
             }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
 
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
 
     @Test
-    fun `ListProvisionalFundingSources() should throw when unknown error occurs`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                query<String>(
+    fun `ListProvisionalFundingSources() should return results when populating nextToken`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
                     argThat { this.query.equals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(queryResponseWithNextToken.toString(), null),
                 )
-            } doThrow RuntimeException("Mock Runtime Exception")
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnknownException> {
-                client.listProvisionalFundingSources()
+                mockOperation
             }
+
+            val filterInput = ProvisionalFundingSourceFilterInput(IdFilterInput(eq = "dummyId"))
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listProvisionalFundingSources(filterInput, SortOrder.ASC, 1, "dummyNextToken")
+                }
+            deferredResult.start()
+
+            delay(100L)
+            val result = deferredResult.await()
+
+            result shouldNotBe null
+            result.items.isEmpty() shouldBe false
+            result.items.size shouldBe 1
+            result.nextToken shouldBe "dummyNextToken"
+
+            with(result.items[0]) {
+                id shouldBe ("id")
+                owner shouldBe ("owner")
+                version shouldBe 1
+                state shouldBe com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource.ProvisioningState.PROVISIONING
+                last4 shouldBe "1234"
+                type shouldBe com.sudoplatform.sudovirtualcards.types.FundingSourceType.CREDIT_CARD
+            }
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
-        deferredResult.start()
-        delay(100L)
-
-        deferredResult.await()
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 
     @Test
-    fun `ListProvisionalFundingSources() should not suppress CancellationException`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                query<String>(
+    fun `ListProvisionalFundingSources() should return empty list output when query result data is empty`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
                     argThat { this.query.equals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(queryResponseWithEmptyList.toString(), null),
                 )
-            } doThrow CancellationException("Mock Cancellation Exception")
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<CancellationException> {
-                client.listProvisionalFundingSources()
+                mockOperation
             }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listProvisionalFundingSources()
+                }
+            deferredResult.start()
+            delay(100L)
+
+            val result = deferredResult.await()
+            result shouldNotBe null
+            result.items.isEmpty() shouldBe true
+            result.items.size shouldBe 0
+            result.nextToken shouldBe null
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
-        deferredResult.start()
-        delay(100L)
 
-        deferredResult.await()
+    @Test
+    fun `ListProvisionalFundingSources() should return empty list output when query response is null`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, null),
+                )
+                mockOperation
+            }
 
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listProvisionalFundingSources()
+                }
+            deferredResult.start()
+            delay(100L)
+
+            val result = deferredResult.await()
+            result shouldNotBe null
+            result.items.isEmpty() shouldBe true
+            result.items.size shouldBe 0
+            result.nextToken shouldBe null
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `ListProvisionalFundingSources() should throw when http error occurs`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.FailedException> {
+                        client.listProvisionalFundingSources()
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `ListProvisionalFundingSources() should throw when unknown error occurs`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    query<String>(
+                        argThat { this.query.equals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow RuntimeException("Mock Runtime Exception")
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnknownException> {
+                        client.listProvisionalFundingSources()
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+
+            deferredResult.await()
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `ListProvisionalFundingSources() should not suppress CancellationException`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    query<String>(
+                        argThat { this.query.equals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow CancellationException("Mock Cancellation Exception")
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<CancellationException> {
+                        client.listProvisionalFundingSources()
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+
+            deferredResult.await()
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(ListProvisionalFundingSourcesQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
 }

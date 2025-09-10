@@ -16,7 +16,6 @@ import java.io.InputStreamReader
  * Locale related utility methods.
  */
 class LocaleUtil private constructor() {
-
     companion object {
         /**
          * Convert from an ISO 3166 Alpha-3 country code to an ISO 3166 Alpha-2 country code.
@@ -27,7 +26,10 @@ class LocaleUtil private constructor() {
          * @return The ISO 3166 Alpha-2 country code or null if it could not be converted
          */
         @JvmStatic
-        fun toCountryCodeAlpha2(context: Context, alpha3CountryCode: String): String? {
+        fun toCountryCodeAlpha2(
+            context: Context,
+            alpha3CountryCode: String,
+        ): String? {
             if (alpha3CountryCode.trim().length != 3) {
                 return alpha3CountryCode.trim()
             }
@@ -47,7 +49,10 @@ class LocaleUtil private constructor() {
          * @return The ISO 3166 Alpha-3 country code or null if it could not be converted
          */
         @JvmStatic
-        fun toCountryCodeAlpha3(context: Context, alpha2CountryCode: String): String? {
+        fun toCountryCodeAlpha3(
+            context: Context,
+            alpha2CountryCode: String,
+        ): String? {
             if (alpha2CountryCode.trim().length != 2) {
                 return alpha2CountryCode.trim()
             }

@@ -41,11 +41,12 @@ class NotificationConfigurationExtensionsTest {
 
     @Test
     fun `initVirtualCardsNotifications() should preserve existing rules`() {
-        val existingItem = NotificationFilterItem(
-            name = "vcService",
-            status = NotificationConfiguration.DISABLE_STR,
-            rules = "{\"==\":[{\"var\":\"meta.fundingSourceId\"}, \"ignored-funding-source-id\"]}",
-        )
+        val existingItem =
+            NotificationFilterItem(
+                name = "vcService",
+                status = NotificationConfiguration.DISABLE_STR,
+                rules = "{\"==\":[{\"var\":\"meta.fundingSourceId\"}, \"ignored-funding-source-id\"]}",
+            )
 
         val initialConfig = NotificationConfiguration(configs = listOf(existingItem))
 
@@ -69,14 +70,16 @@ class NotificationConfigurationExtensionsTest {
 
     @Test
     fun `initVirtualCardsNotifications() should preserve existing rules on reinitialisation`() {
-        val existingItem = NotificationFilterItem(
-            name = "vcService",
-            status = NotificationConfiguration.DISABLE_STR,
-            rules = "{\"==\":[{\"var\":\"meta.fundingSourceId\"}, \"ignored-funding-source-id\"]}",
-        )
+        val existingItem =
+            NotificationFilterItem(
+                name = "vcService",
+                status = NotificationConfiguration.DISABLE_STR,
+                rules = "{\"==\":[{\"var\":\"meta.fundingSourceId\"}, \"ignored-funding-source-id\"]}",
+            )
 
-        val initialConfig = NotificationConfiguration(configs = listOf(existingItem))
-            .initVirtualCardsNotifications()
+        val initialConfig =
+            NotificationConfiguration(configs = listOf(existingItem))
+                .initVirtualCardsNotifications()
 
         val config = initialConfig.initVirtualCardsNotifications()
 
@@ -98,32 +101,37 @@ class NotificationConfigurationExtensionsTest {
 
     @Test
     fun `enabling funding source when not disabled has no effect`() {
-        val initialConfig = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
+        val initialConfig =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
 
-        val config = initialConfig.setVirtualCardsNotificationsForFundingSource(
-            fundingSourceId = "funding-source-id",
-            enabled = true,
-        )
+        val config =
+            initialConfig.setVirtualCardsNotificationsForFundingSource(
+                fundingSourceId = "funding-source-id",
+                enabled = true,
+            )
 
         config shouldBe initialConfig
     }
 
     fun `disabling funding source when not disabled adds rule`() {
-        val initialConfig = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
+        val initialConfig =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
 
         val fundingSourceId = "funding-source-id"
-        val config = initialConfig.setVirtualCardsNotificationsForFundingSource(
-            fundingSourceId = fundingSourceId,
-            enabled = false,
-        )
+        val config =
+            initialConfig.setVirtualCardsNotificationsForFundingSource(
+                fundingSourceId = fundingSourceId,
+                enabled = false,
+            )
 
-        val expectedItem = NotificationFilterItem(
-            name = "vcService",
-            status = NotificationConfiguration.DISABLE_STR,
-            rules = "{\"==\":[{\"var\":\"meta.fundingSourceId\"},\"$fundingSourceId\"]}",
-        )
+        val expectedItem =
+            NotificationFilterItem(
+                name = "vcService",
+                status = NotificationConfiguration.DISABLE_STR,
+                rules = "{\"==\":[{\"var\":\"meta.fundingSourceId\"},\"$fundingSourceId\"]}",
+            )
 
         config.configs shouldHaveSize 3
 
@@ -136,14 +144,16 @@ class NotificationConfigurationExtensionsTest {
     fun `disabling funding source id when already disabled has no effect`() {
         val fundingSourceId = "funding-source-id"
 
-        val initialConfig = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
-            .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId, enabled = false)
+        val initialConfig =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
+                .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId, enabled = false)
 
-        val config = initialConfig.setVirtualCardsNotificationsForFundingSource(
-            fundingSourceId = fundingSourceId,
-            enabled = false,
-        )
+        val config =
+            initialConfig.setVirtualCardsNotificationsForFundingSource(
+                fundingSourceId = fundingSourceId,
+                enabled = false,
+            )
 
         config shouldBe initialConfig
     }
@@ -152,14 +162,16 @@ class NotificationConfigurationExtensionsTest {
     fun `enabling funding source when disabled removes disable rule`() {
         val fundingSourceId = "funding-source-id"
 
-        val initialConfig = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
-            .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId, enabled = false)
+        val initialConfig =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
+                .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId, enabled = false)
 
-        val config = initialConfig.setVirtualCardsNotificationsForFundingSource(
-            fundingSourceId = fundingSourceId,
-            enabled = true,
-        )
+        val config =
+            initialConfig.setVirtualCardsNotificationsForFundingSource(
+                fundingSourceId = fundingSourceId,
+                enabled = true,
+            )
 
         config.configs shouldHaveSize 2
 
@@ -173,21 +185,24 @@ class NotificationConfigurationExtensionsTest {
         val fundingSourceId2 = "funding-source-id-2"
         val fundingSourceType = FundingSourceType.BANK_ACCOUNT
 
-        val initialConfig = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
-            .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId1, enabled = false)
-            .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType, enabled = false)
+        val initialConfig =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
+                .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId1, enabled = false)
+                .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType, enabled = false)
 
-        val config = initialConfig.setVirtualCardsNotificationsForFundingSource(
-            fundingSourceId = fundingSourceId2,
-            enabled = false,
-        )
+        val config =
+            initialConfig.setVirtualCardsNotificationsForFundingSource(
+                fundingSourceId = fundingSourceId2,
+                enabled = false,
+            )
 
-        val expectedItem = NotificationFilterItem(
-            name = "vcService",
-            status = NotificationConfiguration.DISABLE_STR,
-            rules = "{\"==\":[{\"var\":\"meta.fundingSourceId\"},\"$fundingSourceId2\"]}",
-        )
+        val expectedItem =
+            NotificationFilterItem(
+                name = "vcService",
+                status = NotificationConfiguration.DISABLE_STR,
+                rules = "{\"==\":[{\"var\":\"meta.fundingSourceId\"},\"$fundingSourceId2\"]}",
+            )
 
         config.configs shouldHaveSize 5
 
@@ -206,16 +221,18 @@ class NotificationConfigurationExtensionsTest {
         val fundingSourceId2 = "funding-source-id-2"
         val fundingSourceType = FundingSourceType.CREDIT_CARD
 
-        val initialConfig = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
-            .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId1, enabled = false)
-            .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId2, enabled = false)
-            .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType, enabled = false)
+        val initialConfig =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
+                .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId1, enabled = false)
+                .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId2, enabled = false)
+                .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType, enabled = false)
 
-        val config = initialConfig.setVirtualCardsNotificationsForFundingSource(
-            fundingSourceId = fundingSourceId2,
-            enabled = true,
-        )
+        val config =
+            initialConfig.setVirtualCardsNotificationsForFundingSource(
+                fundingSourceId = fundingSourceId2,
+                enabled = true,
+            )
 
         config.configs shouldHaveSize 4
 
@@ -229,8 +246,9 @@ class NotificationConfigurationExtensionsTest {
 
     @Test
     fun `isVirtualCardsNotificationForFundingSourceIdEnabled() should return true for initial configuration`() {
-        val config = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
+        val config =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
 
         config.isVirtualCardsNotificationForFundingSourceIdEnabled(fundingSourceId = "funding-source-id") shouldBe true
     }
@@ -239,9 +257,10 @@ class NotificationConfigurationExtensionsTest {
     fun `isVirtualCardsNotificationForFundingSourceIdEnabled() should return false if disabled`() {
         val fundingSourceId = "funding-source-id"
 
-        val config = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
-            .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId, enabled = false)
+        val config =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
+                .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId, enabled = false)
 
         config.isVirtualCardsNotificationForFundingSourceIdEnabled(fundingSourceId = "funding-source-id") shouldBe false
     }
@@ -251,9 +270,10 @@ class NotificationConfigurationExtensionsTest {
         val fundingSourceId1 = "funding-source-id-1"
         val fundingSourceId2 = "funding-source-id-2"
 
-        val config = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
-            .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId1, enabled = false)
+        val config =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
+                .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId1, enabled = false)
 
         config.isVirtualCardsNotificationForFundingSourceIdEnabled(fundingSourceId = fundingSourceId2) shouldBe true
     }
@@ -263,10 +283,11 @@ class NotificationConfigurationExtensionsTest {
         val fundingSourceId1 = "funding-source-id-1"
         val fundingSourceId2 = "funding-source-id-2"
 
-        val config = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
-            .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId1, enabled = false)
-            .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId2, enabled = false)
+        val config =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
+                .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId1, enabled = false)
+                .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId2, enabled = false)
 
         config.isVirtualCardsNotificationForFundingSourceIdEnabled(fundingSourceId = fundingSourceId1) shouldBe false
         config.isVirtualCardsNotificationForFundingSourceIdEnabled(fundingSourceId = fundingSourceId2) shouldBe false
@@ -274,34 +295,39 @@ class NotificationConfigurationExtensionsTest {
 
     @Test
     fun `enabling funding source type when not disabled has no effect`() {
-        val initialConfig = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
+        val initialConfig =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
 
-        val config = initialConfig.setVirtualCardsNotificationsForFundingSourceType(
-            fundingSourceType = FundingSourceType.BANK_ACCOUNT,
-            enabled = true,
-        )
+        val config =
+            initialConfig.setVirtualCardsNotificationsForFundingSourceType(
+                fundingSourceType = FundingSourceType.BANK_ACCOUNT,
+                enabled = true,
+            )
 
         config shouldBe initialConfig
     }
 
     @Test
     fun `disabling funding source type when not disabled adds rule`() {
-        val initialConfig = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
+        val initialConfig =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
 
-        val config = initialConfig.setVirtualCardsNotificationsForFundingSourceType(
-            fundingSourceType = FundingSourceType.BANK_ACCOUNT,
-            enabled = false,
-        )
+        val config =
+            initialConfig.setVirtualCardsNotificationsForFundingSourceType(
+                fundingSourceType = FundingSourceType.BANK_ACCOUNT,
+                enabled = false,
+            )
 
         val fundingSourceTypeString = FundingSourceType.BANK_ACCOUNT.toString()
 
-        val expectedItem = NotificationFilterItem(
-            name = "vcService",
-            status = NotificationConfiguration.DISABLE_STR,
-            rules = "{\"==\":[{\"var\":\"meta.fundingSourceType\"}," + "\"$fundingSourceTypeString\"]}",
-        )
+        val expectedItem =
+            NotificationFilterItem(
+                name = "vcService",
+                status = NotificationConfiguration.DISABLE_STR,
+                rules = "{\"==\":[{\"var\":\"meta.fundingSourceType\"}," + "\"$fundingSourceTypeString\"]}",
+            )
 
         config.configs shouldHaveSize 3
 
@@ -314,14 +340,16 @@ class NotificationConfigurationExtensionsTest {
     fun `disabling funding source type when already disabled has no effect`() {
         val fundingSourceType = FundingSourceType.CREDIT_CARD
 
-        val initialConfig = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
-            .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType, enabled = false)
+        val initialConfig =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
+                .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType, enabled = false)
 
-        val config = initialConfig.setVirtualCardsNotificationsForFundingSourceType(
-            fundingSourceType = fundingSourceType,
-            enabled = false,
-        )
+        val config =
+            initialConfig.setVirtualCardsNotificationsForFundingSourceType(
+                fundingSourceType = fundingSourceType,
+                enabled = false,
+            )
 
         config shouldBe initialConfig
     }
@@ -330,14 +358,16 @@ class NotificationConfigurationExtensionsTest {
     fun `enabling funding source type when disabled removes disable rule`() {
         val fundingSourceType = FundingSourceType.BANK_ACCOUNT
 
-        val initialConfig = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
-            .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType, enabled = false)
+        val initialConfig =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
+                .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType, enabled = false)
 
-        val config = initialConfig.setVirtualCardsNotificationsForFundingSourceType(
-            fundingSourceType = fundingSourceType,
-            enabled = true,
-        )
+        val config =
+            initialConfig.setVirtualCardsNotificationsForFundingSourceType(
+                fundingSourceType = fundingSourceType,
+                enabled = true,
+            )
 
         config.configs shouldHaveSize 2
 
@@ -350,22 +380,25 @@ class NotificationConfigurationExtensionsTest {
         val fundingSourceId = "funding-source-id-1"
         val fundingSourceType = FundingSourceType.BANK_ACCOUNT
 
-        val initialConfig = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
-            .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType, enabled = false)
-            .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId, enabled = false)
+        val initialConfig =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
+                .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType, enabled = false)
+                .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId, enabled = false)
 
-        val config = initialConfig.setVirtualCardsNotificationsForFundingSourceType(
-            fundingSourceType = FundingSourceType.CREDIT_CARD,
-            enabled = false,
-        )
+        val config =
+            initialConfig.setVirtualCardsNotificationsForFundingSourceType(
+                fundingSourceType = FundingSourceType.CREDIT_CARD,
+                enabled = false,
+            )
 
         val fundingSourceTypeString = FundingSourceType.CREDIT_CARD.toString()
-        val expectedItem = NotificationFilterItem(
-            name = "vcService",
-            status = NotificationConfiguration.DISABLE_STR,
-            rules = "{\"==\":[{\"var\":\"meta.fundingSourceType\"},\"$fundingSourceTypeString\"]}",
-        )
+        val expectedItem =
+            NotificationFilterItem(
+                name = "vcService",
+                status = NotificationConfiguration.DISABLE_STR,
+                rules = "{\"==\":[{\"var\":\"meta.fundingSourceType\"},\"$fundingSourceTypeString\"]}",
+            )
 
         config.configs shouldHaveSize 5
 
@@ -384,16 +417,18 @@ class NotificationConfigurationExtensionsTest {
         val fundingSourceId1 = "funding-source-id-1"
         val fundingSourceId2 = "funding-source-id-2"
 
-        val initialConfig = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
-            .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId1, enabled = false)
-            .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId2, enabled = false)
-            .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType, enabled = false)
+        val initialConfig =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
+                .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId1, enabled = false)
+                .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId2, enabled = false)
+                .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType, enabled = false)
 
-        val config = initialConfig.setVirtualCardsNotificationsForFundingSourceType(
-            fundingSourceType = fundingSourceType,
-            enabled = true,
-        )
+        val config =
+            initialConfig.setVirtualCardsNotificationsForFundingSourceType(
+                fundingSourceType = fundingSourceType,
+                enabled = true,
+            )
 
         config.configs shouldHaveSize 4
 
@@ -407,8 +442,9 @@ class NotificationConfigurationExtensionsTest {
 
     @Test
     fun `isVirtualCardsNotificationForFundingSourceTypeEnabled() should return true for initial configuration`() {
-        val config = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
+        val config =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
 
         config.isVirtualCardsNotificationForFundingSourceTypeEnabled(fundingSourceType = FundingSourceType.BANK_ACCOUNT) shouldBe true
     }
@@ -417,12 +453,13 @@ class NotificationConfigurationExtensionsTest {
     fun `isVirtualCardsNotificationForFundingSourceTypeEnabled() should return false if disabled`() {
         val fundingSourceType = FundingSourceType.CREDIT_CARD
 
-        val config = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
-            .setVirtualCardsNotificationsForFundingSourceType(
-                fundingSourceType = fundingSourceType,
-                enabled = false,
-            )
+        val config =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
+                .setVirtualCardsNotificationsForFundingSourceType(
+                    fundingSourceType = fundingSourceType,
+                    enabled = false,
+                )
 
         config.isVirtualCardsNotificationForFundingSourceTypeEnabled(fundingSourceType = fundingSourceType) shouldBe false
     }
@@ -432,9 +469,10 @@ class NotificationConfigurationExtensionsTest {
         val fundingSourceType1 = FundingSourceType.CREDIT_CARD
         val fundingSourceType2 = FundingSourceType.BANK_ACCOUNT
 
-        val config = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
-            .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType1, enabled = false)
+        val config =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
+                .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType1, enabled = false)
 
         config.isVirtualCardsNotificationForFundingSourceTypeEnabled(fundingSourceType = fundingSourceType2) shouldBe true
     }
@@ -444,10 +482,11 @@ class NotificationConfigurationExtensionsTest {
         val fundingSourceType1 = FundingSourceType.CREDIT_CARD
         val fundingSourceType2 = FundingSourceType.BANK_ACCOUNT
 
-        val config = NotificationConfiguration(configs = listOf())
-            .initVirtualCardsNotifications()
-            .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType1, enabled = false)
-            .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType2, enabled = false)
+        val config =
+            NotificationConfiguration(configs = listOf())
+                .initVirtualCardsNotifications()
+                .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType1, enabled = false)
+                .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType2, enabled = false)
 
         config.isVirtualCardsNotificationForFundingSourceTypeEnabled(fundingSourceType = fundingSourceType1) shouldBe false
         config.isVirtualCardsNotificationForFundingSourceTypeEnabled(fundingSourceType = fundingSourceType2) shouldBe false

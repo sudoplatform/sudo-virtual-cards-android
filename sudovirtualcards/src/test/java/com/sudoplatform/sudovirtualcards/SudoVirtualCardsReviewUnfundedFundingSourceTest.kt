@@ -58,40 +58,42 @@ import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as Fund
  * using mocks and spies.
  */
 @RunWith(Parameterized::class)
-class SudoVirtualCardsReviewUnfundedFundingSourceTest(private val provider: String) : BaseTests() {
+class SudoVirtualCardsReviewUnfundedFundingSourceTest(
+    private val provider: String,
+) : BaseTests() {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data(): Collection<String> {
-            return listOf(
+        fun data(): Collection<String> =
+            listOf(
                 "stripe",
                 "checkoutBankAccount",
             )
-        }
     }
+
     private val creditCardResponse by before {
         JSONObject(
             """
-                {
-                    'reviewUnfundedFundingSource': {
-                        '__typename': 'CreditCardFundingSource',
-                        'id':'id',
-                        'owner': 'owner',
-                        'version': 1,
-                        'createdAtEpochMs': 1.0,
-                        'updatedAtEpochMs': 10.0,
-                        'state': '${FundingSourceStateGraphQL.INACTIVE}',
-                        'flags': [],
-                        'currency':'USD',
-                        'transactionVelocity': {
-                            'maximum': 10000,
-                            'velocity': ['10000/P1D']
-                        },
-                        'last4':'last4',
-                        'network':'${CreditCardNetwork.VISA}',
-                        'cardType': '${CardType.CREDIT}'
-                        }
-                }
+            {
+                'reviewUnfundedFundingSource': {
+                    '__typename': 'CreditCardFundingSource',
+                    'id':'id',
+                    'owner': 'owner',
+                    'version': 1,
+                    'createdAtEpochMs': 1.0,
+                    'updatedAtEpochMs': 10.0,
+                    'state': '${FundingSourceStateGraphQL.INACTIVE}',
+                    'flags': [],
+                    'currency':'USD',
+                    'transactionVelocity': {
+                        'maximum': 10000,
+                        'velocity': ['10000/P1D']
+                    },
+                    'last4':'last4',
+                    'network':'${CreditCardNetwork.VISA}',
+                    'cardType': '${CardType.CREDIT}'
+                    }
+            }
             """.trimIndent(),
         )
     }
@@ -99,41 +101,41 @@ class SudoVirtualCardsReviewUnfundedFundingSourceTest(private val provider: Stri
     private val bankAccountResponse by before {
         JSONObject(
             """
-                {
-                    'reviewUnfundedFundingSource': {
-                        '__typename': 'BankAccountFundingSource',
-                        'id':'id',
-                        'owner': 'owner',
-                        'version': 1,
-                        'createdAtEpochMs': 1.0,
-                        'updatedAtEpochMs': 10.0,
-                        'state': '${FundingSourceStateGraphQL.INACTIVE}',
-                        'flags': ['${GraphQLFlags.UNFUNDED}'],
-                        'currency':'USD',
-                        'transactionVelocity': {
-                            'maximum': 10000,
-                            'velocity': ['10000/P1D']
-                        },
-                        'bankAccountType': '${BankAccountType.CHECKING}',
-                        'authorization': {
-                            'language': 'language',
-                            'content': 'content',
-                            'algorithm': 'algorithm',
-                            'contentType': 'contentType',
-                            'signature': 'signature',
-                            'keyId': 'keyId',
-                            'data': 'data'
-                        },
-                        'last4':'last4',
-                        'institutionName': {
-                            '__typename': 'InstitutionName',
-                            'algorithm': 'algorithm',
-                            'plainTextType': 'string',
-                            'keyId': 'keyId',
-                            'base64EncodedSealedData': '${mockSeal("base64EncodedSealedData")}'
-                        }
+            {
+                'reviewUnfundedFundingSource': {
+                    '__typename': 'BankAccountFundingSource',
+                    'id':'id',
+                    'owner': 'owner',
+                    'version': 1,
+                    'createdAtEpochMs': 1.0,
+                    'updatedAtEpochMs': 10.0,
+                    'state': '${FundingSourceStateGraphQL.INACTIVE}',
+                    'flags': ['${GraphQLFlags.UNFUNDED}'],
+                    'currency':'USD',
+                    'transactionVelocity': {
+                        'maximum': 10000,
+                        'velocity': ['10000/P1D']
+                    },
+                    'bankAccountType': '${BankAccountType.CHECKING}',
+                    'authorization': {
+                        'language': 'language',
+                        'content': 'content',
+                        'algorithm': 'algorithm',
+                        'contentType': 'contentType',
+                        'signature': 'signature',
+                        'keyId': 'keyId',
+                        'data': 'data'
+                    },
+                    'last4':'last4',
+                    'institutionName': {
+                        '__typename': 'InstitutionName',
+                        'algorithm': 'algorithm',
+                        'plainTextType': 'string',
+                        'keyId': 'keyId',
+                        'base64EncodedSealedData': '${mockSeal("base64EncodedSealedData")}'
                     }
                 }
+            }
             """.trimIndent(),
         )
     }
@@ -158,7 +160,8 @@ class SudoVirtualCardsReviewUnfundedFundingSourceTest(private val provider: Stri
             on {
                 mutate<String>(
                     argThat { this.query.equals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT) },
-                    any(), any(),
+                    any(),
+                    any(),
                 )
             } doAnswer {
                 val mockOperation: GraphQLOperation<String> = mock()
@@ -180,7 +183,8 @@ class SudoVirtualCardsReviewUnfundedFundingSourceTest(private val provider: Stri
     }
 
     private val client by before {
-        SudoVirtualCardsClient.builder()
+        SudoVirtualCardsClient
+            .builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
             .setGraphQLClient(GraphQLClient(mockApiCategory))
@@ -195,257 +199,272 @@ class SudoVirtualCardsReviewUnfundedFundingSourceTest(private val provider: Stri
     }
 
     @Test
-    fun `ReviewUnfundedFundingSource() should return results when no error present`() = runBlocking<Unit> {
-        val deferredResult = async(Dispatchers.IO) {
-            client.reviewUnfundedFundingSource("id")
-        }
-        deferredResult.start()
+    fun `ReviewUnfundedFundingSource() should return results when no error present`() =
+        runBlocking<Unit> {
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.reviewUnfundedFundingSource("id")
+                }
+            deferredResult.start()
 
-        delay(100L)
-        val result = deferredResult.await()
-        result shouldNotBe null
+            delay(100L)
+            val result = deferredResult.await()
+            result shouldNotBe null
 
-        when (result) {
-            is CreditCardFundingSource -> {
-                with(result) {
-                    id shouldBe "id"
-                    owner shouldBe "owner"
-                    version shouldBe 1
-                    createdAt shouldNotBe null
-                    updatedAt shouldNotBe null
-                    state shouldBe FundingSourceState.INACTIVE
-                    currency shouldBe "USD"
-                    last4 shouldBe "last4"
-                    network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
+            when (result) {
+                is CreditCardFundingSource -> {
+                    with(result) {
+                        id shouldBe "id"
+                        owner shouldBe "owner"
+                        version shouldBe 1
+                        createdAt shouldNotBe null
+                        updatedAt shouldNotBe null
+                        state shouldBe FundingSourceState.INACTIVE
+                        currency shouldBe "USD"
+                        last4 shouldBe "last4"
+                        network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
+                    }
+                }
+                is BankAccountFundingSource -> {
+                    with(result) {
+                        id shouldBe "id"
+                        owner shouldBe "owner"
+                        version shouldBe 1
+                        createdAt shouldNotBe null
+                        updatedAt shouldNotBe null
+                        state shouldBe FundingSourceState.INACTIVE
+                        flags shouldBe listOf(FundingSourceFlags.UNFUNDED)
+                        currency shouldBe "USD"
+                        transactionVelocity?.maximum shouldBe 10000
+                        transactionVelocity?.velocity shouldBe listOf("10000/P1D")
+                        bankAccountType shouldBe BankAccountFundingSource.BankAccountType.CHECKING
+                        last4 shouldBe "last4"
+                        institutionName shouldNotBe null
+                        institutionLogo shouldBe null
+                    }
+                }
+                else -> {
+                    fail("Unexpected FundingSource type")
                 }
             }
-            is BankAccountFundingSource -> {
-                with(result) {
-                    id shouldBe "id"
-                    owner shouldBe "owner"
-                    version shouldBe 1
-                    createdAt shouldNotBe null
-                    updatedAt shouldNotBe null
-                    state shouldBe FundingSourceState.INACTIVE
-                    flags shouldBe listOf(FundingSourceFlags.UNFUNDED)
-                    currency shouldBe "USD"
-                    transactionVelocity?.maximum shouldBe 10000
-                    transactionVelocity?.velocity shouldBe listOf("10000/P1D")
-                    bankAccountType shouldBe BankAccountFundingSource.BankAccountType.CHECKING
-                    last4 shouldBe "last4"
-                    institutionName shouldNotBe null
-                    institutionLogo shouldBe null
-                }
-            }
-            else -> {
-                fail("Unexpected FundingSource type")
-            }
-        }
 
-        if (provider == "checkoutBankAccount") {
-            verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
-            verify(mockKeyManager).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
-        }
-        verify(mockApiCategory).mutate<String>(
-            check {
-                assertEquals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `ReviewUnfundedFundingSource() should throw when mutation response is null`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT) },
+            if (provider == "checkoutBankAccount") {
+                verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
+                verify(mockKeyManager).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+            }
+            verify(mockApiCategory).mutate<String>(
+                check {
+                    assertEquals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT, it.query)
+                },
                 any(),
                 any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, null),
             )
-            mockOperation
         }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.ReviewFailedException> {
-                client.reviewUnfundedFundingSource("id")
-            }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockApiCategory).mutate<String>(
-            check {
-                assertEquals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 
     @Test
-    fun `ReviewUnfundedFundingSource() should throw when response has a funding source not found error`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "FundingSourceNotFoundError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceNotFoundException> {
-                client.reviewUnfundedFundingSource("id")
-            }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockApiCategory).mutate<String>(
-            check {
-                assertEquals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `ReviewUnfundedFundingSource() should throw when response has an account locked error`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "AccountLockedError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.AccountLockedException> {
-                client.reviewUnfundedFundingSource("id")
-            }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockApiCategory).mutate<String>(
-            check {
-                assertEquals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `ReviewUnfundedFundingSource() should throw when http error occurs`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.mutate<String>(
-                argThat { this.query.equals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.ReviewFailedException> {
-                client.reviewUnfundedFundingSource("id")
-            }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockApiCategory).mutate<String>(
-            check {
-                assertEquals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `ReviewUnfundedFundingSource() should throw when unknown error occurs`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                mutate<String>(
+    fun `ReviewUnfundedFundingSource() should throw when mutation response is null`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
                     argThat { this.query.equals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, null),
                 )
-            } doThrow RuntimeException("Mock Runtime Exception")
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnknownException> {
-                client.reviewUnfundedFundingSource("id")
+                mockOperation
             }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.ReviewFailedException> {
+                        client.reviewUnfundedFundingSource("id")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).mutate<String>(
+                check {
+                    assertEquals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
-        deferredResult.start()
-        delay(100L)
 
-        deferredResult.await()
+    @Test
+    fun `ReviewUnfundedFundingSource() should throw when response has a funding source not found error`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "FundingSourceNotFoundError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
 
-        verify(mockApiCategory).mutate<String>(
-            check {
-                assertEquals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.FundingSourceNotFoundException> {
+                        client.reviewUnfundedFundingSource("id")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).mutate<String>(
+                check {
+                    assertEquals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `ReviewUnfundedFundingSource() should throw when response has an account locked error`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "AccountLockedError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.AccountLockedException> {
+                        client.reviewUnfundedFundingSource("id")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).mutate<String>(
+                check {
+                    assertEquals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `ReviewUnfundedFundingSource() should throw when http error occurs`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.mutate<String>(
+                    argThat { this.query.equals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.ReviewFailedException> {
+                        client.reviewUnfundedFundingSource("id")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).mutate<String>(
+                check {
+                    assertEquals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `ReviewUnfundedFundingSource() should throw when unknown error occurs`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    mutate<String>(
+                        argThat { this.query.equals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow RuntimeException("Mock Runtime Exception")
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnknownException> {
+                        client.reviewUnfundedFundingSource("id")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+
+            deferredResult.await()
+
+            verify(mockApiCategory).mutate<String>(
+                check {
+                    assertEquals(ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
 }

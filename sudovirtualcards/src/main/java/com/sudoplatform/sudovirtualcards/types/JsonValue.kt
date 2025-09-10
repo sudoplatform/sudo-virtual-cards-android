@@ -11,18 +11,35 @@ package com.sudoplatform.sudovirtualcards.types
  * to multiple primitive types.
  */
 sealed class JsonValue<out T> {
-    data class JsonString(val value: String) : JsonValue<String>()
-    data class JsonInteger(val value: Int) : JsonValue<Int>()
-    data class JsonDouble(val value: Double) : JsonValue<Double>()
-    data class JsonBoolean(val value: Boolean) : JsonValue<Boolean>()
-    data class JsonArray<V>(val value: List<V>) : JsonValue<Array<V>>()
-    data class JsonMap(val value: Map<*, *>) : JsonValue<Map<String, Any>>()
+    data class JsonString(
+        val value: String,
+    ) : JsonValue<String>()
+
+    data class JsonInteger(
+        val value: Int,
+    ) : JsonValue<Int>()
+
+    data class JsonDouble(
+        val value: Double,
+    ) : JsonValue<Double>()
+
+    data class JsonBoolean(
+        val value: Boolean,
+    ) : JsonValue<Boolean>()
+
+    data class JsonArray<V>(
+        val value: List<V>,
+    ) : JsonValue<Array<V>>()
+
+    data class JsonMap(
+        val value: Map<*, *>,
+    ) : JsonValue<Map<String, Any>>()
 
     /**
      * Unwrap the value associated with the specific [JsonValue] type.
      */
-    fun unwrap(): Any {
-        return when (this) {
+    fun unwrap(): Any =
+        when (this) {
             is JsonString -> this.value
             is JsonInteger -> this.value
             is JsonDouble -> this.value
@@ -30,5 +47,4 @@ sealed class JsonValue<out T> {
             is JsonArray<*> -> this.value
             is JsonMap -> this.value
         }
-    }
 }

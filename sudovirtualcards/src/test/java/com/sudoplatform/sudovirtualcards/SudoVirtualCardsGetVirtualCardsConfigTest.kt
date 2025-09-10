@@ -66,140 +66,157 @@ import com.sudoplatform.sudovirtualcards.types.FundingSourceSupportInfo as Fundi
  * using mocks and spies.
  */
 class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
-
     data class SerializedClientApplicationConfiguration(
         @SerializedName("client_application_configuration")
         val clientApplicationConfiguration: ClientApplicationConfiguration,
     )
 
     private val queryResponse by before {
-        val fsConfig = FundingSourceTypes(
-            listOf(
-                FundingSourceClientConfigurationEntity(
-                    apiKey = "test-key",
-                    fundingSourceType = FundingSourceType.CREDIT_CARD,
+        val fsConfig =
+            FundingSourceTypes(
+                listOf(
+                    FundingSourceClientConfigurationEntity(
+                        apiKey = "test-key",
+                        fundingSourceType = FundingSourceType.CREDIT_CARD,
+                    ),
+                    FundingSourceClientConfigurationEntity(
+                        apiKey = "test-key",
+                        fundingSourceType = FundingSourceType.BANK_ACCOUNT,
+                    ),
                 ),
-                FundingSourceClientConfigurationEntity(
-                    apiKey = "test-key",
-                    fundingSourceType = FundingSourceType.BANK_ACCOUNT,
-                ),
-            ),
-        )
+            )
         val fsConfigStr = Gson().toJson(fsConfig)
         val encodedFsConfigData = Base64.encodeBase64String(fsConfigStr.toByteArray())
 
-        val appConfig = SerializedClientApplicationConfiguration(
-            clientApplicationConfiguration = ClientApplicationConfiguration(
-                fundingSourceProviders = FundingSourceProviders(
-                    plaid = PlaidApplicationConfiguration(
-                        clientName = "client-name",
-                        androidPackageName = "android-package-name",
+        val appConfig =
+            SerializedClientApplicationConfiguration(
+                clientApplicationConfiguration =
+                    ClientApplicationConfiguration(
+                        fundingSourceProviders =
+                            FundingSourceProviders(
+                                plaid =
+                                    PlaidApplicationConfiguration(
+                                        clientName = "client-name",
+                                        androidPackageName = "android-package-name",
+                                    ),
+                            ),
                     ),
-                ),
-            ),
-        )
+            )
         val appConfigStr = Gson().toJson(appConfig)
         val encodedAppConfigData = Base64.encodeBase64String(appConfigStr.toByteArray())
 
-        val pricingPolicy = PricingPolicy(
-            stripe = StripePricingPolicy(
-                creditCard = mapOf(
-                    Pair(
-                        "DEFAULT",
-                        TieredMarkupPolicy(
-                            tiers = listOf(
-                                TieredMarkup(
-                                    markup = Markup(
-                                        flat = 1000,
-                                        percent = 10,
-                                    ),
-                                    minThreshold = 0,
-                                ),
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-            checkout = CheckoutPricingPolicy(
-                creditCard = mapOf(
-                    Pair(
-                        "DEFAULT",
-                        TieredMarkupPolicy(
-                            tiers = listOf(
-                                TieredMarkup(
-                                    markup = Markup(
-                                        flat = 2500,
-                                        percent = 25,
-                                    ),
-                                    minThreshold = 0,
-                                ),
-                            ),
-                        ),
-                    ),
-                ),
-                bankAccount = mapOf(
-                    Pair(
-                        "DEFAULT",
-                        TieredMarkupPolicy(
-                            tiers = listOf(
-                                TieredMarkup(
-                                    minThreshold = 0,
-                                    markup = Markup(
-                                        flat = 1000,
-                                        percent = 0,
-                                    ),
-                                ),
-                                TieredMarkup(
-                                    minThreshold = 10000,
-                                    markup = Markup(
-                                        flat = 2000,
-                                        percent = 0,
+        val pricingPolicy =
+            PricingPolicy(
+                stripe =
+                    StripePricingPolicy(
+                        creditCard =
+                            mapOf(
+                                Pair(
+                                    "DEFAULT",
+                                    TieredMarkupPolicy(
+                                        tiers =
+                                            listOf(
+                                                TieredMarkup(
+                                                    markup =
+                                                        Markup(
+                                                            flat = 1000,
+                                                            percent = 10,
+                                                        ),
+                                                    minThreshold = 0,
+                                                ),
+                                            ),
                                     ),
                                 ),
                             ),
-                        ),
                     ),
-                ),
-            ),
-        )
+                checkout =
+                    CheckoutPricingPolicy(
+                        creditCard =
+                            mapOf(
+                                Pair(
+                                    "DEFAULT",
+                                    TieredMarkupPolicy(
+                                        tiers =
+                                            listOf(
+                                                TieredMarkup(
+                                                    markup =
+                                                        Markup(
+                                                            flat = 2500,
+                                                            percent = 25,
+                                                        ),
+                                                    minThreshold = 0,
+                                                ),
+                                            ),
+                                    ),
+                                ),
+                            ),
+                        bankAccount =
+                            mapOf(
+                                Pair(
+                                    "DEFAULT",
+                                    TieredMarkupPolicy(
+                                        tiers =
+                                            listOf(
+                                                TieredMarkup(
+                                                    minThreshold = 0,
+                                                    markup =
+                                                        Markup(
+                                                            flat = 1000,
+                                                            percent = 0,
+                                                        ),
+                                                ),
+                                                TieredMarkup(
+                                                    minThreshold = 10000,
+                                                    markup =
+                                                        Markup(
+                                                            flat = 2000,
+                                                            percent = 0,
+                                                        ),
+                                                ),
+                                            ),
+                                    ),
+                                ),
+                            ),
+                    ),
+            )
         val pricingPolicyStr = Gson().toJson(pricingPolicy)
         val encodedPricingPolicy = Base64.encodeBase64String((pricingPolicyStr.toByteArray()))
 
         JSONObject(
             """
-                {
-                    'getVirtualCardsConfig': {
-                            '__typename': 'VirtualCardsConfig',
-                            'maxFundingSourceVelocity': ['maxFundingSourceVelocity'],
-                            'maxFundingSourceFailureVelocity':['maxFundingSourceFailureVelocity'],
-                            'maxFundingSourcePendingVelocity':['maxFundingSourcePendingVelocity'],
-                            'maxCardCreationVelocity':['maxCardCreationVelocity'],
-                            'maxTransactionVelocity':[{
-                                'currency': 'USD',
-                                'velocity': ['velocity']
-                            }],
-                            'maxTransactionAmount':[{
-                                'currency': 'USD',
-                                'amount': 100
-                            }],
-                            'virtualCardCurrencies': ['virtualCardCurrencies'],
-                            'fundingSourceSupportInfo': [{
-                                '__typename': 'FundingSourceSupportInfo',
-                                'providerType': 'providerType',
-                                'fundingSourceType': 'fundingSourceType',
-                                'network': 'network',
-                                'detail': [{
-                                    '__typename': 'Detail',
-                                    'cardType': '${CardType.PREPAID}'
-                                }]
-                            }],
-                            'bankAccountFundingSourceExpendableEnabled': true,
-                            'bankAccountFundingSourceCreationEnabled': true,
-                            'fundingSourceClientConfiguration': {'data': '$encodedFsConfigData'},
-                            'clientApplicationsConfiguration': {'data': '$encodedAppConfigData'},
-                            'pricingPolicy': {'data': '$encodedPricingPolicy'},
-                        }
-                }
+            {
+                'getVirtualCardsConfig': {
+                        '__typename': 'VirtualCardsConfig',
+                        'maxFundingSourceVelocity': ['maxFundingSourceVelocity'],
+                        'maxFundingSourceFailureVelocity':['maxFundingSourceFailureVelocity'],
+                        'maxFundingSourcePendingVelocity':['maxFundingSourcePendingVelocity'],
+                        'maxCardCreationVelocity':['maxCardCreationVelocity'],
+                        'maxTransactionVelocity':[{
+                            'currency': 'USD',
+                            'velocity': ['velocity']
+                        }],
+                        'maxTransactionAmount':[{
+                            'currency': 'USD',
+                            'amount': 100
+                        }],
+                        'virtualCardCurrencies': ['virtualCardCurrencies'],
+                        'fundingSourceSupportInfo': [{
+                            '__typename': 'FundingSourceSupportInfo',
+                            'providerType': 'providerType',
+                            'fundingSourceType': 'fundingSourceType',
+                            'network': 'network',
+                            'detail': [{
+                                '__typename': 'Detail',
+                                'cardType': '${CardType.PREPAID}'
+                            }]
+                        }],
+                        'bankAccountFundingSourceExpendableEnabled': true,
+                        'bankAccountFundingSourceCreationEnabled': true,
+                        'fundingSourceClientConfiguration': {'data': '$encodedFsConfigData'},
+                        'clientApplicationsConfiguration': {'data': '$encodedAppConfigData'},
+                        'pricingPolicy': {'data': '$encodedPricingPolicy'},
+                    }
+            }
             """.trimIndent(),
         )
     }
@@ -217,7 +234,8 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
             on {
                 query<String>(
                     argThat { this.query.equals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT) },
-                    any(), any(),
+                    any(),
+                    any(),
                 )
             } doAnswer {
                 val mockOperation: GraphQLOperation<String> = mock()
@@ -239,7 +257,8 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
     }
 
     private val client by before {
-        SudoVirtualCardsClient.builder()
+        SudoVirtualCardsClient
+            .builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
             .setGraphQLClient(GraphQLClient(mockApiCategory))
@@ -261,307 +280,325 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
     }
 
     @Test
-    fun `getVirtualCardsConfig() should return results when no error present`() = runBlocking<Unit> {
-        val deferredResult = async(Dispatchers.IO) {
-            client.getVirtualCardsConfig()
-        }
-        deferredResult.start()
-        delay(100L)
-        val result = deferredResult.await()
-        result shouldNotBe null
+    fun `getVirtualCardsConfig() should return results when no error present`() =
+        runBlocking<Unit> {
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.getVirtualCardsConfig()
+                }
+            deferredResult.start()
+            delay(100L)
+            val result = deferredResult.await()
+            result shouldNotBe null
 
-        with(result!!) {
-            val fundingSourceTypes = listOf(FundingSourceType.CREDIT_CARD, FundingSourceType.BANK_ACCOUNT)
-            for (i in result.fundingSourceClientConfiguration.indices) {
-                result.fundingSourceClientConfiguration[i].fundingSourceType shouldBe fundingSourceTypes[i]
-                result.fundingSourceClientConfiguration[i].type shouldBe "string"
-                result.fundingSourceClientConfiguration[i].version shouldBe 1
-                result.fundingSourceClientConfiguration[i].apiKey shouldBe "test-key"
-            }
-            maxFundingSourceVelocity shouldBe listOf("maxFundingSourceVelocity")
-            maxFundingSourceFailureVelocity shouldBe listOf("maxFundingSourceFailureVelocity")
-            maxFundingSourcePendingVelocity shouldBe listOf("maxFundingSourcePendingVelocity")
-            maxCardCreationVelocity shouldBe listOf("maxCardCreationVelocity")
-            maxTransactionVelocity shouldBe listOf(
-                CurrencyVelocity(
-                    "USD",
-                    listOf("velocity"),
-                ),
-            )
-            maxTransactionAmount shouldBe listOf(
-                CurrencyAmount(
-                    "USD",
-                    100,
-                ),
-            )
-            virtualCardCurrencies shouldBe listOf("virtualCardCurrencies")
-            fundingSourceSupportInfo shouldBe listOf(
-                FundingSourceSupportInfoEntity(
-                    "providerType",
-                    "fundingSourceType",
-                    "network",
+            with(result!!) {
+                val fundingSourceTypes = listOf(FundingSourceType.CREDIT_CARD, FundingSourceType.BANK_ACCOUNT)
+                for (i in result.fundingSourceClientConfiguration.indices) {
+                    result.fundingSourceClientConfiguration[i].fundingSourceType shouldBe fundingSourceTypes[i]
+                    result.fundingSourceClientConfiguration[i].type shouldBe "string"
+                    result.fundingSourceClientConfiguration[i].version shouldBe 1
+                    result.fundingSourceClientConfiguration[i].apiKey shouldBe "test-key"
+                }
+                maxFundingSourceVelocity shouldBe listOf("maxFundingSourceVelocity")
+                maxFundingSourceFailureVelocity shouldBe listOf("maxFundingSourceFailureVelocity")
+                maxFundingSourcePendingVelocity shouldBe listOf("maxFundingSourcePendingVelocity")
+                maxCardCreationVelocity shouldBe listOf("maxCardCreationVelocity")
+                maxTransactionVelocity shouldBe
                     listOf(
-                        FundingSourceSupportDetailEntity(
-                            CardTypeEntity.PREPAID,
+                        CurrencyVelocity(
+                            "USD",
+                            listOf("velocity"),
                         ),
-                    ),
-                ),
-            )
-            clientApplicationConfiguration shouldBe mapOf(
-                Pair(
-                    "client_application_configuration",
-                    ClientApplicationConfiguration(
-                        FundingSourceProviders(
-                            PlaidApplicationConfiguration(
-                                "client-name",
-                                "android-package-name",
+                    )
+                maxTransactionAmount shouldBe
+                    listOf(
+                        CurrencyAmount(
+                            "USD",
+                            100,
+                        ),
+                    )
+                virtualCardCurrencies shouldBe listOf("virtualCardCurrencies")
+                fundingSourceSupportInfo shouldBe
+                    listOf(
+                        FundingSourceSupportInfoEntity(
+                            "providerType",
+                            "fundingSourceType",
+                            "network",
+                            listOf(
+                                FundingSourceSupportDetailEntity(
+                                    CardTypeEntity.PREPAID,
+                                ),
                             ),
                         ),
-                    ),
-                ),
-            )
-            pricingPolicy shouldBe PricingPolicy(
-                StripePricingPolicy(
+                    )
+                clientApplicationConfiguration shouldBe
                     mapOf(
                         Pair(
-                            "DEFAULT",
-                            TieredMarkupPolicy(
-                                listOf(
-                                    TieredMarkup(
-                                        Markup(
-                                            10,
-                                            1000,
-                                        ),
-                                        0,
+                            "client_application_configuration",
+                            ClientApplicationConfiguration(
+                                FundingSourceProviders(
+                                    PlaidApplicationConfiguration(
+                                        "client-name",
+                                        "android-package-name",
                                     ),
                                 ),
                             ),
                         ),
-                    ),
-                ),
-                CheckoutPricingPolicy(
-                    mapOf(
-                        Pair(
-                            "DEFAULT",
-                            TieredMarkupPolicy(
-                                listOf(
-                                    TieredMarkup(
-                                        Markup(
-                                            25,
-                                            2500,
+                    )
+                pricingPolicy shouldBe
+                    PricingPolicy(
+                        StripePricingPolicy(
+                            mapOf(
+                                Pair(
+                                    "DEFAULT",
+                                    TieredMarkupPolicy(
+                                        listOf(
+                                            TieredMarkup(
+                                                Markup(
+                                                    10,
+                                                    1000,
+                                                ),
+                                                0,
+                                            ),
                                         ),
-                                        0,
                                     ),
                                 ),
                             ),
                         ),
-                    ),
-                    mapOf(
-                        Pair(
-                            "DEFAULT",
-                            TieredMarkupPolicy(
-                                listOf(
-                                    TieredMarkup(
-                                        Markup(
-                                            0,
-                                            1000,
+                        CheckoutPricingPolicy(
+                            mapOf(
+                                Pair(
+                                    "DEFAULT",
+                                    TieredMarkupPolicy(
+                                        listOf(
+                                            TieredMarkup(
+                                                Markup(
+                                                    25,
+                                                    2500,
+                                                ),
+                                                0,
+                                            ),
                                         ),
-                                        0,
                                     ),
-                                    TieredMarkup(
-                                        Markup(
-                                            0,
-                                            2000,
+                                ),
+                            ),
+                            mapOf(
+                                Pair(
+                                    "DEFAULT",
+                                    TieredMarkupPolicy(
+                                        listOf(
+                                            TieredMarkup(
+                                                Markup(
+                                                    0,
+                                                    1000,
+                                                ),
+                                                0,
+                                            ),
+                                            TieredMarkup(
+                                                Markup(
+                                                    0,
+                                                    2000,
+                                                ),
+                                                10000,
+                                            ),
                                         ),
-                                        10000,
                                     ),
                                 ),
                             ),
                         ),
-                    ),
-                ),
-            )
-        }
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `getVirtualCardsConfig() should return null result when query response is null`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, null),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.getVirtualCardsConfig()
-        }
-        deferredResult.start()
-        delay(100L)
-        val result = deferredResult.await()
-        result shouldBe null
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `getVirtualCardsConfig() should throw when query response has errors`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.IdentityVerificationException> {
-                client.getVirtualCardsConfig()
+                    )
             }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `getVirtualCardsConfig() should throw when http error occurs`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT) },
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
+                },
                 any(),
                 any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
             )
-            mockOperation
         }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.FailedException> {
-                client.getVirtualCardsConfig()
-            }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 
     @Test
-    fun `getVirtualCardsConfig() should throw when unknown error occurs()`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
+    fun `getVirtualCardsConfig() should return null result when query response is null`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
                 mockApiCategory.query<String>(
                     argThat { this.query.equals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, null),
                 )
-            } doThrow RuntimeException("Mock Runtime Exception")
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.UnknownException> {
-                client.getVirtualCardsConfig()
+                mockOperation
             }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.getVirtualCardsConfig()
+                }
+            deferredResult.start()
+            delay(100L)
+            val result = deferredResult.await()
+            result shouldBe null
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
-        deferredResult.start()
-        delay(100L)
-
-        deferredResult.await()
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 
     @Test
-    fun `getVirtualCardsConfig() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
+    fun `getVirtualCardsConfig() should throw when query response has errors`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("errorType" to "IdentityVerificationNotVerifiedError"),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
                 mockApiCategory.query<String>(
                     argThat { this.query.equals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
                 )
-            } doThrow CancellationException("Mock Cancellation Exception")
+                mockOperation
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.IdentityVerificationException> {
+                        client.getVirtualCardsConfig()
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
 
-        shouldThrow<CancellationException> {
-            client.getVirtualCardsConfig()
+    @Test
+    fun `getVirtualCardsConfig() should throw when http error occurs`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.FailedException> {
+                        client.getVirtualCardsConfig()
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
 
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
+    @Test
+    fun `getVirtualCardsConfig() should throw when unknown error occurs()`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    mockApiCategory.query<String>(
+                        argThat { this.query.equals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow RuntimeException("Mock Runtime Exception")
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.UnknownException> {
+                        client.getVirtualCardsConfig()
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+
+            deferredResult.await()
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `getVirtualCardsConfig() should not block coroutine cancellation exception`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    mockApiCategory.query<String>(
+                        argThat { this.query.equals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow CancellationException("Mock Cancellation Exception")
+            }
+
+            shouldThrow<CancellationException> {
+                client.getVirtualCardsConfig()
+            }
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetVirtualCardsConfigQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
 }

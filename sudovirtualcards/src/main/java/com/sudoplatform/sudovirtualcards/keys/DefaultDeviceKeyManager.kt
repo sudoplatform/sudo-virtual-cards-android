@@ -22,7 +22,6 @@ internal class DefaultDeviceKeyManager(
     private val keyManager: KeyManagerInterface,
     private val logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO)),
 ) : DeviceKeyManager {
-
     companion object {
         private const val CURRENT_KEY_ID_NAME = "current"
         private const val SECRET_KEY_ID_NAME = "vc-secret-key"
@@ -37,16 +36,18 @@ internal class DefaultDeviceKeyManager(
      */
     override fun getCurrentKey(): DeviceKey? {
         try {
-            val currentKeyData = keyManager.getPassword(CURRENT_KEY_ID_NAME)
-                ?: return null
+            val currentKeyData =
+                keyManager.getPassword(CURRENT_KEY_ID_NAME)
+                    ?: return null
             val currentKeyId = currentKeyData.toString(Charsets.UTF_8)
 
             // Currently, Android key store cannot have only a public key or
             // only a private key - exsitence of public key implies existence
             // of private key so we don't need to test explicitly for private
             // key existence.
-            val publicKey = keyManager.getPublicKeyData(currentKeyId)
-                ?: return null
+            val publicKey =
+                keyManager.getPublicKeyData(currentKeyId)
+                    ?: return null
             return DeviceKey(
                 keyId = currentKeyId,
                 publicKey = publicKey,
@@ -67,8 +68,9 @@ internal class DefaultDeviceKeyManager(
             // only a private key - existence of public key implies existence
             // of private key so we don't need to test explicitly for private
             // key existence.
-            val publicKey = keyManager.getPublicKeyData(id)
-                ?: return null
+            val publicKey =
+                keyManager.getPublicKeyData(id)
+                    ?: return null
             return DeviceKey(
                 keyId = id,
                 publicKey = publicKey,
@@ -97,8 +99,9 @@ internal class DefaultDeviceKeyManager(
             // Generate the key pair for the new current key
             keyManager.generateKeyPair(keyId, true)
 
-            val publicKey = keyManager.getPublicKeyData(keyId)
-                ?: throw DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException("Failed to extract public key data")
+            val publicKey =
+                keyManager.getPublicKeyData(keyId)
+                    ?: throw DeviceKeyManager.DeviceKeyManagerException.KeyGenerationException("Failed to extract public key data")
             return DeviceKey(
                 keyId = keyId,
                 publicKey = publicKey,
@@ -191,7 +194,10 @@ internal class DefaultDeviceKeyManager(
      * @throws [DeviceKeyManager.DeviceKeyManagerException.DecryptionException] if the data cannot be decrypted
      */
     @Throws(DeviceKeyManager.DeviceKeyManagerException::class)
-    override fun decryptWithSymmetricKey(key: ByteArray, data: ByteArray): ByteArray {
+    override fun decryptWithSymmetricKey(
+        key: ByteArray,
+        data: ByteArray,
+    ): ByteArray {
         try {
             return keyManager.decryptWithSymmetricKey(key, data)
         } catch (e: KeyManagerException) {
@@ -209,7 +215,10 @@ internal class DefaultDeviceKeyManager(
      * @throws [DeviceKeyManager.DeviceKeyManagerException.DecryptionException] if the data cannot be decrypted.
      */
     @Throws(DeviceKeyManager.DeviceKeyManagerException::class)
-    override fun decryptWithSymmetricKeyId(keyId: String, data: ByteArray): ByteArray {
+    override fun decryptWithSymmetricKeyId(
+        keyId: String,
+        data: ByteArray,
+    ): ByteArray {
         try {
             return keyManager.decryptWithSymmetricKey(keyId, data)
         } catch (e: KeyManagerException) {
@@ -227,7 +236,10 @@ internal class DefaultDeviceKeyManager(
      * @throws [DeviceKeyManager.DeviceKeyManagerException.EncryptionException] if the data cannot be encrypted.
      */
     @Throws(DeviceKeyManager.DeviceKeyManagerException::class)
-    override fun encryptWithSymmetricKeyId(keyId: String, data: ByteArray): ByteArray {
+    override fun encryptWithSymmetricKeyId(
+        keyId: String,
+        data: ByteArray,
+    ): ByteArray {
         try {
             return keyManager.encryptWithSymmetricKey(keyId, data)
         } catch (e: KeyManagerException) {
@@ -237,7 +249,10 @@ internal class DefaultDeviceKeyManager(
     }
 
     @Throws(DeviceKeyManager.DeviceKeyManagerException::class)
-    override fun signWithPrivateKeyId(keyId: String, data: ByteArray): ByteArray {
+    override fun signWithPrivateKeyId(
+        keyId: String,
+        data: ByteArray,
+    ): ByteArray {
         try {
             return keyManager.generateSignatureWithPrivateKey(keyId, data)
         } catch (e: KeyManagerException) {

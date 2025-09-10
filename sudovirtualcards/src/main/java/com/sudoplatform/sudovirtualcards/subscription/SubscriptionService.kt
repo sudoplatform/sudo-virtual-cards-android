@@ -36,7 +36,6 @@ internal class SubscriptionService(
     private val userClient: SudoUserClient,
     private val logger: Logger = Logger(LogConstants.SUDOLOG_TAG, AndroidUtilsLogDriver(LogLevel.INFO)),
 ) : AutoCloseable {
-
     companion object {
         private const val ERROR_UNAUTHENTICATED_MSG = "User client does not have subject. Is the user authenticated?"
     }
@@ -46,58 +45,72 @@ internal class SubscriptionService(
     private val txnDeleteSubscriptionManager = TransactionSubscriptionManager<OnTransactionDeleteSubscription.Data>()
     private val fsUpdateSubscriptionManager = FundingSourceSubscriptionManager<OnFundingSourceUpdateSubscription.Data>()
 
-    suspend fun subscribeTransactions(id: String, subscriber: TransactionSubscriber) {
-        val userSubject = userClient.getSubject()
-            ?: throw SudoVirtualCardsClient.TransactionException.AuthenticationException(ERROR_UNAUTHENTICATED_MSG)
+    suspend fun subscribeTransactions(
+        id: String,
+        subscriber: TransactionSubscriber,
+    ) {
+        val userSubject =
+            userClient.getSubject()
+                ?: throw SudoVirtualCardsClient.TransactionException.AuthenticationException(ERROR_UNAUTHENTICATED_MSG)
 
         txnUpdateSubscriptionManager.replaceSubscriber(id, subscriber)
         txnDeleteSubscriptionManager.replaceSubscriber(id, subscriber)
 
-        scope.launch {
-            if (txnUpdateSubscriptionManager.watcher == null) {
-                val watcher = graphQLClient.subscribe<OnTransactionUpdateSubscription, OnTransactionUpdateSubscription.Data>(
-                    OnTransactionUpdateSubscription.OPERATION_DOCUMENT,
-                    mapOf("owner" to userSubject),
-                    transactionUpdateCallbacks.onSubscriptionEstablished,
-                    transactionUpdateCallbacks.onSubscription,
-                    transactionUpdateCallbacks.onSubscriptionCompleted,
-                    transactionUpdateCallbacks.onFailure,
-                )
-                txnUpdateSubscriptionManager.watcher = watcher
-            }
+        scope
+            .launch {
+                if (txnUpdateSubscriptionManager.watcher == null) {
+                    val watcher =
+                        graphQLClient.subscribe<OnTransactionUpdateSubscription, OnTransactionUpdateSubscription.Data>(
+                            OnTransactionUpdateSubscription.OPERATION_DOCUMENT,
+                            mapOf("owner" to userSubject),
+                            transactionUpdateCallbacks.onSubscriptionEstablished,
+                            transactionUpdateCallbacks.onSubscription,
+                            transactionUpdateCallbacks.onSubscriptionCompleted,
+                            transactionUpdateCallbacks.onFailure,
+                        )
+                    txnUpdateSubscriptionManager.watcher = watcher
+                }
 
-            if (txnDeleteSubscriptionManager.watcher == null) {
-                val watcher = graphQLClient.subscribe<OnTransactionDeleteSubscription, OnTransactionDeleteSubscription.Data>(
-                    OnTransactionDeleteSubscription.OPERATION_DOCUMENT,
-                    mapOf("owner" to userSubject),
-                    transactionDeleteCallbacks.onSubscriptionEstablished,
-                    transactionDeleteCallbacks.onSubscription,
-                    transactionDeleteCallbacks.onSubscriptionCompleted,
-                    transactionDeleteCallbacks.onFailure,
-                )
-                txnDeleteSubscriptionManager.watcher = watcher
-            }
-        }.join()
+                if (txnDeleteSubscriptionManager.watcher == null) {
+                    val watcher =
+                        graphQLClient.subscribe<OnTransactionDeleteSubscription, OnTransactionDeleteSubscription.Data>(
+                            OnTransactionDeleteSubscription.OPERATION_DOCUMENT,
+                            mapOf("owner" to userSubject),
+                            transactionDeleteCallbacks.onSubscriptionEstablished,
+                            transactionDeleteCallbacks.onSubscription,
+                            transactionDeleteCallbacks.onSubscriptionCompleted,
+                            transactionDeleteCallbacks.onFailure,
+                        )
+                    txnDeleteSubscriptionManager.watcher = watcher
+                }
+            }.join()
     }
-    suspend fun subscribeFundingSources(id: String, subscriber: FundingSourceSubscriber) {
-        val userSubject = userClient.getSubject()
-            ?: throw SudoVirtualCardsClient.FundingSourceException.AuthenticationException(ERROR_UNAUTHENTICATED_MSG)
+
+    suspend fun subscribeFundingSources(
+        id: String,
+        subscriber: FundingSourceSubscriber,
+    ) {
+        val userSubject =
+            userClient.getSubject()
+                ?: throw SudoVirtualCardsClient.FundingSourceException.AuthenticationException(ERROR_UNAUTHENTICATED_MSG)
 
         fsUpdateSubscriptionManager.replaceSubscriber(id, subscriber)
 
-        scope.launch {
-            if (fsUpdateSubscriptionManager.watcher == null) {
-                val watcher = graphQLClient.subscribe<OnFundingSourceUpdateSubscription, OnFundingSourceUpdateSubscription.Data>(
-                    OnFundingSourceUpdateSubscription.OPERATION_DOCUMENT,
-                    mapOf("owner" to userSubject),
-                    fundingSourceUpdateCallbacks.onSubscriptionEstablished,
-                    fundingSourceUpdateCallbacks.onSubscription,
-                    fundingSourceUpdateCallbacks.onSubscriptionCompleted,
-                    fundingSourceUpdateCallbacks.onFailure,
-                )
-                fsUpdateSubscriptionManager.watcher = watcher
-            }
-        }.join()
+        scope
+            .launch {
+                if (fsUpdateSubscriptionManager.watcher == null) {
+                    val watcher =
+                        graphQLClient.subscribe<OnFundingSourceUpdateSubscription, OnFundingSourceUpdateSubscription.Data>(
+                            OnFundingSourceUpdateSubscription.OPERATION_DOCUMENT,
+                            mapOf("owner" to userSubject),
+                            fundingSourceUpdateCallbacks.onSubscriptionEstablished,
+                            fundingSourceUpdateCallbacks.onSubscription,
+                            fundingSourceUpdateCallbacks.onSubscriptionCompleted,
+                            fundingSourceUpdateCallbacks.onFailure,
+                        )
+                    fsUpdateSubscriptionManager.watcher = watcher
+                }
+            }.join()
     }
 
     fun unsubscribeTransactions(id: String) {
@@ -124,75 +137,81 @@ internal class SubscriptionService(
         scope.cancel()
     }
 
-    private val transactionUpdateCallbacks = object {
-        val onSubscriptionEstablished: (GraphQLResponse<OnTransactionUpdateSubscription.Data>) -> Unit = {
-            txnUpdateSubscriptionManager.connectionStatusChanged(
-                Subscriber.ConnectionState.CONNECTED,
-            )
-        }
-        val onSubscription: (GraphQLResponse<OnTransactionUpdateSubscription.Data>) -> Unit = {
-            scope.launch {
-                val transactionUpdate = it.data?.onTransactionUpdate
-                    ?: return@launch
-                val transaction = TransactionTransformer.toEntity(deviceKeyManager, transactionUpdate.sealedTransaction)
-                txnUpdateSubscriptionManager.transactionChanged(transaction, TransactionSubscriber.ChangeType.UPSERTED)
-            }
-        }
-        val onSubscriptionCompleted = {
-            txnUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
-        }
-        val onFailure: (ApiException) -> Unit = {
-            logger.error("Transaction update subscription error $it")
-            txnUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
-        }
-    }
-
-    private val fundingSourceUpdateCallbacks = object {
-        val onSubscriptionEstablished: (GraphQLResponse<OnFundingSourceUpdateSubscription.Data>) -> Unit = {
-            fsUpdateSubscriptionManager.connectionStatusChanged(
-                Subscriber.ConnectionState.CONNECTED,
-            )
-        }
-        val onSubscription: (GraphQLResponse<OnFundingSourceUpdateSubscription.Data>) -> Unit = {
-            scope.launch {
-                val fundingSourceUpdate = it.data?.onFundingSourceUpdate
-                    ?: return@launch
-                fsUpdateSubscriptionManager.fundingSourceChanged(
-                    FundingSourceTransformer.toEntityFromFundingSourceUpdateSubscriptionResult(deviceKeyManager, fundingSourceUpdate),
+    private val transactionUpdateCallbacks =
+        object {
+            val onSubscriptionEstablished: (GraphQLResponse<OnTransactionUpdateSubscription.Data>) -> Unit = {
+                txnUpdateSubscriptionManager.connectionStatusChanged(
+                    Subscriber.ConnectionState.CONNECTED,
                 )
             }
-        }
-
-        val onSubscriptionCompleted = {
-            fsUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
-        }
-
-        val onFailure: (ApiException) -> Unit = {
-            logger.error("FundingSource update subscription error $it")
-            fsUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
-        }
-    }
-
-    private val transactionDeleteCallbacks = object {
-        val onSubscriptionEstablished: (GraphQLResponse<OnTransactionDeleteSubscription.Data>) -> Unit = {
-            txnDeleteSubscriptionManager.connectionStatusChanged(
-                Subscriber.ConnectionState.CONNECTED,
-            )
-        }
-        val onSubscription: (GraphQLResponse<OnTransactionDeleteSubscription.Data>) -> Unit = {
-            scope.launch {
-                val transactionDelete = it.data?.onTransactionDelete
-                    ?: return@launch
-                val transaction = TransactionTransformer.toEntity(deviceKeyManager, transactionDelete.sealedTransaction)
-                txnDeleteSubscriptionManager.transactionChanged(transaction, TransactionSubscriber.ChangeType.DELETED)
+            val onSubscription: (GraphQLResponse<OnTransactionUpdateSubscription.Data>) -> Unit = {
+                scope.launch {
+                    val transactionUpdate =
+                        it.data?.onTransactionUpdate
+                            ?: return@launch
+                    val transaction = TransactionTransformer.toEntity(deviceKeyManager, transactionUpdate.sealedTransaction)
+                    txnUpdateSubscriptionManager.transactionChanged(transaction, TransactionSubscriber.ChangeType.UPSERTED)
+                }
+            }
+            val onSubscriptionCompleted = {
+                txnUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
+            }
+            val onFailure: (ApiException) -> Unit = {
+                logger.error("Transaction update subscription error $it")
+                txnUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
             }
         }
-        val onSubscriptionCompleted = {
-            txnDeleteSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
+
+    private val fundingSourceUpdateCallbacks =
+        object {
+            val onSubscriptionEstablished: (GraphQLResponse<OnFundingSourceUpdateSubscription.Data>) -> Unit = {
+                fsUpdateSubscriptionManager.connectionStatusChanged(
+                    Subscriber.ConnectionState.CONNECTED,
+                )
+            }
+            val onSubscription: (GraphQLResponse<OnFundingSourceUpdateSubscription.Data>) -> Unit = {
+                scope.launch {
+                    val fundingSourceUpdate =
+                        it.data?.onFundingSourceUpdate
+                            ?: return@launch
+                    fsUpdateSubscriptionManager.fundingSourceChanged(
+                        FundingSourceTransformer.toEntityFromFundingSourceUpdateSubscriptionResult(deviceKeyManager, fundingSourceUpdate),
+                    )
+                }
+            }
+
+            val onSubscriptionCompleted = {
+                fsUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
+            }
+
+            val onFailure: (ApiException) -> Unit = {
+                logger.error("FundingSource update subscription error $it")
+                fsUpdateSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
+            }
         }
-        val onFailure: (ApiException) -> Unit = {
-            logger.error("Transaction delete subscription error $it")
-            txnDeleteSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
+
+    private val transactionDeleteCallbacks =
+        object {
+            val onSubscriptionEstablished: (GraphQLResponse<OnTransactionDeleteSubscription.Data>) -> Unit = {
+                txnDeleteSubscriptionManager.connectionStatusChanged(
+                    Subscriber.ConnectionState.CONNECTED,
+                )
+            }
+            val onSubscription: (GraphQLResponse<OnTransactionDeleteSubscription.Data>) -> Unit = {
+                scope.launch {
+                    val transactionDelete =
+                        it.data?.onTransactionDelete
+                            ?: return@launch
+                    val transaction = TransactionTransformer.toEntity(deviceKeyManager, transactionDelete.sealedTransaction)
+                    txnDeleteSubscriptionManager.transactionChanged(transaction, TransactionSubscriber.ChangeType.DELETED)
+                }
+            }
+            val onSubscriptionCompleted = {
+                txnDeleteSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
+            }
+            val onFailure: (ApiException) -> Unit = {
+                logger.error("Transaction delete subscription error $it")
+                txnDeleteSubscriptionManager.connectionStatusChanged(Subscriber.ConnectionState.DISCONNECTED)
+            }
         }
-    }
 }

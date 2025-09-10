@@ -21,33 +21,34 @@ import java.util.Date
  */
 @RunWith(AndroidJUnit4::class)
 class ParcelTest {
-
     @Test
     fun parcellableClassesCanBeParcelledAndUnparcelled() {
         val currency = CurrencyAmount("AUD", 4200)
-        val merchant = SimulatorMerchant(
-            id = "id",
-            name = "Teds Doggie Treats",
-            description = "The yummiest dog treats around",
-            mcc = "1234",
-            city = "Robina",
-            state = "Queensland",
-            postalCode = "4230",
-            country = "AU",
-            currency = "AUD",
-            declineAfterAuthorization = false,
-            declineBeforeAuthorization = false,
-            createdAt = Date(42L),
-            updatedAt = Date(43L),
-        )
-        val billingAddress = BillingAddress(
-            addressLine1 = "123 Nowhere St",
-            addressLine2 = "Flat 202",
-            city = "Robina",
-            state = "Queensland",
-            postalCode = "4230",
-            country = "AU",
-        )
+        val merchant =
+            SimulatorMerchant(
+                id = "id",
+                name = "Teds Doggie Treats",
+                description = "The yummiest dog treats around",
+                mcc = "1234",
+                city = "Robina",
+                state = "Queensland",
+                postalCode = "4230",
+                country = "AU",
+                currency = "AUD",
+                declineAfterAuthorization = false,
+                declineBeforeAuthorization = false,
+                createdAt = Date(42L),
+                updatedAt = Date(43L),
+            )
+        val billingAddress =
+            BillingAddress(
+                addressLine1 = "123 Nowhere St",
+                addressLine2 = "Flat 202",
+                city = "Robina",
+                state = "Queensland",
+                postalCode = "4230",
+                country = "AU",
+            )
 
         val bundle = Bundle()
         bundle.putParcelable("currency", currency)

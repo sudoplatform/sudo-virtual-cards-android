@@ -28,9 +28,9 @@ import java.util.UUID
 /**
  * Test the operation of the [Unsealer] on a real device with real crypto.
  */
+@Suppress("ktlint:standard:property-naming")
 @RunWith(AndroidJUnit4::class)
 class AndroidUnsealerTest : BaseIntegrationTest() {
-
     companion object {
         private const val clearText = "The owl and the pussy cat went to sea in a beautiful pea green boat."
     }
@@ -48,80 +48,87 @@ class AndroidUnsealerTest : BaseIntegrationTest() {
     }
 
     @After
-    fun fini() = runBlocking {
-        Timber.uprootAll()
-    }
+    fun fini() =
+        runBlocking {
+            Timber.uprootAll()
+        }
 
     @Test
-    fun shouldBeAbleToUnseal() = runBlocking {
-        registerSignInAndEntitle()
+    fun shouldBeAbleToUnseal() =
+        runBlocking {
+            registerSignInAndEntitle()
 
-        val symmetricKeyId = UUID.randomUUID().toString()
-
-        val keyPair = deviceKeyManager.generateNewCurrentKeyPair()
-
-        keyManager.generateSymmetricKey(symmetricKeyId, true)
-        val symmetricKeyData = keyManager.getSymmetricKeyData(symmetricKeyId)
-            ?: throw AssertionError("symmetric key data should not be null")
-
-        val encryptedKeyData = keyManager.encryptWithPublicKey(
-            keyPair.keyId,
-            symmetricKeyData,
-            KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
-        )
-
-        val encryptedData = keyManager.encryptWithSymmetricKey(symmetricKeyId, clearText.toByteArray())
-        encryptedKeyData.size shouldBe Unsealer.KEY_SIZE_AES
-
-        val sealedData = encryptedKeyData + encryptedData
-        val sealedBase64 = Base64.encodeAsString(*sealedData)
-
-        val keyInfo = KeyInfo(keyPair.keyId, KeyType.PRIVATE_KEY, DefaultPublicKeyService.DEFAULT_ALGORITHM)
-        val unsealer = Unsealer(deviceKeyManager, keyInfo)
-        val unsealedText = unsealer.unseal(sealedBase64)
-        unsealedText shouldBe clearText
-    }
-
-    @Test
-    @Ignore // Enable when you want to examine peformance
-    fun bulkUnsealingShouldBeFast() = runBlocking {
-        registerSignInAndEntitle()
-
-        val keyPair = deviceKeyManager.generateNewCurrentKeyPair()
-
-        val sealedBase64 = mutableListOf<String>()
-
-        val iterations = 1_000
-        for (i in 1..iterations) {
             val symmetricKeyId = UUID.randomUUID().toString()
-            keyManager.generateSymmetricKey(symmetricKeyId, true)
-            val symmetricKeyData = keyManager.getSymmetricKeyData(symmetricKeyId)
-                ?: throw AssertionError("symmetric key data should not be null")
 
-            val encryptedKeyData = keyManager.encryptWithPublicKey(
-                keyPair.keyId,
-                symmetricKeyData,
-                KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
-            )
+            val keyPair = deviceKeyManager.generateNewCurrentKeyPair()
+
+            keyManager.generateSymmetricKey(symmetricKeyId, true)
+            val symmetricKeyData =
+                keyManager.getSymmetricKeyData(symmetricKeyId)
+                    ?: throw AssertionError("symmetric key data should not be null")
+
+            val encryptedKeyData =
+                keyManager.encryptWithPublicKey(
+                    keyPair.keyId,
+                    symmetricKeyData,
+                    KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
+                )
 
             val encryptedData = keyManager.encryptWithSymmetricKey(symmetricKeyId, clearText.toByteArray())
             encryptedKeyData.size shouldBe Unsealer.KEY_SIZE_AES
 
             val sealedData = encryptedKeyData + encryptedData
-            sealedBase64.add(Base64.encodeAsString(*sealedData))
-        }
+            val sealedBase64 = Base64.encodeAsString(*sealedData)
 
-        val keyInfo = KeyInfo(keyPair.keyId, KeyType.PRIVATE_KEY, DefaultPublicKeyService.DEFAULT_ALGORITHM)
-        val unsealer = Unsealer(deviceKeyManager, keyInfo)
-
-        val start = Instant.now()
-        sealedBase64.forEach { sealedValue ->
-            val unsealedText = unsealer.unseal(sealedValue)
+            val keyInfo = KeyInfo(keyPair.keyId, KeyType.PRIVATE_KEY, DefaultPublicKeyService.DEFAULT_ALGORITHM)
+            val unsealer = Unsealer(deviceKeyManager, keyInfo)
+            val unsealedText = unsealer.unseal(sealedBase64)
             unsealedText shouldBe clearText
         }
-        val end = Instant.now()
-        val durationMillis = Duration.between(start, end).toMillis()
 
-        println("Unsealing of $iterations took ${durationMillis}ms on ${Build.MANUFACTURER} ${Build.MODEL}")
-    }
+    @Test
+    @Ignore // Enable when you want to examine peformance
+    fun bulkUnsealingShouldBeFast() =
+        runBlocking {
+            registerSignInAndEntitle()
+
+            val keyPair = deviceKeyManager.generateNewCurrentKeyPair()
+
+            val sealedBase64 = mutableListOf<String>()
+
+            val iterations = 1_000
+            for (i in 1..iterations) {
+                val symmetricKeyId = UUID.randomUUID().toString()
+                keyManager.generateSymmetricKey(symmetricKeyId, true)
+                val symmetricKeyData =
+                    keyManager.getSymmetricKeyData(symmetricKeyId)
+                        ?: throw AssertionError("symmetric key data should not be null")
+
+                val encryptedKeyData =
+                    keyManager.encryptWithPublicKey(
+                        keyPair.keyId,
+                        symmetricKeyData,
+                        KeyManagerInterface.PublicKeyEncryptionAlgorithm.RSA_ECB_OAEPSHA1,
+                    )
+
+                val encryptedData = keyManager.encryptWithSymmetricKey(symmetricKeyId, clearText.toByteArray())
+                encryptedKeyData.size shouldBe Unsealer.KEY_SIZE_AES
+
+                val sealedData = encryptedKeyData + encryptedData
+                sealedBase64.add(Base64.encodeAsString(*sealedData))
+            }
+
+            val keyInfo = KeyInfo(keyPair.keyId, KeyType.PRIVATE_KEY, DefaultPublicKeyService.DEFAULT_ALGORITHM)
+            val unsealer = Unsealer(deviceKeyManager, keyInfo)
+
+            val start = Instant.now()
+            sealedBase64.forEach { sealedValue ->
+                val unsealedText = unsealer.unseal(sealedValue)
+                unsealedText shouldBe clearText
+            }
+            val end = Instant.now()
+            val durationMillis = Duration.between(start, end).toMillis()
+
+            println("Unsealing of $iterations took ${durationMillis}ms on ${Build.MANUFACTURER} ${Build.MODEL}")
+        }
 }

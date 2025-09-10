@@ -60,15 +60,14 @@ import com.sudoplatform.sudovirtualcards.types.TransactionType as TransactionTyp
  * and spies.
  */
 class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
-
     private val queryResponse by before {
         JSONObject(
             """
-                {
-                    'listTransactionsByCardId2': {
-                        'items': [${createMockTransaction("id")}]
-                    }
+            {
+                'listTransactionsByCardId2': {
+                    'items': [${createMockTransaction("id")}]
                 }
+            }
             """.trimIndent(),
         )
     }
@@ -76,23 +75,23 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     private val queryResponseWithNextToken by before {
         JSONObject(
             """
-                {
-                    'listTransactionsByCardId2': {
-                        'items': [${createMockTransaction("id")}],
-                        'nextToken': 'dummyNextToken'
-                    }
+            {
+                'listTransactionsByCardId2': {
+                    'items': [${createMockTransaction("id")}],
+                    'nextToken': 'dummyNextToken'
                 }
+            }
             """.trimIndent(),
         )
     }
     private val queryResponseWithEmptyList by before {
         JSONObject(
             """
-                {
-                    'listTransactionsByCardId2': {
-                        'items': []
-                    }
+            {
+                'listTransactionsByCardId2': {
+                    'items': []
                 }
+            }
             """.trimIndent(),
         )
     }
@@ -100,15 +99,15 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     private val queryResponseWithDuplicateIdentifiers by before {
         JSONObject(
             """
-                {
-                    'listTransactionsByCardId2': {
-                        'items': [
-                            ${createMockTransaction("id1")},
-                            ${createMockTransaction("id2")},
-                            ${createMockTransaction("id1")},
-                        ]
-                    }
+            {
+                'listTransactionsByCardId2': {
+                    'items': [
+                        ${createMockTransaction("id1")},
+                        ${createMockTransaction("id2")},
+                        ${createMockTransaction("id1")},
+                    ]
                 }
+            }
             """.trimIndent(),
         )
     }
@@ -128,7 +127,8 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
             on {
                 query<String>(
                     argThat { this.query.equals(ListTransactionsByCardIdQuery.OPERATION_DOCUMENT) },
-                    any(), any(),
+                    any(),
+                    any(),
                 )
             } doAnswer {
                 val mockOperation: GraphQLOperation<String> = mock()
@@ -152,7 +152,8 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     private val client by before {
-        SudoVirtualCardsClient.builder()
+        SudoVirtualCardsClient
+            .builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
             .setGraphQLClient(GraphQLClient(mockApiCategory))
@@ -167,441 +168,461 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
     }
 
     @Test
-    fun `listTransactionsByCardId() should return success result when no error present`() = runBlocking<Unit> {
-        val deferredResult = async(Dispatchers.IO) {
-            client.listTransactionsByCardId(
-                cardId = "cardId",
-                limit = 1,
-                nextToken = null,
-                dateRange = DateRange(Date(), Date()),
-                sortOrder = SortOrder.DESC,
-            )
-        }
-        deferredResult.start()
+    fun `listTransactionsByCardId() should return success result when no error present`() =
+        runBlocking<Unit> {
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listTransactionsByCardId(
+                        cardId = "cardId",
+                        limit = 1,
+                        nextToken = null,
+                        dateRange = DateRange(Date(), Date()),
+                        sortOrder = SortOrder.DESC,
+                    )
+                }
+            deferredResult.start()
 
-        delay(100L)
-        val listTransactions = deferredResult.await()
-        listTransactions shouldNotBe null
+            delay(100L)
+            val listTransactions = deferredResult.await()
+            listTransactions shouldNotBe null
 
-        when (listTransactions) {
-            is ListAPIResult.Success -> {
-                listTransactions.result.items.isEmpty() shouldBe false
-                listTransactions.result.items.size shouldBe 1
-                listTransactions.result.nextToken shouldBe null
+            when (listTransactions) {
+                is ListAPIResult.Success -> {
+                    listTransactions.result.items.isEmpty() shouldBe false
+                    listTransactions.result.items.size shouldBe 1
+                    listTransactions.result.nextToken shouldBe null
 
-                checkTransaction(listTransactions.result.items[0])
-            }
-            else -> {
-                fail("Unexpected ListAPIResult")
-            }
-        }
-
-        verifyListTransactionsByCardIdQuery("cardId", 1, null, true)
-        verify(mockKeyManager, times(18)).decryptWithPrivateKey(anyString(), any(), any())
-        verify(mockKeyManager, times(18)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
-    }
-
-    @Test
-    fun `listTransactionsByCardId() should return success result using default inputs when no error present`() = runBlocking<Unit> {
-        val deferredResult = async(Dispatchers.IO) {
-            client.listTransactionsByCardId("cardId")
-        }
-        deferredResult.start()
-
-        delay(100L)
-        val listTransactions = deferredResult.await()
-        listTransactions shouldNotBe null
-
-        when (listTransactions) {
-            is ListAPIResult.Success -> {
-                listTransactions.result.items.isEmpty() shouldBe false
-                listTransactions.result.items.size shouldBe 1
-                listTransactions.result.nextToken shouldBe null
-
-                checkTransaction(listTransactions.result.items[0])
-            }
-            else -> {
-                fail("Unexpected ListAPIResult")
-            }
-        }
-
-        verifyListTransactionsByCardIdQuery("cardId", 100)
-        verify(mockKeyManager, times(18)).decryptWithPrivateKey(anyString(), any(), any())
-        verify(mockKeyManager, times(18)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
-    }
-
-    @Test
-    fun `listTransactionsByCardId() should return success result when populating nextToken`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(ListTransactionsByCardIdQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(queryResponseWithNextToken.toString(), null),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.listTransactionsByCardId("cardId", 1, "dummyNextToken")
-        }
-        deferredResult.start()
-
-        delay(100L)
-        val listTransactions = deferredResult.await()
-        listTransactions shouldNotBe null
-
-        when (listTransactions) {
-            is ListAPIResult.Success -> {
-                listTransactions.result.items.isEmpty() shouldBe false
-                listTransactions.result.items.size shouldBe 1
-                listTransactions.result.nextToken shouldBe "dummyNextToken"
-
-                checkTransaction(listTransactions.result.items[0])
-            }
-            else -> {
-                fail("Unexpected ListAPIResult")
-            }
-        }
-
-        verifyListTransactionsByCardIdQuery("cardId", 1, "dummyNextToken")
-        verify(mockKeyManager, times(18)).decryptWithPrivateKey(anyString(), any(), any())
-        verify(mockKeyManager, times(18)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
-    }
-
-    @Test
-    fun `listTransactionsByCardId() should return success empty list result when query result data is empty`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(ListTransactionsByCardIdQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(queryResponseWithEmptyList.toString(), null),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.listTransactionsByCardId("cardId")
-        }
-        deferredResult.start()
-
-        delay(100L)
-
-        val listTransactions = deferredResult.await()
-        listTransactions shouldNotBe null
-
-        when (listTransactions) {
-            is ListAPIResult.Success -> {
-                listTransactions.result.items.isEmpty() shouldBe true
-                listTransactions.result.items.size shouldBe 0
-                listTransactions.result.nextToken shouldBe null
-            }
-            else -> {
-                fail("Unexpected ListAPIResult")
-            }
-        }
-
-        verifyListTransactionsByCardIdQuery("cardId", 100)
-    }
-
-    @Test
-    fun `listTransactionsByCardId() should return success empty list result when query response is null`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(ListTransactionsByCardIdQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, null),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.listTransactionsByCardId("cardId")
-        }
-        deferredResult.start()
-
-        delay(100L)
-
-        val listTransactions = deferredResult.await()
-        listTransactions shouldNotBe null
-
-        when (listTransactions) {
-            is ListAPIResult.Success -> {
-                listTransactions.result.items.isEmpty() shouldBe true
-                listTransactions.result.items.size shouldBe 0
-                listTransactions.result.nextToken shouldBe null
-            }
-            else -> {
-                fail("Unexpected ListAPIResult")
-            }
-        }
-
-        verifyListTransactionsByCardIdQuery("cardId", 100)
-    }
-
-    @Test
-    fun `listTransactionsByCardId() should return partial results when unsealing fails`() = runBlocking<Unit> {
-        mockKeyManager.stub {
-            on { decryptWithPrivateKey(anyString(), any(), any()) } doThrow KeyManagerException("KeyManagerException")
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.listTransactionsByCardId("cardId")
-        }
-        deferredResult.start()
-
-        delay(100L)
-
-        val listTransactions = deferredResult.await()
-        listTransactions shouldNotBe null
-
-        when (listTransactions) {
-            is ListAPIResult.Partial -> {
-                listTransactions.result.items.isEmpty() shouldBe true
-                listTransactions.result.items.size shouldBe 0
-                listTransactions.result.failed.isEmpty() shouldBe false
-                listTransactions.result.failed.size shouldBe 1
-                listTransactions.result.nextToken shouldBe null
-
-                with(listTransactions.result.failed[0].partial) {
-                    id shouldBe "id"
-                    owner shouldBe "owner"
-                    version shouldBe 1
-                    cardId shouldNotBe null
-                    type shouldBe TransactionTypeEntity.COMPLETE
-                    sequenceId shouldBe "sequenceId"
-                    createdAt shouldBe Date(1L)
-                    updatedAt shouldBe Date(1L)
+                    checkTransaction(listTransactions.result.items[0])
+                }
+                else -> {
+                    fail("Unexpected ListAPIResult")
                 }
             }
-            else -> {
-                fail("Unexpected ListAPIResult")
-            }
-        }
 
-        verifyListTransactionsByCardIdQuery("cardId", 100)
-        verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
-    }
+            verifyListTransactionsByCardIdQuery("cardId", 1, null, true)
+            verify(mockKeyManager, times(18)).decryptWithPrivateKey(anyString(), any(), any())
+            verify(mockKeyManager, times(18)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+        }
 
     @Test
-    fun `listTransactionsByCardId() should not return duplicate transactions with matching identifiers`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(ListTransactionsByCardIdQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(queryResponseWithDuplicateIdentifiers.toString(), null),
-            )
-            mockOperation
-        }
+    fun `listTransactionsByCardId() should return success result using default inputs when no error present`() =
+        runBlocking<Unit> {
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listTransactionsByCardId("cardId")
+                }
+            deferredResult.start()
 
-        val deferredResult = async(Dispatchers.IO) {
-            client.listTransactionsByCardId("cardId")
-        }
-        deferredResult.start()
+            delay(100L)
+            val listTransactions = deferredResult.await()
+            listTransactions shouldNotBe null
 
-        delay(100L)
+            when (listTransactions) {
+                is ListAPIResult.Success -> {
+                    listTransactions.result.items.isEmpty() shouldBe false
+                    listTransactions.result.items.size shouldBe 1
+                    listTransactions.result.nextToken shouldBe null
 
-        val listTransactions = deferredResult.await()
-        listTransactions shouldNotBe null
-
-        when (listTransactions) {
-            is ListAPIResult.Success -> {
-                listTransactions.result.items.isEmpty() shouldBe false
-                listTransactions.result.items.size shouldBe 2
-                listTransactions.result.nextToken shouldBe null
+                    checkTransaction(listTransactions.result.items[0])
+                }
+                else -> {
+                    fail("Unexpected ListAPIResult")
+                }
             }
-            else -> {
-                fail("Unexpected ListAPIResult")
-            }
-        }
 
-        verifyListTransactionsByCardIdQuery("cardId", 100)
-        verify(mockKeyManager, times(18 * 3)).decryptWithPrivateKey(anyString(), any(), any())
-        verify(mockKeyManager, times(18 * 3)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
-    }
+            verifyListTransactionsByCardIdQuery("cardId", 100)
+            verify(mockKeyManager, times(18)).decryptWithPrivateKey(anyString(), any(), any())
+            verify(mockKeyManager, times(18)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+        }
 
     @Test
-    fun `listTransactionsByCardId() should throw when unsealing fails`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                query<String>(
+    fun `listTransactionsByCardId() should return success result when populating nextToken`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
                     argThat { this.query.equals(ListTransactionsByCardIdQuery.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(queryResponseWithNextToken.toString(), null),
                 )
-            } doThrow
-                Unsealer.UnsealerException.SealedDataTooShortException("Mock Unsealer Exception")
-        }
+                mockOperation
+            }
 
-        shouldThrow<SudoVirtualCardsClient.TransactionException.UnsealingException> {
-            client.listTransactionsByCardId("cardId")
-        }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listTransactionsByCardId("cardId", 1, "dummyNextToken")
+                }
+            deferredResult.start()
 
-        verifyListTransactionsByCardIdQuery("cardId", 100)
-    }
+            delay(100L)
+            val listTransactions = deferredResult.await()
+            listTransactions shouldNotBe null
+
+            when (listTransactions) {
+                is ListAPIResult.Success -> {
+                    listTransactions.result.items.isEmpty() shouldBe false
+                    listTransactions.result.items.size shouldBe 1
+                    listTransactions.result.nextToken shouldBe "dummyNextToken"
+
+                    checkTransaction(listTransactions.result.items[0])
+                }
+                else -> {
+                    fail("Unexpected ListAPIResult")
+                }
+            }
+
+            verifyListTransactionsByCardIdQuery("cardId", 1, "dummyNextToken")
+            verify(mockKeyManager, times(18)).decryptWithPrivateKey(anyString(), any(), any())
+            verify(mockKeyManager, times(18)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+        }
 
     @Test
-    fun `listTransactionsByCardId() should throw when http error occurs`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(ListTransactionsByCardIdQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
+    fun `listTransactionsByCardId() should return success empty list result when query result data is empty`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(ListTransactionsByCardIdQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(queryResponseWithEmptyList.toString(), null),
+                )
+                mockOperation
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listTransactionsByCardId("cardId")
+                }
+            deferredResult.start()
+
+            delay(100L)
+
+            val listTransactions = deferredResult.await()
+            listTransactions shouldNotBe null
+
+            when (listTransactions) {
+                is ListAPIResult.Success -> {
+                    listTransactions.result.items.isEmpty() shouldBe true
+                    listTransactions.result.items.size shouldBe 0
+                    listTransactions.result.nextToken shouldBe null
+                }
+                else -> {
+                    fail("Unexpected ListAPIResult")
+                }
+            }
+
+            verifyListTransactionsByCardIdQuery("cardId", 100)
         }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.TransactionException.FailedException> {
+
+    @Test
+    fun `listTransactionsByCardId() should return success empty list result when query response is null`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(ListTransactionsByCardIdQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, null),
+                )
+                mockOperation
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listTransactionsByCardId("cardId")
+                }
+            deferredResult.start()
+
+            delay(100L)
+
+            val listTransactions = deferredResult.await()
+            listTransactions shouldNotBe null
+
+            when (listTransactions) {
+                is ListAPIResult.Success -> {
+                    listTransactions.result.items.isEmpty() shouldBe true
+                    listTransactions.result.items.size shouldBe 0
+                    listTransactions.result.nextToken shouldBe null
+                }
+                else -> {
+                    fail("Unexpected ListAPIResult")
+                }
+            }
+
+            verifyListTransactionsByCardIdQuery("cardId", 100)
+        }
+
+    @Test
+    fun `listTransactionsByCardId() should return partial results when unsealing fails`() =
+        runBlocking<Unit> {
+            mockKeyManager.stub {
+                on { decryptWithPrivateKey(anyString(), any(), any()) } doThrow KeyManagerException("KeyManagerException")
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listTransactionsByCardId("cardId")
+                }
+            deferredResult.start()
+
+            delay(100L)
+
+            val listTransactions = deferredResult.await()
+            listTransactions shouldNotBe null
+
+            when (listTransactions) {
+                is ListAPIResult.Partial -> {
+                    listTransactions.result.items.isEmpty() shouldBe true
+                    listTransactions.result.items.size shouldBe 0
+                    listTransactions.result.failed.isEmpty() shouldBe false
+                    listTransactions.result.failed.size shouldBe 1
+                    listTransactions.result.nextToken shouldBe null
+
+                    with(listTransactions.result.failed[0].partial) {
+                        id shouldBe "id"
+                        owner shouldBe "owner"
+                        version shouldBe 1
+                        cardId shouldNotBe null
+                        type shouldBe TransactionTypeEntity.COMPLETE
+                        sequenceId shouldBe "sequenceId"
+                        createdAt shouldBe Date(1L)
+                        updatedAt shouldBe Date(1L)
+                    }
+                }
+                else -> {
+                    fail("Unexpected ListAPIResult")
+                }
+            }
+
+            verifyListTransactionsByCardIdQuery("cardId", 100)
+            verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
+        }
+
+    @Test
+    fun `listTransactionsByCardId() should not return duplicate transactions with matching identifiers`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(ListTransactionsByCardIdQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(queryResponseWithDuplicateIdentifiers.toString(), null),
+                )
+                mockOperation
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listTransactionsByCardId("cardId")
+                }
+            deferredResult.start()
+
+            delay(100L)
+
+            val listTransactions = deferredResult.await()
+            listTransactions shouldNotBe null
+
+            when (listTransactions) {
+                is ListAPIResult.Success -> {
+                    listTransactions.result.items.isEmpty() shouldBe false
+                    listTransactions.result.items.size shouldBe 2
+                    listTransactions.result.nextToken shouldBe null
+                }
+                else -> {
+                    fail("Unexpected ListAPIResult")
+                }
+            }
+
+            verifyListTransactionsByCardIdQuery("cardId", 100)
+            verify(mockKeyManager, times(18 * 3)).decryptWithPrivateKey(anyString(), any(), any())
+            verify(mockKeyManager, times(18 * 3)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+        }
+
+    @Test
+    fun `listTransactionsByCardId() should throw when unsealing fails`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    query<String>(
+                        argThat { this.query.equals(ListTransactionsByCardIdQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow
+                    Unsealer.UnsealerException.SealedDataTooShortException("Mock Unsealer Exception")
+            }
+
+            shouldThrow<SudoVirtualCardsClient.TransactionException.UnsealingException> {
                 client.listTransactionsByCardId("cardId")
             }
+
+            verifyListTransactionsByCardIdQuery("cardId", 100)
         }
-        deferredResult.start()
-        delay(100L)
-
-        deferredResult.await()
-
-        verifyListTransactionsByCardIdQuery("cardId", 100)
-    }
 
     @Test
-    fun `listTransactionsByCardId() should throw when unknown error occurs()`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                query<String>(
+    fun `listTransactionsByCardId() should throw when http error occurs`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
                     argThat { this.query.equals(ListTransactionsByCardIdQuery.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
                 )
-            } doThrow RuntimeException("Mock Runtime Exception")
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.TransactionException.FailedException> {
+                        client.listTransactionsByCardId("cardId")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+
+            deferredResult.await()
+
+            verifyListTransactionsByCardIdQuery("cardId", 100)
         }
 
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.TransactionException.UnknownException> {
+    @Test
+    fun `listTransactionsByCardId() should throw when unknown error occurs()`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    query<String>(
+                        argThat { this.query.equals(ListTransactionsByCardIdQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow RuntimeException("Mock Runtime Exception")
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.TransactionException.UnknownException> {
+                        client.listTransactionsByCardId("cardId")
+                    }
+                }
+            deferredResult.start()
+
+            delay(100L)
+            deferredResult.await()
+
+            verifyListTransactionsByCardIdQuery("cardId", 100)
+        }
+
+    @Test
+    fun `listTransactionsByCardId() should not block coroutine cancellation exception`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    query<String>(
+                        argThat { this.query.equals(ListTransactionsByCardIdQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow CancellationException("Mock Cancellation Exception")
+            }
+
+            shouldThrow<CancellationException> {
                 client.listTransactionsByCardId("cardId")
             }
-        }
-        deferredResult.start()
 
-        delay(100L)
-        deferredResult.await()
-
-        verifyListTransactionsByCardIdQuery("cardId", 100)
-    }
-
-    @Test
-    fun `listTransactionsByCardId() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                query<String>(
-                    argThat { this.query.equals(ListTransactionsByCardIdQuery.OPERATION_DOCUMENT) },
-                    any(),
-                    any(),
-                )
-            } doThrow CancellationException("Mock Cancellation Exception")
+            verifyListTransactionsByCardIdQuery("cardId", 100)
         }
 
-        shouldThrow<CancellationException> {
-            client.listTransactionsByCardId("cardId")
-        }
-
-        verifyListTransactionsByCardIdQuery("cardId", 100)
-    }
-
-    private fun createMockTransaction(id: String): String {
-        return """
-            {
-                '__typename': 'SealedTransaction',
-                'id':'$id',
-                'owner': 'owner',
-                'version': 1,
-                'createdAtEpochMs': 1.0,
-                'updatedAtEpochMs': 1.0,
-                'sortDateEpochMs': 1.0,
-                'algorithm': 'algorithm',
-                'keyId': 'keyId',
-                'cardId': 'cardId',
-                'sequenceId': 'sequenceId',
-                'type': '${TransactionType.COMPLETE}',
-                'transactedAtEpochMs': '${mockSeal("transactedAt")}',
-                'settledAtEpochMs': '${mockSeal("settledAt")}',
-                'billedAmount': {
-                    '__typename': 'BilledAmount',
+    private fun createMockTransaction(id: String): String =
+        """
+        {
+            '__typename': 'SealedTransaction',
+            'id':'$id',
+            'owner': 'owner',
+            'version': 1,
+            'createdAtEpochMs': 1.0,
+            'updatedAtEpochMs': 1.0,
+            'sortDateEpochMs': 1.0,
+            'algorithm': 'algorithm',
+            'keyId': 'keyId',
+            'cardId': 'cardId',
+            'sequenceId': 'sequenceId',
+            'type': '${TransactionType.COMPLETE}',
+            'transactedAtEpochMs': '${mockSeal("transactedAt")}',
+            'settledAtEpochMs': '${mockSeal("settledAt")}',
+            'billedAmount': {
+                '__typename': 'BilledAmount',
+                'currency': '${mockSeal("USD")}',
+                'amount': '${mockSeal("billedAmount")}'
+            },
+            'transactedAmount': {
+                '__typename': 'TransactedAmount',
+                'currency': '${mockSeal("USD")}',
+                'amount': '${mockSeal("transactedAmount")}'
+            },
+            'description': '${mockSeal("description")}',
+            'detail': [{
+                '__typename': 'SealedTransactionDetailChargeAttribute',
+                'virtualCardAmount': {
+                    '__typename': 'VirtualCardAmount',
                     'currency': '${mockSeal("USD")}',
-                    'amount': '${mockSeal("billedAmount")}'
+                    'amount': '${mockSeal("virtualCardAmount")}'
                 },
-                'transactedAmount': {
-                    '__typename': 'TransactedAmount',
+                'markup': {
+                    '__typename': 'Markup',
+                    'percent': '${mockSeal("1")}',
+                    'flat': '${mockSeal("2")}',
+                    'minCharge': '${mockSeal("3")}'
+                },
+                'markupAmount': {
+                    '__typename': 'MarkupAmount',
                     'currency': '${mockSeal("USD")}',
-                    'amount': '${mockSeal("transactedAmount")}'
+                    'amount': '${mockSeal("markupAmount")}'
                 },
+                'fundingSourceAmount': {
+                    '__typename': 'FundingSourceAmount',
+                    'currency': '${mockSeal("USD")}',
+                    'amount': '${mockSeal("fundingSourceAmount")}'
+                },
+                'fundingSourceId': 'fundingSourceId',
                 'description': '${mockSeal("description")}',
-                'detail': [{
-                    '__typename': 'SealedTransactionDetailChargeAttribute',
-                    'virtualCardAmount': {
-                        '__typename': 'VirtualCardAmount',
-                        'currency': '${mockSeal("USD")}',
-                        'amount': '${mockSeal("virtualCardAmount")}'
-                    },
-                    'markup': {
-                        '__typename': 'Markup',
-                        'percent': '${mockSeal("1")}',
-                        'flat': '${mockSeal("2")}',
-                        'minCharge': '${mockSeal("3")}'
-                    },
-                    'markupAmount': {
-                        '__typename': 'MarkupAmount',
-                        'currency': '${mockSeal("USD")}',
-                        'amount': '${mockSeal("markupAmount")}'
-                    },
-                    'fundingSourceAmount': {
-                        '__typename': 'FundingSourceAmount',
-                        'currency': '${mockSeal("USD")}',
-                        'amount': '${mockSeal("fundingSourceAmount")}'
-                    },
-                    'fundingSourceId': 'fundingSourceId',
-                    'description': '${mockSeal("description")}',
-                    'state': '${mockSeal("CLEARED")}'
-                }]
-            }
+                'state': '${mockSeal("CLEARED")}'
+            }]
+        }
         """.trimIndent()
-    }
 
     private fun checkTransaction(transaction: Transaction) {
         with(transaction) {
@@ -624,6 +645,7 @@ class SudoVirtualCardsListTransactionsByCardIdTest : BaseTests() {
             details[0].description.isBlank() shouldBe false
         }
     }
+
     private fun verifyListTransactionsByCardIdQuery(
         expectedCardId: String = "cardId",
         expectedLimit: Int? = 1,

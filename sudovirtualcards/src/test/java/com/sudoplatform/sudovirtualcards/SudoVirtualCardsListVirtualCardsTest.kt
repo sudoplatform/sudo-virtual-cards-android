@@ -57,39 +57,38 @@ import com.sudoplatform.sudovirtualcards.types.CardState as CardStateEntity
  * using mocks and spies.
  */
 class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
-
     private val queryResponse by before {
         JSONObject(
             """
-                {
-                    'listCards': {
-                        'items': [${createMockVirtualCard("id")}],
-                        'nextToken': null
-                    }
+            {
+                'listCards': {
+                    'items': [${createMockVirtualCard("id")}],
+                    'nextToken': null
                 }
+            }
             """.trimIndent(),
         )
     }
     private val queryResponseWithNextToken by before {
         JSONObject(
             """
-                {
-                    'listCards': {
-                        'items': [${createMockVirtualCard("id")}],
-                        'nextToken': 'dummyNextToken'
-                    }
+            {
+                'listCards': {
+                    'items': [${createMockVirtualCard("id")}],
+                    'nextToken': 'dummyNextToken'
                 }
+            }
             """.trimIndent(),
         )
     }
     private val queryResponseWithEmptyList by before {
         JSONObject(
             """
-                {
-                    'listCards': {
-                        'items': []
-                    }
+            {
+                'listCards': {
+                    'items': []
                 }
+            }
             """.trimIndent(),
         )
     }
@@ -97,15 +96,15 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
     private val queryResponseWithDuplicateIdentifiers by before {
         JSONObject(
             """
-                {
-                    'listCards': {
-                        'items': [
-                            ${createMockVirtualCard("id1")},
-                            ${createMockVirtualCard("id2")},
-                            ${createMockVirtualCard("id1")},
-                         ]
-                    }
+            {
+                'listCards': {
+                    'items': [
+                        ${createMockVirtualCard("id1")},
+                        ${createMockVirtualCard("id2")},
+                        ${createMockVirtualCard("id1")},
+                     ]
                 }
+            }
             """.trimIndent(),
         )
     }
@@ -125,7 +124,8 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
             on {
                 query<String>(
                     argThat { this.query.equals(ListCardsQuery.OPERATION_DOCUMENT) },
-                    any(), any(),
+                    any(),
+                    any(),
                 )
             } doAnswer {
                 val mockOperation: GraphQLOperation<String> = mock()
@@ -149,7 +149,8 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
     }
 
     private val client by before {
-        SudoVirtualCardsClient.builder()
+        SudoVirtualCardsClient
+            .builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
             .setGraphQLClient(GraphQLClient(mockApiCategory))
@@ -164,474 +165,502 @@ class SudoVirtualCardsListVirtualCardsTest : BaseTests() {
     }
 
     @Test
-    fun `listVirtualCards() should return success result when no error present`() = runBlocking<Unit> {
-        val deferredResult = async(Dispatchers.IO) {
-            client.listVirtualCards()
-        }
-        deferredResult.start()
+    fun `listVirtualCards() should return success result when no error present`() =
+        runBlocking<Unit> {
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listVirtualCards()
+                }
+            deferredResult.start()
 
-        delay(100L)
+            delay(100L)
 
-        val listCard = deferredResult.await()
-        listCard shouldNotBe null
+            val listCard = deferredResult.await()
+            listCard shouldNotBe null
 
-        when (listCard) {
-            is ListAPIResult.Success -> {
-                listCard.result.items.isEmpty() shouldBe false
-                listCard.result.items.size shouldBe 1
-                listCard.result.nextToken shouldBe null
+            when (listCard) {
+                is ListAPIResult.Success -> {
+                    listCard.result.items.isEmpty() shouldBe false
+                    listCard.result.items.size shouldBe 1
+                    listCard.result.nextToken shouldBe null
 
-                with(listCard.result.items[0]) {
-                    id shouldBe "id"
-                    owners shouldNotBe null
-                    owner shouldBe "owner"
-                    version shouldBe 1
-                    fundingSourceId shouldBe "fundingSourceId"
-                    state shouldBe CardStateEntity.ISSUED
-                    cardHolder shouldNotBe null
-                    alias shouldNotBe null
-                    last4 shouldBe "last4"
-                    cardNumber shouldNotBe null
-                    securityCode shouldNotBe null
-                    billingAddress shouldNotBe null
-                    expiry shouldNotBe null
-                    currency shouldBe "currency"
-                    activeTo shouldNotBe null
-                    cancelledAt shouldBe null
-                    createdAt shouldBe Date(1L)
-                    updatedAt shouldBe Date(1L)
+                    with(listCard.result.items[0]) {
+                        id shouldBe "id"
+                        owners shouldNotBe null
+                        owner shouldBe "owner"
+                        version shouldBe 1
+                        fundingSourceId shouldBe "fundingSourceId"
+                        state shouldBe CardStateEntity.ISSUED
+                        cardHolder shouldNotBe null
+                        alias shouldNotBe null
+                        last4 shouldBe "last4"
+                        cardNumber shouldNotBe null
+                        securityCode shouldNotBe null
+                        billingAddress shouldNotBe null
+                        expiry shouldNotBe null
+                        currency shouldBe "currency"
+                        activeTo shouldNotBe null
+                        cancelledAt shouldBe null
+                        createdAt shouldBe Date(1L)
+                        updatedAt shouldBe Date(1L)
+                    }
+                }
+                else -> {
+                    fail("Unexpected ListAPIResult")
                 }
             }
-            else -> { fail("Unexpected ListAPIResult") }
-        }
 
-        verify(mockApiCategory).query<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-        verify(mockKeyManager, times(12)).decryptWithPrivateKey(anyString(), any(), any())
-        verify(mockKeyManager, times(12)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
-    }
-
-    @Test
-    fun `listVirtualCards() should return success result when populating nextToken`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(ListCardsQuery.OPERATION_DOCUMENT) },
+            verify(mockApiCategory).query<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
+                },
                 any(),
                 any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(queryResponseWithNextToken.toString(), null),
             )
-            mockOperation
+            verify(mockKeyManager, times(12)).decryptWithPrivateKey(anyString(), any(), any())
+            verify(mockKeyManager, times(12)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
         }
-        val filterInput = VirtualCardFilterInput(IdFilterInput(eq = "dummyId"))
-        val deferredResult = async(Dispatchers.IO) {
-            client.listVirtualCards(filterInput, SortOrder.ASC, 1, "dummyNextToken")
-        }
-        deferredResult.start()
-
-        delay(100L)
-
-        val listCard = deferredResult.await()
-        listCard shouldNotBe null
-
-        when (listCard) {
-            is ListAPIResult.Success -> {
-                listCard.result.items.isEmpty() shouldBe false
-                listCard.result.items.size shouldBe 1
-                listCard.result.nextToken shouldBe "dummyNextToken"
-
-                with(listCard.result.items[0]) {
-                    id shouldBe "id"
-                    owners shouldNotBe null
-                    owner shouldBe "owner"
-                    version shouldBe 1
-                    fundingSourceId shouldBe "fundingSourceId"
-                    state shouldBe CardStateEntity.ISSUED
-                    cardHolder shouldNotBe null
-                    alias shouldNotBe null
-                    last4 shouldBe "last4"
-                    cardNumber shouldNotBe null
-                    securityCode shouldNotBe null
-                    billingAddress shouldNotBe null
-                    expiry shouldNotBe null
-                    currency shouldBe "currency"
-                    activeTo shouldNotBe null
-                    cancelledAt shouldBe null
-                    createdAt shouldBe Date(1L)
-                    updatedAt shouldBe Date(1L)
-                }
-            }
-            else -> { fail("Unexpected ListAPIResult") }
-        }
-
-        verify(mockApiCategory).query<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-        verify(mockKeyManager, times(12)).decryptWithPrivateKey(anyString(), any(), any())
-        verify(mockKeyManager, times(12)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
-    }
 
     @Test
-    fun `listVirtualCards() should return success empty list result when query result data is empty`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(ListCardsQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(queryResponseWithEmptyList.toString(), null),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.listVirtualCards()
-        }
-        deferredResult.start()
-
-        delay(100L)
-        val result = deferredResult.await()
-        result shouldNotBe null
-
-        when (result) {
-            is ListAPIResult.Success -> {
-                result.result.items.isEmpty() shouldBe true
-                result.result.items.size shouldBe 0
-                result.result.nextToken shouldBe null
-            }
-            else -> { fail("Unexpected ListAPIResult") }
-        }
-
-        verify(mockApiCategory).query<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `listVirtualCards() should return success empty list result when query response is null`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(ListCardsQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, null),
-            )
-            mockOperation
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.listVirtualCards()
-        }
-        deferredResult.start()
-
-        delay(100L)
-
-        val result = deferredResult.await()
-        result shouldNotBe null
-
-        when (result) {
-            is ListAPIResult.Success -> {
-                result.result.items.isEmpty() shouldBe true
-                result.result.items.size shouldBe 0
-                result.result.nextToken shouldBe null
-            }
-            else -> { fail("Unexpected ListAPIResult") }
-        }
-
-        verify(mockApiCategory).query<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `listVirtualCards() should return partial results when unsealing fails`() = runBlocking<Unit> {
-        mockKeyManager.stub {
-            on { decryptWithPrivateKey(anyString(), any(), any()) } doThrow KeyManagerException("KeyManagerException")
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.listVirtualCards()
-        }
-        deferredResult.start()
-
-        delay(100L)
-        val listCard = deferredResult.await()
-        listCard shouldNotBe null
-
-        when (listCard) {
-            is ListAPIResult.Partial -> {
-                listCard.result.items.isEmpty() shouldBe true
-                listCard.result.items.size shouldBe 0
-                listCard.result.failed.isEmpty() shouldBe false
-                listCard.result.failed.size shouldBe 1
-                listCard.result.nextToken shouldBe null
-
-                with(listCard.result.failed[0].partial) {
-                    id shouldBe "id"
-                    owners shouldNotBe null
-                    owner shouldBe "owner"
-                    version shouldBe 1
-                    fundingSourceId shouldBe "fundingSourceId"
-                    state shouldBe CardStateEntity.ISSUED
-                    last4 shouldBe "last4"
-                    currency shouldBe "currency"
-                    activeTo shouldNotBe null
-                    cancelledAt shouldBe null
-                    createdAt shouldBe Date(1L)
-                    updatedAt shouldBe Date(1L)
-                }
-            }
-            else -> { fail("Unexpected ListAPIResult") }
-        }
-
-        verify(mockApiCategory).query<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-        verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
-    }
-
-    @Test
-    fun `listVirtualCards() should not return duplicate cards with matching identifiers`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(ListCardsQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(queryResponseWithDuplicateIdentifiers.toString(), null),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            client.listVirtualCards()
-        }
-        deferredResult.start()
-
-        delay(100L)
-        val listCard = deferredResult.await()
-        listCard shouldNotBe null
-
-        when (listCard) {
-            is ListAPIResult.Success -> {
-                listCard.result.items.isEmpty() shouldBe false
-                listCard.result.items.size shouldBe 2
-                listCard.result.nextToken shouldBe null
-            }
-            else -> {
-                fail("Unexpected ListAPIResult")
-            }
-        }
-
-        verify(mockApiCategory).query<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-        verify(mockKeyManager, times(36)).decryptWithPrivateKey(anyString(), any(), any())
-        verify(mockKeyManager, times(36)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
-    }
-
-    @Test
-    fun `listVirtualCards() should throw when unsealing fails`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                query<String>(
+    fun `listVirtualCards() should return success result when populating nextToken`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
                     argThat { this.query.equals(ListCardsQuery.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(queryResponseWithNextToken.toString(), null),
                 )
-            } doThrow Unsealer.UnsealerException.SealedDataTooShortException("Mock Unsealer Exception")
-        }
+                mockOperation
+            }
+            val filterInput = VirtualCardFilterInput(IdFilterInput(eq = "dummyId"))
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listVirtualCards(filterInput, SortOrder.ASC, 1, "dummyNextToken")
+                }
+            deferredResult.start()
 
-        shouldThrow<SudoVirtualCardsClient.VirtualCardException.UnsealingException> {
-            client.listVirtualCards()
-        }
+            delay(100L)
 
-        verify(mockApiCategory).query<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
+            val listCard = deferredResult.await()
+            listCard shouldNotBe null
+
+            when (listCard) {
+                is ListAPIResult.Success -> {
+                    listCard.result.items.isEmpty() shouldBe false
+                    listCard.result.items.size shouldBe 1
+                    listCard.result.nextToken shouldBe "dummyNextToken"
+
+                    with(listCard.result.items[0]) {
+                        id shouldBe "id"
+                        owners shouldNotBe null
+                        owner shouldBe "owner"
+                        version shouldBe 1
+                        fundingSourceId shouldBe "fundingSourceId"
+                        state shouldBe CardStateEntity.ISSUED
+                        cardHolder shouldNotBe null
+                        alias shouldNotBe null
+                        last4 shouldBe "last4"
+                        cardNumber shouldNotBe null
+                        securityCode shouldNotBe null
+                        billingAddress shouldNotBe null
+                        expiry shouldNotBe null
+                        currency shouldBe "currency"
+                        activeTo shouldNotBe null
+                        cancelledAt shouldBe null
+                        createdAt shouldBe Date(1L)
+                        updatedAt shouldBe Date(1L)
+                    }
+                }
+                else -> {
+                    fail("Unexpected ListAPIResult")
+                }
+            }
+
+            verify(mockApiCategory).query<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+            verify(mockKeyManager, times(12)).decryptWithPrivateKey(anyString(), any(), any())
+            verify(mockKeyManager, times(12)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+        }
 
     @Test
-    fun `listVirtualCards() should throw when http error occurs`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(ListCardsQuery.OPERATION_DOCUMENT) },
+    fun `listVirtualCards() should return success empty list result when query result data is empty`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(ListCardsQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(queryResponseWithEmptyList.toString(), null),
+                )
+                mockOperation
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listVirtualCards()
+                }
+            deferredResult.start()
+
+            delay(100L)
+            val result = deferredResult.await()
+            result shouldNotBe null
+
+            when (result) {
+                is ListAPIResult.Success -> {
+                    result.result.items.isEmpty() shouldBe true
+                    result.result.items.size shouldBe 0
+                    result.result.nextToken shouldBe null
+                }
+                else -> {
+                    fail("Unexpected ListAPIResult")
+                }
+            }
+
+            verify(mockApiCategory).query<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
+                },
                 any(),
                 any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
             )
-            mockOperation
         }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.FailedException> {
+
+    @Test
+    fun `listVirtualCards() should return success empty list result when query response is null`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(ListCardsQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, null),
+                )
+                mockOperation
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listVirtualCards()
+                }
+            deferredResult.start()
+
+            delay(100L)
+
+            val result = deferredResult.await()
+            result shouldNotBe null
+
+            when (result) {
+                is ListAPIResult.Success -> {
+                    result.result.items.isEmpty() shouldBe true
+                    result.result.items.size shouldBe 0
+                    result.result.nextToken shouldBe null
+                }
+                else -> {
+                    fail("Unexpected ListAPIResult")
+                }
+            }
+
+            verify(mockApiCategory).query<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `listVirtualCards() should return partial results when unsealing fails`() =
+        runBlocking<Unit> {
+            mockKeyManager.stub {
+                on { decryptWithPrivateKey(anyString(), any(), any()) } doThrow KeyManagerException("KeyManagerException")
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listVirtualCards()
+                }
+            deferredResult.start()
+
+            delay(100L)
+            val listCard = deferredResult.await()
+            listCard shouldNotBe null
+
+            when (listCard) {
+                is ListAPIResult.Partial -> {
+                    listCard.result.items.isEmpty() shouldBe true
+                    listCard.result.items.size shouldBe 0
+                    listCard.result.failed.isEmpty() shouldBe false
+                    listCard.result.failed.size shouldBe 1
+                    listCard.result.nextToken shouldBe null
+
+                    with(listCard.result.failed[0].partial) {
+                        id shouldBe "id"
+                        owners shouldNotBe null
+                        owner shouldBe "owner"
+                        version shouldBe 1
+                        fundingSourceId shouldBe "fundingSourceId"
+                        state shouldBe CardStateEntity.ISSUED
+                        last4 shouldBe "last4"
+                        currency shouldBe "currency"
+                        activeTo shouldNotBe null
+                        cancelledAt shouldBe null
+                        createdAt shouldBe Date(1L)
+                        updatedAt shouldBe Date(1L)
+                    }
+                }
+                else -> {
+                    fail("Unexpected ListAPIResult")
+                }
+            }
+
+            verify(mockApiCategory).query<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+            verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
+        }
+
+    @Test
+    fun `listVirtualCards() should not return duplicate cards with matching identifiers`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(ListCardsQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(queryResponseWithDuplicateIdentifiers.toString(), null),
+                )
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.listVirtualCards()
+                }
+            deferredResult.start()
+
+            delay(100L)
+            val listCard = deferredResult.await()
+            listCard shouldNotBe null
+
+            when (listCard) {
+                is ListAPIResult.Success -> {
+                    listCard.result.items.isEmpty() shouldBe false
+                    listCard.result.items.size shouldBe 2
+                    listCard.result.nextToken shouldBe null
+                }
+                else -> {
+                    fail("Unexpected ListAPIResult")
+                }
+            }
+
+            verify(mockApiCategory).query<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+            verify(mockKeyManager, times(36)).decryptWithPrivateKey(anyString(), any(), any())
+            verify(mockKeyManager, times(36)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+        }
+
+    @Test
+    fun `listVirtualCards() should throw when unsealing fails`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    query<String>(
+                        argThat { this.query.equals(ListCardsQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow Unsealer.UnsealerException.SealedDataTooShortException("Mock Unsealer Exception")
+            }
+
+            shouldThrow<SudoVirtualCardsClient.VirtualCardException.UnsealingException> {
                 client.listVirtualCards()
             }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
 
-        verify(mockApiCategory).query<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
+            verify(mockApiCategory).query<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
 
     @Test
-    fun `listVirtualCards() should throw when unknown error occurs()`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                query<String>(
+    fun `listVirtualCards() should throw when http error occurs`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
                     argThat { this.query.equals(ListCardsQuery.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
                 )
-            } doThrow RuntimeException("Mock Runtime Exception")
+                mockOperation
+            }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.FailedException> {
+                        client.listVirtualCards()
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).query<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
 
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.VirtualCardException.UnknownException> {
+    @Test
+    fun `listVirtualCards() should throw when unknown error occurs()`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    query<String>(
+                        argThat { this.query.equals(ListCardsQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow RuntimeException("Mock Runtime Exception")
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.VirtualCardException.UnknownException> {
+                        client.listVirtualCards()
+                    }
+                }
+            deferredResult.start()
+
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).query<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun `listVirtualCards() should not block coroutine cancellation exception`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    query<String>(
+                        argThat { this.query.equals(ListCardsQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow CancellationException("Mock Cancellation Exception")
+            }
+
+            shouldThrow<CancellationException> {
                 client.listVirtualCards()
             }
-        }
-        deferredResult.start()
 
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockApiCategory).query<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `listVirtualCards() should not block coroutine cancellation exception`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                query<String>(
-                    argThat { this.query.equals(ListCardsQuery.OPERATION_DOCUMENT) },
-                    any(),
-                    any(),
-                )
-            } doThrow CancellationException("Mock Cancellation Exception")
-        }
-
-        shouldThrow<CancellationException> {
-            client.listVirtualCards()
-        }
-
-        verify(mockApiCategory).query<String>(
-            org.mockito.kotlin.check {
-                assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    private fun createMockVirtualCard(id: String): String {
-        return """
-            {
-                '__typename': 'SealedCard',
-                'id':'$id',
-                'owner': 'owner',
-                'version': 1,
-                'createdAtEpochMs': 1.0,
-                'updatedAtEpochMs': 1.0,
-                'algorithm': 'algorithm',
-                'keyId': 'keyId',
-                'keyRingId': 'keyRingId',
-                'owners': [],
-                'fundingSourceId': 'fundingSourceId',
-                'currency': 'currency',
-                'state': '${CardState.ISSUED}',
-                'activeToEpochMs': 1.0,
-                'cancelledAtEpochMs': null,
-                'last4': 'last4',
-                'cardHolder': '${mockSeal("cardHolder")}',
-                'alias': '${mockSeal("alias")}',
-                'pan': '${mockSeal("pan")}',
-                'csc': '${mockSeal("csc")}',
-                'billingAddress':  {
-                    '__typename': 'BillingAddress',
-                    'addressLine1': '${mockSeal("addressLine1")}',
-                    'addressLine2': '${mockSeal("addressLine2")}',
-                    'city': '${mockSeal("city")}',
-                    'state': '${mockSeal("state")}',
-                    'postalCode': '${mockSeal("postalCode")}',
-                    'country': '${mockSeal("country")}'
+            verify(mockApiCategory).query<String>(
+                org.mockito.kotlin.check {
+                    assertEquals(ListCardsQuery.OPERATION_DOCUMENT, it.query)
                 },
-                'expiry': {
-                    '__typename': 'Expiry',
-                    'mm': '${mockSeal("01")}',
-                    'yyyy': '${mockSeal("2020")}'
-                },
-            }
+                any(),
+                any(),
+            )
+        }
+
+    private fun createMockVirtualCard(id: String): String =
+        """
+        {
+            '__typename': 'SealedCard',
+            'id':'$id',
+            'owner': 'owner',
+            'version': 1,
+            'createdAtEpochMs': 1.0,
+            'updatedAtEpochMs': 1.0,
+            'algorithm': 'algorithm',
+            'keyId': 'keyId',
+            'keyRingId': 'keyRingId',
+            'owners': [],
+            'fundingSourceId': 'fundingSourceId',
+            'currency': 'currency',
+            'state': '${CardState.ISSUED}',
+            'activeToEpochMs': 1.0,
+            'cancelledAtEpochMs': null,
+            'last4': 'last4',
+            'cardHolder': '${mockSeal("cardHolder")}',
+            'alias': '${mockSeal("alias")}',
+            'pan': '${mockSeal("pan")}',
+            'csc': '${mockSeal("csc")}',
+            'billingAddress':  {
+                '__typename': 'BillingAddress',
+                'addressLine1': '${mockSeal("addressLine1")}',
+                'addressLine2': '${mockSeal("addressLine2")}',
+                'city': '${mockSeal("city")}',
+                'state': '${mockSeal("state")}',
+                'postalCode': '${mockSeal("postalCode")}',
+                'country': '${mockSeal("country")}'
+            },
+            'expiry': {
+                '__typename': 'Expiry',
+                'mm': '${mockSeal("01")}',
+                'yyyy': '${mockSeal("2020")}'
+            },
+        }
         """.trimIndent()
-    }
 }

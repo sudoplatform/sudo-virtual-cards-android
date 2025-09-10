@@ -30,7 +30,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class SigningServiceRoboTest : BaseTests() {
-
     private val mockDeviceKeyManager by before {
         mock<DeviceKeyManager>()
     }
@@ -48,20 +47,22 @@ class SigningServiceRoboTest : BaseTests() {
     private val signatureBase64 = Base64.encode(signature)
 
     @Test
-    fun `signString() should successfully sign string data using device key manager`() = runBlocking<Unit> {
-        mockDeviceKeyManager.stub {
-            on { signWithPrivateKeyId(anyString(), any()) } doReturn signature
+    fun `signString() should successfully sign string data using device key manager`() =
+        runBlocking<Unit> {
+            mockDeviceKeyManager.stub {
+                on { signWithPrivateKeyId(anyString(), any()) } doReturn signature
+            }
+
+            signingService.signString(stringToSign, keyId, KeyType.PRIVATE_KEY) shouldBe String(signatureBase64)
+
+            verify(mockDeviceKeyManager).signWithPrivateKeyId(anyString(), any())
         }
-
-        signingService.signString(stringToSign, keyId, KeyType.PRIVATE_KEY) shouldBe String(signatureBase64)
-
-        verify(mockDeviceKeyManager).signWithPrivateKeyId(anyString(), any())
-    }
 
     @Test
-    fun `signString() should throw an IllegalArgumentException for invalid key type`() = runBlocking<Unit> {
-        shouldThrow<IllegalArgumentException> {
-            signingService.signString(stringToSign, keyId, KeyType.SYMMETRIC_KEY) shouldBe String(signatureBase64)
+    fun `signString() should throw an IllegalArgumentException for invalid key type`() =
+        runBlocking<Unit> {
+            shouldThrow<IllegalArgumentException> {
+                signingService.signString(stringToSign, keyId, KeyType.SYMMETRIC_KEY) shouldBe String(signatureBase64)
+            }
         }
-    }
 }

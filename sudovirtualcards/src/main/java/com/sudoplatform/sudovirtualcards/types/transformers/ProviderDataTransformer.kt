@@ -50,13 +50,20 @@ internal object ProviderDataTransformer {
             .fromJson(String(userInteractionDataBytes, Charsets.UTF_8), ProviderUserInteractionData::class.java)
     }
 
-    fun extractAsStringOrThrow(jObject: JsonObject, fieldName: String): String {
+    fun extractAsStringOrThrow(
+        jObject: JsonObject,
+        fieldName: String,
+    ): String {
         if (jObject.has(fieldName)) {
             return jObject[fieldName].asString
         }
         throw IllegalArgumentException("Missing provisioning data $fieldName information")
     }
-    fun extractAsIntOrThrow(jObject: JsonObject, fieldName: String): Int {
+
+    fun extractAsIntOrThrow(
+        jObject: JsonObject,
+        fieldName: String,
+    ): Int {
         if (jObject.has(fieldName)) {
             return jObject[fieldName].asInt
         }

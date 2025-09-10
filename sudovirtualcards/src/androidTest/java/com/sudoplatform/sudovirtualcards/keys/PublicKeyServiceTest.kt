@@ -27,7 +27,6 @@ import java.util.logging.Logger
  */
 @RunWith(AndroidJUnit4::class)
 class PublicKeyServiceTest : BaseIntegrationTest() {
-
     private val keyRingServiceName = "sudo-virtual-cards"
 
     private val deviceKeyManager by lazy {
@@ -54,44 +53,47 @@ class PublicKeyServiceTest : BaseIntegrationTest() {
     }
 
     @After
-    fun fini() = runBlocking {
-        if (userClient.isRegistered()) {
-            deregister()
-        }
-        userClient.reset()
+    fun fini() =
+        runBlocking {
+            if (userClient.isRegistered()) {
+                deregister()
+            }
+            userClient.reset()
 
-        Timber.uprootAll()
-    }
+            Timber.uprootAll()
+        }
 
     @Test
-    fun getCurrentRegisteredKey_shouldThrowIfNotRegistered() = runBlocking<Unit> {
-        shouldThrow<PublicKeyService.PublicKeyServiceException.UserIdNotFoundException> {
-            publicKeyService.getCurrentRegisteredKey()
+    fun getCurrentRegisteredKey_shouldThrowIfNotRegistered() =
+        runBlocking<Unit> {
+            shouldThrow<PublicKeyService.PublicKeyServiceException.UserIdNotFoundException> {
+                publicKeyService.getCurrentRegisteredKey()
+            }
         }
-    }
 
     @Test
-    fun getCurrentRegisteredKey_shouldSucceedAfterSignIn() = runBlocking {
-        registerSignInAndEntitle()
+    fun getCurrentRegisteredKey_shouldSucceedAfterSignIn() =
+        runBlocking {
+            registerSignInAndEntitle()
 
-        deviceKeyManager.getCurrentKey() shouldBe null
-        deviceKeyManager.getKeyWithId("bogusValue") shouldBe null
+            deviceKeyManager.getCurrentKey() shouldBe null
+            deviceKeyManager.getKeyWithId("bogusValue") shouldBe null
 
-        val key = publicKeyService.getCurrentRegisteredKey()
-        with(key) {
-            this shouldNotBe null
-            keyRingId shouldStartWith keyRingServiceName
-            publicKey shouldNotBe null
-            publicKey.keyId.isBlank() shouldBe false
-            publicKey.publicKey.size shouldBeGreaterThan 0
+            val key = publicKeyService.getCurrentRegisteredKey()
+            with(key) {
+                this shouldNotBe null
+                keyRingId shouldStartWith keyRingServiceName
+                publicKey shouldNotBe null
+                publicKey.keyId.isBlank() shouldBe false
+                publicKey.publicKey.size shouldBeGreaterThan 0
+            }
+
+            val currentKeyPair = deviceKeyManager.getCurrentKey()
+            currentKeyPair shouldNotBe null
+            currentKeyPair!!.publicKey shouldBe key.publicKey.publicKey
+
+            val fetchedKeyPair = deviceKeyManager.getKeyWithId(currentKeyPair.keyId)
+            fetchedKeyPair shouldNotBe null
+            fetchedKeyPair!!.publicKey shouldBe key.publicKey.publicKey
         }
-
-        val currentKeyPair = deviceKeyManager.getCurrentKey()
-        currentKeyPair shouldNotBe null
-        currentKeyPair!!.publicKey shouldBe key.publicKey.publicKey
-
-        val fetchedKeyPair = deviceKeyManager.getKeyWithId(currentKeyPair.keyId)
-        fetchedKeyPair shouldNotBe null
-        fetchedKeyPair!!.publicKey shouldBe key.publicKey.publicKey
-    }
 }

@@ -42,7 +42,9 @@ abstract class BaseFundingSource {
     abstract val type: FundingSourceType
 }
 
-sealed class FundingSource : BaseFundingSource(), Parcelable
+sealed class FundingSource :
+    BaseFundingSource(),
+    Parcelable
 
 /**
  * Representation of a credit card funding source used in the Sudo Platform Virtual Cards SDK.

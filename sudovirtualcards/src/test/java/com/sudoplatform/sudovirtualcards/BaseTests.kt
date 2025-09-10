@@ -30,19 +30,16 @@ abstract class BaseTests : PropertyResetter by ActualPropertyResetter() {
     @Rule @JvmField
     val timberLogRule = TimberLogRule()
 
-    private val mockLogDriver by before {
+    private val mockLogDriver: LogDriverInterface =
         mock<LogDriverInterface>().stub {
             on { logLevel } doReturn LogLevel.VERBOSE
         }
-    }
 
     protected val mockLogger by before {
         Logger("mock", mockLogDriver)
     }
 
-    protected fun missingProvider(provider: String): java.lang.AssertionError {
-        return AssertionError("Missing provider $provider")
-    }
+    protected fun missingProvider(provider: String): java.lang.AssertionError = AssertionError("Missing provider $provider")
 
     protected fun mockSeal(value: String): String {
         val valueBytes = value.toByteArray()

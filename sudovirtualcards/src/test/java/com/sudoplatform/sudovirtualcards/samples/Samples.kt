@@ -26,7 +26,6 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 @Suppress("UNUSED_VARIABLE")
 class Samples : BaseTests() {
-
     private val context by before { mock<Context>() }
 
     @Test
@@ -35,27 +34,34 @@ class Samples : BaseTests() {
     }
 
     fun sudoVirtualCardsClient(sudoUserClient: SudoUserClient) {
-        val virtualCardsClient = SudoVirtualCardsClient.builder()
-            .setContext(context)
-            .setSudoUserClient(sudoUserClient)
-            .build()
+        val virtualCardsClient =
+            SudoVirtualCardsClient
+                .builder()
+                .setContext(context)
+                .setSudoUserClient(sudoUserClient)
+                .build()
     }
 
     fun sudoVirtualCardsNotifiableClient(sudoUserClient: SudoUserClient) {
-        val notificationHandler = object : SudoVirtualCardsNotificationHandler {
-            override fun onFundingSourceChanged(notification: VirtualCardsFundingSourceChangedNotification) {
-                // Handle fundingSourceChanged notification
+        val notificationHandler =
+            object : SudoVirtualCardsNotificationHandler {
+                override fun onFundingSourceChanged(notification: VirtualCardsFundingSourceChangedNotification) {
+                    // Handle fundingSourceChanged notification
+                }
             }
-        }
 
-        val notifiableClient = SudoVirtualCardsNotifiableClient.builder()
-            .setContext(context)
-            .setNotificationHandler(notificationHandler)
-            .build()
+        val notifiableClient =
+            SudoVirtualCardsNotifiableClient
+                .builder()
+                .setContext(context)
+                .setNotificationHandler(notificationHandler)
+                .build()
 
-        val sudoNotificationClient = SudoNotificationClient.builder()
-            .setSudoUserClient(sudoUserClient)
-            .setNotifiableClients(listOf(notifiableClient))
-            .build()
+        val sudoNotificationClient =
+            SudoNotificationClient
+                .builder()
+                .setSudoUserClient(sudoUserClient)
+                .setNotifiableClients(listOf(notifiableClient))
+                .build()
     }
 }

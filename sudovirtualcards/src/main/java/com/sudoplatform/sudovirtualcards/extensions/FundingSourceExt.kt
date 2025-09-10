@@ -9,10 +9,6 @@ package com.sudoplatform.sudovirtualcards.extensions
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceFlags
 
-fun FundingSource.isUnfunded(): Boolean {
-    return this.flags.contains(FundingSourceFlags.UNFUNDED)
-}
+fun FundingSource.isUnfunded(): Boolean = this.flags.contains(FundingSourceFlags.UNFUNDED)
 
-fun FundingSource.needsRefresh(): Boolean {
-    return this.flags.contains(FundingSourceFlags.REFRESH)
-}
+fun FundingSource.needsRefresh(): Boolean = this.flags.contains(FundingSourceFlags.REFRESH)

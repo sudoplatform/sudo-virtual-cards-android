@@ -59,51 +59,25 @@ import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as Fund
  * using mocks and spies.
  */
 @RunWith(Parameterized::class)
-class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseTests() {
+class SudoVirtualCardsGetFundingSourceTest(
+    private val provider: String,
+) : BaseTests() {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data(): Collection<String> {
-            return listOf(
+        fun data(): Collection<String> =
+            listOf(
                 "stripe",
                 "checkoutBankAccount",
             )
-        }
     }
 
     private val creditCardResponse by before {
         JSONObject(
             """
-                {
-                    'getFundingSource': {
-                            '__typename': 'CreditCardFundingSource',
-                            'id':'id',
-                            'owner': 'owner',
-                            'version': 1,
-                            'createdAtEpochMs': 1.0,
-                            'updatedAtEpochMs': 10.0,
-                            'state': '${FundingSourceStateGraphQL.ACTIVE}',
-                            'flags': [],
-                            'currency':'USD',
-                            'transactionVelocity': {
-                                'maximum': 10000,
-                                'velocity': ['10000/P1D']
-                            },
-                            'last4':'last4',
-                            'network':'${CreditCardNetwork.VISA}',
-                            'cardType': '${CardType.CREDIT}'
-                        }
-                }
-            """.trimIndent(),
-        )
-    }
-
-    private val bankAccountResponse by before {
-        JSONObject(
-            """
-                {
-                    'getFundingSource': {
-                        '__typename': 'BankAccountFundingSource',
+            {
+                'getFundingSource': {
+                        '__typename': 'CreditCardFundingSource',
                         'id':'id',
                         'owner': 'owner',
                         'version': 1,
@@ -116,26 +90,53 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
                             'maximum': 10000,
                             'velocity': ['10000/P1D']
                         },
-                        'bankAccountType': '${BankAccountType.CHECKING}',
-                        'authorization': {
-                            'language': 'language',
-                            'content': 'content',
-                            'algorithm': 'algorithm',
-                            'contentType': 'contentType',
-                            'signature': 'signature',
-                            'keyId': 'keyId',
-                            'data': 'data'
-                        },
                         'last4':'last4',
-                        'institutionName': {
-                            '__typename': 'InstitutionName',
-                            'algorithm': 'algorithm',
-                            'plainTextType': 'string',
-                            'keyId': 'keyId',
-                            'base64EncodedSealedData': '${mockSeal("base64EncodedSealedData")}'
-                        }
+                        'network':'${CreditCardNetwork.VISA}',
+                        'cardType': '${CardType.CREDIT}'
+                    }
+            }
+            """.trimIndent(),
+        )
+    }
+
+    private val bankAccountResponse by before {
+        JSONObject(
+            """
+            {
+                'getFundingSource': {
+                    '__typename': 'BankAccountFundingSource',
+                    'id':'id',
+                    'owner': 'owner',
+                    'version': 1,
+                    'createdAtEpochMs': 1.0,
+                    'updatedAtEpochMs': 10.0,
+                    'state': '${FundingSourceStateGraphQL.ACTIVE}',
+                    'flags': [],
+                    'currency':'USD',
+                    'transactionVelocity': {
+                        'maximum': 10000,
+                        'velocity': ['10000/P1D']
+                    },
+                    'bankAccountType': '${BankAccountType.CHECKING}',
+                    'authorization': {
+                        'language': 'language',
+                        'content': 'content',
+                        'algorithm': 'algorithm',
+                        'contentType': 'contentType',
+                        'signature': 'signature',
+                        'keyId': 'keyId',
+                        'data': 'data'
+                    },
+                    'last4':'last4',
+                    'institutionName': {
+                        '__typename': 'InstitutionName',
+                        'algorithm': 'algorithm',
+                        'plainTextType': 'string',
+                        'keyId': 'keyId',
+                        'base64EncodedSealedData': '${mockSeal("base64EncodedSealedData")}'
                     }
                 }
+            }
             """.trimIndent(),
         )
     }
@@ -143,45 +144,45 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
     private val unfundedBankAccountResponse by before {
         JSONObject(
             """
-                {
-                    'getFundingSource': {
-                        '__typename': 'BankAccountFundingSource',
-                        'id':'id',
-                        'owner': 'owner',
-                        'version': 1,
-                        'createdAtEpochMs': 1.0,
-                        'updatedAtEpochMs': 10.0,
-                        'state': '${FundingSourceStateGraphQL.ACTIVE}',
-                        'flags': ['${FundingSourceFlagsGraphQL.UNFUNDED}'],
-                        'currency':'USD',
-                        'transactionVelocity': {
-                            'maximum': 10000,
-                            'velocity': ['10000/P1D']
-                        },
-                        'bankAccountType': '${BankAccountType.CHECKING}',
-                        'authorization': {
-                            'language': 'language',
-                            'content': 'content',
-                            'algorithm': 'algorithm',
-                            'contentType': 'contentType',
-                            'signature': 'signature',
-                            'keyId': 'keyId',
-                            'data': 'data'
-                        },
-                        'last4':'last4',
-                        'institutionName': {
-                            '__typename': 'InstitutionName',
-                            'algorithm': 'algorithm',
-                            'plainTextType': 'string',
-                            'keyId': 'keyId',
-                            'base64EncodedSealedData': '${mockSeal("base64EncodedSealedData")}'
-                        },
-                        'unfundedAmount': {
-                           'currency': 'USD',
-                            'amount': 123
-                        }
+            {
+                'getFundingSource': {
+                    '__typename': 'BankAccountFundingSource',
+                    'id':'id',
+                    'owner': 'owner',
+                    'version': 1,
+                    'createdAtEpochMs': 1.0,
+                    'updatedAtEpochMs': 10.0,
+                    'state': '${FundingSourceStateGraphQL.ACTIVE}',
+                    'flags': ['${FundingSourceFlagsGraphQL.UNFUNDED}'],
+                    'currency':'USD',
+                    'transactionVelocity': {
+                        'maximum': 10000,
+                        'velocity': ['10000/P1D']
+                    },
+                    'bankAccountType': '${BankAccountType.CHECKING}',
+                    'authorization': {
+                        'language': 'language',
+                        'content': 'content',
+                        'algorithm': 'algorithm',
+                        'contentType': 'contentType',
+                        'signature': 'signature',
+                        'keyId': 'keyId',
+                        'data': 'data'
+                    },
+                    'last4':'last4',
+                    'institutionName': {
+                        '__typename': 'InstitutionName',
+                        'algorithm': 'algorithm',
+                        'plainTextType': 'string',
+                        'keyId': 'keyId',
+                        'base64EncodedSealedData': '${mockSeal("base64EncodedSealedData")}'
+                    },
+                    'unfundedAmount': {
+                       'currency': 'USD',
+                        'amount': 123
                     }
                 }
+            }
             """.trimIndent(),
         )
     }
@@ -207,7 +208,8 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
             on {
                 query<String>(
                     argThat { this.query.equals(GetFundingSourceQuery.OPERATION_DOCUMENT) },
-                    any(), any(),
+                    any(),
+                    any(),
                 )
             } doAnswer {
                 val mockOperation: GraphQLOperation<String> = mock()
@@ -229,7 +231,8 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
     }
 
     private val client by before {
-        SudoVirtualCardsClient.builder()
+        SudoVirtualCardsClient
+            .builder()
             .setContext(mockContext)
             .setSudoUserClient(mockUserClient)
             .setGraphQLClient(GraphQLClient(mockApiCategory))
@@ -244,265 +247,278 @@ class SudoVirtualCardsGetFundingSourceTest(private val provider: String) : BaseT
     }
 
     @Test
-    fun `getFundingSource() should return results when no error present`() = runBlocking<Unit> {
-        val deferredResult = async(Dispatchers.IO) {
-            client.getFundingSource("id")
-        }
-        deferredResult.start()
+    fun `getFundingSource() should return results when no error present`() =
+        runBlocking<Unit> {
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.getFundingSource("id")
+                }
+            deferredResult.start()
 
-        delay(100L)
+            delay(100L)
 
-        val result = deferredResult.await()
-        result shouldNotBe null
+            val result = deferredResult.await()
+            result shouldNotBe null
 
-        when (result) {
-            is CreditCardFundingSource -> {
-                with(result) {
-                    id shouldBe "id"
-                    owner shouldBe "owner"
-                    version shouldBe 1
-                    createdAt shouldNotBe null
-                    updatedAt shouldNotBe null
-                    state shouldBe FundingSourceState.ACTIVE
-                    currency shouldBe "USD"
-                    transactionVelocity?.maximum shouldBe 10000
-                    transactionVelocity?.velocity shouldBe listOf("10000/P1D")
-                    last4 shouldBe "last4"
-                    network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
+            when (result) {
+                is CreditCardFundingSource -> {
+                    with(result) {
+                        id shouldBe "id"
+                        owner shouldBe "owner"
+                        version shouldBe 1
+                        createdAt shouldNotBe null
+                        updatedAt shouldNotBe null
+                        state shouldBe FundingSourceState.ACTIVE
+                        currency shouldBe "USD"
+                        transactionVelocity?.maximum shouldBe 10000
+                        transactionVelocity?.velocity shouldBe listOf("10000/P1D")
+                        last4 shouldBe "last4"
+                        network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
+                    }
+                }
+                is BankAccountFundingSource -> {
+                    with(result) {
+                        id shouldBe "id"
+                        owner shouldBe "owner"
+                        version shouldBe 1
+                        createdAt shouldNotBe null
+                        updatedAt shouldNotBe null
+                        state shouldBe FundingSourceState.ACTIVE
+                        currency shouldBe "USD"
+                        transactionVelocity?.maximum shouldBe 10000
+                        transactionVelocity?.velocity shouldBe listOf("10000/P1D")
+                        bankAccountType shouldBe BankAccountFundingSource.BankAccountType.CHECKING
+                        last4 shouldBe "last4"
+                        institutionName shouldNotBe null
+                        institutionLogo shouldBe null
+                    }
+                }
+                else -> {
+                    fail("Unexpected FundingSource type")
                 }
             }
-            is BankAccountFundingSource -> {
-                with(result) {
-                    id shouldBe "id"
-                    owner shouldBe "owner"
-                    version shouldBe 1
-                    createdAt shouldNotBe null
-                    updatedAt shouldNotBe null
-                    state shouldBe FundingSourceState.ACTIVE
-                    currency shouldBe "USD"
-                    transactionVelocity?.maximum shouldBe 10000
-                    transactionVelocity?.velocity shouldBe listOf("10000/P1D")
-                    bankAccountType shouldBe BankAccountFundingSource.BankAccountType.CHECKING
-                    last4 shouldBe "last4"
-                    institutionName shouldNotBe null
-                    institutionLogo shouldBe null
-                }
+
+            if (provider == "checkoutBankAccount") {
+                verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
+                verify(mockKeyManager).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
             }
-            else -> {
-                fail("Unexpected FundingSource type")
-            }
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetFundingSourceQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
 
-        if (provider == "checkoutBankAccount") {
+    @Test
+    fun `getFundingSource() should interpret bank account funding source when no error present`() =
+        runBlocking<Unit> {
+            if (provider !== "checkoutBankAccount") {
+                return@runBlocking
+            }
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(GetFundingSourceQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(unfundedBankAccountResponse.toString(), null),
+                )
+                mockOperation
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.getFundingSource("id")
+                }
+            deferredResult.start()
+            delay(100L)
+            val result = deferredResult.await()
+            result shouldNotBe null
+
+            when (result) {
+                is BankAccountFundingSource -> {
+                    with(result) {
+                        id shouldBe "id"
+                        owner shouldBe "owner"
+                        version shouldBe 1
+                        createdAt shouldNotBe null
+                        updatedAt shouldNotBe null
+                        state shouldBe FundingSourceState.ACTIVE
+                        currency shouldBe "USD"
+                        transactionVelocity?.maximum shouldBe 10000
+                        transactionVelocity?.velocity shouldBe listOf("10000/P1D")
+                        bankAccountType shouldBe BankAccountFundingSource.BankAccountType.CHECKING
+                        last4 shouldBe "last4"
+                        institutionName shouldNotBe null
+                        institutionLogo shouldBe null
+                        unfundedAmount shouldBe CurrencyAmount("USD", 123)
+                    }
+                }
+                else -> {
+                    fail("Unexpected FundingSource type")
+                }
+            }
+
             verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
             verify(mockKeyManager).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetFundingSourceQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetFundingSourceQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 
     @Test
-    fun `getFundingSource() should interpret bank account funding source when no error present`() = runBlocking<Unit> {
-        if (provider !== "checkoutBankAccount") {
-            return@runBlocking
-        }
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(GetFundingSourceQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(unfundedBankAccountResponse.toString(), null),
-            )
-            mockOperation
-        }
+    fun `getFundingSource() should return null result when query result data is null`() =
+        runBlocking<Unit> {
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
+                mockApiCategory.query<String>(
+                    argThat { this.query.equals(GetFundingSourceQuery.OPERATION_DOCUMENT) },
+                    any(),
+                    any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, null),
+                )
+                mockOperation
+            }
 
-        val deferredResult = async(Dispatchers.IO) {
-            client.getFundingSource("id")
-        }
-        deferredResult.start()
-        delay(100L)
-        val result = deferredResult.await()
-        result shouldNotBe null
-
-        when (result) {
-            is BankAccountFundingSource -> {
-                with(result) {
-                    id shouldBe "id"
-                    owner shouldBe "owner"
-                    version shouldBe 1
-                    createdAt shouldNotBe null
-                    updatedAt shouldNotBe null
-                    state shouldBe FundingSourceState.ACTIVE
-                    currency shouldBe "USD"
-                    transactionVelocity?.maximum shouldBe 10000
-                    transactionVelocity?.velocity shouldBe listOf("10000/P1D")
-                    bankAccountType shouldBe BankAccountFundingSource.BankAccountType.CHECKING
-                    last4 shouldBe "last4"
-                    institutionName shouldNotBe null
-                    institutionLogo shouldBe null
-                    unfundedAmount shouldBe CurrencyAmount("USD", 123)
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    client.getFundingSource("id")
                 }
-            }
-            else -> {
-                fail("Unexpected FundingSource type")
-            }
-        }
+            deferredResult.start()
+            delay(100L)
+            val result = deferredResult.await()
+            result shouldBe null
 
-        verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
-        verify(mockKeyManager).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetFundingSourceQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `getFundingSource() should return null result when query result data is null`() = runBlocking<Unit> {
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(GetFundingSourceQuery.OPERATION_DOCUMENT) },
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetFundingSourceQuery.OPERATION_DOCUMENT, it.query)
+                },
                 any(),
                 any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, null),
             )
-            mockOperation
         }
-
-        val deferredResult = async(Dispatchers.IO) {
-            client.getFundingSource("id")
-        }
-        deferredResult.start()
-        delay(100L)
-        val result = deferredResult.await()
-        result shouldBe null
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetFundingSourceQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 
     @Test
-    fun `getFundingSource() should throw when http error occurs`() = runBlocking<Unit> {
-        val errors = listOf(
-            GraphQLResponse.Error(
-                "mock",
-                null,
-                null,
-                mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
-            ),
-        )
-        val mockOperation: GraphQLOperation<String> = mock()
-        whenever(
-            mockApiCategory.query<String>(
-                argThat { this.query.equals(GetFundingSourceQuery.OPERATION_DOCUMENT) },
-                any(),
-                any(),
-            ),
-        ).thenAnswer {
-            @Suppress("UNCHECKED_CAST")
-            (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                GraphQLResponse(null, errors),
-            )
-            mockOperation
-        }
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.FailedException> {
-                client.getFundingSource("id")
-            }
-        }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetFundingSourceQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
-
-    @Test
-    fun `getFundingSource() should throw when unknown error occurs()`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
+    fun `getFundingSource() should throw when http error occurs`() =
+        runBlocking<Unit> {
+            val errors =
+                listOf(
+                    GraphQLResponse.Error(
+                        "mock",
+                        null,
+                        null,
+                        mapOf("httpStatus" to HttpURLConnection.HTTP_FORBIDDEN),
+                    ),
+                )
+            val mockOperation: GraphQLOperation<String> = mock()
+            whenever(
                 mockApiCategory.query<String>(
                     argThat { this.query.equals(GetFundingSourceQuery.OPERATION_DOCUMENT) },
                     any(),
                     any(),
+                ),
+            ).thenAnswer {
+                @Suppress("UNCHECKED_CAST")
+                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
+                    GraphQLResponse(null, errors),
                 )
-            } doThrow RuntimeException("Mock Runtime Exception")
-        }
-
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnknownException> {
-                client.getFundingSource("id")
+                mockOperation
             }
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.FailedException> {
+                        client.getFundingSource("id")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetFundingSourceQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
-        deferredResult.start()
-        delay(100L)
-
-        deferredResult.await()
-
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetFundingSourceQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 
     @Test
-    fun `getFundingSource() should not suppress CancellationException()`() = runBlocking<Unit> {
-        mockApiCategory.stub {
-            on {
-                mockApiCategory.query<String>(
-                    argThat { this.query.equals(GetFundingSourceQuery.OPERATION_DOCUMENT) },
-                    any(),
-                    any(),
-                )
-            } doThrow CancellationException("Mock Cancellation Exception")
+    fun `getFundingSource() should throw when unknown error occurs()`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    mockApiCategory.query<String>(
+                        argThat { this.query.equals(GetFundingSourceQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow RuntimeException("Mock Runtime Exception")
+            }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<SudoVirtualCardsClient.FundingSourceException.UnknownException> {
+                        client.getFundingSource("id")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+
+            deferredResult.await()
+
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetFundingSourceQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
 
-        val deferredResult = async(Dispatchers.IO) {
-            shouldThrow<CancellationException> {
-                client.getFundingSource("id")
+    @Test
+    fun `getFundingSource() should not suppress CancellationException()`() =
+        runBlocking<Unit> {
+            mockApiCategory.stub {
+                on {
+                    mockApiCategory.query<String>(
+                        argThat { this.query.equals(GetFundingSourceQuery.OPERATION_DOCUMENT) },
+                        any(),
+                        any(),
+                    )
+                } doThrow CancellationException("Mock Cancellation Exception")
             }
+
+            val deferredResult =
+                async(Dispatchers.IO) {
+                    shouldThrow<CancellationException> {
+                        client.getFundingSource("id")
+                    }
+                }
+            deferredResult.start()
+            delay(100L)
+            deferredResult.await()
+            verify(mockApiCategory).query<String>(
+                check {
+                    assertEquals(GetFundingSourceQuery.OPERATION_DOCUMENT, it.query)
+                },
+                any(),
+                any(),
+            )
         }
-        deferredResult.start()
-        delay(100L)
-        deferredResult.await()
-        verify(mockApiCategory).query<String>(
-            check {
-                assertEquals(GetFundingSourceQuery.OPERATION_DOCUMENT, it.query)
-            },
-            any(),
-            any(),
-        )
-    }
 }

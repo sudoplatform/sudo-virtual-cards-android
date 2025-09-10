@@ -58,7 +58,6 @@ import java.util.Objects
  * @sample com.sudoplatform.sudovirtualcards.samples.Samples.sudoVirtualCardsClient
  */
 interface SudoVirtualCardsClient : AutoCloseable {
-
     companion object {
         /** Create a [Builder] for [SudoVirtualCardsClient]. */
         @JvmStatic
@@ -88,76 +87,85 @@ interface SudoVirtualCardsClient : AutoCloseable {
         /**
          * Provide the application context (required input).
          */
-        fun setContext(context: Context) = also {
-            this.context = context
-        }
+        fun setContext(context: Context) =
+            also {
+                this.context = context
+            }
 
         /**
          * Provide the implementation of the [SudoUserClient] used to perform
          * sign in and ownership operations (required input).
          */
-        fun setSudoUserClient(sudoUserClient: SudoUserClient) = also {
-            this.sudoUserClient = sudoUserClient
-        }
+        fun setSudoUserClient(sudoUserClient: SudoUserClient) =
+            also {
+                this.sudoUserClient = sudoUserClient
+            }
 
         /**
          * Provide a [GraphQLClient] for the [SudoVirtualCardsClient] to use
          * (optional input). If this is not supplied, a [GraphQLClient] will
          * be constructed and used.
          */
-        fun setGraphQLClient(graphQLClient: GraphQLClient) = also {
-            this.graphQLClient = graphQLClient
-        }
+        fun setGraphQLClient(graphQLClient: GraphQLClient) =
+            also {
+                this.graphQLClient = graphQLClient
+            }
 
         /**
          * Provide the implementation of the [KeyManagerInterface] used for key management and
          * cryptographic operations (optional input). If a value is not supplied a default
          * implementation will be used.
          */
-        fun setKeyManager(keyManager: KeyManagerInterface) = also {
-            this.keyManager = keyManager
-        }
+        fun setKeyManager(keyManager: KeyManagerInterface) =
+            also {
+                this.keyManager = keyManager
+            }
 
         /**
          * Provide the implementation of the [Logger] used for logging errors (optional input).
          * If a value is not supplied a default implementation will be used.
          */
-        fun setLogger(logger: Logger) = also {
-            this.logger = logger
-        }
+        fun setLogger(logger: Logger) =
+            also {
+                this.logger = logger
+            }
 
         /**
          * Provide the namespace to use for internal data and cryptographic keys. This should be unique
          * per client per app to avoid name conflicts between multiple clients. If a value is not supplied
          * a default value will be used.
          */
-        fun setNamespace(namespace: String) = also {
-            this.namespace = namespace
-        }
+        fun setNamespace(namespace: String) =
+            also {
+                this.namespace = namespace
+            }
 
         /**
          * Set the notification handler which provides the implementation for notifications received
          * from the virtual cards service
          */
-        fun setNotificationHandler(notificationHandler: SudoVirtualCardsNotificationHandler) = also {
-            this.notificationHandler = notificationHandler
-        }
+        fun setNotificationHandler(notificationHandler: SudoVirtualCardsNotificationHandler) =
+            also {
+                this.notificationHandler = notificationHandler
+            }
 
         /**
          * Provide the database name to use for exportable key store database.
          */
-        fun setDatabaseName(databaseName: String) = also {
-            this.databaseName = databaseName
-        }
+        fun setDatabaseName(databaseName: String) =
+            also {
+                this.databaseName = databaseName
+            }
 
         /**
          * Provider the implementation of the [PublicKeyService] used for public
          * key operations (optional).
          * If a value is not supplied a default implementation will be used.
          */
-        internal fun setPublicKeyService(publicKeyService: PublicKeyService) = also {
-            this.publicKeyService = publicKeyService
-        }
+        internal fun setPublicKeyService(publicKeyService: PublicKeyService) =
+            also {
+                this.publicKeyService = publicKeyService
+            }
 
         /**
          * Construct the [SudoVirtualCardsClient]. Will throw a [NullPointerException] if
@@ -167,20 +175,23 @@ interface SudoVirtualCardsClient : AutoCloseable {
             Objects.requireNonNull(context, "Context must be provided.")
             Objects.requireNonNull(sudoUserClient, "SudoUserClient must be provided.")
 
-            val graphQLClient = graphQLClient
-                ?: ApiClientManager.getClient(this@Builder.context!!, this@Builder.sudoUserClient!!, "vcService")
+            val graphQLClient =
+                graphQLClient
+                    ?: ApiClientManager.getClient(this@Builder.context!!, this@Builder.sudoUserClient!!, "vcService")
 
-            val deviceKeyManager = DefaultDeviceKeyManager(
-                keyManager = keyManager ?: KeyManagerFactory(context!!).createAndroidKeyManager(this.namespace, this.databaseName),
-            )
+            val deviceKeyManager =
+                DefaultDeviceKeyManager(
+                    keyManager = keyManager ?: KeyManagerFactory(context!!).createAndroidKeyManager(this.namespace, this.databaseName),
+                )
 
-            val publicKeyService = publicKeyService ?: DefaultPublicKeyService(
-                keyRingServiceName = "sudo-virtual-cards",
-                userClient = sudoUserClient!!,
-                deviceKeyManager = deviceKeyManager,
-                graphQLClient = graphQLClient,
-                logger = logger,
-            )
+            val publicKeyService =
+                publicKeyService ?: DefaultPublicKeyService(
+                    keyRingServiceName = "sudo-virtual-cards",
+                    userClient = sudoUserClient!!,
+                    deviceKeyManager = deviceKeyManager,
+                    graphQLClient = graphQLClient,
+                    logger = logger,
+                )
 
             return DefaultSudoVirtualCardsClient(
                 context = context!!,
@@ -198,7 +209,9 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * Returned with a FundingSourceRequiresUserInteraction error to provide feedback to the client.
      */
     @Keep
-    data class FundingSourceInteractionData(val provisioningData: String) {
+    data class FundingSourceInteractionData(
+        val provisioningData: String,
+    ) {
         companion object {
             fun decode(errorInfo: Any?): FundingSourceInteractionData {
                 val jsonErrorInfo = Gson().toJson(errorInfo)
@@ -213,53 +226,118 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * @property message [String] Accompanying message for the exception.
      * @property cause [Throwable] The cause of the exception.
      */
-    sealed class FundingSourceException(message: String? = null, cause: Throwable? = null) : RuntimeException(message, cause) {
-        class FailedException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class SetupFailedException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class FundingSourceStateException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class CompletionFailedException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class RefreshFailedException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class CancelFailedException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class ReviewFailedException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class DuplicateFundingSourceException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class FundingSourceNotFoundException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class ProvisionalFundingSourceNotFoundException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class UnacceptableFundingSourceException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class UnsupportedCurrencyException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class CompletionDataInvalidException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class UnexpectedProviderException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class IdentityVerificationException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class AccountLockedException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class EntitlementExceededException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class VelocityExceededException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class PublicKeyException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
-        class AuthenticationException(message: String? = null, cause: Throwable? = null) :
-            FundingSourceException(message = message, cause = cause)
+    sealed class FundingSourceException(
+        message: String? = null,
+        cause: Throwable? = null,
+    ) : RuntimeException(message, cause) {
+        class FailedException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class SetupFailedException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class FundingSourceStateException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class CompletionFailedException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class RefreshFailedException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class CancelFailedException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class ReviewFailedException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class DuplicateFundingSourceException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class FundingSourceNotFoundException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class ProvisionalFundingSourceNotFoundException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class UnacceptableFundingSourceException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class UnsupportedCurrencyException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class CompletionDataInvalidException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class UnexpectedProviderException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class IdentityVerificationException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class AccountLockedException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class EntitlementExceededException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class VelocityExceededException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class PublicKeyException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
+        class AuthenticationException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : FundingSourceException(message = message, cause = cause)
+
         class FundingSourceRequiresUserInteractionException(
             message: String? = null,
             val interactionData: ProviderUserInteractionData,
         ) : FundingSourceException(message = message)
-        class UnknownException(cause: Throwable) :
-            FundingSourceException(cause = cause)
+
+        class UnknownException(
+            cause: Throwable,
+        ) : FundingSourceException(cause = cause)
     }
 
     /**
@@ -268,41 +346,93 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * @property message [String] Accompanying message for the exception.
      * @property cause [Throwable] The cause of the exception.
      */
-    sealed class VirtualCardException(message: String? = null, cause: Throwable? = null) : RuntimeException(message, cause) {
-        class FailedException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardException(message = message, cause = cause)
-        class ProvisionFailedException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardException(message = message, cause = cause)
-        class UpdateFailedException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardException(message = message, cause = cause)
-        class CancelFailedException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardException(message = message, cause = cause)
-        class CardNotFoundException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardException(message = message, cause = cause)
-        class CardStateException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardException(message = message, cause = cause)
-        class FundingSourceNotFoundException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardException(message = message, cause = cause)
-        class FundingSourceNotActiveException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardException(message = message, cause = cause)
-        class VelocityExceededException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardException(message = message, cause = cause)
-        class EntitlementExceededException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardException(message = message, cause = cause)
-        class UnsupportedCurrencyException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardException(message = message, cause = cause)
-        class IdentityVerificationException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardException(message = message, cause = cause)
-        class IdentityVerificationInsufficientException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardException(message = message, cause = cause)
-        class PublicKeyException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardException(message = message, cause = cause)
-        class UnsealingException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardException(message = message, cause = cause)
-        class AccountLockedException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardException(message = message, cause = cause)
-        class UnknownException(cause: Throwable) :
-            VirtualCardException(cause = cause)
+    sealed class VirtualCardException(
+        message: String? = null,
+        cause: Throwable? = null,
+    ) : RuntimeException(message, cause) {
+        class FailedException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardException(message = message, cause = cause)
+
+        class ProvisionFailedException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardException(message = message, cause = cause)
+
+        class UpdateFailedException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardException(message = message, cause = cause)
+
+        class CancelFailedException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardException(message = message, cause = cause)
+
+        class CardNotFoundException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardException(message = message, cause = cause)
+
+        class CardStateException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardException(message = message, cause = cause)
+
+        class FundingSourceNotFoundException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardException(message = message, cause = cause)
+
+        class FundingSourceNotActiveException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardException(message = message, cause = cause)
+
+        class VelocityExceededException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardException(message = message, cause = cause)
+
+        class EntitlementExceededException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardException(message = message, cause = cause)
+
+        class UnsupportedCurrencyException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardException(message = message, cause = cause)
+
+        class IdentityVerificationException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardException(message = message, cause = cause)
+
+        class IdentityVerificationInsufficientException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardException(message = message, cause = cause)
+
+        class PublicKeyException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardException(message = message, cause = cause)
+
+        class UnsealingException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardException(message = message, cause = cause)
+
+        class AccountLockedException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardException(message = message, cause = cause)
+
+        class UnknownException(
+            cause: Throwable,
+        ) : VirtualCardException(cause = cause)
     }
 
     /**
@@ -311,19 +441,38 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * @property message [String] Accompanying message for the exception.
      * @property cause [Throwable] The cause of the exception.
      */
-    sealed class TransactionException(message: String? = null, cause: Throwable? = null) : RuntimeException(message, cause) {
-        class FailedException(message: String? = null, cause: Throwable? = null) :
-            TransactionException(message = message, cause = cause)
-        class PublicKeyException(message: String? = null, cause: Throwable? = null) :
-            TransactionException(message = message, cause = cause)
-        class UnsealingException(message: String? = null, cause: Throwable? = null) :
-            TransactionException(message = message, cause = cause)
-        class AuthenticationException(message: String? = null, cause: Throwable? = null) :
-            TransactionException(message = message, cause = cause)
-        class UnsupportedTransactionTypeException(message: String? = null, cause: Throwable? = null) :
-            TransactionException(message = message, cause = cause)
-        class UnknownException(cause: Throwable) :
-            TransactionException(cause = cause)
+    sealed class TransactionException(
+        message: String? = null,
+        cause: Throwable? = null,
+    ) : RuntimeException(message, cause) {
+        class FailedException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : TransactionException(message = message, cause = cause)
+
+        class PublicKeyException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : TransactionException(message = message, cause = cause)
+
+        class UnsealingException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : TransactionException(message = message, cause = cause)
+
+        class AuthenticationException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : TransactionException(message = message, cause = cause)
+
+        class UnsupportedTransactionTypeException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : TransactionException(message = message, cause = cause)
+
+        class UnknownException(
+            cause: Throwable,
+        ) : TransactionException(cause = cause)
     }
 
     /**
@@ -336,8 +485,10 @@ interface SudoVirtualCardsClient : AutoCloseable {
         message: String? = null,
         cause: Throwable? = null,
     ) : RuntimeException(message, cause) {
-        class SecureKeyArchiveException(message: String? = null, cause: Throwable? = null) :
-            VirtualCardCryptographicKeysException(message = message, cause = cause)
+        class SecureKeyArchiveException(
+            message: String? = null,
+            cause: Throwable? = null,
+        ) : VirtualCardCryptographicKeysException(message = message, cause = cause)
     }
 
     /**
@@ -744,7 +895,10 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * @param subscriber [TransactionSubscriber] Subscriber to notify.
      */
     @Throws(TransactionException::class)
-    suspend fun subscribeToTransactions(id: String, subscriber: TransactionSubscriber)
+    suspend fun subscribeToTransactions(
+        id: String,
+        subscriber: TransactionSubscriber,
+    )
 
     /**
      * Unsubscribe the specified subscriber so that it no longer receives notifications about
@@ -768,7 +922,10 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * @param subscriber [FundingSourceSubscriber] Subscriber to notify.
      */
     @Throws(FundingSourceException::class)
-    suspend fun subscribeToFundingSources(id: String, subscriber: FundingSourceSubscriber)
+    suspend fun subscribeToFundingSources(
+        id: String,
+        subscriber: FundingSourceSubscriber,
+    )
 
     /**
      * Unsubscribe the specified subscriber so that it no longer receives notifications about
@@ -795,7 +952,10 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * @throws(FundingSourceException::class)
      */
     @Throws(FundingSourceException::class)
-    suspend fun sandboxGetPlaidData(institutionId: String, plaidUsername: String): SandboxPlaidData
+    suspend fun sandboxGetPlaidData(
+        institutionId: String,
+        plaidUsername: String,
+    ): SandboxPlaidData
 
     /**
      * Sandbox API to set a funding source to refresh state to facilitate testing.
@@ -845,18 +1005,18 @@ suspend fun SudoVirtualCardsClient.subscribeToFundingSources(
     id: String,
     onConnectionChange: (status: Subscriber.ConnectionState) -> Unit = {},
     onFundingSourceChanged: (fundingSource: FundingSource) -> Unit,
-) =
-    subscribeToFundingSources(
-        id,
-        object : FundingSourceSubscriber {
-            override fun connectionStatusChanged(state: Subscriber.ConnectionState) {
-                onConnectionChange.invoke(state)
-            }
-            override fun fundingSourceChanged(fundingSource: FundingSource) {
-                onFundingSourceChanged.invoke(fundingSource)
-            }
-        },
-    )
+) = subscribeToFundingSources(
+    id,
+    object : FundingSourceSubscriber {
+        override fun connectionStatusChanged(state: Subscriber.ConnectionState) {
+            onConnectionChange.invoke(state)
+        }
+
+        override fun fundingSourceChanged(fundingSource: FundingSource) {
+            onFundingSourceChanged.invoke(fundingSource)
+        }
+    },
+)
 
 /**
  * Subscribes to be notified of new, updated and deleted [Transaction]s.
@@ -870,15 +1030,15 @@ suspend fun SudoVirtualCardsClient.subscribeToTransactions(
     id: String,
     onConnectionChange: (status: TransactionSubscriber.ConnectionState) -> Unit = {},
     onTransactionChange: (transaction: Transaction) -> Unit,
-) =
-    subscribeToTransactions(
-        id,
-        object : TransactionSubscriber {
-            override fun connectionStatusChanged(state: TransactionSubscriber.ConnectionState) {
-                onConnectionChange.invoke(state)
-            }
-            override fun transactionChanged(transaction: Transaction) {
-                onTransactionChange.invoke(transaction)
-            }
-        },
-    )
+) = subscribeToTransactions(
+    id,
+    object : TransactionSubscriber {
+        override fun connectionStatusChanged(state: TransactionSubscriber.ConnectionState) {
+            onConnectionChange.invoke(state)
+        }
+
+        override fun transactionChanged(transaction: Transaction) {
+            onTransactionChange.invoke(transaction)
+        }
+    },
+)

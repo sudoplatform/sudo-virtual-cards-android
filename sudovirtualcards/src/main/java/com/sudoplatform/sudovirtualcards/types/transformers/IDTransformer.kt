@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo.api.Optional
 import com.sudoplatform.sudovirtualcards.graphql.type.IDFilterInput
 import com.sudoplatform.sudovirtualcards.types.inputs.IdFilterInput
 
