@@ -13,6 +13,7 @@ import com.amplifyframework.api.graphql.GraphQLResponse
 import com.amplifyframework.core.Consumer
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudologging.Logger
+import com.sudoplatform.sudouser.SignInGuard
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
@@ -154,6 +155,10 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
         mock<KeyManagerInterface>()
     }
 
+    private val mockSignInGuard by before {
+        mock<SignInGuard>()
+    }
+
     private val client by before {
         SudoVirtualCardsClient
             .builder()
@@ -162,12 +167,13 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
             .setGraphQLClient(GraphQLClient(mockApiCategory))
             .setKeyManager(mockKeyManager)
             .setLogger(mock<Logger>())
+            .setSignInGuard(mockSignInGuard)
             .build()
     }
 
     @After
     fun fini() {
-        verifyNoMoreInteractions(mockContext, mockUserClient, mockKeyManager, mockApiCategory)
+        verifyNoMoreInteractions(mockContext, mockUserClient, mockKeyManager, mockSignInGuard, mockApiCategory)
     }
 
     @Test
@@ -205,6 +211,7 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
                 any(),
                 any(),
             )
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -257,6 +264,7 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
                 any(),
                 any(),
             )
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -297,6 +305,7 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
                 any(),
                 any(),
             )
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -337,6 +346,7 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
                 any(),
                 any(),
             )
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -382,6 +392,7 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
                 any(),
                 any(),
             )
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -415,6 +426,7 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
                 any(),
                 any(),
             )
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -448,5 +460,6 @@ class SudoVirtualCardsListFundingSourcesTest : BaseTests() {
                 any(),
                 any(),
             )
+            verify(mockSignInGuard).ensureSignedIn()
         }
 }

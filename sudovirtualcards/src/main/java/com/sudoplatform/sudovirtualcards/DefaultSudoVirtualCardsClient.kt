@@ -16,6 +16,8 @@ import com.sudoplatform.sudologging.LogLevel
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudonotification.types.NotificationMetaData
 import com.sudoplatform.sudonotification.types.NotificationSchemaEntry
+import com.sudoplatform.sudouser.SignInGuard
+import com.sudoplatform.sudouser.SudoPlatformSignInCallback
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudouser.exceptions.GRAPHQL_ERROR_TYPE
@@ -111,6 +113,8 @@ import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransform
 import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer.toMetadataInput
 import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardTransformer.toVirtualCardFilterInput
 import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardsConfigTransformer
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.net.HttpURLConnection
 import java.util.Calendar
 import java.util.TimeZone
@@ -134,6 +138,7 @@ internal class DefaultSudoVirtualCardsClient(
     private val deviceKeyManager: DeviceKeyManager,
     private val publicKeyService: PublicKeyService,
     private val notificationHandler: SudoVirtualCardsNotificationHandler? = null,
+    signInGuard: SignInGuard? = null,
 ) : SudoVirtualCardsClient {
     companion object {
         /** Exception messages */
@@ -186,6 +191,16 @@ internal class DefaultSudoVirtualCardsClient(
         private const val ERROR_ACCOUNT_LOCKED = "AccountLockedError"
     }
 
+/**
+     * Mutex for thread-safe access to the sign-in callback.
+     */
+    private val callbackMutex = Mutex()
+
+    /**
+     * Threadsafe container for optional callback to be invoked when operations are attempted while not signed in.
+     */
+    private var signInGuard = signInGuard ?: SignInGuard(sudoUserClient)
+
     /**
      * Checksums for each file are generated and are used to create a checksum that is used when
      * publishing to maven central. In order to retry a failed publish without needing to change any
@@ -218,8 +233,31 @@ internal class DefaultSudoVirtualCardsClient(
         }
     }
 
+    override suspend fun setSignInCallback(callback: SudoPlatformSignInCallback?) {
+        callbackMutex.withLock {
+            signInGuard.setCallback(callback)
+        }
+    }
+
+    /**
+     * Checks if the user is signed in and invokes the callback if needed.
+     * Only performs the check if a callback is configured.
+     *
+     * This method implements the automatic sign-in checking mechanism:
+     * If no callback is set, takes no action
+     * If callback is set, checks if user is signed in using sudoUserClient.getSubject()
+     * If user is not signed in, invokes the callback
+     * Any exceptions from the callback are propagated to the caller
+     *
+     * @throws Exception Any exception thrown by the sign-in callback is propagated.
+     */
+    private suspend fun ensureSignedIn() {
+        signInGuard.ensureSignedIn()
+    }
+
     @Throws(FundingSourceException::class)
     override suspend fun setupFundingSource(input: SetupFundingSourceInput): ProvisionalFundingSource {
+        ensureSignedIn()
         try {
             val setupData =
                 ProviderSetupData(
@@ -268,6 +306,7 @@ internal class DefaultSudoVirtualCardsClient(
         limit: Int,
         nextToken: String?,
     ): ListOutput<ProvisionalFundingSource> {
+        ensureSignedIn()
         try {
             val queryResponse =
                 graphQLClient.query<ListProvisionalFundingSourcesQuery, ListProvisionalFundingSourcesQuery.Data>(
@@ -296,6 +335,7 @@ internal class DefaultSudoVirtualCardsClient(
 
     @Throws(FundingSourceException::class)
     override suspend fun completeFundingSource(input: CompleteFundingSourceInput): FundingSource {
+        ensureSignedIn()
         try {
             val provider = input.completionData.provider
             val type = input.completionData.type
@@ -382,6 +422,7 @@ internal class DefaultSudoVirtualCardsClient(
     }
 
     override suspend fun refreshFundingSource(input: RefreshFundingSourceInput): FundingSource {
+        ensureSignedIn()
         try {
             val provider = input.refreshData.provider
             val type = input.refreshData.type
@@ -458,6 +499,7 @@ internal class DefaultSudoVirtualCardsClient(
 
     @Throws(FundingSourceException::class)
     override suspend fun getFundingSource(id: String): FundingSource? {
+        ensureSignedIn()
         try {
             val queryResponse =
                 graphQLClient.query<GetFundingSourceQuery, GetFundingSourceQuery.Data>(
@@ -485,6 +527,7 @@ internal class DefaultSudoVirtualCardsClient(
         limit: Int,
         nextToken: String?,
     ): ListOutput<FundingSource> {
+        ensureSignedIn()
         try {
             val queryResponse =
                 graphQLClient.query<ListFundingSourcesQuery, ListFundingSourcesQuery.Data>(
@@ -513,6 +556,7 @@ internal class DefaultSudoVirtualCardsClient(
 
     @Throws(FundingSourceException::class)
     override suspend fun cancelFundingSource(id: String): FundingSource {
+        ensureSignedIn()
         try {
             val mutationInput = IdInput(id = id)
 
@@ -543,6 +587,7 @@ internal class DefaultSudoVirtualCardsClient(
 
     @Throws(FundingSourceException::class)
     override suspend fun cancelProvisionalFundingSource(id: String): ProvisionalFundingSource {
+        ensureSignedIn()
         try {
             val mutationInput = IdInput(id = id)
 
@@ -576,6 +621,7 @@ internal class DefaultSudoVirtualCardsClient(
 
     @Throws(FundingSourceException::class)
     override suspend fun reviewUnfundedFundingSource(id: String): FundingSource {
+        ensureSignedIn()
         try {
             val mutationInput = IdInput(id = id)
 
@@ -606,6 +652,7 @@ internal class DefaultSudoVirtualCardsClient(
 
     @Throws(VirtualCardException::class)
     override suspend fun provisionVirtualCard(input: ProvisionVirtualCardInput): ProvisionalVirtualCard {
+        ensureSignedIn()
         try {
             val key = publicKeyService.getCurrentRegisteredKey()
 
@@ -649,6 +696,7 @@ internal class DefaultSudoVirtualCardsClient(
 
     @Throws(VirtualCardException::class)
     override suspend fun getProvisionalCard(id: String): ProvisionalVirtualCard? {
+        ensureSignedIn()
         try {
             val queryResponse =
                 graphQLClient.query<GetProvisionalCardQuery, GetProvisionalCardQuery.Data>(
@@ -671,6 +719,7 @@ internal class DefaultSudoVirtualCardsClient(
 
     @Throws(VirtualCardException::class)
     override suspend fun getVirtualCard(id: String): VirtualCard? {
+        ensureSignedIn()
         try {
             val key =
                 publicKeyService.getCurrentKey()
@@ -700,6 +749,7 @@ internal class DefaultSudoVirtualCardsClient(
 
     @Throws(VirtualCardException::class)
     override suspend fun getVirtualCardsConfig(): VirtualCardsConfig? {
+        ensureSignedIn()
         try {
             val queryResponse =
                 graphQLClient.query<GetVirtualCardsConfigQuery, GetVirtualCardsConfigQuery.Data>(
@@ -727,6 +777,7 @@ internal class DefaultSudoVirtualCardsClient(
         limit: Int,
         nextToken: String?,
     ): ListAPIResult<VirtualCard, PartialVirtualCard> {
+        ensureSignedIn()
         try {
             val queryResponse =
                 graphQLClient.query<ListCardsQuery, ListCardsQuery.Data>(
@@ -773,6 +824,7 @@ internal class DefaultSudoVirtualCardsClient(
 
     @Throws(VirtualCardException::class)
     override suspend fun updateVirtualCard(input: UpdateVirtualCardInput): SingleAPIResult<VirtualCard, PartialVirtualCard> {
+        ensureSignedIn()
         try {
             val keyPairResult =
                 publicKeyService.getCurrentKey()
@@ -827,6 +879,7 @@ internal class DefaultSudoVirtualCardsClient(
     }
 
     override suspend fun cancelVirtualCard(id: String): SingleAPIResult<VirtualCard, PartialVirtualCard> {
+        ensureSignedIn()
         try {
             val key =
                 publicKeyService.getCurrentKey()
@@ -879,6 +932,7 @@ internal class DefaultSudoVirtualCardsClient(
 
     @Throws(SudoVirtualCardsClient.TransactionException::class)
     override suspend fun getTransaction(id: String): Transaction? {
+        ensureSignedIn()
         try {
             val keyPairResult =
                 publicKeyService.getCurrentKey()
@@ -912,6 +966,7 @@ internal class DefaultSudoVirtualCardsClient(
         dateRange: DateRange?,
         sortOrder: SortOrder,
     ): ListAPIResult<Transaction, PartialTransaction> {
+        ensureSignedIn()
         try {
             val queryResponse =
                 graphQLClient.query<ListTransactionsByCardIdQuery, ListTransactionsByCardIdQuery.Data>(
@@ -962,6 +1017,7 @@ internal class DefaultSudoVirtualCardsClient(
         limit: Int,
         nextToken: String?,
     ): ListAPIResult<Transaction, PartialTransaction> {
+        ensureSignedIn()
         try {
             val queryResponse =
                 graphQLClient.query<ListTransactionsByCardIdAndTypeQuery, ListTransactionsByCardIdAndTypeQuery.Data>(
@@ -1016,6 +1072,7 @@ internal class DefaultSudoVirtualCardsClient(
         dateRange: DateRange?,
         sortOrder: SortOrder,
     ): ListAPIResult<Transaction, PartialTransaction> {
+        ensureSignedIn()
         try {
             val queryResponse =
                 graphQLClient.query<ListTransactionsQuery, ListTransactionsQuery.Data>(
@@ -1092,6 +1149,7 @@ internal class DefaultSudoVirtualCardsClient(
         institutionId: String,
         plaidUsername: String,
     ): SandboxPlaidData {
+        ensureSignedIn()
         try {
             val queryInput =
                 SandboxGetPlaidDataRequest(
@@ -1130,6 +1188,7 @@ internal class DefaultSudoVirtualCardsClient(
     }
 
     override suspend fun sandboxSetFundingSourceToRequireRefresh(fundingSourceId: String): FundingSource {
+        ensureSignedIn()
         try {
             val mutationInput =
                 SandboxSetFundingSourceToRequireRefreshRequest(

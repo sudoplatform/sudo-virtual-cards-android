@@ -15,6 +15,9 @@ import com.sudoplatform.sudoentitlements.SudoEntitlementsClient
 import com.sudoplatform.sudoentitlementsadmin.SudoEntitlementsAdminClient
 import com.sudoplatform.sudoentitlementsadmin.types.Entitlement
 import com.sudoplatform.sudoidentityverification.DefaultSudoIdentityVerificationClient
+import com.sudoplatform.sudoidentityverification.SudoIdentityVerificationClient
+import com.sudoplatform.sudoidentityverification.types.inputs.IdentityDataProcessingConsentContentInput
+import com.sudoplatform.sudoidentityverification.types.inputs.IdentityDataProcessingConsentInput
 import com.sudoplatform.sudoidentityverification.types.inputs.VerifyIdentityInput
 import com.sudoplatform.sudokeymanager.KeyManagerFactory
 import com.sudoplatform.sudoprofiles.DefaultSudoProfilesClient
@@ -205,6 +208,7 @@ abstract class BaseIntegrationTest {
     }
 
     protected suspend fun verifyTestUserIdentity() {
+        provideConsentIfRequired(identityVerificationClient)
         val countryCodeAlpha3 =
             LocaleUtil.toCountryCodeAlpha3(context, TestData.VerifiedUser.country)
                 ?: throw IllegalArgumentException("Unable to convert country code to ISO 3166 Alpha-3")
@@ -221,6 +225,27 @@ abstract class BaseIntegrationTest {
                 dateOfBirth = TestData.VerifiedUser.dateOfBirth,
             )
         identityVerificationClient.verifyIdentity(input)
+    }
+
+    protected suspend fun provideConsentIfRequired(client: SudoIdentityVerificationClient) {
+        if (!client.isConsentRequiredForVerification()) {
+            return
+        }
+        val consentStatus = client.getIdentityDataProcessingConsentStatus()
+        if (consentStatus.consented) {
+            return
+        }
+        val consentContent =
+            client.getIdentityDataProcessingConsentContent(
+                IdentityDataProcessingConsentContentInput("text/plain", "en-US"),
+            )
+        client.provideIdentityDataProcessingConsent(
+            IdentityDataProcessingConsentInput(consentContent.content, consentContent.contentType, consentContent.language),
+        )
+        val consentedStatus = client.getIdentityDataProcessingConsentStatus()
+        if (!consentedStatus.consented) {
+            throw IllegalStateException("Failed to provide identity data processing consent")
+        }
     }
 
     protected suspend fun createSudo(sudoInput: Sudo): Sudo = sudoClient.createSudo(sudoInput)

@@ -14,6 +14,7 @@ import com.amplifyframework.core.Consumer
 import com.sudoplatform.sudokeymanager.KeyManagerException
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudouser.PublicKey
+import com.sudoplatform.sudouser.SignInGuard
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.graphql.UpdateVirtualCardMutation
@@ -170,6 +171,10 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
         }
     }
 
+    private val mockSignInGuard by before {
+        mock<SignInGuard>()
+    }
+
     private val client by before {
         SudoVirtualCardsClient
             .builder()
@@ -179,6 +184,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             .setKeyManager(mockKeyManager)
             .setLogger(mock())
             .setPublicKeyService(mockPublicKeyService)
+            .setSignInGuard(mockSignInGuard)
             .build()
     }
 
@@ -188,6 +194,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             mockContext,
             mockUserClient,
             mockKeyManager,
+            mockSignInGuard,
             mockPublicKeyService,
             mockApiCategory,
         )
@@ -232,6 +239,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             }
 
             verifyUpdateVirtualCardMutation()
+            verify(mockSignInGuard).ensureSignedIn()
 
             verify(mockPublicKeyService).getCurrentKey()
             verify(mockKeyManager, times(12)).decryptWithPrivateKey(anyString(), any(), any())
@@ -278,6 +286,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             }
 
             verifyUpdateVirtualCardMutation()
+            verify(mockSignInGuard).ensureSignedIn()
 
             verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
             verify(mockPublicKeyService).getCurrentKey()
@@ -313,6 +322,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             deferredResult.await()
 
             verifyUpdateVirtualCardMutation()
+            verify(mockSignInGuard).ensureSignedIn()
 
             verify(mockPublicKeyService).getCurrentKey()
         }
@@ -355,6 +365,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             deferredResult.await()
 
             verifyUpdateVirtualCardMutation()
+            verify(mockSignInGuard).ensureSignedIn()
 
             verify(mockPublicKeyService).getCurrentKey()
         }
@@ -398,6 +409,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             deferredResult.await()
 
             verifyUpdateVirtualCardMutation()
+            verify(mockSignInGuard).ensureSignedIn()
 
             verify(mockPublicKeyService).getCurrentKey()
         }
@@ -439,6 +451,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             delay(100L)
             deferredResult.await()
             verifyUpdateVirtualCardMutation()
+            verify(mockSignInGuard).ensureSignedIn()
 
             verify(mockPublicKeyService).getCurrentKey()
         }
@@ -454,6 +467,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
                 client.updateVirtualCard(input)
             }
 
+            verify(mockSignInGuard).ensureSignedIn()
             verify(mockPublicKeyService).getCurrentKey()
         }
 
@@ -478,6 +492,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             }
 
             verifyUpdateVirtualCardMutation()
+            verify(mockSignInGuard).ensureSignedIn()
 
             verify(mockPublicKeyService).getCurrentKey()
         }
@@ -519,6 +534,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             deferredResult.await()
 
             verifyUpdateVirtualCardMutation()
+            verify(mockSignInGuard).ensureSignedIn()
 
             verify(mockPublicKeyService).getCurrentKey()
         }
@@ -548,6 +564,7 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             deferredResult.await()
 
             verifyUpdateVirtualCardMutation()
+            verify(mockSignInGuard).ensureSignedIn()
 
             verify(mockPublicKeyService).getCurrentKey()
         }
@@ -570,6 +587,8 @@ class SudoVirtualCardsUpdateVirtualCardTest : BaseTests() {
             }
 
             verifyUpdateVirtualCardMutation()
+            verify(mockSignInGuard).ensureSignedIn()
+
             verify(mockPublicKeyService).getCurrentKey()
         }
 

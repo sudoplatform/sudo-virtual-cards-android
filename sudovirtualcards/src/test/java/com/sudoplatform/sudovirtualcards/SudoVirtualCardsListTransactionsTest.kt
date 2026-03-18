@@ -13,6 +13,7 @@ import com.amplifyframework.api.graphql.GraphQLResponse
 import com.amplifyframework.core.Consumer
 import com.sudoplatform.sudokeymanager.KeyManagerException
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
+import com.sudoplatform.sudouser.SignInGuard
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsQuery
@@ -151,6 +152,10 @@ class SudoVirtualCardsListTransactionsTest : BaseTests() {
         }
     }
 
+    private val mockSignInGuard by before {
+        mock<SignInGuard>()
+    }
+
     private val client by before {
         SudoVirtualCardsClient
             .builder()
@@ -159,12 +164,13 @@ class SudoVirtualCardsListTransactionsTest : BaseTests() {
             .setGraphQLClient(GraphQLClient(mockApiCategory))
             .setKeyManager(mockKeyManager)
             .setLogger(mock())
+            .setSignInGuard(mockSignInGuard)
             .build()
     }
 
     @After
     fun fini() {
-        verifyNoMoreInteractions(mockContext, mockUserClient, mockKeyManager, mockApiCategory)
+        verifyNoMoreInteractions(mockContext, mockUserClient, mockKeyManager, mockSignInGuard, mockApiCategory)
     }
 
     @Test
@@ -199,6 +205,8 @@ class SudoVirtualCardsListTransactionsTest : BaseTests() {
             }
 
             verifyListTransactionsQuery(1, null, true)
+            verify(mockSignInGuard).ensureSignedIn()
+
             verify(mockKeyManager, times(18)).decryptWithPrivateKey(anyString(), any(), any())
             verify(mockKeyManager, times(18)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
         }
@@ -231,6 +239,7 @@ class SudoVirtualCardsListTransactionsTest : BaseTests() {
             }
 
             verifyListTransactionsQuery(100)
+            verify(mockSignInGuard).ensureSignedIn()
             verify(mockKeyManager, times(18)).decryptWithPrivateKey(anyString(), any(), any())
             verify(mockKeyManager, times(18)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
         }
@@ -278,6 +287,7 @@ class SudoVirtualCardsListTransactionsTest : BaseTests() {
             }
 
             verifyListTransactionsQuery(1, "dummyNextToken")
+            verify(mockSignInGuard).ensureSignedIn()
             verify(mockKeyManager, times(18)).decryptWithPrivateKey(anyString(), any(), any())
             verify(mockKeyManager, times(18)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
         }
@@ -323,6 +333,7 @@ class SudoVirtualCardsListTransactionsTest : BaseTests() {
             }
 
             verifyListTransactionsQuery(100)
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -365,6 +376,7 @@ class SudoVirtualCardsListTransactionsTest : BaseTests() {
             }
 
             verifyListTransactionsQuery(100)
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -409,6 +421,7 @@ class SudoVirtualCardsListTransactionsTest : BaseTests() {
             }
 
             verifyListTransactionsQuery(100)
+            verify(mockSignInGuard).ensureSignedIn()
 
             verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
         }
@@ -457,6 +470,7 @@ class SudoVirtualCardsListTransactionsTest : BaseTests() {
                 }
             }
             verifyListTransactionsQuery(100, null, true)
+            verify(mockSignInGuard).ensureSignedIn()
             verify(mockKeyManager, times(18 * 3)).decryptWithPrivateKey(anyString(), any(), any())
             verify(mockKeyManager, times(18 * 3)).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
         }
@@ -480,6 +494,7 @@ class SudoVirtualCardsListTransactionsTest : BaseTests() {
             }
 
             verifyListTransactionsQuery(100)
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -520,6 +535,7 @@ class SudoVirtualCardsListTransactionsTest : BaseTests() {
             deferredResult.await()
 
             verifyListTransactionsQuery(100)
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -547,6 +563,7 @@ class SudoVirtualCardsListTransactionsTest : BaseTests() {
             deferredResult.await()
 
             verifyListTransactionsQuery(100)
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -567,6 +584,7 @@ class SudoVirtualCardsListTransactionsTest : BaseTests() {
             }
 
             verifyListTransactionsQuery(100)
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     private fun createMockTransaction(id: String): String =

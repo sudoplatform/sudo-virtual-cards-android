@@ -14,6 +14,7 @@ import com.amplifyframework.core.Consumer
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
+import com.sudoplatform.sudouser.SignInGuard
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.graphql.GetVirtualCardsConfigQuery
@@ -256,6 +257,10 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
         mock<PublicKeyService>()
     }
 
+    private val mockSignInGuard by before {
+        mock<SignInGuard>()
+    }
+
     private val client by before {
         SudoVirtualCardsClient
             .builder()
@@ -265,6 +270,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
             .setKeyManager(mockKeyManager)
             .setLogger(mock())
             .setPublicKeyService(mockPublicKeyService)
+            .setSignInGuard(mockSignInGuard)
             .build()
     }
 
@@ -273,6 +279,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
         verifyNoMoreInteractions(
             mockContext,
             mockUserClient,
+            mockSignInGuard,
             mockApiCategory,
             mockKeyManager,
             mockPublicKeyService,
@@ -415,6 +422,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                 any(),
                 any(),
             )
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -451,6 +459,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                 any(),
                 any(),
             )
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -496,6 +505,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                 any(),
                 any(),
             )
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -541,6 +551,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                 any(),
                 any(),
             )
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -574,6 +585,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                 any(),
                 any(),
             )
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -600,5 +612,6 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                 any(),
                 any(),
             )
+            verify(mockSignInGuard).ensureSignedIn()
         }
 }

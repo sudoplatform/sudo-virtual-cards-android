@@ -14,6 +14,7 @@ import com.amplifyframework.core.Consumer
 import com.google.gson.Gson
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudologging.Logger
+import com.sudoplatform.sudouser.SignInGuard
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.graphql.SetupFundingSourceMutation
@@ -211,6 +212,10 @@ class SudoVirtualCardsSetupFundingSourceTest(
         mock<KeyManagerInterface>()
     }
 
+    private val mockSignInGuard by before {
+        mock<SignInGuard>()
+    }
+
     private val client by before {
         SudoVirtualCardsClient
             .builder()
@@ -219,6 +224,7 @@ class SudoVirtualCardsSetupFundingSourceTest(
             .setGraphQLClient(GraphQLClient(mockApiCategory))
             .setKeyManager(mockKeyManager)
             .setLogger(mock<Logger>())
+            .setSignInGuard(mockSignInGuard)
             .build()
     }
 
@@ -228,6 +234,7 @@ class SudoVirtualCardsSetupFundingSourceTest(
             mockContext,
             mockUserClient,
             mockKeyManager,
+            mockSignInGuard,
             mockApiCategory,
         )
     }
@@ -256,6 +263,7 @@ class SudoVirtualCardsSetupFundingSourceTest(
             }
 
             verifySetupFundingSourceMutation()
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -288,6 +296,7 @@ class SudoVirtualCardsSetupFundingSourceTest(
             deferredResult.await()
 
             verifySetupFundingSourceMutation()
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -336,6 +345,7 @@ class SudoVirtualCardsSetupFundingSourceTest(
             deferredResult.await()
 
             verifySetupFundingSourceMutation("AUD")
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -376,6 +386,7 @@ class SudoVirtualCardsSetupFundingSourceTest(
             deferredResult.await()
 
             verifySetupFundingSourceMutation()
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -417,6 +428,7 @@ class SudoVirtualCardsSetupFundingSourceTest(
             deferredResult.await()
 
             verifySetupFundingSourceMutation()
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -458,6 +470,7 @@ class SudoVirtualCardsSetupFundingSourceTest(
             deferredResult.await()
 
             verifySetupFundingSourceMutation()
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -497,6 +510,7 @@ class SudoVirtualCardsSetupFundingSourceTest(
             deferredResult.await()
 
             verifySetupFundingSourceMutation()
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -524,6 +538,7 @@ class SudoVirtualCardsSetupFundingSourceTest(
             deferredResult.await()
 
             verifySetupFundingSourceMutation()
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -551,6 +566,7 @@ class SudoVirtualCardsSetupFundingSourceTest(
             deferredResult.await()
 
             verifySetupFundingSourceMutation()
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     private fun verifySetupFundingSourceMutation(expectedCurrency: String = "USD") {
@@ -564,5 +580,6 @@ class SudoVirtualCardsSetupFundingSourceTest(
             any(),
             any(),
         )
+        //   verify(mockSignInGuard).ensureSignedIn()
     }
 }

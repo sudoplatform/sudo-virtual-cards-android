@@ -15,6 +15,7 @@ import com.google.gson.Gson
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.PublicKey
+import com.sudoplatform.sudouser.SignInGuard
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.extensions.isUnfunded
@@ -252,6 +253,10 @@ class SudoVirtualCardsCompleteFundingSourceTest(
         }
     }
 
+    private val mockSignInGuard by before {
+        mock<SignInGuard>()
+    }
+
     private val client by before {
         SudoVirtualCardsClient
             .builder()
@@ -261,6 +266,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(
             .setKeyManager(mockKeyManager)
             .setPublicKeyService(mockPublicKeyService)
             .setLogger(mock<Logger>())
+            .setSignInGuard(mockSignInGuard)
             .build()
     }
 
@@ -270,6 +276,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(
             mockContext,
             mockUserClient,
             mockKeyManager,
+            mockSignInGuard,
             mockApiCategory,
         )
     }
@@ -339,6 +346,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(
                 verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
                 verify(mockKeyManager).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
             }
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -370,6 +378,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(
             deferredResult.await()
 
             verifyCompleteFundingSourceMutation()
+            verify(mockSignInGuard).ensureSignedIn()
             if (provider == "checkoutBankAccount") {
                 verify(mockPublicKeyService).getCurrentKey()
                 verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
@@ -419,6 +428,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(
                 verify(mockPublicKeyService).getCurrentKey()
                 verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
             }
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -464,6 +474,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(
                 verify(mockPublicKeyService).getCurrentKey()
                 verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
             }
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -509,6 +520,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(
                 verify(mockPublicKeyService).getCurrentKey()
                 verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
             }
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -553,6 +565,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(
                 verify(mockPublicKeyService).getCurrentKey()
                 verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
             }
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -598,6 +611,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(
                 verify(mockPublicKeyService).getCurrentKey()
                 verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
             }
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -641,6 +655,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(
                 verify(mockPublicKeyService).getCurrentKey()
                 verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
             }
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -672,6 +687,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(
                 verify(mockPublicKeyService).getCurrentKey()
                 verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
             }
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     @Test
@@ -703,6 +719,7 @@ class SudoVirtualCardsCompleteFundingSourceTest(
                 verify(mockPublicKeyService).getCurrentKey()
                 verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
             }
+            verify(mockSignInGuard).ensureSignedIn()
         }
 
     private fun verifyCompleteFundingSourceMutation() {
