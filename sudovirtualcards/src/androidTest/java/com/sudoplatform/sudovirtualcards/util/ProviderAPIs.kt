@@ -7,11 +7,8 @@
 package com.sudoplatform.sudovirtualcards.util
 
 import android.content.Context
-import com.checkout.android_sdk.CheckoutAPIClient
-import com.checkout.android_sdk.Utils.Environment
 import com.stripe.android.Stripe
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
-import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 
 /**
  * Helper classes to manage optional funding source providers.
@@ -19,12 +16,10 @@ import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 
 class ProviderAPIs(
     val stripe: Stripe?,
-    val checkout: CheckoutAPIClient?,
 )
 
 class FundingSourceProviders(
     val stripeCardEnabled: Boolean,
-    val checkoutBankAccountEnabled: Boolean,
     val apis: ProviderAPIs,
 ) {
     companion object {
@@ -40,9 +35,7 @@ class FundingSourceProviders(
             context: Context,
         ): FundingSourceProviders {
             var stripe: Stripe? = null
-            var checkout: CheckoutAPIClient? = null
             var stripeCardEnabled = false
-            var checkoutBankAccountEnabled = false
 
             val config = client.getVirtualCardsConfig()
             config?.fundingSourceClientConfiguration?.forEach {
@@ -50,18 +43,11 @@ class FundingSourceProviders(
                     stripe = Stripe(context, it.apiKey)
                     stripeCardEnabled = true
                 }
-                if (it.type == "checkout") {
-                    checkout = checkout ?: CheckoutAPIClient(context, it.apiKey, Environment.SANDBOX)
-                    if (it.fundingSourceType == FundingSourceType.BANK_ACCOUNT && config.bankAccountFundingSourceCreationEnabled == true) {
-                        checkoutBankAccountEnabled = true
-                    }
-                }
             }
             stripe ?: throw AssertionError("stripe is mandatory provider, but no client configuration found")
             return FundingSourceProviders(
                 stripeCardEnabled,
-                checkoutBankAccountEnabled,
-                ProviderAPIs(stripe, checkout),
+                ProviderAPIs(stripe),
             )
         }
     }

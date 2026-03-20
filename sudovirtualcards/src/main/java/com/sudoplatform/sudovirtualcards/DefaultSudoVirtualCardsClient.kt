@@ -40,10 +40,6 @@ import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsByCardIdAndType
 import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsByCardIdQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListTransactionsQuery
 import com.sudoplatform.sudovirtualcards.graphql.ProvisionVirtualCardMutation
-import com.sudoplatform.sudovirtualcards.graphql.RefreshFundingSourceMutation
-import com.sudoplatform.sudovirtualcards.graphql.ReviewUnfundedFundingSourceMutation
-import com.sudoplatform.sudovirtualcards.graphql.SandboxGetPlaidDataQuery
-import com.sudoplatform.sudovirtualcards.graphql.SandboxSetFundingSourceToRequireRefreshMutation
 import com.sudoplatform.sudovirtualcards.graphql.SetupFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.UpdateVirtualCardMutation
 import com.sudoplatform.sudovirtualcards.graphql.type.CardCancelRequest
@@ -51,39 +47,25 @@ import com.sudoplatform.sudovirtualcards.graphql.type.CardProvisionRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.CardUpdateRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.CompleteFundingSourceRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.IdInput
-import com.sudoplatform.sudovirtualcards.graphql.type.RefreshFundingSourceRequest
-import com.sudoplatform.sudovirtualcards.graphql.type.SandboxGetPlaidDataRequest
-import com.sudoplatform.sudovirtualcards.graphql.type.SandboxSetFundingSourceToRequireRefreshRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.SetupFundingSourceRequest
 import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
 import com.sudoplatform.sudovirtualcards.logging.LogConstants
-import com.sudoplatform.sudovirtualcards.signing.DefaultSigningService
-import com.sudoplatform.sudovirtualcards.signing.Signature
-import com.sudoplatform.sudovirtualcards.signing.SignatureData
 import com.sudoplatform.sudovirtualcards.subscription.FundingSourceSubscriber
 import com.sudoplatform.sudovirtualcards.subscription.SubscriptionService
 import com.sudoplatform.sudovirtualcards.subscription.TransactionSubscriber
-import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
-import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderCompletionData
-import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderRefreshData
 import com.sudoplatform.sudovirtualcards.types.CreateKeysIfAbsentResult
 import com.sudoplatform.sudovirtualcards.types.DateRange
 import com.sudoplatform.sudovirtualcards.types.FundingSource
-import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.KeyResult
 import com.sudoplatform.sudovirtualcards.types.ListAPIResult
 import com.sudoplatform.sudovirtualcards.types.ListOutput
 import com.sudoplatform.sudovirtualcards.types.PartialResult
 import com.sudoplatform.sudovirtualcards.types.PartialTransaction
 import com.sudoplatform.sudovirtualcards.types.PartialVirtualCard
-import com.sudoplatform.sudovirtualcards.types.PlaidAccountMetadata
 import com.sudoplatform.sudovirtualcards.types.ProviderSetupData
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
-import com.sudoplatform.sudovirtualcards.types.SandboxPlaidData
-import com.sudoplatform.sudovirtualcards.types.SerializedCheckoutBankAccountCompletionData
-import com.sudoplatform.sudovirtualcards.types.SerializedCheckoutBankAccountRefreshData
 import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
 import com.sudoplatform.sudovirtualcards.types.SortOrder
 import com.sudoplatform.sudovirtualcards.types.StripeCardProviderCompletionData
@@ -95,7 +77,6 @@ import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceFilterInput
-import com.sudoplatform.sudovirtualcards.types.inputs.RefreshFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.VirtualCardFilterInput
@@ -103,8 +84,6 @@ import com.sudoplatform.sudovirtualcards.types.transformers.DateRangeTransformer
 import com.sudoplatform.sudovirtualcards.types.transformers.FundingSourceTransformer
 import com.sudoplatform.sudovirtualcards.types.transformers.FundingSourceTransformer.toFundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.types.transformers.FundingSourceTransformer.toProvisionalFundingSourceFilterInput
-import com.sudoplatform.sudovirtualcards.types.transformers.KeyType
-import com.sudoplatform.sudovirtualcards.types.transformers.ProviderDataTransformer
 import com.sudoplatform.sudovirtualcards.types.transformers.TransactionTransformer
 import com.sudoplatform.sudovirtualcards.types.transformers.TransactionTypeTransformer.toTransactionType
 import com.sudoplatform.sudovirtualcards.types.transformers.Unsealer
@@ -116,8 +95,6 @@ import com.sudoplatform.sudovirtualcards.types.transformers.VirtualCardsConfigTr
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.net.HttpURLConnection
-import java.util.Calendar
-import java.util.TimeZone
 import java.util.concurrent.CancellationException
 
 /**
@@ -153,9 +130,7 @@ internal class DefaultSudoVirtualCardsClient(
         private const val FUNDING_SOURCE_STATE_MSG = "Funding source state is inappropriate for the requested operation"
         private const val FUNDING_SOURCE_NOT_SETUP_MSG = "Failed to setup funding source creation"
         private const val FUNDING_SOURCE_NOT_COMPLETE_MSG = "Failed to complete funding source creation"
-        private const val FUNDING_SOURCE_NOT_REFRESHED_MSG = "Failed to refresh funding source"
         private const val FUNDING_SOURCE_COMPLETION_DATA_INVALID_MSG = "Invalid completion data to perform funding source creation"
-        private const val FUNDING_SOURCE_REQUIRES_USER_INTERACTION_MSG = "Funding source requires user interaction"
         private const val DUPLICATE_FUNDING_SOURCE_MSG = "Duplicate funding source"
         private const val UNACCEPTABLE_FUNDING_SOURCE_MSG = "Funding source is not acceptable to be created"
         private const val UNSUPPORTED_CURRENCY_MSG = "Currency is not supported"
@@ -179,7 +154,6 @@ internal class DefaultSudoVirtualCardsClient(
         private const val ERROR_FUNDING_SOURCE_STATE = "FundingSourceStateError"
         private const val ERROR_FUNDING_SOURCE_COMPLETION_DATA_INVALID = "FundingSourceCompletionDataInvalidError"
         private const val ERROR_PROVISIONAL_FUNDING_SOURCE_NOT_FOUND = "ProvisionalFundingSourceNotFoundError"
-        private const val ERROR_FUNDING_SOURCE_REQUIRES_USER_INTERACTION = "FundingSourceRequiresUserInteractionError"
         private const val ERROR_DUPLICATE_FUNDING_SOURCE = "DuplicateFundingSourceError"
         private const val ERROR_UNACCEPTABLE_FUNDING_SOURCE = "UnacceptableFundingSourceError"
         private const val ERROR_UNSUPPORTED_CURRENCY = "UnsupportedCurrencyError"
@@ -348,45 +322,6 @@ internal class DefaultSudoVirtualCardsClient(
                     val encodedCompletionDataString = Gson().toJson(input.completionData)
                     encodedCompletionData = Base64.encode(encodedCompletionDataString.toByteArray()).toString(Charsets.UTF_8)
                 }
-
-                is CheckoutBankAccountProviderCompletionData -> {
-                    val publicKey =
-                        this.publicKeyService.getCurrentKey()
-                            ?: throw FundingSourceException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
-                    val signingService = DefaultSigningService(deviceKeyManager)
-                    TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
-                    val signedAt = Calendar.getInstance(TimeZone.getTimeZone("UTC")).time
-                    val authorizationTextSignatureData =
-                        SignatureData(
-                            hash = input.completionData.authorizationText.hash,
-                            hashAlgorithm = input.completionData.authorizationText.hashAlgorithm,
-                            account = input.completionData.accountId,
-                            signedAt = signedAt,
-                        )
-                    val data = Gson().toJson(authorizationTextSignatureData)
-                    val signature = signingService.signString(data, publicKey.keyId, KeyType.PRIVATE_KEY)
-                    val authorizationTextSignature =
-                        Signature(
-                            data,
-                            algorithm = "RSASignatureSSAPKCS15SHA256",
-                            keyId = publicKey.keyId,
-                            signature = signature,
-                        )
-                    val completionData =
-                        SerializedCheckoutBankAccountCompletionData(
-                            provider = provider,
-                            version = 1,
-                            type = FundingSourceType.BANK_ACCOUNT,
-                            keyId = publicKey.keyId,
-                            publicToken = input.completionData.publicToken,
-                            accountId = input.completionData.accountId,
-                            institutionId = input.completionData.institutionId,
-                            authorizationTextSignature = authorizationTextSignature,
-                        )
-
-                    val completionDataString = Gson().toJson(completionData)
-                    encodedCompletionData = Base64.encode(completionDataString.toByteArray()).toString(Charsets.UTF_8)
-                }
             }
 
             val mutationInput =
@@ -415,82 +350,6 @@ internal class DefaultSudoVirtualCardsClient(
                 return FundingSourceTransformer.toEntityFromCompleteFundingSourceMutationResult(deviceKeyManager, result)
             }
             throw FundingSourceException.CompletionFailedException(FUNDING_SOURCE_NOT_COMPLETE_MSG)
-        } catch (e: Throwable) {
-            logger.error("unexpected error $e")
-            throw interpretFundingSourceException(e)
-        }
-    }
-
-    override suspend fun refreshFundingSource(input: RefreshFundingSourceInput): FundingSource {
-        ensureSignedIn()
-        try {
-            val provider = input.refreshData.provider
-            val type = input.refreshData.type
-            val encodedRefreshData: String
-            if (input.refreshData is CheckoutBankAccountProviderRefreshData) {
-                val applicationName = input.applicationData.applicationName
-                var authorizationTextSignature: Signature? = null
-                val publicKey =
-                    this.publicKeyService.getCurrentKey()
-                        ?: throw FundingSourceException.PublicKeyException(KEY_RETRIEVAL_ERROR_MSG)
-                if (input.refreshData.authorizationText != null && input.refreshData.accountId != null) {
-                    val signingService = DefaultSigningService(deviceKeyManager)
-                    val authorizationTextSignatureData =
-                        SignatureData(
-                            hash = input.refreshData.authorizationText.hash,
-                            hashAlgorithm = input.refreshData.authorizationText.hashAlgorithm,
-                            account = input.refreshData.accountId,
-                        )
-                    val data = Gson().toJson(authorizationTextSignatureData)
-                    val signature = signingService.signString(data, publicKey.keyId, KeyType.PRIVATE_KEY)
-                    authorizationTextSignature =
-                        Signature(
-                            data,
-                            algorithm = "RSASignatureSSAPKCS15SHA256",
-                            keyId = publicKey.keyId,
-                            signature = signature,
-                        )
-                }
-                val refreshData =
-                    SerializedCheckoutBankAccountRefreshData(
-                        provider = provider,
-                        version = 1,
-                        type = FundingSourceType.BANK_ACCOUNT,
-                        applicationName = applicationName,
-                        keyId = publicKey.keyId,
-                        authorizationTextSignature = authorizationTextSignature,
-                    )
-                val refreshDataString = Gson().toJson(refreshData)
-                encodedRefreshData = Base64.encode(refreshDataString.toByteArray()).toString(Charsets.UTF_8)
-            } else {
-                throw FundingSourceException.UnexpectedProviderException("Unexpected provider: $provider:$type")
-            }
-
-            val mutationInput =
-                RefreshFundingSourceRequest(
-                    id = input.id,
-                    language = Optional.presentIfNotNull(input.language),
-                    refreshData = encodedRefreshData,
-                )
-
-            val mutationResponse =
-                graphQLClient.mutate<RefreshFundingSourceMutation, RefreshFundingSourceMutation.Data>(
-                    RefreshFundingSourceMutation.OPERATION_DOCUMENT,
-                    mapOf("input" to mutationInput),
-                )
-
-            if (mutationResponse.hasErrors()) {
-                logger.error("errors = ${mutationResponse.errors}")
-                throw interpretFundingSourceError(
-                    mutationResponse.errors.first(),
-                    FundingSourceException.RefreshFailedException(mutationResponse.errors.first().toString()),
-                )
-            }
-            val result = mutationResponse.data?.refreshFundingSource
-            result?.let {
-                return FundingSourceTransformer.toEntityFromRefreshFundingSourceMutationResult(deviceKeyManager, result)
-            }
-            throw FundingSourceException.RefreshFailedException(FUNDING_SOURCE_NOT_REFRESHED_MSG)
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
             throw interpretFundingSourceException(e)
@@ -613,37 +472,6 @@ internal class DefaultSudoVirtualCardsClient(
                 return FundingSourceTransformer.toEntityFromCancelProvisionalFundingSourceMutationResult(result)
             }
             throw FundingSourceException.CancelFailedException(NO_RESULT_ERROR_MSG)
-        } catch (e: Throwable) {
-            logger.error("unexpected error $e")
-            throw interpretFundingSourceException(e)
-        }
-    }
-
-    @Throws(FundingSourceException::class)
-    override suspend fun reviewUnfundedFundingSource(id: String): FundingSource {
-        ensureSignedIn()
-        try {
-            val mutationInput = IdInput(id = id)
-
-            val mutationResponse =
-                graphQLClient.mutate<ReviewUnfundedFundingSourceMutation, ReviewUnfundedFundingSourceMutation.Data>(
-                    ReviewUnfundedFundingSourceMutation.OPERATION_DOCUMENT,
-                    mapOf("input" to mutationInput),
-                )
-
-            if (mutationResponse.hasErrors()) {
-                logger.error("errors = ${mutationResponse.errors}")
-                throw interpretFundingSourceError(
-                    mutationResponse.errors.first(),
-                    FundingSourceException.ReviewFailedException(mutationResponse.errors.first().toString()),
-                )
-            }
-
-            val result = mutationResponse.data?.reviewUnfundedFundingSource
-            result?.let {
-                return FundingSourceTransformer.toEntityFromReviewUnfundedFundingSourceMutationResult(deviceKeyManager, result)
-            }
-            throw FundingSourceException.ReviewFailedException(NO_RESULT_ERROR_MSG)
         } catch (e: Throwable) {
             logger.error("unexpected error $e")
             throw interpretFundingSourceException(e)
@@ -1145,83 +973,6 @@ internal class DefaultSudoVirtualCardsClient(
         subscriptions.unsubscribeAllFundingSources()
     }
 
-    override suspend fun sandboxGetPlaidData(
-        institutionId: String,
-        plaidUsername: String,
-    ): SandboxPlaidData {
-        ensureSignedIn()
-        try {
-            val queryInput =
-                SandboxGetPlaidDataRequest(
-                    institutionId = institutionId,
-                    username = plaidUsername,
-                )
-
-            val queryResponse =
-                graphQLClient.query<SandboxGetPlaidDataQuery, SandboxGetPlaidDataQuery.Data>(
-                    SandboxGetPlaidDataQuery.OPERATION_DOCUMENT,
-                    mapOf("input" to queryInput),
-                )
-
-            if (queryResponse.hasErrors()) {
-                logger.error("errors = ${queryResponse.errors}")
-                throw interpretFundingSourceError(queryResponse.errors.first())
-            }
-
-            val queryResult =
-                queryResponse.data?.sandboxGetPlaidData
-                    ?: throw FundingSourceException.FailedException("No sandbox Plaid data returned")
-
-            val result =
-                SandboxPlaidData(
-                    queryResult.accountMetadata.map {
-                        PlaidAccountMetadata(it.accountId, interpretPlaidAccountSubtype(it.subtype))
-                    },
-                    queryResult.publicToken,
-                )
-
-            return result
-        } catch (e: Throwable) {
-            logger.error("unexpected error $e")
-            throw interpretFundingSourceException(e)
-        }
-    }
-
-    override suspend fun sandboxSetFundingSourceToRequireRefresh(fundingSourceId: String): FundingSource {
-        ensureSignedIn()
-        try {
-            val mutationInput =
-                SandboxSetFundingSourceToRequireRefreshRequest(
-                    fundingSourceId = fundingSourceId,
-                )
-
-            val mutationResponse =
-                graphQLClient.mutate<
-                    SandboxSetFundingSourceToRequireRefreshMutation,
-                    SandboxSetFundingSourceToRequireRefreshMutation.Data,
-                >(
-                    SandboxSetFundingSourceToRequireRefreshMutation.OPERATION_DOCUMENT,
-                    mapOf("input" to mutationInput),
-                )
-
-            if (mutationResponse.hasErrors()) {
-                logger.error("errors = ${mutationResponse.errors}")
-                throw interpretFundingSourceError(mutationResponse.errors.first())
-            }
-
-            val mutationResult =
-                mutationResponse.data?.sandboxSetFundingSourceToRequireRefresh
-                    ?: throw FundingSourceException.FailedException(
-                        "No data returned setting funding source to require refresh",
-                    )
-
-            return FundingSourceTransformer.toEntityFromSandboxSetFundingSourceToRequireRefreshResult(deviceKeyManager, mutationResult)
-        } catch (e: Throwable) {
-            logger.error("unexpected error $e")
-            throw interpretFundingSourceException(e)
-        }
-    }
-
     override suspend fun importKeys(archiveData: ByteArray) {
         if (archiveData.isEmpty()) {
             throw SudoVirtualCardsClient.VirtualCardCryptographicKeysException.SecureKeyArchiveException(INVALID_ARGUMENT_ERROR_MSG)
@@ -1406,21 +1157,6 @@ internal class DefaultSudoVirtualCardsClient(
         if (error.contains(ERROR_FUNDING_SOURCE_NOT_SETUP)) {
             return FundingSourceException.SetupFailedException(FUNDING_SOURCE_NOT_SETUP_MSG)
         }
-        if (error.contains(ERROR_FUNDING_SOURCE_REQUIRES_USER_INTERACTION)) {
-            val errorInfo = e.extensions?.get("errorInfo")
-            return try {
-                val interactionData = SudoVirtualCardsClient.FundingSourceInteractionData.decode(errorInfo)
-                FundingSourceException.FundingSourceRequiresUserInteractionException(
-                    FUNDING_SOURCE_REQUIRES_USER_INTERACTION_MSG,
-                    ProviderDataTransformer.toUserInteractionData(interactionData.provisioningData),
-                )
-            } catch (e: Throwable) {
-                FundingSourceException.FailedException(
-                    message = "Invalid user interaction data during funding source setup",
-                    cause = e,
-                )
-            }
-        }
         if (error.contains(ERROR_FUNDING_SOURCE_COMPLETION_DATA_INVALID)) {
             return FundingSourceException.CompletionDataInvalidException(FUNDING_SOURCE_COMPLETION_DATA_INVALID_MSG)
         }
@@ -1492,13 +1228,6 @@ internal class DefaultSudoVirtualCardsClient(
 
     private fun interpretTransactionError(e: GraphQLResponse.Error): SudoVirtualCardsClient.TransactionException =
         SudoVirtualCardsClient.TransactionException.FailedException(e.toString())
-
-    private fun interpretPlaidAccountSubtype(plaidSubtype: String?): BankAccountFundingSource.BankAccountType =
-        when (plaidSubtype) {
-            "checking" -> BankAccountFundingSource.BankAccountType.CHECKING
-            "savings" -> BankAccountFundingSource.BankAccountType.SAVING
-            else -> BankAccountFundingSource.BankAccountType.UNKNOWN
-        }
 }
 
 data class SudoVirtualCardsNotificationSchemaEntry(

@@ -98,15 +98,6 @@ object TestData {
     val DefaultTestCardBillingAddress =
         mapOf(
             "stripe" to TestCardBillingAddress(),
-            "checkout" to
-                TestCardBillingAddress(
-                    // See https://www.checkout.com/docs/testing/avs-check-testing
-                    // We need to set this to ensure success cases force AVS check
-                    // to pass. Otherwise, because the test cards are all non-US,
-                    // they return AVS check code 'G' which we don't accept as its
-                    // an international code indicating no check performed.
-                    addressLine1 = "Test_Y",
-                ),
         )
 
     /** Stripe Funding source test data.
@@ -121,25 +112,5 @@ object TestData {
                     "Visa-No3DS-1" to TestCard("4242424242424242", "123", DefaultTestCardBillingAddress["stripe"]!!),
                     "MC-No3DS-1" to TestCard("5200828282828210", "123", DefaultTestCardBillingAddress["stripe"]!!),
                 ),
-            /** Checkout Funding source test data.
-             *
-             * Note: All test data taken from https://www.checkout.com/docs/testing/test-cards
-             * Visa 4532432452900131 is flagged as non-3ds but does trigger a challenge.
-             */
-            "checkout" to
-                mapOf(
-                    "Visa-3DS2-1" to TestCard("4242424242424242", "123", DefaultTestCardBillingAddress["checkout"]!!),
-                    "Visa-3DS2-2" to TestCard("4543474002249996", "956", DefaultTestCardBillingAddress["checkout"]!!),
-                    "Visa-No3DS-1" to TestCard("4484070000035519", "257", DefaultTestCardBillingAddress["checkout"]!!),
-                    "MC-No3DS-1" to TestCard("5183683001544411", "100", DefaultTestCardBillingAddress["checkout"]!!),
-                    "BadAddress" to TestCard("4484070000035519", "257", TestCardBillingAddress(addressLine1 = "Test_N")),
-                    "BadCVV" to TestCard("4484070000035519", "202", DefaultTestCardBillingAddress["checkout"]!!),
-                ),
         )
-
-    @Suppress("ktlint:standard:property-naming")
-    object TestBankAccountUsername {
-        const val customChecking = "custom_checking_500"
-        const val customIdentityMismatch = "custom_identity_mismatch"
-    }
 }

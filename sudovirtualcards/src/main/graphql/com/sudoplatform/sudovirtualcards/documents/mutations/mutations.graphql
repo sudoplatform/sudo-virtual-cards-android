@@ -21,20 +21,6 @@ mutation CompleteFundingSource($input: CompleteFundingSourceRequest!) {
     ... on CreditCardFundingSource {
       ...CreditCardFundingSource
     }
-    ... on BankAccountFundingSource {
-      ...BankAccountFundingSource
-    }
-  }
-}
-
-mutation RefreshFundingSource($input: RefreshFundingSourceRequest!) {
-  refreshFundingSource(input: $input) {
-    ... on CreditCardFundingSource {
-      ...CreditCardFundingSource
-    }
-    ... on BankAccountFundingSource {
-      ...BankAccountFundingSource
-    }
   }
 }
 
@@ -44,25 +30,12 @@ mutation CancelFundingSource($input: IdInput!) {
     ... on CreditCardFundingSource {
       ...CreditCardFundingSource
     }
-    ... on BankAccountFundingSource {
-      ...BankAccountFundingSource
-    }
   }
 }
 
 mutation CancelProvisionalFundingSource($input: IdInput!) {
   cancelProvisionalFundingSource(input: $input) {
     ...ProvisionalFundingSource
-  }
-}
-mutation ReviewUnfundedFundingSource($input: IdInput!) {
-  reviewUnfundedFundingSource(input: $input) {
-    ... on CreditCardFundingSource {
-      ...CreditCardFundingSource
-    }
-    ... on BankAccountFundingSource {
-      ...BankAccountFundingSource
-    }
   }
 }
 
@@ -84,15 +57,3 @@ mutation CancelVirtualCard($input: CardCancelRequest!) {
   }
 }
 
-mutation SandboxSetFundingSourceToRequireRefresh(
-  $input: SandboxSetFundingSourceToRequireRefreshRequest!
-) {
-  sandboxSetFundingSourceToRequireRefresh(input: $input) {
-    ... on CreditCardFundingSource {
-      ...CreditCardFundingSource
-    }
-    ... on BankAccountFundingSource {
-      ...BankAccountFundingSource
-    }
-  }
-}

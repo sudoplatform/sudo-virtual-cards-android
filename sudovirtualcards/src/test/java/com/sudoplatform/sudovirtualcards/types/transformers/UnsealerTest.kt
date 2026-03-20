@@ -15,7 +15,6 @@ import com.sudoplatform.sudokeymanager.KeyManager
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudovirtualcards.BaseTests
 import com.sudoplatform.sudovirtualcards.graphql.ProvisionVirtualCardMutation
-import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalCard
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAddressAttribute
 import com.sudoplatform.sudovirtualcards.graphql.fragment.SealedAttribute
@@ -33,7 +32,6 @@ import com.sudoplatform.sudovirtualcards.keys.DefaultDeviceKeyManager
 import com.sudoplatform.sudovirtualcards.keys.DefaultPublicKeyService
 import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
 import com.sudoplatform.sudovirtualcards.types.Expiry
-import com.sudoplatform.sudovirtualcards.types.InstitutionLogo
 import com.sudoplatform.sudovirtualcards.types.JsonValue
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
 import com.sudoplatform.sudovirtualcards.types.SymmetricKeyEncryptionAlgorithm
@@ -622,85 +620,5 @@ class UnsealerTest : BaseTests() {
             mm shouldBe "01"
             yyyy shouldBe "2021"
         }
-    }
-
-    @Test
-    fun `unseal BankAccountFundingSource InstitutionName`() {
-        val sealedInstitutionName =
-            BankAccountFundingSource.InstitutionName(
-                "InstitutionName",
-                SealedAttribute(
-                    "keyId",
-                    "algorithm",
-                    "string",
-                    seal("FooBar Institution"),
-                ),
-            )
-        unsealer.unseal(sealedInstitutionName) shouldBe "FooBar Institution"
-    }
-
-    @Test
-    fun `unseal BankAccountFundingSource InstitutionName should throw if invalid plainTextType`() {
-        val sealedInstitutionName =
-            BankAccountFundingSource.InstitutionName(
-                "InstitutionName",
-                SealedAttribute(
-                    "keyId",
-                    "algorithm",
-                    "invalid",
-                    seal("FooBar Institution"),
-                ),
-            )
-        shouldThrow<Unsealer.UnsealerException.UnsupportedDataTypeException> {
-            unsealer.unseal(sealedInstitutionName)
-        }
-    }
-
-    @Test
-    fun `unseal BankAccountFundingSource InstitutionLogo`() {
-        val logo = "{type: 'image/png', data: 'FooBar Institution'}"
-        val sealedInstitutionLogo =
-            BankAccountFundingSource.InstitutionLogo(
-                "InstitutionLogo",
-                SealedAttribute(
-                    "keyId",
-                    "algorithm",
-                    "json-string",
-                    seal(logo),
-                ),
-            )
-        unsealer.unseal(sealedInstitutionLogo) shouldBe InstitutionLogo("image/png", "FooBar Institution")
-    }
-
-    @Test
-    fun `unseal BankAccountFundingSource InstitutionLogo should throw if invalid plainTextType`() {
-        val sealedInstitutionLogo =
-            BankAccountFundingSource.InstitutionLogo(
-                "InstitutionLogo",
-                SealedAttribute(
-                    "keyId",
-                    "algorithm",
-                    "invalid",
-                    seal("{type: 'image/png', data: 'FooBar Institution'}"),
-                ),
-            )
-        shouldThrow<Unsealer.UnsealerException.UnsupportedDataTypeException> {
-            unsealer.unseal(sealedInstitutionLogo)
-        }
-    }
-
-    @Test
-    fun `unseal BankAccountFundingSource InstitutionLogo should return null if unexpected structure`() {
-        val sealedInstitutionLogo =
-            BankAccountFundingSource.InstitutionLogo(
-                "InstitutionLogo",
-                SealedAttribute(
-                    "keyId",
-                    "algorithm",
-                    "json-string",
-                    seal("{'invalid': 'Invalid Institution Logo'}"),
-                ),
-            )
-        unsealer.unseal(sealedInstitutionLogo) shouldBe null
     }
 }

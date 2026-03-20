@@ -118,7 +118,7 @@ class SudoVirtualCardsNotifiableClientTest : BaseTests() {
                         "{\\\"type\\\":\\\"fundingSourceChanged\\\"," +
                         "\\\"owner\\\":\\\"owner-id\\\"," +
                         "\\\"fundingSourceId\\\":\\\"funding-source-id\\\"," +
-                        "\\\"fundingSourceType\\\":\\\"BANK_ACCOUNT\\\"," +
+                        "\\\"fundingSourceType\\\":\\\"CREDIT_CARD\\\"," +
                         "\\\"last4\\\":\\\"1234\\\"," +
                         "\\\"state\\\":\\\"ACTIVE\\\"," +
                         "\\\"flags\\\":[]," +
@@ -133,7 +133,7 @@ class SudoVirtualCardsNotifiableClientTest : BaseTests() {
                 type = "fundingSourceChanged",
                 owner = "owner-id",
                 fundingSourceId = "funding-source-id",
-                fundingSourceType = FundingSourceType.BANK_ACCOUNT,
+                fundingSourceType = FundingSourceType.CREDIT_CARD,
                 last4 = "1234",
                 state = FundingSourceState.ACTIVE,
                 flags = emptyList<FundingSourceFlags>(),

@@ -19,7 +19,6 @@ import kotlinx.parcelize.Parcelize
 @Keep
 data class PricingPolicy(
     val stripe: StripePricingPolicy? = null,
-    val checkout: CheckoutPricingPolicy? = null,
 ) : Parcelable
 
 @Parcelize
@@ -27,15 +26,6 @@ data class PricingPolicy(
 data class StripePricingPolicy(
     @SerializedName("CREDIT_CARD")
     val creditCard: Map<String, TieredMarkupPolicy>,
-) : Parcelable
-
-@Parcelize
-@Keep
-data class CheckoutPricingPolicy(
-    @SerializedName("CREDIT_CARD")
-    val creditCard: Map<String, TieredMarkupPolicy>,
-    @SerializedName("BANK_ACCOUNT")
-    val bankAccount: Map<String, TieredMarkupPolicy>,
 ) : Parcelable
 
 @Parcelize

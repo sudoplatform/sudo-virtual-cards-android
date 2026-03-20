@@ -21,12 +21,8 @@ import com.sudoplatform.sudovirtualcards.graphql.SetupFundingSourceMutation
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceType
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceState
 import com.sudoplatform.sudovirtualcards.graphql.type.SetupFundingSourceRequest
-import com.sudoplatform.sudovirtualcards.types.AuthorizationText
-import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
 import com.sudoplatform.sudovirtualcards.types.ClientApplicationData
-import com.sudoplatform.sudovirtualcards.types.LinkToken
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
-import com.sudoplatform.sudovirtualcards.types.ProvisioningData
 import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import io.kotlintest.shouldBe
@@ -71,7 +67,6 @@ class SudoVirtualCardsSetupFundingSourceTest(
         fun data(): Collection<String> =
             listOf(
                 "stripe",
-                "checkoutBankAccount",
             )
     }
 
@@ -84,59 +79,16 @@ class SudoVirtualCardsSetupFundingSourceTest(
                     ClientApplicationData("system-test-app"),
                     listOf("stripe"),
                 ),
-            "checkoutBankAccount" to
-                SetupFundingSourceInput(
-                    "USD",
-                    FundingSourceTypeEntity.BANK_ACCOUNT,
-                    ClientApplicationData("system-test-app"),
-                    listOf("checkout"),
-                    "en-US",
-                ),
         )
     }
 
-    // Compile-time test of backwards compatibility.
-    val backwardCompatibilityProviderProvisioningData = ProvisioningData("stripe", 1, "intent", "clientSecret")
-
-    private val authorizationText =
-        AuthorizationText(
-            "en-US",
-            "content",
-            "contentType",
-            "hash",
-            "hashAlgorithm",
-        )
     private val expectedProvisioningData =
         mapOf(
             "stripe" to StripeCardProvisioningData("stripe", 1, "intent", "clientSecret", FundingSourceTypeEntity.CREDIT_CARD),
-            "checkoutBankAccount" to
-                CheckoutBankAccountProvisioningData(
-                    "checkout",
-                    1,
-                    FundingSourceTypeEntity.BANK_ACCOUNT,
-                    LinkToken(
-                        "linkToken",
-                        "expiration",
-                        "requestId",
-                    ),
-                    listOf(authorizationText),
-                ),
         )
 
     private val mutationResponse by before {
         val stripeSetupData = StripeCardProvisioningData("stripe", 1, "intent", "clientSecret", FundingSourceTypeEntity.CREDIT_CARD)
-        val checkoutBankAccountSetupData =
-            CheckoutBankAccountProvisioningData(
-                "checkout",
-                1,
-                FundingSourceTypeEntity.BANK_ACCOUNT,
-                LinkToken(
-                    "linkToken",
-                    "expiration",
-                    "requestId",
-                ),
-                listOf(authorizationText),
-            )
 
         mapOf(
             "stripe" to
@@ -152,25 +104,6 @@ class SudoVirtualCardsSetupFundingSourceTest(
                             'updatedAtEpochMs': 10.0,
                             'type': '${FundingSourceType.CREDIT_CARD}',
                             'provisioningData': '${Base64.encodeBase64String(Gson().toJson(stripeSetupData).toByteArray())}',
-                            'state': '${ProvisionalFundingSourceState.PROVISIONING}',
-                            'last4':''
-                        }
-                    }
-                    """.trimIndent(),
-                ),
-            "checkoutBankAccount" to
-                JSONObject(
-                    """
-                    {
-                        'setupFundingSource': {
-                            '__typename': 'ProvisionalFundingSource',
-                            'id':'id',
-                            'owner': 'owner',
-                            'version': 1,
-                            'createdAtEpochMs': 1.0,
-                            'updatedAtEpochMs': 10.0,
-                            'type': '${FundingSourceType.BANK_ACCOUNT}',
-                            'provisioningData': '${Base64.encodeBase64String(Gson().toJson(checkoutBankAccountSetupData).toByteArray())}',
                             'state': '${ProvisionalFundingSourceState.PROVISIONING}',
                             'last4':''
                         }

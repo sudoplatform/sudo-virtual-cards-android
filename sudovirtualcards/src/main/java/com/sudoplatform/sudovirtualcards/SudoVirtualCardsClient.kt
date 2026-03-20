@@ -7,8 +7,6 @@
 package com.sudoplatform.sudovirtualcards
 
 import android.content.Context
-import androidx.annotation.Keep
-import com.google.gson.Gson
 import com.sudoplatform.sudoapiclient.ApiClientManager
 import com.sudoplatform.sudokeymanager.AndroidSQLiteStore
 import com.sudoplatform.sudokeymanager.KeyManagerFactory
@@ -34,10 +32,8 @@ import com.sudoplatform.sudovirtualcards.types.ListAPIResult
 import com.sudoplatform.sudovirtualcards.types.ListOutput
 import com.sudoplatform.sudovirtualcards.types.PartialTransaction
 import com.sudoplatform.sudovirtualcards.types.PartialVirtualCard
-import com.sudoplatform.sudovirtualcards.types.ProviderUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.ProvisionalFundingSource
 import com.sudoplatform.sudovirtualcards.types.ProvisionalVirtualCard
-import com.sudoplatform.sudovirtualcards.types.SandboxPlaidData
 import com.sudoplatform.sudovirtualcards.types.SingleAPIResult
 import com.sudoplatform.sudovirtualcards.types.SortOrder
 import com.sudoplatform.sudovirtualcards.types.Transaction
@@ -48,7 +44,6 @@ import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceFilterInput
-import com.sudoplatform.sudovirtualcards.types.inputs.RefreshFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.UpdateVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.VirtualCardFilterInput
@@ -220,21 +215,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
     }
 
     /**
-     * Returned with a FundingSourceRequiresUserInteraction error to provide feedback to the client.
-     */
-    @Keep
-    data class FundingSourceInteractionData(
-        val provisioningData: String,
-    ) {
-        companion object {
-            fun decode(errorInfo: Any?): FundingSourceInteractionData {
-                val jsonErrorInfo = Gson().toJson(errorInfo)
-                return Gson().fromJson(jsonErrorInfo, FundingSourceInteractionData::class.java)
-            }
-        }
-    }
-
-    /**
      * Defines the exceptions for the funding source based methods.
      *
      * @property message [String] Accompanying message for the exception.
@@ -264,17 +244,7 @@ interface SudoVirtualCardsClient : AutoCloseable {
             cause: Throwable? = null,
         ) : FundingSourceException(message = message, cause = cause)
 
-        class RefreshFailedException(
-            message: String? = null,
-            cause: Throwable? = null,
-        ) : FundingSourceException(message = message, cause = cause)
-
         class CancelFailedException(
-            message: String? = null,
-            cause: Throwable? = null,
-        ) : FundingSourceException(message = message, cause = cause)
-
-        class ReviewFailedException(
             message: String? = null,
             cause: Throwable? = null,
         ) : FundingSourceException(message = message, cause = cause)
@@ -343,11 +313,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
             message: String? = null,
             cause: Throwable? = null,
         ) : FundingSourceException(message = message, cause = cause)
-
-        class FundingSourceRequiresUserInteractionException(
-            message: String? = null,
-            val interactionData: ProviderUserInteractionData,
-        ) : FundingSourceException(message = message)
 
         class UnknownException(
             cause: Throwable,
@@ -587,17 +552,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
     suspend fun completeFundingSource(input: CompleteFundingSourceInput): FundingSource
 
     /**
-     * Refresh a [FundingSource] with the REFRESH flag set.
-     *
-     * @param input [RefreshFundingSourceInput] Parameters used to complete the creation of a funding source.
-     * @return The refreshed [FundingSource].
-     *
-     * @throws [FundingSourceException].
-     */
-    @Throws(FundingSourceException::class)
-    suspend fun refreshFundingSource(input: RefreshFundingSourceInput): FundingSource
-
-    /**
      * Get a [FundingSource] using the [id] parameter.
      *
      * @param id [String] Identifier of the [FundingSource] to be retrieved.
@@ -655,17 +609,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
      */
     @Throws(FundingSourceException::class)
     suspend fun cancelProvisionalFundingSource(id: String): ProvisionalFundingSource
-
-    /**
-     * Review an unfunded [FundingSource] using the [id] parameter.
-     *
-     * @param id [String] Identifier of the [FundingSource] to review.
-     * @return The reviewed [FundingSource].
-     *
-     * @throws [FundingSourceException].
-     */
-    @Throws(FundingSourceException::class)
-    suspend fun reviewUnfundedFundingSource(id: String): FundingSource
 
     /**
      * Provision a [VirtualCard].
@@ -968,33 +911,6 @@ interface SudoVirtualCardsClient : AutoCloseable {
      * Unsubscribe all subscribers from receiving notifications about modifications to [FundingSource]s.
      */
     suspend fun unsubscribeAllFromFundingSources()
-
-    /**
-     * Sandbox API to obtain data normally returned by full Plaid Link flow. Useful for testing
-     * ahead of full Plaid Link integration during application development.
-     *
-     * @param institutionId [String] ID of Plaid sandbox institution to use
-     * @param plaidUsername [String] Username of Plaid sandbox user to obtain data for
-     * @returns [SandboxPlaidData]
-     *   Sandbox Plaid data for provisioning new funding
-     *   source at requested institution and user
-     * @throws(FundingSourceException::class)
-     */
-    @Throws(FundingSourceException::class)
-    suspend fun sandboxGetPlaidData(
-        institutionId: String,
-        plaidUsername: String,
-    ): SandboxPlaidData
-
-    /**
-     * Sandbox API to set a funding source to refresh state to facilitate testing.
-     *
-     * @param fundingSourceId [String] ID of funding source to set to require refresh.
-     *
-     * @returns [FundingSource] The funding source.
-     */
-    @Throws(FundingSourceException::class)
-    suspend fun sandboxSetFundingSourceToRequireRefresh(fundingSourceId: String): FundingSource
 
     /**
      * Import cryptographic keys from a key archive.

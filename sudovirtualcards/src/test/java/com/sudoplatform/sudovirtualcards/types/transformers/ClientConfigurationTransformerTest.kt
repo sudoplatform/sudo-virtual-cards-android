@@ -10,7 +10,6 @@ package com.sudoplatform.sudovirtualcards.types.transformers
 // todo ^the above removed to permit building of virtual cards SDK
 import com.google.gson.Gson
 import com.sudoplatform.sudovirtualcards.SudoVirtualCardsClient
-import com.sudoplatform.sudovirtualcards.types.CheckoutPricingPolicy
 import com.sudoplatform.sudovirtualcards.types.FundingSourceClientConfiguration
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.FundingSourceTypes
@@ -37,10 +36,6 @@ class ClientConfigurationTransformerTest {
                         apiKey = "test-key",
                         fundingSourceType = FundingSourceType.CREDIT_CARD,
                     ),
-                    FundingSourceClientConfiguration(
-                        apiKey = "test-key",
-                        fundingSourceType = FundingSourceType.BANK_ACCOUNT,
-                    ),
                 ),
             )
         val fsConfigStr = Gson().toJson(fsConfig)
@@ -55,12 +50,6 @@ class ClientConfigurationTransformerTest {
                     1,
                     "test-key",
                 ),
-                FundingSourceClientConfiguration(
-                    "string",
-                    FundingSourceType.BANK_ACCOUNT,
-                    1,
-                    "test-key",
-                ),
             )
     }
 
@@ -68,44 +57,6 @@ class ClientConfigurationTransformerTest {
     fun `decodeFundingSourceClientConfiguration throw if encoded config data is not valid JSON`() {
         shouldThrow<SudoVirtualCardsClient.VirtualCardException.FailedException> {
             decodeFundingSourceClientConfiguration("this is not JSON")
-        }
-    }
-
-//    @Test
-//    fun `decodeClientApplicationConfiguration should decode successfully`() {
-//        val appConfig = SudoVirtualCardsGetVirtualCardsConfigTest.SerializedClientApplicationConfiguration(
-//            clientApplicationConfiguration = ClientApplicationConfiguration(
-//                fundingSourceProviders = FundingSourceProviders(
-//                    plaid = PlaidApplicationConfiguration(
-//                        clientName = "client-name",
-//                        androidPackageName = "android-package-name",
-//                    ),
-//                ),
-//            ),
-//        )
-//        val appConfigStr = Gson().toJson(appConfig)
-//        val encodedAppConfigData = Base64.encodeBase64String(appConfigStr.toByteArray())
-//
-//        val decodedAppConfig = decodeClientApplicationConfiguration(encodedAppConfigData)
-//        decodedAppConfig shouldBe mapOf(
-//            Pair(
-//                "client_application_configuration",
-//                ClientApplicationConfiguration(
-//                    FundingSourceProviders(
-//                        PlaidApplicationConfiguration(
-//                            "client-name",
-//                            "android-package-name",
-//                        ),
-//                    ),
-//                ),
-//            ),
-//        )
-//    }
-
-    @Test
-    fun `decodeClientApplicationConfiguration should throw if encoded config data is not valid JSON`() {
-        shouldThrow<SudoVirtualCardsClient.VirtualCardException.FailedException> {
-            decodeClientApplicationConfiguration("this is not JSON")
         }
     }
 
@@ -129,55 +80,6 @@ class ClientConfigurationTransformerTest {
                                                             percent = 10,
                                                         ),
                                                     minThreshold = 0,
-                                                ),
-                                            ),
-                                    ),
-                                ),
-                            ),
-                    ),
-                checkout =
-                    CheckoutPricingPolicy(
-                        creditCard =
-                            mapOf(
-                                Pair(
-                                    "DEFAULT",
-                                    TieredMarkupPolicy(
-                                        tiers =
-                                            listOf(
-                                                TieredMarkup(
-                                                    markup =
-                                                        Markup(
-                                                            flat = 2500,
-                                                            percent = 25,
-                                                        ),
-                                                    minThreshold = 0,
-                                                ),
-                                            ),
-                                    ),
-                                ),
-                            ),
-                        bankAccount =
-                            mapOf(
-                                Pair(
-                                    "DEFAULT",
-                                    TieredMarkupPolicy(
-                                        tiers =
-                                            listOf(
-                                                TieredMarkup(
-                                                    minThreshold = 0,
-                                                    markup =
-                                                        Markup(
-                                                            flat = 1000,
-                                                            percent = 0,
-                                                        ),
-                                                ),
-                                                TieredMarkup(
-                                                    minThreshold = 10000,
-                                                    markup =
-                                                        Markup(
-                                                            flat = 2000,
-                                                            percent = 0,
-                                                        ),
                                                 ),
                                             ),
                                     ),

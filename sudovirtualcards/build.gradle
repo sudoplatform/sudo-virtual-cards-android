@@ -122,9 +122,6 @@ dependencies {
     // Stripe
     androidTestImplementation 'com.stripe:stripe-android:21.25.0'
 
-    // Checkout.com
-    androidTestImplementation 'com.github.checkout:frames-android:3.1.2'
-
     androidTestImplementation("com.google.android.material:material") {
         version {
             strictly("1.4.0")

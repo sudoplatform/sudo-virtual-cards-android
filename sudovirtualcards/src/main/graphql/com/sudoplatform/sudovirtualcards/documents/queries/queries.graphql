@@ -43,9 +43,6 @@ query GetFundingSource($id: ID!) {
     ... on CreditCardFundingSource {
       ...CreditCardFundingSource
     }
-    ... on BankAccountFundingSource {
-      ...BankAccountFundingSource
-    }
   }
 }
 
@@ -64,9 +61,6 @@ query ListFundingSources(
     items {
       ... on CreditCardFundingSource {
         ...CreditCardFundingSource
-      }
-      ... on BankAccountFundingSource {
-        ...BankAccountFundingSource
       }
     }
     nextToken

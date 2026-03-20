@@ -16,10 +16,8 @@ import com.sudoplatform.sudologging.Logger
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.graphql.CancelFundingSourceMutation
-import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
-import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
 import io.kotlintest.shouldBe
@@ -66,7 +64,6 @@ class SudoVirtualCardsCancelFundingSourceTest(
         fun data(): Collection<String> =
             listOf(
                 "stripe",
-                "checkoutBankAccount",
             )
     }
 
@@ -97,52 +94,9 @@ class SudoVirtualCardsCancelFundingSourceTest(
         )
     }
 
-    private val bankAccountResponse by before {
-        JSONObject(
-            """
-            {
-                'cancelFundingSource': {
-                    '__typename': 'BankAccountFundingSource',
-                    'id':'id',
-                    'owner': 'owner',
-                    'version': 1,
-                    'createdAtEpochMs': 1.0,
-                    'updatedAtEpochMs': 1.0,
-                    'state': '${FundingSourceStateGraphQL.INACTIVE}',
-                    'flags': [],
-                    'currency':'USD',
-                    'transactionVelocity': {
-                        'maximum': 10000,
-                        'velocity': ['10000/P1D']
-                    },
-                    'bankAccountType': '${BankAccountType.CHECKING}',
-                    'authorization': {
-                        'language': 'language',
-                        'content': 'content',
-                        'algorithm': 'algorithm',
-                        'contentType': 'contentType',
-                        'signature': 'signature',
-                        'keyId': 'keyId',
-                        'data': 'data'
-                    },
-                    'last4':'last4',
-                    'institutionName': {
-                        '__typename': 'InstitutionName',
-                        'algorithm': 'algorithm',
-                        'plainTextType': 'string',
-                        'keyId': 'keyId',
-                        'base64EncodedSealedData': '${mockSeal("base64EncodedSealedData")}'
-                    }
-                }
-            }
-            """.trimIndent(),
-        )
-    }
-
     private val mutationResponse by before {
         mapOf(
             "stripe" to creditCardResponse,
-            "checkoutBankAccount" to bankAccountResponse,
         )
     }
 
@@ -225,32 +179,11 @@ class SudoVirtualCardsCancelFundingSourceTest(
                         network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
                     }
                 }
-                is BankAccountFundingSource -> {
-                    with(result) {
-                        id shouldBe "id"
-                        owner shouldBe "owner"
-                        version shouldBe 1
-                        createdAt shouldNotBe null
-                        updatedAt shouldNotBe null
-                        state shouldBe FundingSourceState.INACTIVE
-                        currency shouldBe "USD"
-                        transactionVelocity?.maximum shouldBe 10000
-                        transactionVelocity?.velocity shouldBe listOf("10000/P1D")
-                        bankAccountType shouldBe BankAccountFundingSource.BankAccountType.CHECKING
-                        last4 shouldBe "last4"
-                        institutionName shouldNotBe null
-                        institutionLogo shouldBe null
-                    }
-                }
                 else -> {
                     fail("Unexpected FundingSource type")
                 }
             }
 
-            if (provider == "checkoutBankAccount") {
-                verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
-                verify(mockKeyManager).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
-            }
             verify(mockApiCategory).mutate<String>(
                 check {
                     assertEquals(CancelFundingSourceMutation.OPERATION_DOCUMENT, it.query)

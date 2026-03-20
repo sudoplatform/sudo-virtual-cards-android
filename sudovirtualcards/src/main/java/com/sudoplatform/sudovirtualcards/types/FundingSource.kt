@@ -7,8 +7,6 @@
 package com.sudoplatform.sudovirtualcards.types
 
 import android.os.Parcelable
-import androidx.annotation.Keep
-import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource.BankAccountType
 import kotlinx.parcelize.Parcelize
 import java.util.Date
 
@@ -95,67 +93,6 @@ data class CreditCardFundingSource(
 }
 
 /**
- * Representation of a bank account funding source used in the Sudo Platform Virtual Cards SDK.
- *
- * @property id See [BaseFundingSource.id].
- * @property owner See [BaseFundingSource.owner].
- * @property version See [BaseFundingSource.version].
- * @property createdAt See [BaseFundingSource.createdAt].
- * @property updatedAt See [BaseFundingSource.updatedAt].
- * @property state See [BaseFundingSource.state].
- * @property flags See [BaseFundingSource.flags].
- * @property currency See [BaseFundingSource.currency].
- * @property transactionVelocity [BaseFundingSource.transactionVelocity].
- * @property type See [BaseFundingSource.type].
- * @property bankAccountType [BankAccountType] The type of bank account.
- * @property last4 [String] Last 4 digits of the bank account number.
- * @property institutionName [String] The name of the institution at which the bank account is held.
- * @property institutionLogo [InstitutionLogo] The Mime type and the Base64 encoded image data of the
- *  institution logo if any.
- * @property unfundedAmount [CurrencyAmount] The amount by which this funding source is unfunded in the
- *  currency of the funding source, if unfunded. Otherwise null.
- */
-@Parcelize
-data class BankAccountFundingSource(
-    override val id: String,
-    override val owner: String,
-    override val version: Int,
-    override val createdAt: Date,
-    override val updatedAt: Date,
-    override val state: FundingSourceState,
-    override val flags: List<FundingSourceFlags>,
-    override val currency: String,
-    override val transactionVelocity: TransactionVelocity? = null,
-    override val type: FundingSourceType = FundingSourceType.BANK_ACCOUNT,
-    val bankAccountType: BankAccountType,
-    val last4: String,
-    val institutionName: String,
-    val institutionLogo: InstitutionLogo?,
-    val unfundedAmount: CurrencyAmount?,
-) : FundingSource() {
-    enum class BankAccountType {
-        SAVING,
-        CHECKING,
-
-        /** Unknown bank account type. Please check you have the correct (latest) version of this SDK. */
-        UNKNOWN,
-    }
-}
-
-/**
- * Representation of a financial institution's logo.
- *
- * @property type [String] Mime type of the institution logo if any.
- * @property data [String] Base64 encoded image data of institution logo if any.
- */
-@Parcelize
-@Keep
-data class InstitutionLogo(
-    val type: String,
-    val data: String,
-) : Parcelable
-
-/**
  * Representation of an enumeration depicting the funding source state in the
  * Sudo Platform Virtual Cards SDK.
  */
@@ -175,18 +112,6 @@ enum class FundingSourceState {
  * Sudo Platform Virtual Cards SDK.
  */
 enum class FundingSourceFlags {
-    /**
-     * Funding source is active but has exceeded the maximum allowable value of deferred transactions.
-     * Limited velocity constraints will apply.
-     **/
-    UNFUNDED,
-
-    /**
-     * Funding source is active but requires a refresh to re-link with the financial
-     * institution.
-     **/
-    REFRESH,
-
     /** Unknown flag. Please check you have the correct (latest) version of this SDK. */
     UNKNOWN,
 }

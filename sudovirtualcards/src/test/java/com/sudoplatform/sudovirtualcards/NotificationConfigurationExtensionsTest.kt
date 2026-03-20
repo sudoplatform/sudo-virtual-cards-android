@@ -183,7 +183,7 @@ class NotificationConfigurationExtensionsTest {
     fun `disabling funding source preserves existing rule`() {
         val fundingSourceId1 = "funding-source-id-1"
         val fundingSourceId2 = "funding-source-id-2"
-        val fundingSourceType = FundingSourceType.BANK_ACCOUNT
+        val fundingSourceType = FundingSourceType.CREDIT_CARD
 
         val initialConfig =
             NotificationConfiguration(configs = listOf())
@@ -301,7 +301,7 @@ class NotificationConfigurationExtensionsTest {
 
         val config =
             initialConfig.setVirtualCardsNotificationsForFundingSourceType(
-                fundingSourceType = FundingSourceType.BANK_ACCOUNT,
+                fundingSourceType = FundingSourceType.CREDIT_CARD,
                 enabled = true,
             )
 
@@ -316,11 +316,11 @@ class NotificationConfigurationExtensionsTest {
 
         val config =
             initialConfig.setVirtualCardsNotificationsForFundingSourceType(
-                fundingSourceType = FundingSourceType.BANK_ACCOUNT,
+                fundingSourceType = FundingSourceType.CREDIT_CARD,
                 enabled = false,
             )
 
-        val fundingSourceTypeString = FundingSourceType.BANK_ACCOUNT.toString()
+        val fundingSourceTypeString = FundingSourceType.CREDIT_CARD.toString()
 
         val expectedItem =
             NotificationFilterItem(
@@ -356,7 +356,7 @@ class NotificationConfigurationExtensionsTest {
 
     @Test
     fun `enabling funding source type when disabled removes disable rule`() {
-        val fundingSourceType = FundingSourceType.BANK_ACCOUNT
+        val fundingSourceType = FundingSourceType.CREDIT_CARD
 
         val initialConfig =
             NotificationConfiguration(configs = listOf())
@@ -378,12 +378,12 @@ class NotificationConfigurationExtensionsTest {
     @Test
     fun `disabling funding source type preserves existing rules`() {
         val fundingSourceId = "funding-source-id-1"
-        val fundingSourceType = FundingSourceType.BANK_ACCOUNT
+        val fundingSourceType = FundingSourceType.CREDIT_CARD
 
         val initialConfig =
             NotificationConfiguration(configs = listOf())
                 .initVirtualCardsNotifications()
-                .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType, enabled = false)
+                .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType, enabled = true)
                 .setVirtualCardsNotificationsForFundingSource(fundingSourceId = fundingSourceId, enabled = false)
 
         val config =
@@ -400,20 +400,19 @@ class NotificationConfigurationExtensionsTest {
                 rules = "{\"==\":[{\"var\":\"meta.fundingSourceType\"},\"$fundingSourceTypeString\"]}",
             )
 
-        config.configs shouldHaveSize 5
+        config.configs shouldHaveSize 4
 
         config.configs[0] shouldBe initialConfig.configs[0]
-        config.configs[4] shouldBe initialConfig.configs[3]
+        config.configs[3] shouldBe initialConfig.configs[2]
 
         // Not really order dependent but easiest to verify this way
         config.configs[1] shouldBe initialConfig.configs[1]
-        config.configs[2] shouldBe initialConfig.configs[2]
-        config.configs[3] shouldBe expectedItem
+        config.configs[2] shouldBe expectedItem
     }
 
     @Test
     fun `enabling funding source type preserves existing rules`() {
-        val fundingSourceType = FundingSourceType.BANK_ACCOUNT
+        val fundingSourceType = FundingSourceType.CREDIT_CARD
         val fundingSourceId1 = "funding-source-id-1"
         val fundingSourceId2 = "funding-source-id-2"
 
@@ -446,7 +445,7 @@ class NotificationConfigurationExtensionsTest {
             NotificationConfiguration(configs = listOf())
                 .initVirtualCardsNotifications()
 
-        config.isVirtualCardsNotificationForFundingSourceTypeEnabled(fundingSourceType = FundingSourceType.BANK_ACCOUNT) shouldBe true
+        config.isVirtualCardsNotificationForFundingSourceTypeEnabled(fundingSourceType = FundingSourceType.CREDIT_CARD) shouldBe true
     }
 
     @Test
@@ -465,22 +464,9 @@ class NotificationConfigurationExtensionsTest {
     }
 
     @Test
-    fun `isVirtualCardsNotificationForFundingSourceTypeEnabled() should return true if other type is disabled`() {
-        val fundingSourceType1 = FundingSourceType.CREDIT_CARD
-        val fundingSourceType2 = FundingSourceType.BANK_ACCOUNT
-
-        val config =
-            NotificationConfiguration(configs = listOf())
-                .initVirtualCardsNotifications()
-                .setVirtualCardsNotificationsForFundingSourceType(fundingSourceType = fundingSourceType1, enabled = false)
-
-        config.isVirtualCardsNotificationForFundingSourceTypeEnabled(fundingSourceType = fundingSourceType2) shouldBe true
-    }
-
-    @Test
     fun `isVirtualCardsNotificationForFundingSourceTypeEnabled() should return false for multiple disabled types`() {
         val fundingSourceType1 = FundingSourceType.CREDIT_CARD
-        val fundingSourceType2 = FundingSourceType.BANK_ACCOUNT
+        val fundingSourceType2 = FundingSourceType.CREDIT_CARD
 
         val config =
             NotificationConfiguration(configs = listOf())

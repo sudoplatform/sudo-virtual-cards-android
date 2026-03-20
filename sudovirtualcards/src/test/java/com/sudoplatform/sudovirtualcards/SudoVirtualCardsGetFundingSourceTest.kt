@@ -17,12 +17,9 @@ import com.sudoplatform.sudouser.SignInGuard
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceQuery
-import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
-import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
-import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -52,7 +49,6 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import java.net.HttpURLConnection
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceFlags as FundingSourceFlagsGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as FundingSourceStateGraphQL
 
 /**
@@ -69,7 +65,6 @@ class SudoVirtualCardsGetFundingSourceTest(
         fun data(): Collection<String> =
             listOf(
                 "stripe",
-                "checkoutBankAccount",
             )
     }
 
@@ -100,99 +95,9 @@ class SudoVirtualCardsGetFundingSourceTest(
         )
     }
 
-    private val bankAccountResponse by before {
-        JSONObject(
-            """
-            {
-                'getFundingSource': {
-                    '__typename': 'BankAccountFundingSource',
-                    'id':'id',
-                    'owner': 'owner',
-                    'version': 1,
-                    'createdAtEpochMs': 1.0,
-                    'updatedAtEpochMs': 10.0,
-                    'state': '${FundingSourceStateGraphQL.ACTIVE}',
-                    'flags': [],
-                    'currency':'USD',
-                    'transactionVelocity': {
-                        'maximum': 10000,
-                        'velocity': ['10000/P1D']
-                    },
-                    'bankAccountType': '${BankAccountType.CHECKING}',
-                    'authorization': {
-                        'language': 'language',
-                        'content': 'content',
-                        'algorithm': 'algorithm',
-                        'contentType': 'contentType',
-                        'signature': 'signature',
-                        'keyId': 'keyId',
-                        'data': 'data'
-                    },
-                    'last4':'last4',
-                    'institutionName': {
-                        '__typename': 'InstitutionName',
-                        'algorithm': 'algorithm',
-                        'plainTextType': 'string',
-                        'keyId': 'keyId',
-                        'base64EncodedSealedData': '${mockSeal("base64EncodedSealedData")}'
-                    }
-                }
-            }
-            """.trimIndent(),
-        )
-    }
-
-    private val unfundedBankAccountResponse by before {
-        JSONObject(
-            """
-            {
-                'getFundingSource': {
-                    '__typename': 'BankAccountFundingSource',
-                    'id':'id',
-                    'owner': 'owner',
-                    'version': 1,
-                    'createdAtEpochMs': 1.0,
-                    'updatedAtEpochMs': 10.0,
-                    'state': '${FundingSourceStateGraphQL.ACTIVE}',
-                    'flags': ['${FundingSourceFlagsGraphQL.UNFUNDED}'],
-                    'currency':'USD',
-                    'transactionVelocity': {
-                        'maximum': 10000,
-                        'velocity': ['10000/P1D']
-                    },
-                    'bankAccountType': '${BankAccountType.CHECKING}',
-                    'authorization': {
-                        'language': 'language',
-                        'content': 'content',
-                        'algorithm': 'algorithm',
-                        'contentType': 'contentType',
-                        'signature': 'signature',
-                        'keyId': 'keyId',
-                        'data': 'data'
-                    },
-                    'last4':'last4',
-                    'institutionName': {
-                        '__typename': 'InstitutionName',
-                        'algorithm': 'algorithm',
-                        'plainTextType': 'string',
-                        'keyId': 'keyId',
-                        'base64EncodedSealedData': '${mockSeal("base64EncodedSealedData")}'
-                    },
-                    'unfundedAmount': {
-                       'currency': 'USD',
-                        'amount': 123
-                    }
-                }
-            }
-            """.trimIndent(),
-        )
-    }
-
     private val queryResponse by before {
         mapOf(
             "stripe" to creditCardResponse,
-            "checkoutBankAccount" to bankAccountResponse,
-            "unfundedBankAccount" to unfundedBankAccountResponse,
         )
     }
 
@@ -282,98 +187,10 @@ class SudoVirtualCardsGetFundingSourceTest(
                         network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
                     }
                 }
-                is BankAccountFundingSource -> {
-                    with(result) {
-                        id shouldBe "id"
-                        owner shouldBe "owner"
-                        version shouldBe 1
-                        createdAt shouldNotBe null
-                        updatedAt shouldNotBe null
-                        state shouldBe FundingSourceState.ACTIVE
-                        currency shouldBe "USD"
-                        transactionVelocity?.maximum shouldBe 10000
-                        transactionVelocity?.velocity shouldBe listOf("10000/P1D")
-                        bankAccountType shouldBe BankAccountFundingSource.BankAccountType.CHECKING
-                        last4 shouldBe "last4"
-                        institutionName shouldNotBe null
-                        institutionLogo shouldBe null
-                    }
-                }
                 else -> {
                     fail("Unexpected FundingSource type")
                 }
             }
-
-            if (provider == "checkoutBankAccount") {
-                verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
-                verify(mockKeyManager).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
-            }
-            verify(mockApiCategory).query<String>(
-                check {
-                    assertEquals(GetFundingSourceQuery.OPERATION_DOCUMENT, it.query)
-                },
-                any(),
-                any(),
-            )
-            verify(mockSignInGuard).ensureSignedIn()
-        }
-
-    @Test
-    fun `getFundingSource() should interpret bank account funding source when no error present`() =
-        runBlocking<Unit> {
-            if (provider !== "checkoutBankAccount") {
-                return@runBlocking
-            }
-            val mockOperation: GraphQLOperation<String> = mock()
-            whenever(
-                mockApiCategory.query<String>(
-                    argThat { this.query.equals(GetFundingSourceQuery.OPERATION_DOCUMENT) },
-                    any(),
-                    any(),
-                ),
-            ).thenAnswer {
-                @Suppress("UNCHECKED_CAST")
-                (it.arguments[1] as Consumer<GraphQLResponse<String>>).accept(
-                    GraphQLResponse(unfundedBankAccountResponse.toString(), null),
-                )
-                mockOperation
-            }
-
-            val deferredResult =
-                async(Dispatchers.IO) {
-                    client.getFundingSource("id")
-                }
-            deferredResult.start()
-            delay(100L)
-            val result = deferredResult.await()
-            result shouldNotBe null
-
-            when (result) {
-                is BankAccountFundingSource -> {
-                    with(result) {
-                        id shouldBe "id"
-                        owner shouldBe "owner"
-                        version shouldBe 1
-                        createdAt shouldNotBe null
-                        updatedAt shouldNotBe null
-                        state shouldBe FundingSourceState.ACTIVE
-                        currency shouldBe "USD"
-                        transactionVelocity?.maximum shouldBe 10000
-                        transactionVelocity?.velocity shouldBe listOf("10000/P1D")
-                        bankAccountType shouldBe BankAccountFundingSource.BankAccountType.CHECKING
-                        last4 shouldBe "last4"
-                        institutionName shouldNotBe null
-                        institutionLogo shouldBe null
-                        unfundedAmount shouldBe CurrencyAmount("USD", 123)
-                    }
-                }
-                else -> {
-                    fail("Unexpected FundingSource type")
-                }
-            }
-
-            verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
-            verify(mockKeyManager).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
 
             verify(mockApiCategory).query<String>(
                 check {

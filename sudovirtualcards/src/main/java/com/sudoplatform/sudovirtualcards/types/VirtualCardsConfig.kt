@@ -25,12 +25,8 @@ import kotlinx.parcelize.Parcelize
  * @property maxTransactionAmount [List<CurrencyAmount>] The maximum transaction amount per currency.
  * @property virtualCardCurrencies [List<String>] The list of supported virtual card currencies.
  * @property fundingSourceSupportInfo [List<FundingSourceSupportInfo>] Funding source support info.
- * @property bankAccountFundingSourceCreationEnabled [Boolean] Flag determining whether bank account
- *  funding source creation flows are enabled. Mainly used to test edge cases around bank account funding.
  * @property fundingSourceClientConfiguration [List<FundingSourceClientConfiguration>] The funding source
  *  client configuration.
- * @property clientApplicationConfiguration [Map<String, ClientApplicationConfiguration>] The client application
- *  configuration keyed by application name.
  * @property pricingPolicy [PricingPolicy] The pricing policy for each funding source provider.
  */
 @Parcelize
@@ -43,10 +39,7 @@ data class VirtualCardsConfig(
     val maxTransactionAmount: List<CurrencyAmount>,
     val virtualCardCurrencies: List<String>,
     val fundingSourceSupportInfo: List<FundingSourceSupportInfo>,
-    val bankAccountFundingSourceExpendableEnabled: Boolean,
-    val bankAccountFundingSourceCreationEnabled: Boolean?,
     val fundingSourceClientConfiguration: List<FundingSourceClientConfiguration>,
-    val clientApplicationConfiguration: Map<String, ClientApplicationConfiguration>,
     val pricingPolicy: PricingPolicy?,
 ) : Parcelable
 

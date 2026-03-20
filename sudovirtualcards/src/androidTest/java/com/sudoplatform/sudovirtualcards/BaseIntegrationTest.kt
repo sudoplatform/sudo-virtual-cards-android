@@ -28,9 +28,6 @@ import com.sudoplatform.sudovirtualcards.simulator.SudoVirtualCardsSimulatorClie
 import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateAuthorizationInput
 import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateDebitInput
 import com.sudoplatform.sudovirtualcards.simulator.types.inputs.SimulateRefundInput
-import com.sudoplatform.sudovirtualcards.types.AuthorizationText
-import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderCompletionData
-import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
 import com.sudoplatform.sudovirtualcards.types.ClientApplicationData
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
@@ -43,7 +40,6 @@ import com.sudoplatform.sudovirtualcards.types.inputs.CompleteFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.CreditCardFundingSourceInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionVirtualCardInput
 import com.sudoplatform.sudovirtualcards.types.inputs.SetupFundingSourceInput
-import com.sudoplatform.sudovirtualcards.util.CreateBankAccountFundingSourceOptions
 import com.sudoplatform.sudovirtualcards.util.CreateCardFundingSourceOptions
 import com.sudoplatform.sudovirtualcards.util.FundingSourceProviders
 import com.sudoplatform.sudovirtualcards.util.LocaleUtil
@@ -196,13 +192,6 @@ abstract class BaseIntegrationTest {
                 Entitlement("sudoplatform.virtual-cards.virtualCardProvisionUserEntitled", "test", 1),
                 Entitlement("sudoplatform.virtual-cards.virtualCardTransactUserEntitled", "test", 1),
             )
-        if (config != null) {
-            if (config.bankAccountFundingSourceExpendableEnabled) {
-                entitlements.add(
-                    Entitlement("sudoplatform.virtual-cards.bankAccountFundingSourceExpendable", "test", 5),
-                )
-            }
-        }
         entitlementsAdminClient.applyEntitlementsToUser(externalId, entitlements)
         entitlementsClient.redeemEntitlements()
     }
@@ -301,51 +290,6 @@ abstract class BaseIntegrationTest {
                 options.updateCardFundingSource,
             )
         return client.completeFundingSource(completeInput)
-    }
-
-    protected suspend fun createBankAccountFundingSource(
-        virtualCardsClient: SudoVirtualCardsClient,
-        options: CreateBankAccountFundingSourceOptions?,
-    ): FundingSource {
-        val setupInput =
-            SetupFundingSourceInput(
-                options?.currency ?: "USD",
-                FundingSourceType.BANK_ACCOUNT,
-                ClientApplicationData(options?.applicationName ?: "androidApplication"),
-                options?.supportedProviders,
-            )
-        val provisionalFundingSource = virtualCardsClient.setupFundingSource(setupInput)
-        val provisioningData =
-            provisionalFundingSource.provisioningData as CheckoutBankAccountProvisioningData
-
-        val institutionId = "ins_109508" // Plaid Sandbox Bank Account - Platypus
-        val username = options?.username ?: TestData.TestBankAccountUsername.customChecking
-
-        val plaidSandboxData = virtualCardsClient.sandboxGetPlaidData(institutionId, username)
-
-        val authorizationText =
-            AuthorizationText(
-                provisioningData.authorizationText[0].language,
-                provisioningData.authorizationText[0].content,
-                provisioningData.authorizationText[0].contentType,
-                provisioningData.authorizationText[0].hash,
-                provisioningData.authorizationText[0].hashAlgorithm,
-            )
-        val accountMetadata = plaidSandboxData.accountMetadata[0]
-        val checkoutInput =
-            CompleteFundingSourceInput(
-                provisionalFundingSource.id,
-                CheckoutBankAccountProviderCompletionData(
-                    "checkout",
-                    1,
-                    FundingSourceType.BANK_ACCOUNT,
-                    plaidSandboxData.publicToken,
-                    accountMetadata.accountId,
-                    institutionId,
-                    authorizationText,
-                ),
-            )
-        return virtualCardsClient.completeFundingSource(checkoutInput)
     }
 
     protected suspend fun provisionVirtualCard(
@@ -460,14 +404,6 @@ abstract class BaseIntegrationTest {
 
     protected suspend fun isStripeEnabled(client: SudoVirtualCardsClient): Boolean =
         determineFundingSourceProviders(client).stripeCardEnabled
-
-    protected suspend fun isCheckoutEnabled(client: SudoVirtualCardsClient): Boolean {
-        val providers = determineFundingSourceProviders(client)
-        return providers.checkoutBankAccountEnabled
-    }
-
-    protected suspend fun isCheckoutBankAccountEnabled(client: SudoVirtualCardsClient): Boolean =
-        determineFundingSourceProviders(client).checkoutBankAccountEnabled
 
     protected suspend fun getProviderToUse(client: SudoVirtualCardsClient): String {
         if (isStripeEnabled(client)) {

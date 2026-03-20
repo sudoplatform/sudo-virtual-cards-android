@@ -14,11 +14,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParseException
 import com.sudoplatform.sudovirtualcards.types.BaseProvisioningData
-import com.sudoplatform.sudovirtualcards.types.BaseUserInteractionData
-import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProvisioningData
-import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountRefreshUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.ProviderProvisioningData
-import com.sudoplatform.sudovirtualcards.types.ProviderUserInteractionData
 import com.sudoplatform.sudovirtualcards.types.StripeCardProvisioningData
 import java.lang.reflect.Type
 
@@ -40,14 +36,6 @@ internal object ProviderDataTransformer {
             .registerTypeAdapter(ProviderProvisioningData::class.java, ProvisioningDataDeserializer())
             .create()
             .fromJson(String(provisioningDataBytes, Charsets.UTF_8), ProviderProvisioningData::class.java)
-    }
-
-    fun toUserInteractionData(userInteractionData: String): ProviderUserInteractionData {
-        val userInteractionDataBytes = Base64.decode(userInteractionData)
-        return GsonBuilder()
-            .registerTypeAdapter(ProviderUserInteractionData::class.java, UserInteractionDataDeserializer())
-            .create()
-            .fromJson(String(userInteractionDataBytes, Charsets.UTF_8), ProviderUserInteractionData::class.java)
     }
 
     fun extractAsStringOrThrow(
@@ -80,28 +68,9 @@ class ProvisioningDataDeserializer : JsonDeserializer<ProviderProvisioningData> 
     ): ProviderProvisioningData {
         val jObject = jElement.asJsonObject
         val provider = ProviderDataTransformer.extractAsStringOrThrow(jObject, "provider")
-        val version = ProviderDataTransformer.extractAsIntOrThrow(jObject, "version")
-        val type = ProviderDataTransformer.extractAsStringOrThrow(jObject, "type")
         return when (provider) {
             "stripe" -> context!!.deserialize(jElement, StripeCardProvisioningData::class.java)
-            "checkout" -> context!!.deserialize(jElement, CheckoutBankAccountProvisioningData::class.java)
             else -> context!!.deserialize(jElement, BaseProvisioningData::class.java)
-        }
-    }
-}
-
-class UserInteractionDataDeserializer : JsonDeserializer<ProviderUserInteractionData> {
-    @Throws(JsonParseException::class)
-    override fun deserialize(
-        jElement: JsonElement,
-        typeOfT: Type?,
-        context: JsonDeserializationContext?,
-    ): ProviderUserInteractionData {
-        val jObject = jElement.asJsonObject
-        val provider = ProviderDataTransformer.extractAsStringOrThrow(jObject, "provider")
-        return when (provider) {
-            "checkout" -> context!!.deserialize(jElement, CheckoutBankAccountRefreshUserInteractionData::class.java)
-            else -> context!!.deserialize(jElement, BaseUserInteractionData::class.java)
         }
     }
 }

@@ -15,16 +15,11 @@ import com.sudoplatform.sudovirtualcards.graphql.GetFundingSourceQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListFundingSourcesQuery
 import com.sudoplatform.sudovirtualcards.graphql.ListProvisionalFundingSourcesQuery
 import com.sudoplatform.sudovirtualcards.graphql.OnFundingSourceUpdateSubscription
-import com.sudoplatform.sudovirtualcards.graphql.RefreshFundingSourceMutation
-import com.sudoplatform.sudovirtualcards.graphql.ReviewUnfundedFundingSourceMutation
-import com.sudoplatform.sudovirtualcards.graphql.SandboxSetFundingSourceToRequireRefreshMutation
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.graphql.type.ProvisionalFundingSourceState
 import com.sudoplatform.sudovirtualcards.keys.DeviceKeyManager
-import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
 import com.sudoplatform.sudovirtualcards.types.CardType
 import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
-import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
 import com.sudoplatform.sudovirtualcards.types.FundingSource
 import com.sudoplatform.sudovirtualcards.types.FundingSourceFlags
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
@@ -36,10 +31,8 @@ import com.sudoplatform.sudovirtualcards.types.inputs.FundingSourceStateFilterIn
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.types.inputs.ProvisionalFundingSourceStateFilterInput
 import toIDFilterInput
-import com.sudoplatform.sudovirtualcards.graphql.fragment.BankAccountFundingSource as BankAccountFundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.fragment.CreditCardFundingSource as CreditCardFundingSourceFragment
 import com.sudoplatform.sudovirtualcards.graphql.fragment.ProvisionalFundingSource as ProvisionalFundingSourceFragment
-import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType as GraphqlBankAccountType
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType as GraphqlCardType
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceFilterInput as GraphQlFundingSourceFilterInput
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceFlags as GraphqlFundingSourceFlags
@@ -59,7 +52,6 @@ const val UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG = "Unsupported funding sourc
 @Suppress("ktlint:standard:property-naming")
 internal object FundingSourceTransformer {
     const val GraphQlCreditCardFundingSourceName = "CreditCardFundingSource"
-    const val GraphQlBankAccountFundingSourceName = "BankAccountFundingSource"
 
     /**
      * Transform the results of the complete funding source mutation.
@@ -79,41 +71,7 @@ internal object FundingSourceTransformer {
                         ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(fundingSource)
             }
-            GraphQlBankAccountFundingSourceName -> {
-                val fundingSource =
-                    result.onBankAccountFundingSource?.bankAccountFundingSource
-                        ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
-                this.toEntity(deviceKeyManager, fundingSource)
-            }
-            else -> {
-                throw SudoVirtualCardsClient.FundingSourceException.FailedException(UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG)
-            }
-        }
 
-    /**
-     * Transform the results of the refresh funding source mutation.
-     *
-     * @param deviceKeyManager [DeviceKeyManager] Used to retrieve keys to unseal data.
-     * @param result [RefreshFundingSourceMutation.RefreshFundingSource] The GraphQL mutation results.
-     * @return The [FundingSource] entity type.
-     */
-    fun toEntityFromRefreshFundingSourceMutationResult(
-        deviceKeyManager: DeviceKeyManager,
-        result: RefreshFundingSourceMutation.RefreshFundingSource,
-    ): FundingSource =
-        when (result.__typename) {
-            "CreditCardFundingSource" -> {
-                val fundingSource =
-                    result.onCreditCardFundingSource?.creditCardFundingSource
-                        ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
-                this.toEntity(fundingSource)
-            }
-            "BankAccountFundingSource" -> {
-                val fundingSource =
-                    result.onBankAccountFundingSource?.bankAccountFundingSource
-                        ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
-                this.toEntity(deviceKeyManager, fundingSource)
-            }
             else -> {
                 throw SudoVirtualCardsClient.FundingSourceException.FailedException(UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG)
             }
@@ -137,12 +95,7 @@ internal object FundingSourceTransformer {
                         ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(fundingSource)
             }
-            "BankAccountFundingSource" -> {
-                val fundingSource =
-                    result.onBankAccountFundingSource?.bankAccountFundingSource
-                        ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
-                this.toEntity(deviceKeyManager, fundingSource)
-            }
+
             else -> {
                 throw SudoVirtualCardsClient.FundingSourceException.FailedException(UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG)
             }
@@ -173,35 +126,6 @@ internal object FundingSourceTransformer {
     }
 
     /**
-     * Transform the results of the review unfunded funding source mutation.
-     *
-     * @param deviceKeyManager [DeviceKeyManager] Used to retrieve keys to unseal data.
-     * @param result [ReviewUnfundedFundingSourceMutation.ReviewUnfundedFundingSource] The GraphQL mutation results.
-     * @return The [FundingSource] entity type.
-     */
-    fun toEntityFromReviewUnfundedFundingSourceMutationResult(
-        deviceKeyManager: DeviceKeyManager,
-        result: ReviewUnfundedFundingSourceMutation.ReviewUnfundedFundingSource,
-    ): FundingSource =
-        when (result.__typename) {
-            "CreditCardFundingSource" -> {
-                val fundingSource =
-                    result.onCreditCardFundingSource?.creditCardFundingSource
-                        ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
-                this.toEntity(fundingSource)
-            }
-            "BankAccountFundingSource" -> {
-                val fundingSource =
-                    result.onBankAccountFundingSource?.bankAccountFundingSource
-                        ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
-                this.toEntity(deviceKeyManager, fundingSource)
-            }
-            else -> {
-                throw SudoVirtualCardsClient.FundingSourceException.FailedException(UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG)
-            }
-        }
-
-    /**
      * Transform the results of the get funding source query.
      *
      * @param deviceKeyManager [DeviceKeyManager] Used to retrieve keys to unseal data.
@@ -219,34 +143,7 @@ internal object FundingSourceTransformer {
                         ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(fundingSource)
             }
-            "BankAccountFundingSource" -> {
-                val fundingSource =
-                    result.onBankAccountFundingSource?.bankAccountFundingSource
-                        ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
-                this.toEntity(deviceKeyManager, fundingSource)
-            }
-            else -> {
-                throw SudoVirtualCardsClient.FundingSourceException.FailedException(UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG)
-            }
-        }
 
-    fun toEntityFromSandboxSetFundingSourceToRequireRefreshResult(
-        deviceKeyManager: DeviceKeyManager,
-        result: SandboxSetFundingSourceToRequireRefreshMutation.SandboxSetFundingSourceToRequireRefresh,
-    ): FundingSource =
-        when (result.__typename) {
-            "CreditCardFundingSource" -> {
-                val fundingSource =
-                    result.onCreditCardFundingSource?.creditCardFundingSource
-                        ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
-                this.toEntity(fundingSource)
-            }
-            "BankAccountFundingSource" -> {
-                val fundingSource =
-                    result.onBankAccountFundingSource?.bankAccountFundingSource
-                        ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
-                this.toEntity(deviceKeyManager, fundingSource)
-            }
             else -> {
                 throw SudoVirtualCardsClient.FundingSourceException.FailedException(UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG)
             }
@@ -270,12 +167,7 @@ internal object FundingSourceTransformer {
                         ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                 this.toEntity(fundingSource)
             }
-            "BankAccountFundingSource" -> {
-                val fundingSource =
-                    result.onBankAccountFundingSource?.bankAccountFundingSource
-                        ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
-                this.toEntity(deviceKeyManager, fundingSource)
-            }
+
             else -> {
                 throw SudoVirtualCardsClient.FundingSourceException.FailedException(UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG)
             }
@@ -345,12 +237,7 @@ internal object FundingSourceTransformer {
                                 ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
                         toEntity(fundingSource)
                     }
-                    "BankAccountFundingSource" -> {
-                        val fundingSource =
-                            it.onBankAccountFundingSource?.bankAccountFundingSource
-                                ?: throw SudoVirtualCardsClient.FundingSourceException.FailedException(FUNDING_SOURCE_NULL_ERROR_MSG)
-                        toEntity(deviceKeyManager, fundingSource)
-                    }
+
                     else -> {
                         throw SudoVirtualCardsClient.FundingSourceException.FailedException(UNSUPPORTED_FUNDING_SOURCE_TYPE_ERROR_MSG)
                     }
@@ -417,44 +304,6 @@ internal object FundingSourceTransformer {
         return GraphQlFundingSourceStateFilterInput(
             eq = Optional.presentIfNotNull(eq?.toGraphQlFundingSourceSate()),
             ne = Optional.presentIfNotNull(ne?.toGraphQlFundingSourceSate()),
-        )
-    }
-
-    /**
-     * Transform the [BankAccountFundingSourceFragment] GraphQL type to its entity type.
-     *
-     * @param deviceKeyManager [DeviceKeyManager] Used to retrieve keys to unseal data.
-     * @param fundingSource [BankAccountFundingSourceFragment] The GraphQL type.
-     * @return The [FundingSource] entity type.
-     */
-    private fun toEntity(
-        deviceKeyManager: DeviceKeyManager,
-        fundingSource: BankAccountFundingSourceFragment,
-    ): FundingSource {
-        val institutionName = fundingSource.institutionName.sealedAttribute
-        val nameKeyInfo = KeyInfo(institutionName.keyId, KeyType.PRIVATE_KEY, institutionName.algorithm)
-        val nameUnsealer = Unsealer(deviceKeyManager, nameKeyInfo)
-
-        return BankAccountFundingSource(
-            id = fundingSource.id,
-            owner = fundingSource.owner,
-            version = fundingSource.version,
-            createdAt = fundingSource.createdAtEpochMs.toDate(),
-            updatedAt = fundingSource.updatedAtEpochMs.toDate(),
-            state = fundingSource.state.toEntityState(),
-            flags = fundingSource.flags.map { toEntityFlags(it) },
-            currency = fundingSource.currency,
-            transactionVelocity = fundingSource.transactionVelocity?.toEntityTransactionVelocity(),
-            bankAccountType = fundingSource.bankAccountType.toEntityBankAccountType(),
-            last4 = fundingSource.last4,
-            institutionName = nameUnsealer.unseal(fundingSource.institutionName),
-            institutionLogo =
-                fundingSource.institutionLogo?.sealedAttribute?.let {
-                    val logoKeyInfo = KeyInfo(it.keyId, KeyType.PRIVATE_KEY, it.algorithm)
-                    val logoUnsealer = Unsealer(deviceKeyManager, logoKeyInfo)
-                    logoUnsealer.unseal(fundingSource.institutionLogo)
-                },
-            unfundedAmount = fundingSource.unfundedAmount?.toCurrencyAmount(),
         )
     }
 
@@ -552,29 +401,10 @@ internal object FundingSourceTransformer {
         return FundingSourceType.CREDIT_CARD
     }
 
-    private fun GraphqlBankAccountType.toEntityBankAccountType(): BankAccountFundingSource.BankAccountType {
-        for (value in BankAccountFundingSource.BankAccountType.entries) {
-            if (value.name == this.name) {
-                return value
-            }
-        }
-        return BankAccountFundingSource.BankAccountType.UNKNOWN
-    }
-
     private fun CreditCardFundingSourceFragment.TransactionVelocity.toEntityTransactionVelocity(): TransactionVelocity? {
         if (this.maximum == null && this.velocity == null) {
             return null
         }
         return TransactionVelocity(this.maximum, this.velocity)
     }
-
-    private fun BankAccountFundingSourceFragment.TransactionVelocity.toEntityTransactionVelocity(): TransactionVelocity? {
-        if (this.maximum == null && this.velocity == null) {
-            return null
-        }
-        return TransactionVelocity(this.maximum, this.velocity)
-    }
-
-    private fun BankAccountFundingSourceFragment.UnfundedAmount.toCurrencyAmount(): CurrencyAmount =
-        CurrencyAmount(this.currency, this.amount)
 }

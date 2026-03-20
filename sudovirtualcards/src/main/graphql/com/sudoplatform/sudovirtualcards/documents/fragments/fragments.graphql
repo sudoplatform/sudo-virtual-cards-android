@@ -60,41 +60,6 @@ fragment CreditCardFundingSource on CreditCardFundingSource {
   cardType
 }
 
-fragment BankAccountFundingSource on BankAccountFundingSource {
-  id
-  owner
-  version
-  createdAtEpochMs
-  updatedAtEpochMs
-  state
-  flags
-  currency
-  transactionVelocity {
-    maximum
-    velocity
-  }
-  bankAccountType
-  authorization {
-    language
-    content
-    contentType
-    signature
-    keyId
-    algorithm
-    data
-  }
-  last4
-  institutionName {
-    ...SealedAttribute
-  }
-  institutionLogo {
-    ...SealedAttribute
-  }
-  unfundedAmount {
-    currency
-    amount
-  }
-}
 
 fragment ProvisionalCard on ProvisionalCard {
   id
@@ -251,8 +216,6 @@ fragment VirtualCardsConfig on VirtualCardsConfig {
   fundingSourceSupportInfo {
     ...FundingSourceSupportInfo
   }
-  bankAccountFundingSourceExpendableEnabled
-  bankAccountFundingSourceCreationEnabled
   fundingSourceClientConfiguration {
     data
   }

@@ -19,7 +19,7 @@ package com.sudoplatform.sudovirtualcards.types.inputs
  * @property state [String] Required state that the address resides in.
  * @property postalCode [String] Required postal code for the cardholder's legal residence.
  * @property country [String] Required ISO-3166 Alpha-2 country code that the address resides in.
- * @property name [String] Name of the cardholder. Optional for backwards compatibility but required for checkout integrations
+ * @property name [String] Name of the cardholder. Optional for backwards compatibility.
  */
 data class CreditCardFundingSourceInput(
     val cardNumber: String,

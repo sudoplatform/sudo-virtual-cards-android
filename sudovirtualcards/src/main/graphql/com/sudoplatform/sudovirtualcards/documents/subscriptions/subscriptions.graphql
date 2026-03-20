@@ -20,8 +20,5 @@ subscription OnFundingSourceUpdate($owner: ID!) {
     ... on CreditCardFundingSource {
       ...CreditCardFundingSource
     }
-    ... on BankAccountFundingSource {
-      ...BankAccountFundingSource
-    }
   }
 }

@@ -18,19 +18,12 @@ import com.sudoplatform.sudouser.PublicKey
 import com.sudoplatform.sudouser.SignInGuard
 import com.sudoplatform.sudouser.SudoUserClient
 import com.sudoplatform.sudouser.amplify.GraphQLClient
-import com.sudoplatform.sudovirtualcards.extensions.isUnfunded
-import com.sudoplatform.sudovirtualcards.extensions.needsRefresh
 import com.sudoplatform.sudovirtualcards.graphql.CompleteFundingSourceMutation
-import com.sudoplatform.sudovirtualcards.graphql.type.BankAccountType
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.graphql.type.CompleteFundingSourceRequest
 import com.sudoplatform.sudovirtualcards.graphql.type.CreditCardNetwork
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
-import com.sudoplatform.sudovirtualcards.types.AuthorizationText
-import com.sudoplatform.sudovirtualcards.types.BankAccountFundingSource
-import com.sudoplatform.sudovirtualcards.types.CheckoutBankAccountProviderCompletionData
 import com.sudoplatform.sudovirtualcards.types.CreditCardFundingSource
-import com.sudoplatform.sudovirtualcards.types.FundingSourceFlags
 import com.sudoplatform.sudovirtualcards.types.FundingSourceState
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.StripeCardProviderCompletionData
@@ -64,7 +57,6 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import java.net.HttpURLConnection
 import java.util.concurrent.CancellationException
-import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceFlags as FundingSourceFlagsGraphQL
 import com.sudoplatform.sudovirtualcards.graphql.type.FundingSourceState as FundingSourceStateGraphQL
 
 /**
@@ -81,7 +73,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(
         fun data(): Collection<String> =
             listOf(
                 "stripe",
-                "checkoutBankAccount",
             )
     }
 
@@ -94,22 +85,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(
                     "paymentMethod",
                     FundingSourceType.CREDIT_CARD,
                 ),
-            "checkoutBankAccount" to
-                CheckoutBankAccountProviderCompletionData(
-                    "checkout",
-                    1,
-                    FundingSourceType.BANK_ACCOUNT,
-                    "public_token",
-                    "account_id",
-                    "institutionId",
-                    AuthorizationText(
-                        "language",
-                        "content",
-                        "contentType",
-                        "hash",
-                        "hashAlgorithm",
-                    ),
-                ),
         )
 
     private val input by before {
@@ -121,12 +96,8 @@ class SudoVirtualCardsCompleteFundingSourceTest(
     }
 
     private val encodedCompletionData by before {
-        if (provider == "checkoutBankAccount") {
-            null
-        } else {
-            val encodedCompletionDataString = Gson().toJson(input.completionData)
-            Base64.encode(encodedCompletionDataString.toByteArray()).toString(Charsets.UTF_8)
-        }
+        val encodedCompletionDataString = Gson().toJson(input.completionData)
+        Base64.encode(encodedCompletionDataString.toByteArray()).toString(Charsets.UTF_8)
     }
 
     private val creditCardResponse by before {
@@ -156,52 +127,9 @@ class SudoVirtualCardsCompleteFundingSourceTest(
         )
     }
 
-    private val bankAccountResponse by before {
-        JSONObject(
-            """
-            {
-                'completeFundingSource': {
-                    '__typename': 'BankAccountFundingSource',
-                    'id':'id',
-                    'owner': 'owner',
-                    'version': 1,
-                    'createdAtEpochMs': 1.0,
-                    'updatedAtEpochMs': 10.0,
-                    'state': '${FundingSourceStateGraphQL.ACTIVE}',
-                    'flags': ['${FundingSourceFlagsGraphQL.UNFUNDED}'],
-                    'currency':'USD',
-                    'transactionVelocity': {
-                        'maximum': 10000,
-                        'velocity': ['10000/P1D']
-                    },
-                    'bankAccountType': '${BankAccountType.CHECKING}',
-                    'authorization': {
-                        'language': 'language',
-                        'content': 'content',
-                        'algorithm': 'algorithm',
-                        'contentType': 'contentType',
-                        'signature': 'signature',
-                        'keyId': 'keyId',
-                        'data': 'data'
-                    },
-                    'last4':'last4',
-                    'institutionName': {
-                        '__typename': 'InstitutionName',
-                        'algorithm': 'algorithm',
-                        'plainTextType': 'string',
-                        'keyId': 'keyId',
-                        'base64EncodedSealedData': '${mockSeal("base64EncodedSealedData")}'
-                    }
-                }
-            }
-            """.trimIndent(),
-        )
-    }
-
     private val mutationResponse by before {
         mapOf(
             "stripe" to creditCardResponse,
-            "checkoutBankAccount" to bankAccountResponse,
         )
     }
 
@@ -310,28 +238,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(
                         last4 shouldBe "last4"
                         network shouldBe CreditCardFundingSource.CreditCardNetwork.VISA
                     }
-                    result.isUnfunded() shouldBe false
-                    result.needsRefresh() shouldBe false
-                }
-                is BankAccountFundingSource -> {
-                    with(result) {
-                        id shouldBe "id"
-                        owner shouldBe "owner"
-                        version shouldBe 1
-                        createdAt shouldNotBe null
-                        updatedAt shouldNotBe null
-                        state shouldBe FundingSourceState.ACTIVE
-                        flags shouldBe listOf(FundingSourceFlags.UNFUNDED)
-                        currency shouldBe "USD"
-                        transactionVelocity?.maximum shouldBe 10000
-                        transactionVelocity?.velocity shouldBe listOf("10000/P1D")
-                        bankAccountType shouldBe BankAccountFundingSource.BankAccountType.CHECKING
-                        last4 shouldBe "last4"
-                        institutionName shouldNotBe null
-                        institutionLogo shouldBe null
-                    }
-                    result.isUnfunded() shouldBe true
-                    result.needsRefresh() shouldBe false
                 }
                 else -> {
                     fail("Unexpected FundingSource type")
@@ -340,12 +246,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(
 
             verifyCompleteFundingSourceMutation()
 
-            if (provider == "checkoutBankAccount") {
-                verify(mockPublicKeyService).getCurrentKey()
-                verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
-                verify(mockKeyManager).decryptWithPrivateKey(anyString(), any(), any())
-                verify(mockKeyManager).decryptWithSymmetricKey(any<ByteArray>(), any<ByteArray>())
-            }
             verify(mockSignInGuard).ensureSignedIn()
         }
 
@@ -379,10 +279,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(
 
             verifyCompleteFundingSourceMutation()
             verify(mockSignInGuard).ensureSignedIn()
-            if (provider == "checkoutBankAccount") {
-                verify(mockPublicKeyService).getCurrentKey()
-                verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
-            }
         }
 
     @Test
@@ -424,10 +320,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(
             deferredResult.await()
 
             verifyCompleteFundingSourceMutation()
-            if (provider == "checkoutBankAccount") {
-                verify(mockPublicKeyService).getCurrentKey()
-                verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
-            }
             verify(mockSignInGuard).ensureSignedIn()
         }
 
@@ -470,10 +362,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(
             deferredResult.await()
 
             verifyCompleteFundingSourceMutation()
-            if (provider == "checkoutBankAccount") {
-                verify(mockPublicKeyService).getCurrentKey()
-                verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
-            }
             verify(mockSignInGuard).ensureSignedIn()
         }
 
@@ -516,10 +404,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(
             deferredResult.await()
 
             verifyCompleteFundingSourceMutation()
-            if (provider == "checkoutBankAccount") {
-                verify(mockPublicKeyService).getCurrentKey()
-                verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
-            }
             verify(mockSignInGuard).ensureSignedIn()
         }
 
@@ -561,10 +445,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(
             deferredResult.await()
 
             verifyCompleteFundingSourceMutation()
-            if (provider == "checkoutBankAccount") {
-                verify(mockPublicKeyService).getCurrentKey()
-                verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
-            }
             verify(mockSignInGuard).ensureSignedIn()
         }
 
@@ -607,10 +487,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(
             deferredResult.await()
 
             verifyCompleteFundingSourceMutation()
-            if (provider == "checkoutBankAccount") {
-                verify(mockPublicKeyService).getCurrentKey()
-                verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
-            }
             verify(mockSignInGuard).ensureSignedIn()
         }
 
@@ -651,10 +527,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(
             deferredResult.await()
 
             verifyCompleteFundingSourceMutation()
-            if (provider == "checkoutBankAccount") {
-                verify(mockPublicKeyService).getCurrentKey()
-                verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
-            }
             verify(mockSignInGuard).ensureSignedIn()
         }
 
@@ -683,10 +555,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(
             deferredResult.await()
 
             verifyCompleteFundingSourceMutation()
-            if (provider == "checkoutBankAccount") {
-                verify(mockPublicKeyService).getCurrentKey()
-                verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
-            }
             verify(mockSignInGuard).ensureSignedIn()
         }
 
@@ -715,10 +583,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(
 
             verifyCompleteFundingSourceMutation()
 
-            if (provider == "checkoutBankAccount") {
-                verify(mockPublicKeyService).getCurrentKey()
-                verify(mockKeyManager).generateSignatureWithPrivateKey(anyString(), any())
-            }
             verify(mockSignInGuard).ensureSignedIn()
         }
 
@@ -729,7 +593,6 @@ class SudoVirtualCardsCompleteFundingSourceTest(
                 val input = it.variables["input"] as CompleteFundingSourceRequest?
                 input?.id shouldBe "id"
                 if (encodedCompletionData != null) {
-                    // we are not recreating the bank account completion data in any of these tests...
                     input?.completionData shouldBe encodedCompletionData
                 }
                 input?.updateCardFundingSource?.getOrNull() shouldBe null

@@ -12,7 +12,6 @@ import com.amplifyframework.api.graphql.GraphQLOperation
 import com.amplifyframework.api.graphql.GraphQLResponse
 import com.amplifyframework.core.Consumer
 import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
 import com.sudoplatform.sudokeymanager.KeyManagerInterface
 import com.sudoplatform.sudouser.SignInGuard
 import com.sudoplatform.sudouser.SudoUserClient
@@ -20,15 +19,11 @@ import com.sudoplatform.sudouser.amplify.GraphQLClient
 import com.sudoplatform.sudovirtualcards.graphql.GetVirtualCardsConfigQuery
 import com.sudoplatform.sudovirtualcards.graphql.type.CardType
 import com.sudoplatform.sudovirtualcards.keys.PublicKeyService
-import com.sudoplatform.sudovirtualcards.types.CheckoutPricingPolicy
-import com.sudoplatform.sudovirtualcards.types.ClientApplicationConfiguration
 import com.sudoplatform.sudovirtualcards.types.CurrencyAmount
 import com.sudoplatform.sudovirtualcards.types.CurrencyVelocity
-import com.sudoplatform.sudovirtualcards.types.FundingSourceProviders
 import com.sudoplatform.sudovirtualcards.types.FundingSourceType
 import com.sudoplatform.sudovirtualcards.types.FundingSourceTypes
 import com.sudoplatform.sudovirtualcards.types.Markup
-import com.sudoplatform.sudovirtualcards.types.PlaidApplicationConfiguration
 import com.sudoplatform.sudovirtualcards.types.PricingPolicy
 import com.sudoplatform.sudovirtualcards.types.StripePricingPolicy
 import com.sudoplatform.sudovirtualcards.types.TieredMarkup
@@ -67,11 +62,6 @@ import com.sudoplatform.sudovirtualcards.types.FundingSourceSupportInfo as Fundi
  * using mocks and spies.
  */
 class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
-    data class SerializedClientApplicationConfiguration(
-        @SerializedName("client_application_configuration")
-        val clientApplicationConfiguration: ClientApplicationConfiguration,
-    )
-
     private val queryResponse by before {
         val fsConfig =
             FundingSourceTypes(
@@ -80,31 +70,10 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                         apiKey = "test-key",
                         fundingSourceType = FundingSourceType.CREDIT_CARD,
                     ),
-                    FundingSourceClientConfigurationEntity(
-                        apiKey = "test-key",
-                        fundingSourceType = FundingSourceType.BANK_ACCOUNT,
-                    ),
                 ),
             )
         val fsConfigStr = Gson().toJson(fsConfig)
         val encodedFsConfigData = Base64.encodeBase64String(fsConfigStr.toByteArray())
-
-        val appConfig =
-            SerializedClientApplicationConfiguration(
-                clientApplicationConfiguration =
-                    ClientApplicationConfiguration(
-                        fundingSourceProviders =
-                            FundingSourceProviders(
-                                plaid =
-                                    PlaidApplicationConfiguration(
-                                        clientName = "client-name",
-                                        androidPackageName = "android-package-name",
-                                    ),
-                            ),
-                    ),
-            )
-        val appConfigStr = Gson().toJson(appConfig)
-        val encodedAppConfigData = Base64.encodeBase64String(appConfigStr.toByteArray())
 
         val pricingPolicy =
             PricingPolicy(
@@ -124,55 +93,6 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                                                             percent = 10,
                                                         ),
                                                     minThreshold = 0,
-                                                ),
-                                            ),
-                                    ),
-                                ),
-                            ),
-                    ),
-                checkout =
-                    CheckoutPricingPolicy(
-                        creditCard =
-                            mapOf(
-                                Pair(
-                                    "DEFAULT",
-                                    TieredMarkupPolicy(
-                                        tiers =
-                                            listOf(
-                                                TieredMarkup(
-                                                    markup =
-                                                        Markup(
-                                                            flat = 2500,
-                                                            percent = 25,
-                                                        ),
-                                                    minThreshold = 0,
-                                                ),
-                                            ),
-                                    ),
-                                ),
-                            ),
-                        bankAccount =
-                            mapOf(
-                                Pair(
-                                    "DEFAULT",
-                                    TieredMarkupPolicy(
-                                        tiers =
-                                            listOf(
-                                                TieredMarkup(
-                                                    minThreshold = 0,
-                                                    markup =
-                                                        Markup(
-                                                            flat = 1000,
-                                                            percent = 0,
-                                                        ),
-                                                ),
-                                                TieredMarkup(
-                                                    minThreshold = 10000,
-                                                    markup =
-                                                        Markup(
-                                                            flat = 2000,
-                                                            percent = 0,
-                                                        ),
                                                 ),
                                             ),
                                     ),
@@ -211,10 +131,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                                 'cardType': '${CardType.PREPAID}'
                             }]
                         }],
-                        'bankAccountFundingSourceExpendableEnabled': true,
-                        'bankAccountFundingSourceCreationEnabled': true,
                         'fundingSourceClientConfiguration': {'data': '$encodedFsConfigData'},
-                        'clientApplicationsConfiguration': {'data': '$encodedAppConfigData'},
                         'pricingPolicy': {'data': '$encodedPricingPolicy'},
                     }
             }
@@ -299,7 +216,7 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
             result shouldNotBe null
 
             with(result!!) {
-                val fundingSourceTypes = listOf(FundingSourceType.CREDIT_CARD, FundingSourceType.BANK_ACCOUNT)
+                val fundingSourceTypes = listOf(FundingSourceType.CREDIT_CARD)
                 for (i in result.fundingSourceClientConfiguration.indices) {
                     result.fundingSourceClientConfiguration[i].fundingSourceType shouldBe fundingSourceTypes[i]
                     result.fundingSourceClientConfiguration[i].type shouldBe "string"
@@ -338,20 +255,6 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                             ),
                         ),
                     )
-                clientApplicationConfiguration shouldBe
-                    mapOf(
-                        Pair(
-                            "client_application_configuration",
-                            ClientApplicationConfiguration(
-                                FundingSourceProviders(
-                                    PlaidApplicationConfiguration(
-                                        "client-name",
-                                        "android-package-name",
-                                    ),
-                                ),
-                            ),
-                        ),
-                    )
                 pricingPolicy shouldBe
                     PricingPolicy(
                         StripePricingPolicy(
@@ -366,47 +269,6 @@ class SudoVirtualCardsGetVirtualCardsConfigTest : BaseTests() {
                                                     1000,
                                                 ),
                                                 0,
-                                            ),
-                                        ),
-                                    ),
-                                ),
-                            ),
-                        ),
-                        CheckoutPricingPolicy(
-                            mapOf(
-                                Pair(
-                                    "DEFAULT",
-                                    TieredMarkupPolicy(
-                                        listOf(
-                                            TieredMarkup(
-                                                Markup(
-                                                    25,
-                                                    2500,
-                                                ),
-                                                0,
-                                            ),
-                                        ),
-                                    ),
-                                ),
-                            ),
-                            mapOf(
-                                Pair(
-                                    "DEFAULT",
-                                    TieredMarkupPolicy(
-                                        listOf(
-                                            TieredMarkup(
-                                                Markup(
-                                                    0,
-                                                    1000,
-                                                ),
-                                                0,
-                                            ),
-                                            TieredMarkup(
-                                                Markup(
-                                                    0,
-                                                    2000,
-                                                ),
-                                                10000,
                                             ),
                                         ),
                                     ),
